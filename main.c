@@ -6,6 +6,9 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
+#include "magic.h"
+#include "builtin.h"
+#include "lamegame.h"
 
 #if defined(_M_X64) || defined(__x86_64__)
 static CHAR16* Arch = L"x64";
@@ -23,76 +26,50 @@ static CHAR16* ArchName = L"32-bit ARM";
 #  error Unsupported architecture
 #endif
 
-// Tri-state status for Secure Boot: -1 = Setup, 0 = Disabled, 1 = Enabled
-INTN SecureBootStatus = 0;
 
-/*
- * Query SMBIOS to display some info about the system hardware and UEFI firmware.
- * Also display the current Secure Boot status.
- */
-static EFI_STATUS PrintSystemInfo(VOID)
-{
-	EFI_STATUS Status;
-	SMBIOS_STRUCTURE_POINTER Smbios;
-	SMBIOS_STRUCTURE_TABLE* SmbiosTable;
-	SMBIOS3_STRUCTURE_TABLE* Smbios3Table;
-	UINT8 Found = 0, * Raw, * SecureBoot, * SetupMode;
-	UINTN MaximumSize, ProcessedSize = 0;
 
-	Print(L"UEFI v%d.%d (%s, 0x%08X)\n", gST->Hdr.Revision >> 16, gST->Hdr.Revision & 0xFFFF,
-		gST->FirmwareVendor, gST->FirmwareRevision);
+int shell_exec(struct fnargs *args){
+	struct fnstruct fn[] = {
+		{L"fart", 		L"Farting on you", 		fart},
+		{L"clear",		L"Clear the screen", 	clear},
+		{L"testargs", 	L"Testing function", 	testargs},
+		{L"fbinit", 	L"Init framebuffer",	fbinit},
+		{L"drawpx", 	L"Draw pixel",			drawpx},
+		{L"lame", 		L"Lame game",			lamegame},
 
-	Status = LibGetSystemConfigurationTable(&SMBIOS3TableGuid, (VOID**)&Smbios3Table);
-	if (Status == EFI_SUCCESS) {
-		Smbios.Hdr = (SMBIOS_HEADER*)Smbios3Table->TableAddress;
-		MaximumSize = (UINTN)Smbios3Table->TableMaximumSize;
-	} else {
-		Status = LibGetSystemConfigurationTable(&SMBIOSTableGuid, (VOID**)&SmbiosTable);
-		if (EFI_ERROR(Status))
-			return EFI_NOT_FOUND;
-		Smbios.Hdr = (SMBIOS_HEADER*)(UINTN)SmbiosTable->TableAddress;
-		MaximumSize = (UINTN)SmbiosTable->TableLength;
+		{L"date",		L"Get time",			date},
+		{L"exit", 		L"Exit l00n1x" ,		exit}
+	};
+	args->argv = NULL;
+	args->argc = 0;
+	CHAR16 *argv0;
+	gBS->AllocatePool(EfiBootServicesData, CMD_BUFF_SIZE*sizeof(CHAR16), (void *)&argv0);
+	SetMem(argv0, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+
+	for(int i = 0; i < StrnLen(args->stdin, CMD_BUFF_SIZE); i++){
+		if(args->stdin[i] == L' ')
+			break;
+		argv0[i] =  args->stdin[i];	
 	}
-
-	while ((Smbios.Hdr->Type != 0x7F) && (Found < 2)) {
-		Raw = Smbios.Raw;
-		if (Smbios.Hdr->Type == 0) {
-			Print(L"%a %a\n", LibGetSmbiosString(&Smbios, Smbios.Type0->Vendor),
-				LibGetSmbiosString(&Smbios, Smbios.Type0->BiosVersion));
-			Found++;
+	Print(L"\n");
+	if(StrCmp(argv0, L"help") == 0){
+		FreePool(argv0);
+		for(int i = 0; i <sizeof(fn)/sizeof(fn[0]); i++){
+			Print(L"%s :     %s\n", fn[i].name, fn[i].description);
 		}
-		if (Smbios.Hdr->Type == 1) {
-			Print(L"%a %a\n", LibGetSmbiosString(&Smbios, Smbios.Type1->Manufacturer),
-				LibGetSmbiosString(&Smbios, Smbios.Type1->ProductName));
-			Found++;
-		}
-		LibGetSmbiosString(&Smbios, -1);
-		ProcessedSize += (UINTN)Smbios.Raw - (UINTN)Raw;
-		if (ProcessedSize > MaximumSize) {
-			Print(L"%EAborting system report due to noncompliant SMBIOS%N\n");
-			return EFI_ABORTED;
+		return 0;
+	}
+	for(int i = 0; i < sizeof(fn)/sizeof(fn[0]); i++){
+		if(StrCmp(argv0, fn[i].name) == 0){
+			FreePool(argv0);
+			return fn[i].function((struct fnargs *)args);
 		}
 	}
-
-	SecureBoot = LibGetVariable(L"SecureBoot", &EfiGlobalVariable);
-	SetupMode = LibGetVariable(L"SetupMode", &EfiGlobalVariable);
-	SecureBootStatus = ((SecureBoot != NULL) && (*SecureBoot != 0)) ? 1 : 0;
-	// You'd expect UEFI platforms to properly clear SetupMode after they
-	// installed all the certs... but most of them don't. Hence Secure Boot
-	// disabled having precedence over SetupMode. Looking at you OVMF!
-	if ((SetupMode != NULL) && (*SetupMode != 0))
-		SecureBootStatus *= -1;
-	// Wasteful, but we can't highlight "Enabled"/"Setup" from a %s argument...
-	if (SecureBootStatus > 0)
-		Print(L"Secure Boot status: %HEnabled%N\n");
-	else if (SecureBootStatus < 0)
-		Print(L"Secure Boot status: %ESetup%N\n");
-	else
-		Print(L"Secure Boot status: Disabled\n");
-
-	return EFI_SUCCESS;
+	Print(L"shewax : %s : command not found", argv0);
+	FreePool(argv0);
+	return -1;
 }
-
+//END BUILTINS
 // Application entrypoint (must be set to 'efi_main' for gnu-efi crt0 compatibility)
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
@@ -112,11 +89,70 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 	 *   %E       Set output attribute to error
 	 *   %r       Human readable version of a status code
 	 */
-	Print(L"\n%H*** UEFI Simple ***%N\n\n");
+	#define BANNER L"------------------------\nWelcome to l00n1x\nThe best OS\n------------------------\n"
+	#define PROMPT L"l00n1x $> "
+	Print(BANNER);
+	SystemTable->ConOut->EnableCursor(SystemTable->ConOut, TRUE);
+	CHAR16 *buff;
+	CHAR16 *prevbuff = NULL;
+	struct fnargs *args = NULL;
+	//stores the char to append to the command buffer
+	CHAR16 tmp[2];
+	gBS->AllocatePool(EfiBootServicesData, CMD_BUFF_SIZE*sizeof(CHAR16), (void *)&buff);
+	gBS->AllocatePool(EfiBootServicesData, CMD_BUFF_SIZE*sizeof(CHAR16), (void *)&prevbuff);
+	gBS->AllocatePool(EfiBootServicesData, sizeof(struct fnargs), (void *)&args);
+	args->ImageHandle = ImageHandle;
+	args->SystemTable = SystemTable;
+	args->stdin = buff;
+	SetMem(buff, CMD_BUFF_SIZE, 0);
 
-	PrintSystemInfo();
-
-	Print(L"\n%EPress any key to exit.%N\n");
+	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
+	EFI_INPUT_KEY k = {0};
+	Print(PROMPT);
+	while(1){
+		SystemTable->ConIn->ReadKeyStroke(stdin, &k);
+		//backspace =  8
+		if(k.UnicodeChar == 0x08){
+			if(buff[0] != L'\0'){
+				Print(L"%c", 0x08);
+				buff[StrnLen(buff, CMD_BUFF_SIZE)-1] = L'\0';
+			}
+		}
+		//0x01 = up arrow
+		if(k.ScanCode == 0x01){
+			for(int j = 0; j < StrnLen(buff, CMD_BUFF_SIZE); j++){
+				Print(L"%c", 0x08);
+			}
+			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+			StrCpy(buff, prevbuff);
+			Print(buff);
+		}
+		//0x04 = right arrow
+		if(k.ScanCode == 0x03){
+			SystemTable->ConOut->SetCursorPosition(SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn+1, SystemTable->ConOut->Mode->CursorRow);
+		}
+		//0x04 = left arrow
+		if(k.ScanCode == 0x04){
+			if(SystemTable->ConOut->Mode->CursorColumn > sizeof(PROMPT)/sizeof(PROMPT[0]))
+				SystemTable->ConOut->SetCursorPosition(SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn-1, SystemTable->ConOut->Mode->CursorRow);
+		}
+		//return = UnicodeChar 13
+		if(k.UnicodeChar == 13){
+			SetMem(prevbuff,CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+			StrCpy(prevbuff, buff);
+			shell_exec(args);
+			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+			Print(L"\n%s", PROMPT);
+		}
+		if(k.UnicodeChar >= 32  && k.UnicodeChar <= 126){
+			SPrint(tmp, 1, L"%c", k.UnicodeChar);
+			if(buff[0] == L'\0')
+				StrnCpy(buff, tmp, CMD_BUFF_SIZE);
+			else
+				StrnCat(buff, tmp, CMD_BUFF_SIZE);
+			Print(tmp);
+		}
+	}
 	SystemTable->ConIn->Reset(SystemTable->ConIn, FALSE);
 	SystemTable->BootServices->WaitForEvent(1, &SystemTable->ConIn->WaitForKey, &Event);
 #if defined(_DEBUG)
@@ -126,3 +162,4 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 
 	return EFI_SUCCESS;
 }
+
