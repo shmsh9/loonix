@@ -7,7 +7,8 @@
 EFI_GRAPHICS_OUTPUT_BLT_PIXEL *newScreen(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, UINT8 colorfill);
 void drawPX(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *px, EFI_GRAPHICS_OUTPUT_PROTOCOL *gop,unsigned int x, unsigned int y, unsigned int w, unsigned int h, unsigned int scale);
 void PrintPX(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *px, int size);
-
+void drawOnScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL px, EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen, int x, int y, int w, int h, int scale);
+void drawSpriteOnScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *sprite, EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen, int x, int y, int w, int h, int screenw, int screenh, int scale);
 
 EFI_GRAPHICS_OUTPUT_BLT_PIXEL *newScreen(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, UINT8 colorfill){
     EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen = NULL;
@@ -39,5 +40,26 @@ void PrintPX(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *px, int size){
 }
 void drawScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen, EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, int w, int h){
     drawPX(screen, gop, 0, 0, w, h, 1);
+}
+void drawOnScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL px, EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen, int x, int y, int w, int h, int scale){
+    int pos = x+y*w;
+    if(pos < w*h)
+        screen[pos] =  px;
+    else
+        Print(L"ERR drawOnscren() : pos == %d w*h == %d\n", pos, w*h);
+}
+void drawSpriteOnScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL *sprite, EFI_GRAPHICS_OUTPUT_BLT_PIXEL *screen, int x, int y, int w, int h, int screenw, int screenh, int scale){
+    int j = y;
+    int k = x;
+
+    for(int i = 0; i < w*h; i++, k++){
+        if( i != 0 && i % w == 0){
+            j++;
+            k = x;
+        }
+        if(sprite[i].Reserved != 255){
+            drawOnScreen(sprite[i], screen, k, j, screenw, screenh, scale);
+        }
+    }
 }
 #endif
