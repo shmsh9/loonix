@@ -25,9 +25,6 @@ int lamegame(struct fnargs *args){
     //drawPX(icon, gop, 0, 0, 3, 6, 10);
     //drawPX(screen, gop, 0, 0, 1, gop->Mode->FrameBufferSize, 1);
     EFI_GRAPHICS_OUTPUT_BLT_PIXEL tmp = {0, 0, 255, 0};
-    for(int i = 0; i < h; i++){
-        drawOnScreen(tmp, screen, w/2, i, w, h, 0);
-    }
     drawSpriteOnScreen(icon, screen, 0, 0, 3, 3, w, h, 1);
     drawScreen(screen, gop, w, h);
     FreePool(screen);
