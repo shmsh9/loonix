@@ -11,8 +11,10 @@
 #include "lamegame.h"
 
 #if defined(_M_X64) || defined(__x86_64__)
+
 static CHAR16* Arch = L"x64";
 static CHAR16* ArchName = L"64-bit x86";
+
 #elif defined(_M_IX86) || defined(__i386__)
 static CHAR16* Arch = L"ia32";
 static CHAR16* ArchName = L"32-bit x86";
@@ -62,7 +64,7 @@ int shell_exec(struct fnargs *args){
 	for(int i = 0; i < sizeof(fn)/sizeof(fn[0]); i++){
 		if(StrCmp(argv0, fn[i].name) == 0){
 			FreePool(argv0);
-			return fn[i].function((struct fnargs *)args);
+			return (int)fn[i].function(args);
 		}
 	}
 	Print(L"shewax : %s : command not found", argv0);

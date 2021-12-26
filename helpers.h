@@ -8,17 +8,17 @@
 #include "magic.h"
 
 //HELPERS
-struct fnstruct {
-	CHAR16 *name;
-	CHAR16 *description;
-	int (*function)(struct fnargs *);
-};
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
 	CHAR16 *stdin;
 	CHAR16 **argv;
 	unsigned int argc;
+};
+struct fnstruct {
+	CHAR16 *name;
+	CHAR16 *description;
+	int (*function)(struct fnargs *);
 };
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
