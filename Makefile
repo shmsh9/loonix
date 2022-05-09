@@ -62,7 +62,7 @@ else ifeq ($(ARCH),arm)
   CROSS_COMPILE = $(GCC_ARCH)-linux-gnueabihf-
   EP_PREFIX     =
   CFLAGS        = -marm -fpic -fshort-wchar
-  LDFLAGS       = -Wl,--no-wchar-size-warning -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
+  LDFLAGS       = -Wl,-Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
   CRT0_LIBS     = -lgnuefi
   QEMU_OPTS     = -M virt -cpu cortex-a15
 else ifeq ($(ARCH),aa64)
@@ -73,7 +73,7 @@ else ifeq ($(ARCH),aa64)
   CROSS_COMPILE = $(GCC_ARCH)-linux-gnu-
   EP_PREFIX     =
   CFLAGS        = -fpic -fshort-wchar
-  LDFLAGS       = -Wl,--no-wchar-size-warning -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
+  LDFLAGS       = -Wl, -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
   CRT0_LIBS     = -lgnuefi
   QEMU_OPTS     = -M virt -cpu cortex-a57
 endif
@@ -150,7 +150,7 @@ endif
 
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
-	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -net none -hda fat:rw:image
+	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -nographic -net none -hda fat:rw:image
 image/efi/boot/boot$(ARCH).efi: main.efi
 	mkdir -p image/efi/boot
 	cp -f $< $@

@@ -37,15 +37,14 @@ int lamegame(struct fnargs *args){
     refreshPartialScreen(screen, 3, 4, x, y);
 
     while(1){
-        //drawScreen(screen);
-        //clearScreen(screen, 255);
         args->SystemTable->ConIn->ReadKeyStroke(args->SystemTable->ConIn, &k);
-        switch(k.ScanCode){
-            case 0x02: if(y+1 <= h){refreshSpritePosition(&sprite, screen, x, y, x, y+1, 255, 1); y++;}; break;
-            case 0x01: if(y-1 >= 0){refreshSpritePosition(&sprite, screen, x, y, x, y-1, 255, 1); y--;}; break;
-            case 0x03: if(x+1 <= w){refreshSpritePosition(&sprite, screen, x, y, x+1, y, 255, 1); x++;}; break;
-            case 0x04: if(x-1 >= 0){refreshSpritePosition(&sprite, screen, x, y, x-1, y, 255, 1); x--;}; break;
-        }
+        if(k.ScanCode == 0x02){if(y+1 <= h){refreshSpritePosition(&sprite, screen, x, y, x, y+1, 255, 1); y++;}}
+        if(k.ScanCode == 0x01){if(y-1 >= 0){refreshSpritePosition(&sprite, screen, x, y, x, y-1, 255, 1); y--;}}
+        if(k.ScanCode == 0x03){if(x+1 <= w){refreshSpritePosition(&sprite, screen, x, y, x+1, y, 255, 1); x++;}}
+        if(k.ScanCode == 0x04){if(x-1 >= 0){refreshSpritePosition(&sprite, screen, x, y, x-1, y, 255, 1); x--;}}
+        drawSpriteOnScreen(&sprite, screen, x , y, 1);
+        drawScreen(screen);
+
     }
     FreePool(screen->screen);
     FreePool(screen);

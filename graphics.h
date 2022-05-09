@@ -69,8 +69,8 @@ inline void drawOnScreen(EFI_GRAPHICS_OUTPUT_BLT_PIXEL px, SCREEN *screen, UINT1
             screen->screen[pos] = px;
         //Print(L"drawOnScreen() screen[%d]\n", pos);
     }
-    //else
-        //Print(L"ERR drawOnscren() : pos == %d w*h == %d\n%dx%d\n", pos, screen->bufferSize, screen->w, screen->h);
+    else
+        Print(L"ERR drawOnscren() : pos == %d w*h == %d\n%dx%d\n", pos, screen->bufferSize, screen->w, screen->h);
 }
 void drawSpriteOnScreen(SPRITE *sprite, SCREEN *screen, UINT16 x, UINT16 y, UINT8 scale){
     int j = y;
