@@ -27,9 +27,8 @@ struct fnstruct fn[] = {
 		return 0;
 	}
 	for(int i = 0; i < sizeof(fn)/sizeof(fn[0]); i++){
-		if(StrCmp(args->argv[0], fn[i].name) == 0){
+		if(StrCmp(args->argv[0], fn[i].name) == 0)
 			return (int)fn[i].function(args);
-		}
 	}
 	if(args->argv[0][0] != L'\0')
 		Print(L"shewax : %s : command not found\n", args->argv[0]);
@@ -44,7 +43,6 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	UINTN Event;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
 	CHAR16 *buff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
-	CHAR16 *prevbuff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
 	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
 	struct stack history = {NULL};
@@ -77,14 +75,32 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 		//up arrow
 		case 0x01:
 			size_t l = StrnLen(buff, CMD_BUFF_SIZE);
-			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1)+l, SystemTable->ConOut->Mode->CursorRow);
-				
+			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1), SystemTable->ConOut->Mode->CursorRow);
 			for(int j = 0; j < l; j++){
 				Print(L" ");
 			}
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, (sizeof(PROMPT)/sizeof(PROMPT[0]))-1, SystemTable->ConOut->Mode->CursorRow);
 			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
-			StrCpy(buff, prevbuff);
+			if(currhist){
+				StrCpy(buff, currhist->data);
+				currhist = currhist->next == NULL ? currhist : currhist->next;
+			}
+			posbuff = StrnLen(buff, CMD_BUFF_SIZE);
+			Print(buff);
+			break;
+		//down arrow
+		case 0x02:
+			size_t l1 = StrnLen(buff, CMD_BUFF_SIZE);
+			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1), SystemTable->ConOut->Mode->CursorRow);
+			for(int j = 0; j < l1; j++){
+				Print(L" ");
+			}
+			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, (sizeof(PROMPT)/sizeof(PROMPT[0]))-1, SystemTable->ConOut->Mode->CursorRow);
+			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+			if(currhist && currhist->prev){
+				StrCpy(buff, currhist->prev->data);
+				currhist = currhist->prev == NULL ? currhist : currhist->prev;
+			}
 			posbuff = StrnLen(buff, CMD_BUFF_SIZE);
 			Print(buff);
 			break;
@@ -107,8 +123,8 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 		switch(k.UnicodeChar){
 			//return
 			case 0xd:
-				SetMem(prevbuff,CMD_BUFF_SIZE*sizeof(CHAR16), 0);
-				StrCpy(prevbuff, buff);
+				pushstack(&history, (void *)StrDuplicate(buff));
+				currhist = history.root;
 				shell_exec(args);
 				cleanargs(args->argc, args->argv);
 				args->argc = 0;
@@ -139,7 +155,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	// If running in debug mode, use the EFI shut down call to close QEMU
 	uefi_call_wrapper(SystemTable->RuntimeServices->ResetSystem, 4, EfiResetShutdown, EFI_SUCCESS, 0, NULL);
 #endif
-
+	cleanstack(&history);
 	return EFI_SUCCESS;
 }
 int parseargs(CHAR16 *stdin, CHAR16 **argv){
@@ -253,22 +269,22 @@ int drawpx(struct fnargs *args){
 }
 int ls(struct fnargs *args){
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  EFI_FILE_PROTOCOL *RootDir;
-  UINT8 Buffer[1024];
-  UINTN BufferSize;
-  EFI_FILE_INFO *FileInfo;
-  uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&FileSystem);
-  uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &RootDir);
-  while (TRUE) {
-  	BufferSize = sizeof(Buffer);
-    uefi_call_wrapper(RootDir->Read, 3, RootDir, &BufferSize, Buffer);
-    if (BufferSize == 0) {
-    	break;
-    }
+  	EFI_FILE_PROTOCOL *RootDir;
+  	UINT8 Buffer[1024];
+  	UINTN BufferSize;
+  	EFI_FILE_INFO *FileInfo;
+  	uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&FileSystem);
+  	uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &RootDir);
+  	while(1){
+  		BufferSize = sizeof(Buffer);
+    	uefi_call_wrapper(RootDir->Read, 3, RootDir, &BufferSize, Buffer);
+    	if (BufferSize == 0) {
+    		break;
+    	}
 		FileInfo = (EFI_FILE_INFO *)Buffer;
-    Print(L"%s\n", FileInfo->FileName);
+    	Print(L"%s\n", FileInfo->FileName);
 	}
-  uefi_call_wrapper(RootDir->Close, 1, RootDir);
+  	uefi_call_wrapper(RootDir->Close, 1, RootDir);
 	return 0;
 }
 void rmchar(CHAR16 *str, size_t pos){

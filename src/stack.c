@@ -3,7 +3,11 @@
 
 void pushstack(struct stack *stack, void *data){
 	struct node *n = malloc(sizeof(struct node));
+	n->data = data;
+	n->prev = NULL;
 	n->next = stack->root;
+	if(stack->root)
+		stack->root->prev = n;
 	stack->root = n;
 }
 void cleanstack(struct stack *stack){

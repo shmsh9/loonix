@@ -3,6 +3,7 @@
 #include "std.h"
 struct node{
 	struct node *next;
+	struct node *prev;
 	void 		*data;
 };
 struct stack {

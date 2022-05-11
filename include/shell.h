@@ -18,6 +18,7 @@ struct fnstruct {
 #include "magic.h"
 #include "lamegame.h"
 #include "elf.h"
+#include "stack.h"
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);
