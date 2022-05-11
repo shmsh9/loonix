@@ -4,21 +4,18 @@
  * See COPYING for the full licensing terms.
  */
 #include "shell.h"
-void test(){
-	Print(L"TestFN\n");
-}
 int shell_exec(struct fnargs *args){
 struct fnstruct fn[] = {
-		{L"fart", 			L"Farting on you", 			fart},
-		{L"clear",			L"Clear the screen", 		clear},
-		{L"testargs", 	L"Testing function",		testargs},
-		{L"fbinit", 		L"Init framebuffer",		fbinit},
-		{L"drawpx", 		L"Draw pixel",					drawpx},
-		{L"lame", 			L"Lame game",						lamegame},
-		{L"ls",					L"List files",					ls},
-		{L"date",				L"Get time",						date},
-		{L"exit", 			L"Exit l00n1x" ,				exitshell},
-		{L"elf",				L"Load elf", 						elfmain}
+		{L"fart",	 L"Farting on you",      fart},
+		{L"clear",	 L"Clear the screen",    clear},
+		{L"testargs",L"Testing function",    testargs},
+		{L"fbinit",	 L"Init framebuffer",    fbinit},
+		{L"drawpx",	 L"Draw pixel",          drawpx},
+		{L"lame",	 L"Lame game",           lamegame},
+		{L"ls",	     L"List files",          ls},
+		{L"date",	 L"Get time",            date},
+		{L"exit", 	 L"Exit l00n1x",         exitshell},
+		{L"elf",	 L"Load elf",            elfmain}
 	
 };
 	args->argc = parseargs(args->stdin,args->argv);
@@ -34,7 +31,8 @@ struct fnstruct fn[] = {
 			return (int)fn[i].function(args);
 		}
 	}
-	Print(L"shewax : %s : command not found", args->argv[0]);
+	if(args->argv[0][0] != L'\0')
+		Print(L"shewax : %s : command not found\n", args->argv[0]);
 	return -1;
 }
 //END BUILTINS
@@ -42,11 +40,12 @@ struct fnstruct fn[] = {
 EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	#define BANNER L"------------------------\nWelcome to l00n1x\nThe best OS\n------------------------\n"
 	#define PROMPT L"l00n1x $> "
-	//Print(BANNER);
+	Print(BANNER);
 	UINTN Event;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
-	CHAR16 *buff = calloc(CMD_BUFF_SIZE, sizeof(CHAR16));
-	CHAR16 *prevbuff = calloc(CMD_BUFF_SIZE, sizeof(CHAR16));
+	CHAR16 *buff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
+	CHAR16 *prevbuff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
+	int posbuff = 0;
 	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
 	CHAR16 tmp[2];
 	args->ImageHandle = ImageHandle;
@@ -57,51 +56,80 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	Print(PROMPT);
 	while(1){
 		uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, stdin, &k);
-		//backspace =  8
-		if(k.ScanCode == 0x08){
-			if(buff[0] != L'\0'){
-				Print(L"%c", 0x08);
-				Print(L"%c", L' ');
-				Print(L"%c", 0x08);
-				buff[StrnLen(buff, CMD_BUFF_SIZE)-1] = L'\0';
+		switch(k.ScanCode){
+		//backspace
+		case 0x08:
+			if(SystemTable->ConOut->Mode->CursorColumn >= sizeof(PROMPT)/sizeof(PROMPT[0])){
+				if(buff[0] != L'\0'){
+					if(posbuff-1 >= 0){
+						posbuff--;
+					}
+					rmchar(buff, posbuff);
+					uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn-1, SystemTable->ConOut->Mode->CursorRow);
+					size_t oldcurpos = SystemTable->ConOut->Mode->CursorColumn;
+					Print(L"%s ", buff+posbuff);
+					uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, oldcurpos, SystemTable->ConOut->Mode->CursorRow);
+				}
 			}
-		}
-		//0x01 = up arrow
-		if(k.ScanCode == 0x01){
-			for(int j = 0; j < StrnLen(buff, CMD_BUFF_SIZE); j++){
-				Print(L"%c", 0x08);
+			break;
+		//up arrow
+		case 0x01:
+			size_t l = StrnLen(buff, CMD_BUFF_SIZE);
+			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1)+l, SystemTable->ConOut->Mode->CursorRow);
+				
+			for(int j = 0; j < l; j++){
+				Print(L" ");
 			}
+			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, (sizeof(PROMPT)/sizeof(PROMPT[0]))-1, SystemTable->ConOut->Mode->CursorRow);
 			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
 			StrCpy(buff, prevbuff);
+			posbuff = StrnLen(buff, CMD_BUFF_SIZE);
 			Print(buff);
-		}
-		//0x04 = right arrow
-		if(k.ScanCode == 0x03){
+			break;
+		//right arrow
+		case 0x03:
+			if(posbuff+1 < CMD_BUFF_SIZE){
+				posbuff++;
+			}
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn+1, SystemTable->ConOut->Mode->CursorRow);
-		}
-		//0x04 = left arrow
-		if(k.ScanCode == 0x04){
-			if(SystemTable->ConOut->Mode->CursorColumn > sizeof(PROMPT)/sizeof(PROMPT[0]))
+			break;	
+		//left arrow	
+		case 0x04:
+			if(posbuff-1 >= 0){
+				posbuff--;
+			}
+			if(SystemTable->ConOut->Mode->CursorColumn >= sizeof(PROMPT)/sizeof(PROMPT[0]))
 				uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn-1, SystemTable->ConOut->Mode->CursorRow);
+			break;	
 		}
-		//return = UnicodeChar 13
-		if(k.UnicodeChar == 13){
-			SetMem(prevbuff,CMD_BUFF_SIZE*sizeof(CHAR16), 0);
-			StrCpy(prevbuff, buff);
-			shell_exec(args);
-			SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
-			Print(L"\n%s", PROMPT);
-		}
-		if(k.UnicodeChar >= 32  && k.UnicodeChar <= 126){
-			SPrint(tmp, 1, L"%c", k.UnicodeChar);
-			if(buff[0] == L'\0')
-				StrnCpy(buff, tmp, CMD_BUFF_SIZE);
-			else
-				StrnCat(buff, tmp, CMD_BUFF_SIZE);
-			Print(tmp);
-		}
-		cleanargs(args->argc, args->argv);
-		args->argc = 0;
+		switch(k.UnicodeChar){
+			//return
+			case 0xd:
+				SetMem(prevbuff,CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+				StrCpy(prevbuff, buff);
+				shell_exec(args);
+				cleanargs(args->argc, args->argv);
+				args->argc = 0;
+				SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+				posbuff = 0;
+				Print(L"%s", PROMPT);
+				break;
+			default:
+				//printablechar
+				if(k.UnicodeChar >= 0x20  && k.UnicodeChar <= 0x7f){
+					SPrint(tmp, 1, L"%c", k.UnicodeChar);
+					if(posbuff+1 < CMD_BUFF_SIZE)
+						posbuff++;
+					if(buff[0] == L'\0')
+						StrnCpy(buff, tmp, CMD_BUFF_SIZE);
+					else
+						//Danger buff-1 /!\ /
+						buff[posbuff-1] = k.UnicodeChar;
+					Print(tmp);
+				}
+				break;
+		}	
+	
 	}
 	uefi_call_wrapper(SystemTable->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
 	uefi_call_wrapper(SystemTable->BootServices->WaitForEvent,3,1, &SystemTable->ConIn->WaitForKey, &Event);
@@ -115,6 +143,8 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 int parseargs(CHAR16 *stdin, CHAR16 **argv){
 	int ret = 1;
 	int l = StrnLen(stdin, CMD_BUFF_SIZE);
+	while(*stdin == L' ')
+		stdin++;
 	for(int i = 0; i < l; i++){
 		if(stdin[i] == L' '){
 			for(int j = i; j < l; j++)
@@ -127,7 +157,7 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 	}
 	if(ret > 255){
 		ret = 1;
-		Print(L"shewax : error : to much args");
+		Print(L"shewax : error : to much args\n");
 		return ret;
 	}
 	CHAR16 *tmp = calloc(l,sizeof(CHAR16));
@@ -154,6 +184,10 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 		argv[x] = StrDuplicate(tmp);
 	}
 	else{
+		for(int h = 0; h < l; h++){
+			if(stdin[h] == L' ')
+				stdin[h] = L'\0';
+		}
 		argv[0] = StrDuplicate(stdin);
 	}
 	free(tmp);
@@ -178,7 +212,7 @@ int testargs(struct fnargs *args){
 	return 0;
 }
 int fart(struct fnargs *args){
-	Print(L"Nuage de fart de nene (-.-)");
+	Print(L"Nuage de fart de nene (-.-)\n");
 	return 0;
 }
 int clear(struct fnargs *args){
@@ -188,7 +222,7 @@ int clear(struct fnargs *args){
 int date(struct fnargs *args){
 	EFI_TIME Time;
 	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
-	Print(L"%d/%d/%d %d:%d:%d UTC", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
+	Print(L"%d/%d/%d %d:%d:%d UTC\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
 	return 0;
 }
 int fbinit(struct fnargs *args){
@@ -235,4 +269,9 @@ int ls(struct fnargs *args){
   uefi_call_wrapper(RootDir->Close, 1, RootDir);
 	return 0;
 }
-
+void rmchar(CHAR16 *str, size_t pos){
+	size_t len = StrnLen(str, CMD_BUFF_SIZE);
+	for(int i = pos; i < len; i++){
+		str[i] = str[i+1];
+	}
+}

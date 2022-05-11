@@ -279,7 +279,7 @@ int elfmain(struct fnargs *fnargs){
 		return -1;
 	}
 	if(!magichck(buff)){
-		Print(L"invalid elf magic number");
+		Print(L"invalid elf magic number\n");
 		free(buff);
 		fclose(f);
 		return -1;

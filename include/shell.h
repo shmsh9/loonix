@@ -21,7 +21,6 @@ struct fnstruct {
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);
-void test();
 EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable);
 int exitshell(struct fnargs *args);
 int testargs(struct fnargs *args);
@@ -31,5 +30,6 @@ int date(struct fnargs *args);
 int fbinit(struct fnargs *args);
 int drawpx(struct fnargs *args);
 int ls(struct fnargs *args);
+void rmchar(CHAR16 *str, size_t pos);
 
 #endif

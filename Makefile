@@ -150,7 +150,7 @@ main.o:
 	@echo  [CC]  $(notdir $@)
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
-	@ld -r *.o -o main_.o
+	@ld --oformat pe-x86-64 -r *.o -o main_.o
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi

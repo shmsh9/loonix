@@ -34,7 +34,6 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 #if defined(_GNU_EFI)
 	InitializeLib(ImageHandle, SystemTable);
 #endif
-	Print(L"Calling shell()\n");
 	shell(ImageHandle, SystemTable);
 	return EFI_SUCCESS;
 }
