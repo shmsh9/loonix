@@ -134,7 +134,7 @@ all: $(GNUEFI_DIR)/$(GNUEFI_ARCH)/lib/libefi.a main.efi
 $(GNUEFI_DIR)/$(GNUEFI_ARCH)/lib/libefi.a:
 	$(MAKE) -C$(GNUEFI_DIR) CROSS_COMPILE=$(CROSS_COMPILE) ARCH=$(GNUEFI_ARCH) $(GNUEFI_LIBS)
 
-%.efi: %.o
+main.efi:main.o
 	@echo  [LD]  $(notdir $@)
 ifeq ($(CRT0_LIBS),)
 	@$(CC) $(LDFLAGS) $< -o $@ $(LIBS)
@@ -143,12 +143,15 @@ else
 	@$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel* \
 	            -j .rela* -j .reloc -j .eh_frame -O binary $*.elf $@
 	@rm -f $*.elf
+	@rm -f *.o
 endif
 
-%.o: %.c
+main.o:
 	@echo  [CC]  $(notdir $@)
-	@$(CC) $(CFLAGS) -ffreestanding -c $<
-
+	@#$(CC) $(CFLAGS) -ffreestanding -c $<
+	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
+	@ld -r *.o -o main_.o
+	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
 	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -nographic -net none -hda fat:rw:image
