@@ -44,6 +44,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
 	CHAR16 *buff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
+	size_t lbuff = 0;
 	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
 	struct stack history = {NULL};
 	struct node *currhist = NULL;
@@ -56,6 +57,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	Print(PROMPT);
 	while(1){
 		uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, stdin, &k);
+		lbuff = 0;
 		switch(k.ScanCode){
 		//backspace
 		case 0x08:
@@ -74,9 +76,9 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 			break;
 		//up arrow
 		case 0x01:
-			size_t l = StrnLen(buff, CMD_BUFF_SIZE);
+			lbuff = StrnLen(buff, CMD_BUFF_SIZE);
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1), SystemTable->ConOut->Mode->CursorRow);
-			for(int j = 0; j < l; j++){
+			for(int j = 0; j < lbuff; j++){
 				Print(L" ");
 			}
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, (sizeof(PROMPT)/sizeof(PROMPT[0]))-1, SystemTable->ConOut->Mode->CursorRow);
@@ -90,9 +92,9 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 			break;
 		//down arrow
 		case 0x02:
-			size_t l1 = StrnLen(buff, CMD_BUFF_SIZE);
+			lbuff = StrnLen(buff, CMD_BUFF_SIZE);
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1), SystemTable->ConOut->Mode->CursorRow);
-			for(int j = 0; j < l1; j++){
+			for(int j = 0; j < lbuff; j++){
 				Print(L" ");
 			}
 			uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, (sizeof(PROMPT)/sizeof(PROMPT[0]))-1, SystemTable->ConOut->Mode->CursorRow);
