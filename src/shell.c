@@ -47,6 +47,8 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	CHAR16 *prevbuff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
 	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
+	struct stack history = {NULL};
+	struct node *currhist = NULL;
 	CHAR16 tmp[2];
 	args->ImageHandle = ImageHandle;
 	args->SystemTable = SystemTable;
