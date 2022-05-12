@@ -45,7 +45,8 @@ ifeq ($(ARCH),x64)
   EP_PREFIX     =
   CFLAGS        = -m64 -mno-red-zone
   LDFLAGS       = -Wl,-dll -Wl,--subsystem,$(SUBSYSTEM)
-	LDARCH				= -oformat pe-x86-64
+  LDARCH        = --oformat=pe-x86-64
+
 else ifeq ($(ARCH),ia32)
   GNUEFI_ARCH   = ia32
   GCC_ARCH      = i686
@@ -150,7 +151,7 @@ main.o:
 	@echo  [CC]  $(notdir $@)
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
-	@ld $(LDARCH) -r *.o -o main_.o
+	@ld -r *.o -o main_.o $(LDARCH)
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
