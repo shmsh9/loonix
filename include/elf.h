@@ -65,6 +65,5 @@ bool magichck(const byte *buff);
 int usage(CHAR16 **argv);
 void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
-
 int elfmain(struct fnargs *fnargs);
 #endif

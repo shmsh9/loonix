@@ -139,10 +139,6 @@ void parself(struct elf *elf, byte *buff){
 bool magichck(const byte *buff){
 	return *(qbyte *)buff == 0x464c457f || *(qbyte *)buff == 0x7f454c46;
 }
-int usage(CHAR16 **argv){
-	Print(L"usage : %s <elffile>\n", argv[0]);
-	return -1;
-}
 void printheader(const struct elf *elf){
 	CHAR16 *iset[0xF4] = {L"unknown"};
 	iset[0x2]  = L"SPARC";
@@ -253,15 +249,27 @@ void printseg(const struct elf *elf){
 	}
 	*/
 }
+int loadelf(struct elf *elf, byte *buff, struct fnargs *fnargs){
+	Print(L"Loading program at 0x%X\n", (buff+elf->header.header_size+elf->header.program_entry));
+	int (*fnptr)(void *) = (buff+elf->header.header_size+elf->header.program_entry);
+	int ret = fnptr(fnargs);
+	Print(L"Program returned %d\n", ret);
+}
+int usage(CHAR16 **argv){
+	Print(L"usage : %s [ -l --load | -i --info ] <elffile>\n", argv[0]);
+	return -1;
+}
 int elfmain(struct fnargs *fnargs){
 	int argc = fnargs->argc;
 	CHAR16 **argv = fnargs->argv;
-	if(argc < 2)
+	if(argc < 3)
+		return usage(argv);
+	if(StrCmp(argv[1], L"-h") == 0 || StrCmp(argv[1], L"--help") == 0)
 		return usage(argv);
 
-	FILE f = fopen(argv[1], L"r", fnargs->ImageHandle);
+	FILE f = fopen(argv[2], L"r", fnargs->ImageHandle);
 	if(!f){
-		Print(L"error : cannot open %s\n", argv[1]);
+		Print(L"error : cannot open %s\n", argv[2]);
 		return -1;
 	}
 	size_t fs = fsize(f);
@@ -286,10 +294,13 @@ int elfmain(struct fnargs *fnargs){
 	}
 	struct elf elf;
 	parself(&elf, buff);
-	printheader(&elf);
-	//printseg(&elf);
+	if(StrCmp(argv[1], L"-l") == 0 || StrCmp(argv[1], L"--load") == 0)
+		loadelf(&elf, buff, fnargs);
+	if(StrCmp(argv[1], L"-i") == 0 || StrCmp(argv[1], L"--info") == 0){
+		printheader(&elf);
+		printseg(&elf);
+	}
 	fclose(f);
-	//((void (*)(void))(buff+elf.header.program_entry))();
 	free(elf.program.entries);
 	free(buff);
 	return 0;

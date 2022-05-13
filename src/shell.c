@@ -5,24 +5,24 @@
  */
 #include "shell.h"
 struct fnstruct fn[] = {
-		{L"fart",	   L"Farting on you",      fart},
-		{L"clear",	 L"Clear the screen",    clear},
-		{L"testargs",L"Testing function",    testargs},
-		{L"fbinit",	 L"Init framebuffer",    fbinit},
-		{L"drawpx",	 L"Draw pixel",          drawpx},
-		{L"lame",	   L"Lame game",           lamegame},
-		{L"ls",	     L"List files",          ls},
-		{L"date",	   L"Get time",            date},
-		{L"exit", 	 L"Exit l00n1x",         exitshell},
-		{L"elf",	   L"Load elf",            elfmain},
-		{L"testkey", L"Test key input",      testkey}
+		{L"fart",L"    : Farting on you",      fart},
+		{L"clear",L"   : Clear the screen",    clear},
+		{L"testargs",L": Testing function",    testargs},
+		{L"fbinit",L"  : Init framebuffer",    fbinit},
+		{L"drawpx",L"  : Draw pixel",          drawpx},
+		{L"lame",L"    : Lame game",           lamegame},
+		{L"ls",L"      : List files",          ls},
+		{L"date",L"    : Get time",            date},
+		{L"exit",L"    : Exit l00n1x",         exitshell},
+		{L"elf",L"     : Load elf",            elfmain},
+		{L"testkey",L" : Test key input",      testkey}
 };
 int shell_exec(struct fnargs *args){
 	args->argc = parseargs(args->stdin,args->argv);
-	Print(L"\n");
 	if(StrCmp(args->argv[0], L"help") == 0){
+		Print(L"[Builtin Commands]\n");
 		for(int i = 0; i <sizeof(fn)/sizeof(fn[0]); i++){
-			Print(L"%s :     %s\n", fn[i].name, fn[i].description);
+			Print(L"%s %s\n", fn[i].name, fn[i].description);
 		}
 		return 0;
 	}
@@ -58,14 +58,14 @@ size_t completion(CHAR16 *buff){
 //END BUILTINS
 // Application entrypoint (must be set to 'efi_main' for gnu-efi crt0 compatibility)
 EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
-	#define BANNER L"------------------------\nWelcome to l00n1x\nThe best OS\n------------------------\n"
+	EFI_TIME Time;
+	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
 	#define PROMPT L"l00n1x $> "
-	Print(BANNER);
+	Print(L"Date : %d/%d/%d %d:%d:%d UTC\nType help to get some\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
 	UINTN Event;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
 	CHAR16 *buff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
-	size_t lbuff = 0;
 	size_t completion_size = 0;
 	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
 	struct stack history = {NULL};
@@ -79,7 +79,6 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	Print(PROMPT);
 	while(1){
 		uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, stdin, &k);
-		lbuff = 0;
 		switch(k.ScanCode){
 		//backspace
 		case 0x08:
@@ -136,6 +135,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 		switch(k.UnicodeChar){
 			//return
 			case 0x0d:
+				Print(L"\n");
 				if(buff[0] != L'\0')
 					pushstack(&history, (void *)StrDuplicate(buff));
 				currhist = history.root;
