@@ -1,8 +1,7 @@
-#include "shell.h"
-#include "std.h"
-#include "syscall.h"
-size_t main(struct fnargs *args){
-	struct args a = {123,4096,5,1,1,1};
-	args->syscalls[SYS_WRITE].fn(a);
-	return args->argc;
+#include "app.h"
+
+size_t main(int argc, CHAR16 **argv){
+	CHAR16 hello[] = L"HELLOO\n";
+	SYSCALL(SYS_PRINT,((struct args){hello,0,0,0,0,0}));
+	return 6666;
 }

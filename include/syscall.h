@@ -3,6 +3,7 @@
 #include <efi.h>
 #include <efilib.h>
 #include "std.h"
+
 struct args{
 	size_t arg0;
 	size_t arg1;
@@ -14,11 +15,16 @@ struct args{
 
 struct syscall{
 	size_t (*fn)(struct args);
-	size_t nargs;
 };
 size_t write(struct args);
 size_t read(struct args);
-size_t syscall_wrapper(size_t callnum, struct args args, struct syscall *sys);
+size_t open(struct args);
+size_t print(struct args);
+
+#define SYSCALL(SYS_NUM, args) (syscalls[SYS_NUM].fn(args))
+
 #define SYS_READ  0
 #define SYS_WRITE 1
+#define SYS_OPEN  2
+#define SYS_PRINT 3
 #endif

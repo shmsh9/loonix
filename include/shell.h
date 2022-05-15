@@ -12,6 +12,7 @@ struct fnargs{
 	CHAR16 *argv[256];
 	unsigned int argc;
 	struct syscall *syscalls;
+	void *printfn;
 };
 struct fnstruct {
 	CHAR16 *name;

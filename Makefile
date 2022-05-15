@@ -154,7 +154,7 @@ main.o:
 	@ld -r *.o -o main_.o $(LDARCH)
 	@bash apps/build_bin.sh
 	@mkdir image
-	@cp apps/test.bin image
+	@cp apps/*.bin image
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi

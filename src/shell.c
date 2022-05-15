@@ -4,6 +4,12 @@
  * See COPYING for the full licensing terms.
  */
 #include "shell.h"
+struct syscall syscalls[] = {
+	{read},
+	{write},
+	{open},
+	{print}
+};
 struct fnstruct fn[] = {
 		{L"fart",L"    : Farting on you",      fart},
 		{L"clear",L"   : Clear the screen",    clear},
@@ -17,10 +23,6 @@ struct fnstruct fn[] = {
 		{L"elf",L"     : Load elf",            elfmain},
 		{L"testkey",L" : Test key input",      testkey},
 		{L"cat",L"     : Print file content",  cat}
-};
-struct syscall syscalls[] = {
-	{read,  3},
-	{write, 3}	
 };
 
 int shell_exec(struct fnargs *args){
@@ -81,7 +83,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	args->SystemTable = SystemTable;
 	args->buff = buff;
 	args->syscalls = syscalls;
-
+	args->printfn = Print;
 	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
 	EFI_INPUT_KEY k = {0};
 	Print(PROMPT);
