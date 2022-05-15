@@ -25,12 +25,10 @@ inline size_t syscall_wrapper(size_t callnum, struct args args, struct syscall *
 	return sys[callnum].fn(args);	
 }
 size_t write(struct args args){
-	/*
 	int fd = args.arg0;
 	const void *buff = (void *)args.arg1;
 	size_t count = args.arg2;
 	Print(L"fd == %d\nbuff == 0x%x\ncount == %d\n", fd, buff, count);
-	*/
 	return 0;
 }
 size_t read(struct args args){

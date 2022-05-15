@@ -166,19 +166,11 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	struct fnargs * (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
+	size_t (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
 	Print(L"Loading program at 0x%x\n", fnptr);
 	Print(L"Sending arg ptr at 0x%x\n", fnargs);
-	struct fnargs *ret = fnargs;
-	__asm__ __volatile__(		
-		"movq %0, %%rdi\n\t"
-		"call *%%rax\n\t"
-		"movq %%rax, %0"
-		:  "=r"(ret) 
-		:  "r"(fnptr)
-	);
-	//struct fnargs *ret = fnptr(fnargs);
-	Print(L"Program returned 0x%d\n", fnargs);
+	size_t ret = fnptr(fnargs);
+	Print(L"Program returned 0x%x\n", ret);
 	free(prog);
 	return 0;
 }
