@@ -6,9 +6,12 @@
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
-	CHAR16 *stdin;
+	CHAR16 *buff;
+	EFI_SIMPLE_TEXT_IN_PROTOCOL stdin;
+	EFI_SIMPLE_TEXT_OUT_PROTOCOL stdout;
 	CHAR16 *argv[256];
 	unsigned int argc;
+	struct syscall *syscalls;
 };
 struct fnstruct {
 	CHAR16 *name;
@@ -19,6 +22,8 @@ struct fnstruct {
 #include "lamegame.h"
 #include "elf.h"
 #include "stack.h"
+#include "cat.h"
+#include "syscall.h"
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);

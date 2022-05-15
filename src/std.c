@@ -1,8 +1,8 @@
 #include "std.h"
 
-void *malloc(size_t sz){
+void *malloc(unsigned long long sz){
 	void *r = 0x0;
-	uefi_call_wrapper(gBS->AllocatePool,3,EfiBootServicesData, sz, &r);
+	uefi_call_wrapper(gBS->AllocatePool,3,EfiLoaderData, sz, &r);
 	if(!r){
 		Print(L"error : malloc() : failure\n");
 	}
@@ -23,7 +23,14 @@ FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
   uefi_call_wrapper(BS->HandleProtocol, 3, image, &lipGuid, (void **) &loaded_image);
 	uefi_call_wrapper(BS->HandleProtocol, 3,loaded_image->DeviceHandle, &fsGuid, (VOID*)&IOVolume);
 	uefi_call_wrapper(IOVolume->OpenVolume, 2,IOVolume, &vol);
-	uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY| EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+	if(StrCmp(mode, L"r") == 0)
+		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+	/*
+	if(StrCmp(mode, L"w") == 0)
+		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_WRITE, EFI_FILE_CREATE | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+	if(StrCmp(mode, L"w+") == 0)
+		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_WRITE | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+	*/
 	return ret;
 }
 void fclose(FILE f){

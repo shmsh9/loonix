@@ -15,10 +15,16 @@ struct fnstruct fn[] = {
 		{L"date",L"    : Get time",            date},
 		{L"exit",L"    : Exit l00n1x",         exitshell},
 		{L"elf",L"     : Load elf",            elfmain},
-		{L"testkey",L" : Test key input",      testkey}
+		{L"testkey",L" : Test key input",      testkey},
+		{L"cat",L"     : Print file content",  cat}
 };
+struct syscall syscalls[] = {
+	{read,  3},
+	{write, 3}	
+};
+
 int shell_exec(struct fnargs *args){
-	args->argc = parseargs(args->stdin,args->argv);
+	args->argc = parseargs(args->buff,args->argv);
 	if(StrCmp(args->argv[0], L"help") == 0){
 		Print(L"[Builtin Commands]\n");
 		for(int i = 0; i <sizeof(fn)/sizeof(fn[0]); i++){
@@ -73,7 +79,9 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	CHAR16 tmp[2];
 	args->ImageHandle = ImageHandle;
 	args->SystemTable = SystemTable;
-	args->stdin = buff;
+	args->buff = buff;
+	args->syscalls = syscalls;
+
 	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
 	EFI_INPUT_KEY k = {0};
 	Print(PROMPT);
@@ -154,6 +162,21 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 			case 0x04:
 				Print(L"^D\n");
 				break;
+			//backspace on some computers
+			case 0x08:
+				if(SystemTable->ConOut->Mode->CursorColumn >= sizeof(PROMPT)/sizeof(PROMPT[0])){
+					if(buff[0] != L'\0'){
+						if(posbuff-1 >= 0){
+							posbuff--;
+						}
+						rmchar(buff, posbuff);
+						uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, SystemTable->ConOut->Mode->CursorColumn-1, SystemTable->ConOut->Mode->CursorRow);
+						size_t oldcurpos = SystemTable->ConOut->Mode->CursorColumn;
+						Print(L"%s ", buff+posbuff);
+						uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, oldcurpos, SystemTable->ConOut->Mode->CursorRow);
+				}
+			}
+			break;
 			//TAB
 			case 0x09:
 				completion_size = completion(buff);
@@ -178,10 +201,9 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 				}
 				break;
 		}	
-	
-	}
 	uefi_call_wrapper(SystemTable->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
 	uefi_call_wrapper(SystemTable->BootServices->WaitForEvent,3,1, &SystemTable->ConIn->WaitForKey, &Event);
+	}
 #if defined(_DEBUG)
 	// If running in debug mode, use the EFI shut down call to close QEMU
 	uefi_call_wrapper(SystemTable->RuntimeServices->ResetSystem, 4, EfiResetShutdown, EFI_SUCCESS, 0, NULL);

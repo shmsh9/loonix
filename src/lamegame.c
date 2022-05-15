@@ -22,7 +22,7 @@ int lamegame(struct fnargs *args){
     UINT32 x = 0;
     UINT32 y = 0;
     args->SystemTable->ConOut->EnableCursor(args->SystemTable->ConOut, FALSE);
-	args->SystemTable->ConOut->ClearScreen(args->SystemTable->ConOut);
+	  args->SystemTable->ConOut->ClearScreen(args->SystemTable->ConOut);
     drawScreen(screen);
     drawSpriteOnScreen(&sprite, screen, x, y, 1);
     refreshPartialScreen(screen, 3, 4, x, y);
@@ -35,9 +35,12 @@ int lamegame(struct fnargs *args){
         if(k.ScanCode == 0x04){if(x-1 >= 0){refreshSpritePosition(&sprite, screen, x, y, x-1, y, 255, 1); x--;}}
         drawSpriteOnScreen(&sprite, screen, x , y, 1);
         drawScreen(screen);
-
+        //esc key || ctrl+c
+        if(k.UnicodeChar == 0x1b || k.ScanCode == 0x17 || k.UnicodeChar == 0x03)
+            break;
     }
     FreePool(screen->screen);
     FreePool(screen);
-	return 0;
+    args->SystemTable->ConOut->EnableCursor(args->SystemTable->ConOut, TRUE);
+    return 0;
 }

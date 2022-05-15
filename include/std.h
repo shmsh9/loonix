@@ -12,7 +12,7 @@ typedef unsigned long size_t;
 typedef BOOLEAN bool;
 typedef EFI_FILE_HANDLE FILE;
 
-void *malloc(size_t sz);
+void *malloc(unsigned long long sz);
 void *calloc(size_t elementCount, size_t elementSize);
 FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image);
 void fclose(FILE f);

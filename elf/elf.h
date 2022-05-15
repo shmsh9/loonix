@@ -1,8 +1,11 @@
 #ifndef ELF_PARSER_H
 #define ELF_PARSER_H
-#include "std.h"
-#include "shell.h"
-#include "syscall.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <sys/stat.h>
+#include <stdbool.h>
 #define ARCH_64 2
 #define ARCH_32 1
 #define ENDIAN_L 1
@@ -53,15 +56,14 @@ struct elf {
 	struct section    section;
 	size_t            filesz;
 };
+int loadelf(struct elf *elf, uint8_t *buff, void *v);
 void parseheader(struct elf *elf, uint8_t *buff);
 void parseprog(struct elf *elf, uint8_t *buff);
 void parself(struct elf *elf, uint8_t *buff);
 bool magichck(const uint8_t *buff);
-int usageelf(CHAR16 **argv);
+int usageelf(char **argv);
 void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
-int elfmain(struct fnargs *fnargs);
-int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
 #endif
