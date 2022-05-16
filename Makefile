@@ -1,3 +1,4 @@
+SHELL := /bin/bash
 ARCH            = x64
 # You can alter the subsystem according to your EFI binary target:
 # 10 = EFI application
@@ -152,9 +153,10 @@ main.o:
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
 	@ld -r *.o -o main_.o $(LDARCH)
-	@bash apps/build_bin.sh
-	@mkdir image
-	@cp apps/*.bin image
+	@echo [building userland]
+	@bash scripts/build_bin.sh
+	@mkdir -p image/bin
+	@bash scripts/move_bin.sh
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi

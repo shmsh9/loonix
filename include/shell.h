@@ -3,6 +3,7 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
+
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
@@ -10,9 +11,10 @@ struct fnargs{
 	EFI_SIMPLE_TEXT_IN_PROTOCOL stdin;
 	EFI_SIMPLE_TEXT_OUT_PROTOCOL stdout;
 	CHAR16 *argv[256];
+	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 	unsigned int argc;
 	struct syscall *syscalls;
-	void *printfn;
+	void *InternalPrint;
 };
 struct fnstruct {
 	CHAR16 *name;
@@ -23,7 +25,6 @@ struct fnstruct {
 #include "lamegame.h"
 #include "elf.h"
 #include "stack.h"
-#include "cat.h"
 #include "syscall.h"
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);

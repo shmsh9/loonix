@@ -166,17 +166,51 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	size_t (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
+	int (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
 	Print(L"Loading program at 0x%x\n", fnptr);
 	Print(L"Sending arg ptr at 0x%x\n", fnargs);
-	size_t ret = fnptr(fnargs);
+	int ret = fnptr(fnargs);
 	Print(L"Program returned 0x%x\n", ret);
 	free(prog);
-	return 0;
+	return ret;
 }
 int usage(CHAR16 **argv){
 	Print(L"usage : %s [ -l --load | -i --info ] <elffile>\n", argv[0]);
 	return -1;
+}
+int elfshell(CHAR16 *filename, struct fnargs *fnargs){
+	FILE f = fopen(filename, L"r", fnargs->ImageHandle);
+	if(!f){
+		Print(L"error : cannot open %s\n", filename);
+		return -1;
+	}
+	size_t fs = fsize(f);
+	uint8_t *buff = calloc( 1, fs);
+	if(!buff){
+		fclose(f);
+		Print(L"error : buff == 0x0\n");
+		return -1;
+	}
+	size_t read = fread(buff, 1, fs, f);
+	if(!read){
+		Print(L"error : reading file\n");
+		free(buff);
+		fclose(f);
+		return -1;
+	}
+	if(!magichck(buff)){
+		Print(L"invalid elf magic number\n");
+		free(buff);
+		fclose(f);
+		return -1;
+	}
+	struct elf elf;
+	elf.filesz = fs;
+	parself(&elf, buff);
+	size_t ret = loadelf(&elf, buff, fnargs);
+	free(buff);
+	fclose(f);
+	return ret;
 }
 int elfmain(struct fnargs *fnargs){
 	int argc = fnargs->argc;

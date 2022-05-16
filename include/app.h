@@ -5,21 +5,20 @@
 struct syscall *syscalls;
 EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
-extern size_t main(int argc, CHAR16 **argv);
-void *printfn;
+EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
+extern int main(int argc, CHAR16 **argv);
 
-void printf(IN CONST CHAR16 *fmt, ...){
-	void(*ptr)(IN CONST CHAR16 *, va_list) = printfn;		
+void printf(CHAR16 *fmt, ...){
 	va_list args;
 	va_start(args, fmt);
-	ptr(fmt, args);
+	uefi_call_wrapper(SystemTable->ConOut->OutputString,2,SystemTable->ConOut, fmt);
 	va_end(args);
 }
 size_t entry(struct fnargs *fnargs){
 	syscalls = fnargs->syscalls;
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
-	printfn = fnargs->printfn;
+	FileSystem = fnargs->FileSystem;
 	return main(fnargs->argc, fnargs->argv); 
 }
 

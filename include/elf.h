@@ -62,6 +62,7 @@ void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
 int elfmain(struct fnargs *fnargs);
 int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs);
+int elfshell(CHAR16 *filename, struct fnargs *fnargs);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
 #endif

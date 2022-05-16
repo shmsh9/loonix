@@ -10,19 +10,17 @@ struct syscall syscalls[] = {
 	{open},
 	{print}
 };
+//shell builtins
 struct fnstruct fn[] = {
 		{L"fart",L"    : Farting on you",      fart},
 		{L"clear",L"   : Clear the screen",    clear},
-		{L"testargs",L": Testing function",    testargs},
 		{L"fbinit",L"  : Init framebuffer",    fbinit},
 		{L"drawpx",L"  : Draw pixel",          drawpx},
 		{L"lame",L"    : Lame game",           lamegame},
-		{L"ls",L"      : List files",          ls},
 		{L"date",L"    : Get time",            date},
 		{L"exit",L"    : Exit l00n1x",         exitshell},
 		{L"elf",L"     : Load elf",            elfmain},
 		{L"testkey",L" : Test key input",      testkey},
-		{L"cat",L"     : Print file content",  cat}
 };
 
 int shell_exec(struct fnargs *args){
@@ -37,6 +35,17 @@ int shell_exec(struct fnargs *args){
 	for(int i = 0; i < sizeof(fn)/sizeof(fn[0]); i++){
 		if(StrCmp(args->argv[0], fn[i].name) == 0)
 			return (int)fn[i].function(args);
+	}
+	//try find the file in /bin
+	CHAR16 *pathappend = calloc(sizeof(CHAR16),StrnLen(args->argv[0], CMD_BUFF_SIZE)+sizeof(L"/bin/")+1);
+	StrCpy(pathappend, L"/bin/");
+	StrCat(pathappend, args->argv[0]);
+	FILE f = fopen(pathappend, L"r", args->ImageHandle);
+	if(f){
+		fclose(f);
+		int ret = elfshell(pathappend, args);
+		free(pathappend);
+		return ret;
 	}
 	if(args->argv[0][0] != L'\0')
 		Print(L"shewax : %s : command not found\n", args->argv[0]);
@@ -79,11 +88,13 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	struct stack history = {NULL};
 	struct node *currhist = NULL;
 	CHAR16 tmp[2];
+	//Should move all to main();
 	args->ImageHandle = ImageHandle;
 	args->SystemTable = SystemTable;
 	args->buff = buff;
 	args->syscalls = syscalls;
-	args->printfn = Print;
+	uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&args->FileSystem);
+	//
 	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
 	EFI_INPUT_KEY k = {0};
 	Print(PROMPT);
@@ -330,24 +341,45 @@ int drawpx(struct fnargs *args){
 	}
 	return rc;
 }
-int ls(struct fnargs *args){
-	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-  	EFI_FILE_PROTOCOL *RootDir;
-  	UINT8 Buffer[1024];
-  	UINTN BufferSize;
-  	EFI_FILE_INFO *FileInfo;
-  	uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&FileSystem);
-  	uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &RootDir);
-  	while(1){
-  		BufferSize = sizeof(Buffer);
-    	uefi_call_wrapper(RootDir->Read, 3, RootDir, &BufferSize, Buffer);
-    	if (BufferSize == 0) {
-    		break;
-    	}
+void rehash(CHAR16 *path){
+	
+	/*
+  EFI_FILE_INFO *FileInfo;
+	SHELL_FILE_HANDLE ShellFileHandle;
+	EFI_FILE_PROTOCOL *fphandle;	
+  UINT8 Buffer[1024];
+  UINTN BufferSize;
+	
+  while(1){
+    BufferSize = sizeof(Buffer);
+		uefi_call_wrapper(fphandle->Read, 3, fphandle, &BufferSize, Buffer);
+    if (BufferSize == 0) {
+    	break;
+    }
 		FileInfo = (EFI_FILE_INFO *)Buffer;
-    	Print(L"%s\n", FileInfo->FileName);
+    Print(L"%s\n", FileInfo->FileName);
 	}
-  	uefi_call_wrapper(RootDir->Close, 1, RootDir);
+  uefi_call_wrapper(fphandle->Close, 1, fphandle);
+*/
+}
+int ls(struct fnargs *args){
+	/*
+  EFI_FILE_PROTOCOL *RootDir;
+  UINT8 Buffer[1024];
+  UINTN BufferSize;
+  EFI_FILE_INFO *FileInfo;
+  uefi_call_wrapper(args->filesystem->openvolume, 2, args->filesystem, &rootdir);
+  while(1){
+  	buffersize = sizeof(buffer);
+    uefi_call_wrapper(RootDir->read, 3, RootDir, &buffersize, buffer);
+    if (buffersize == 0) {
+    	break;
+    }
+		fileinfo = (efi_file_info *)buffer;
+    print(l"%s\n", fileinfo->filename);
+	}
+  uefi_call_wrapper(rootdir->close, 1, rootdir);
+	*/
 	return 0;
 }
 void rmchar(CHAR16 *str, size_t pos){

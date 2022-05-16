@@ -14,6 +14,13 @@ void *calloc(size_t elementCount, size_t elementSize){
 	return r;
 }
 FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
+	CHAR16 *pathcopy = StrDuplicate(path);
+	CHAR16 *ptrpath = pathcopy;
+	while(*ptrpath){
+		if(*ptrpath == L'/')
+			*ptrpath = L'\\';
+		ptrpath++;
+	}
 	EFI_FILE_HANDLE ret = 0;
   EFI_LOADED_IMAGE *loaded_image = NULL;
 	EFI_GUID lipGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
@@ -24,13 +31,15 @@ FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
 	uefi_call_wrapper(BS->HandleProtocol, 3,loaded_image->DeviceHandle, &fsGuid, (VOID*)&IOVolume);
 	uefi_call_wrapper(IOVolume->OpenVolume, 2,IOVolume, &vol);
 	if(StrCmp(mode, L"r") == 0)
-		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+		uefi_call_wrapper(vol->Open,5,vol, &ret, pathcopy, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 	/*
 	if(StrCmp(mode, L"w") == 0)
 		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_WRITE, EFI_FILE_CREATE | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 	if(StrCmp(mode, L"w+") == 0)
 		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_WRITE | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 	*/
+
+	free(pathcopy);
 	return ret;
 }
 void fclose(FILE f){

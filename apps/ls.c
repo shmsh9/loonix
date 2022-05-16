@@ -1,10 +1,21 @@
 #include "app.h"
 
-size_t main(int argc, CHAR16 **argv){
-	printf(L"FOOBAR]\n%s\n",L"SECOND");
-	for(int i = 0; i < argc; i++){
-		SYSCALL(SYS_PRINT, ((struct args){argv[i],0,0,0,0,0}));
-		SYSCALL(SYS_PRINT, ((struct args){L"\n",0,0,0,0,0}));
+int main(int argc, CHAR16 **argv){
+	EFI_FILE_PROTOCOL *RootDir;
+  UINT8 Buffer[1024];
+  UINTN BufferSize;
+  EFI_FILE_INFO *FileInfo;
+  uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &RootDir);
+  while(1){
+  	BufferSize = sizeof(Buffer);
+   	uefi_call_wrapper(RootDir->Read, 3, RootDir, &BufferSize, Buffer);
+   	if (BufferSize == 0) {
+   		break;
+   	}
+		FileInfo = (EFI_FILE_INFO *)Buffer;
+   	printf(FileInfo->FileName);
+    printf(L"\n");
 	}
-	return 0xdeadbeef;
+  uefi_call_wrapper(RootDir->Close, 1, RootDir);
+	return 0;
 }

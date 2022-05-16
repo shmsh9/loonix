@@ -19,7 +19,7 @@ size_t print(struct args args){
 	return 0;
 }
 size_t write(struct args args){
-	FILE fd = args.arg0;
+	FILE fd = (FILE)args.arg0;
 	const uint8_t *buff = (uint8_t *)args.arg1;
 	size_t count = args.arg2;
 	Print(L"write() : fd == %d && buff == 0x%x && count == %d\n", fd, buff, count);
@@ -35,8 +35,8 @@ size_t read(struct args args){
 size_t open(struct args args){
 	FILE f = 0x0;
 	CHAR16 *filename = (CHAR16 *)args.arg0;
-	int flags = (int)args.arg1;
-	CHAR16 *mode = (CHAR16*)args.arg2;
-	//fopen(filename, )
-	return f;
+	CHAR16 *mode = (CHAR16*)args.arg1;
+	EFI_HANDLE ImageHandle = (EFI_HANDLE)args.arg2;
+	fopen(filename, mode, ImageHandle);
+	return (size_t)f;
 }
