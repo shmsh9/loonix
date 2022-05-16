@@ -168,8 +168,8 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 	} 
 	int (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
 	Print(L"Loading program at 0x%x\n", fnptr);
-	Print(L"Sending arg ptr at 0x%x\n", fnargs);
-	int ret = fnptr(fnargs);
+	Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
+	int ret = uefi_call_wrapper(fnptr, 1,fnargs);
 	Print(L"Program returned 0x%x\n", ret);
 	free(prog);
 	return ret;
@@ -207,7 +207,7 @@ int elfshell(CHAR16 *filename, struct fnargs *fnargs){
 	struct elf elf;
 	elf.filesz = fs;
 	parself(&elf, buff);
-	size_t ret = loadelf(&elf, buff, fnargs);
+	int ret = loadelf(&elf, buff, fnargs);
 	free(buff);
 	fclose(f);
 	return ret;

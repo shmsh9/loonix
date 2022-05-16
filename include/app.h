@@ -11,10 +11,11 @@ extern int main(int argc, CHAR16 **argv);
 void printf(CHAR16 *fmt, ...){
 	va_list args;
 	va_start(args, fmt);
+	//Print(fmt, args);
 	uefi_call_wrapper(SystemTable->ConOut->OutputString,2,SystemTable->ConOut, fmt);
 	va_end(args);
 }
-size_t entry(struct fnargs *fnargs){
+int __attribute__((ms_abi)) entry(struct fnargs *fnargs){
 	syscalls = fnargs->syscalls;
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
