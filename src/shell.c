@@ -25,6 +25,8 @@ struct fnstruct fn[] = {
 
 int shell_exec(struct fnargs *args){
 	args->argc = parseargs(args->buff,args->argv);
+	if(args->argv[0][0] == L'\0')
+		return 0;
 	if(StrCmp(args->argv[0], L"help") == 0){
 		Print(L"[Builtin Commands]\n");
 		for(int i = 0; i <sizeof(fn)/sizeof(fn[0]); i++){
@@ -36,15 +38,21 @@ int shell_exec(struct fnargs *args){
 		if(StrCmp(args->argv[0], fn[i].name) == 0)
 			return (int)fn[i].function(args);
 	}
+	//execute file if it exists
+	FILE f = kfopen(args->argv[0], L"r", args->ImageHandle);
+	if(f){
+		int ret = elfshell(args->argv[0], args);
+		return ret;
+	}
 	//try find the file in /bin
-	CHAR16 *pathappend = calloc(sizeof(CHAR16),StrnLen(args->argv[0], CMD_BUFF_SIZE)+sizeof(L"/bin/")+1);
+	CHAR16 *pathappend = kcalloc(sizeof(CHAR16),StrnLen(args->argv[0], CMD_BUFF_SIZE)+sizeof(L"/bin/")+1);
 	StrCpy(pathappend, L"/bin/");
 	StrCat(pathappend, args->argv[0]);
-	FILE f = fopen(pathappend, L"r", args->ImageHandle);
+	f = kfopen(pathappend, L"r", args->ImageHandle);
 	if(f){
-		fclose(f);
+		kfclose(f);
 		int ret = elfshell(pathappend, args);
-		free(pathappend);
+		kfree(pathappend);
 		return ret;
 	}
 	if(args->argv[0][0] != L'\0')
@@ -63,7 +71,7 @@ size_t completion(CHAR16 *buff){
 				match = i;
 				matchcount++;
 			}	
-			free(tmp);
+			kfree(tmp);
 		}
 		if(matchcount == 1){
 			buff[0] = L'\0';
@@ -81,10 +89,10 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	Print(L"Date : %d/%d/%d %d:%d:%d UTC\nType help to get some\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
 	UINTN Event;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
-	CHAR16 *buff = calloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
+	CHAR16 *buff = kcalloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
 	size_t completion_size = 0;
-	struct fnargs *args = calloc(sizeof(struct fnargs), 1);
+	struct fnargs *args = kcalloc(sizeof(struct fnargs), 1);
 	struct stack history = {NULL};
 	struct node *currhist = NULL;
 	CHAR16 tmp[2];
@@ -252,7 +260,7 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 		Print(L"shewax : error : to much args\n");
 		return ret;
 	}
-	CHAR16 *tmp = calloc(l,sizeof(CHAR16));
+	CHAR16 *tmp = kcalloc(l,sizeof(CHAR16));
 	tmp[0] = L'\0';
 	int i = 0;
 	int k = 0;
@@ -282,7 +290,7 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 		}
 		argv[0] = StrDuplicate(stdin);
 	}
-	free(tmp);
+	kfree(tmp);
 	return ret;
 }
 void cleanargs(int argc, CHAR16 **argv){

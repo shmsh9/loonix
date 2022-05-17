@@ -1,13 +1,13 @@
 #include "graphics.h"
 SCREEN *newScreen(EFI_GRAPHICS_OUTPUT_PROTOCOL *gop, UINT16 w, UINT16 h, UINT8 colorfill){
-    SCREEN *ret = malloc(sizeof(SCREEN)); 
+    SCREEN *ret = kmalloc(sizeof(SCREEN)); 
     //gBS->AllocatePool(EfiBootServicesData, sizeof(SCREEN), (void *)&ret);
     ret->screen = NULL;
     ret->bufferSize = w*h;
     ret->w = w;
     ret->h = h;
     ret->gop = gop;
-    ret->screen = malloc(sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL)*(ret->bufferSize));
+    ret->screen = kmalloc(sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL)*(ret->bufferSize));
     //uefi_call_wrapper(gBS->AllocatePool(EfiBootServicesData, sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL)*(ret->bufferSize), (void *)ret->screen);
     SetMem(ret->screen, ret->bufferSize*sizeof(EFI_GRAPHICS_OUTPUT_BLT_PIXEL), colorfill);
     return ret;

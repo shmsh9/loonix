@@ -1,6 +1,6 @@
 #include "std.h"
 
-void *malloc(unsigned long long sz){
+void *kmalloc(size_t sz){
 	void *r = 0x0;
 	uefi_call_wrapper(gBS->AllocatePool,3,EfiLoaderData, sz, &r);
 	if(!r){
@@ -8,12 +8,12 @@ void *malloc(unsigned long long sz){
 	}
 	return r;
 }
-void *calloc(size_t elementCount, size_t elementSize){
-	void *r = malloc(elementCount*elementSize);
+void *kcalloc(size_t elementCount, size_t elementSize){
+	void *r = kmalloc(elementCount*elementSize);
 	SetMem(r, elementCount*elementSize, 0);
 	return r;
 }
-FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
+FILE kfopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
 	CHAR16 *pathcopy = StrDuplicate(path);
 	CHAR16 *ptrpath = pathcopy;
 	while(*ptrpath){
@@ -39,21 +39,21 @@ FILE fopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
 		uefi_call_wrapper(vol->Open,5,vol, &ret, path, EFI_FILE_MODE_READ, EFI_FILE_WRITE | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 	*/
 
-	free(pathcopy);
+	kfree(pathcopy);
 	return ret;
 }
-void fclose(FILE f){
+void kfclose(FILE f){
 	uefi_call_wrapper(f->Close, 1, f);
 }
-size_t fsize(FILE f){
+size_t kfsize(FILE f){
 	size_t ret = 0;
 	EFI_FILE_INFO *FileInfo;
 	FileInfo = LibFileInfo(f);
 	ret = FileInfo->FileSize;
-	free(FileInfo);
+	kfree(FileInfo);
 	return ret;
 }
-size_t fread(void *buff, size_t szelement, size_t nbelement, FILE f){
+size_t kfread(void *buff, size_t szelement, size_t nbelement, FILE f){
 	size_t ret = szelement*nbelement;
 	uefi_call_wrapper(f->Read,1, f, &ret,buff);
 	return ret;

@@ -13,8 +13,7 @@ int main(int argc, CHAR16 **argv){
    		break;
    	}
 		FileInfo = (EFI_FILE_INFO *)Buffer;
-   	printf(FileInfo->FileName);
-    printf(L"\n");
+   	printf(L"%s\n", FileInfo->FileName);
 	}
   uefi_call_wrapper(RootDir->Close, 1, RootDir);
 	return 0;

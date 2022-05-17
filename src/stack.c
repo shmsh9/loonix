@@ -2,7 +2,7 @@
 
 
 void pushstack(struct stack *stack, void *data){
-	struct node *n = malloc(sizeof(struct node));
+	struct node *n = kmalloc(sizeof(struct node));
 	n->data = data;
 	n->prev = NULL;
 	n->next = stack->root;
@@ -13,13 +13,13 @@ void pushstack(struct stack *stack, void *data){
 void cleanstack(struct stack *stack){
 	struct node *n = stack->root;
 	if(!n->next){
-		free(n->data);
-		free(n);
+		kfree(n->data);
+		kfree(n);
 	}
 	while(n->next){
 		struct node *next = n->next;
-		free(n->data);
-		free(n);
+		kfree(n->data);
+		kfree(n);
 		n = next;
 	}
 }

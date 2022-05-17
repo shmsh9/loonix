@@ -1,4 +1,4 @@
-#include "syscall.h"
+#include <syscall.h>
 /*
 struct syscall{
 	size_t (*fn)(struct args);
@@ -37,6 +37,6 @@ size_t open(struct args args){
 	CHAR16 *filename = (CHAR16 *)args.arg0;
 	CHAR16 *mode = (CHAR16*)args.arg1;
 	EFI_HANDLE ImageHandle = (EFI_HANDLE)args.arg2;
-	fopen(filename, mode, ImageHandle);
+	kfopen(filename, mode, ImageHandle);
 	return (size_t)f;
 }

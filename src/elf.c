@@ -7,13 +7,13 @@ void parseprog(struct elf *elf, uint8_t *buff){
 	//Print(L"sizeof(struct entry) == %d\n", sizeof(struct entry));
 	//Print(L"program_count == %d\nprogram_size == %d\nsection_count == %d\nsection_size == %d\n",elf->header.entry_program_number, elf->header.entry_program_size,elf->header.entry_section_number, elf->header.entry_section_size);
 
-	elf->program.entries = calloc(elf->header.entry_program_number, elf->header.entry_program_size);
+	elf->program.entries = kcalloc(elf->header.entry_program_number, elf->header.entry_program_size);
 	for(int i = 0; i < elf->header.entry_program_number; i++, ptr+= elf->header.entry_program_size){
 		CopyMem(&elf->program.entries[i], ptr, elf->header.entry_program_size);
 	}
 	elf->program.count = elf->header.entry_program_number;
 	ptr = (buff+elf->header.section_header_table_position);
-	elf->section.entries = calloc(elf->header.entry_section_number, elf->header.entry_section_size);
+	elf->section.entries = kcalloc(elf->header.entry_section_number, elf->header.entry_section_size);
 	for(int i = 0; i < elf->header.entry_section_number; i++, ptr+= elf->header.entry_section_size){
 		CopyMem(&elf->section.entries[i], ptr, elf->header.entry_section_size);
 	}
@@ -156,8 +156,8 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 	uintptr_t base = baseaddr(elf);
 	uintptr_t alloc = basealloc(elf, base);
-	Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
-	void *prog = malloc(alloc);
+	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
+	void *prog = kmalloc(alloc);
 	for(int i = 0; i < elf->header.entry_program_number; i++){
 		//LOAD == 0x01 entry
 		if(elf->program.entries[i].segment_type == 0x01){
@@ -167,11 +167,11 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 		}
 	} 
 	int (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
-	Print(L"Loading program at 0x%x\n", fnptr);
-	Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
+	//Print(L"Loading program at 0x%x\n", fnptr);
+	//Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
 	int ret = uefi_call_wrapper(fnptr, 1,fnargs);
-	Print(L"Program returned 0x%x\n", ret);
-	free(prog);
+	//Print(L"Program returned 0x%x\n", ret);
+	kfree(prog);
 	return ret;
 }
 int usage(CHAR16 **argv){
@@ -179,37 +179,37 @@ int usage(CHAR16 **argv){
 	return -1;
 }
 int elfshell(CHAR16 *filename, struct fnargs *fnargs){
-	FILE f = fopen(filename, L"r", fnargs->ImageHandle);
+	FILE f = kfopen(filename, L"r", fnargs->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", filename);
 		return -1;
 	}
-	size_t fs = fsize(f);
-	uint8_t *buff = calloc( 1, fs);
+	size_t fs = kfsize(f);
+	uint8_t *buff = kcalloc( 1, fs);
 	if(!buff){
-		fclose(f);
+		kfclose(f);
 		Print(L"error : buff == 0x0\n");
 		return -1;
 	}
-	size_t read = fread(buff, 1, fs, f);
+	size_t read = kfread(buff, 1, fs, f);
 	if(!read){
 		Print(L"error : reading file\n");
-		free(buff);
-		fclose(f);
+		kfree(buff);
+		kfclose(f);
 		return -1;
 	}
 	if(!magichck(buff)){
 		Print(L"invalid elf magic number\n");
-		free(buff);
-		fclose(f);
+		kfree(buff);
+		kfclose(f);
 		return -1;
 	}
 	struct elf elf;
 	elf.filesz = fs;
 	parself(&elf, buff);
 	int ret = loadelf(&elf, buff, fnargs);
-	free(buff);
-	fclose(f);
+	kfree(buff);
+	kfclose(f);
 	return ret;
 }
 int elfmain(struct fnargs *fnargs){
@@ -220,29 +220,29 @@ int elfmain(struct fnargs *fnargs){
 	if(StrCmp(argv[1], L"-h") == 0 || StrCmp(argv[1], L"--help") == 0)
 		return usage(argv);
 
-	FILE f = fopen(argv[2], L"r", fnargs->ImageHandle);
+	FILE f = kfopen(argv[2], L"r", fnargs->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", argv[2]);
 		return -1;
 	}
-	size_t fs = fsize(f);
-	uint8_t *buff = calloc( 1, fs);
+	size_t fs = kfsize(f);
+	uint8_t *buff = kcalloc( 1, fs);
 	if(!buff){
-		fclose(f);
+		kfclose(f);
 		Print(L"error : buff == 0x0\n");
 		return -1;
 	}
-	size_t read = fread(buff, 1, fs, f);
+	size_t read = kfread(buff, 1, fs, f);
 	if(!read){
 		Print(L"error : reading file\n");
-		free(buff);
-		fclose(f);
+		kfree(buff);
+		kfclose(f);
 		return -1;
 	}
 	if(!magichck(buff)){
 		Print(L"invalid elf magic number\n");
-		free(buff);
-		fclose(f);
+		kfree(buff);
+		kfclose(f);
 		return -1;
 	}
 	struct elf elf;
@@ -254,8 +254,8 @@ int elfmain(struct fnargs *fnargs){
 		printheader(&elf);
 		printseg(&elf);
 	}
-	fclose(f);
-	free(elf.program.entries);
-	free(buff);
+	kfclose(f);
+	kfree(elf.program.entries);
+	kfree(buff);
 	return 0;
 }

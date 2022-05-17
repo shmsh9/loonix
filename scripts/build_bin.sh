@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-CFLAGS="-nodefaultlibs -fno-stack-check -fno-merge-all-constants -fno-jump-tables -mno-red-zone -fno-omit-frame-pointer -fno-stack-protector -nostdlib -ffreestanding -fshort-wchar -Iinclude -Ignu-efi/inc/"
+CFLAGS="-DHAVE_USE_MS_ABI -nodefaultlibs -fno-stack-check -fno-merge-all-constants -fno-jump-tables -mno-red-zone -fno-omit-frame-pointer -fno-stack-protector -nostdlib -ffreestanding -fshort-wchar -Iinclude -Ignu-efi/inc/"
 IFLAGS="-Iinclude -Ignu-efi/inc/ -Istdlib/include"
 
 #build userland
