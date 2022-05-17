@@ -173,6 +173,8 @@ $(FW_BASE)_$(FW_ARCH).fd:
 
 clean:
 	rm -f main.efi *.o
+	rm -f stdlib/*.o
+	rm -f stdlib/*.a
 	rm -rf image
 
 superclean: clean

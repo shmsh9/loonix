@@ -1,9 +1,8 @@
-#include "app.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 int usage(CHAR16 **argv){
-	printf(L"usage : ");
-	printf(argv[0]); 
-	printf(L" <file>\n");
+	printf(L"usage : %s <file>\n", argv[0]);
 	return -1;
 }
 int main(int argc, CHAR16 **argv){
