@@ -8,7 +8,9 @@ struct syscall syscalls[] = {
 	{read},
 	{write},
 	{open},
-	{print}
+	{print},
+	{sysmalloc},
+	{sysfree}
 };
 //shell builtins
 struct fnstruct fn[] = {
@@ -297,18 +299,9 @@ void cleanargs(int argc, CHAR16 **argv){
 	for(int i = 0; i < argc; i++){
 		FreePool(argv[i]);
 	}
-	//FreePool(argv);
 }
 int exitshell(struct fnargs *args){
 	Exit(EFI_SUCCESS, 0, NULL);
-	return 0;
-}
-
-int testargs(struct fnargs *args){
-	Print(L"argc == %d\n", args->argc);
-	for(int i = 0; i < args->argc; i++){
-		Print(L"argv[%d] == %s\n", i, args->argv[i]);
-	}
 	return 0;
 }
 int fart(struct fnargs *args){
@@ -369,26 +362,6 @@ void rehash(CHAR16 *path){
 	}
   uefi_call_wrapper(fphandle->Close, 1, fphandle);
 */
-}
-int ls(struct fnargs *args){
-	/*
-  EFI_FILE_PROTOCOL *RootDir;
-  UINT8 Buffer[1024];
-  UINTN BufferSize;
-  EFI_FILE_INFO *FileInfo;
-  uefi_call_wrapper(args->filesystem->openvolume, 2, args->filesystem, &rootdir);
-  while(1){
-  	buffersize = sizeof(buffer);
-    uefi_call_wrapper(RootDir->read, 3, RootDir, &buffersize, buffer);
-    if (buffersize == 0) {
-    	break;
-    }
-		fileinfo = (efi_file_info *)buffer;
-    print(l"%s\n", fileinfo->filename);
-	}
-  uefi_call_wrapper(rootdir->close, 1, rootdir);
-	*/
-	return 0;
 }
 void rmchar(CHAR16 *str, size_t pos){
 	size_t len = StrnLen(str, CMD_BUFF_SIZE);

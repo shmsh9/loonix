@@ -1,11 +1,13 @@
 #include <stdlib_h.h>
 void *malloc(size_t sz){
-	void *r = 0x0;
-	uefi_call_wrapper(gBS->AllocatePool,3,EfiLoaderData, sz, &r);
-	return r;
+	return (void*)SYSCALL(SYS_MALLOC, ((struct args){sz,0,0,0,0,0}));
 }
 void *calloc(size_t elementCount, size_t elementSize){
 	void *r = malloc(elementCount*elementSize);
-	SetMem(r, elementCount*elementSize, 0);
+	if(r)
+		memset(r, 0,elementCount*elementSize);
 	return r;
+}
+void free(void *ptr){
+	SYSCALL(SYS_FREE, ((struct args){(size_t)ptr,0,0,0,0,0}));
 }

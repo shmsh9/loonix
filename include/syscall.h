@@ -14,17 +14,22 @@ struct args{
 };
 
 struct syscall{
-	size_t (*fn)(struct args);
+	size_t __attribute__((ms_abi)) (*fn)(struct args);
 };
-size_t write(struct args);
-size_t read(struct args);
-size_t open(struct args);
-size_t print(struct args);
+size_t __attribute__((ms_abi)) write(struct args);
+size_t __attribute__((ms_abi)) read(struct args);
+size_t __attribute__((ms_abi)) open(struct args);
+size_t __attribute__((ms_abi)) print(struct args);
+size_t __attribute__((ms_abi)) sysmalloc(struct args args);
+size_t __attribute__((ms_abi)) sysfree(struct args args);
 
 #define SYSCALL(SYS_NUM, args) (syscalls[SYS_NUM].fn(args))
 
-#define SYS_READ  0
-#define SYS_WRITE 1
-#define SYS_OPEN  2
-#define SYS_PRINT 3
+#define SYS_READ   0
+#define SYS_WRITE  1
+#define SYS_OPEN   2
+#define SYS_PRINT  3
+#define SYS_MALLOC 4
+#define SYS_FREE   5
+
 #endif

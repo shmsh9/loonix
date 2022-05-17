@@ -37,7 +37,6 @@ int clear(struct fnargs *args);
 int date(struct fnargs *args);
 int fbinit(struct fnargs *args);
 int drawpx(struct fnargs *args);
-int ls(struct fnargs *args);
 void rmchar(CHAR16 *str, size_t pos);
 int testkey(struct fnargs *args);
 size_t completion(CHAR16 *buff);

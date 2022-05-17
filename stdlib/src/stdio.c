@@ -1,5 +1,12 @@
 #include <stdio.h>
-
+FILE *fopen(CHAR16 *filename, const CHAR16 *mode){
+	FILE *f = malloc(sizeof(FILE));
+	*f = (FILE)SYSCALL(SYS_OPEN, ((struct args){(size_t)filename,(size_t)mode,(size_t)ImageHandle,0,0,0}));
+	return f;
+}
+size_t fread(void *buffer, size_t size, size_t count, FILE *f){	
+	return SYSCALL(SYS_READ, ((struct args){(size_t)f, (size_t)buffer, (size_t)(count*size), 0,0,0}));
+}
 void putchar(CHAR16 c){
 	CHAR16 tmp[2] = {c, 0};
 	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, tmp);
