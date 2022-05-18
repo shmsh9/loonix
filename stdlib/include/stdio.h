@@ -12,4 +12,7 @@ extern EFI_HANDLE ImageHandle;
 extern struct syscall *syscalls;
 void printf(CHAR16 *fmt, ...);
 void putchar(CHAR16 c);
+void puts(CHAR16 *s);
+void print(CHAR16 *s);
+EFI_INPUT_KEY getchar();
 #endif

@@ -6,6 +6,6 @@ int main(int argc, CHAR16 **argv){
 	for(int i = 0; i < argc; i++){
 		printf(L"argv[%d] == %s\n", (uint32_t)i,argv[i]);
 	}
-	printf(L"returning %s\n", L"0xdeadbeef");
+	printf(L"returning 0x%x\n", 0xdeadbeef);
 	return 0xdeadbeef;
 }

@@ -73,7 +73,7 @@ else ifeq ($(ARCH),aa64)
   GCC_ARCH      = aarch64
   QEMU_ARCH     = aarch64
   FW_BASE       = QEMU_EFI
-  CROSS_COMPILE = $(GCC_ARCH)-linux-gnu-
+  CROSS_COMPILE = $(GCC_ARCH)-linux-android-
   EP_PREFIX     =
   CFLAGS        = -fpic -fshort-wchar
   LDFLAGS       = -Wl, -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)

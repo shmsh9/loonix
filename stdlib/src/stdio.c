@@ -9,7 +9,19 @@ size_t fread(void *buffer, size_t size, size_t count, FILE *f){
 }
 void putchar(CHAR16 c){
 	CHAR16 tmp[2] = {c, 0};
-	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, tmp);
+	SystemTable->ConOut->OutputString(SystemTable->ConOut, tmp);
+}
+void print(CHAR16 *s){
+	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, s);
+}
+void puts(CHAR16 *s){
+	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, s);
+	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, L"\n");
+}
+EFI_INPUT_KEY getchar(){
+	EFI_INPUT_KEY k = {0};
+	uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, SystemTable->ConIn, &k);
+	return k;
 }
 void printf(CHAR16 *fmt, ...){
 	va_list args;
@@ -21,7 +33,7 @@ void printf(CHAR16 *fmt, ...){
 		if(fmt[i] == L'%' && i+1 < l){
 			if(fmt[i+1] == L's'){
 				CHAR16 *ptrstr = va_arg(args, CHAR16*);
-				uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, ptrstr);
+				SystemTable->ConOut->OutputString(SystemTable->ConOut, ptrstr);
 				i += 2;
 			}
 			//Cannot print int == 0 for some reason
@@ -48,7 +60,7 @@ void printf(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, tmpnum);	
+				SystemTable->ConOut->OutputString(SystemTable->ConOut, tmpnum);	
 				i += 2;
 			}
 			if(fmt[i+1] == L'x'){
@@ -73,12 +85,12 @@ void printf(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, tmpnum);	
+				SystemTable->ConOut->OutputString(SystemTable->ConOut, tmpnum);	
 				i += 2;
 			}
 		}
 		putchar(fmt[i]);
 	}
-	//va_end(args);
+	va_end(args);
 	//Print(fmt, args=ms);
 }

@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 shopt -s extglob
-mv apps/!(*.c) image/bin
+mv apps/!(*.c||*.h) image/bin

@@ -93,7 +93,7 @@ int shell(){
 	args->SystemTable = SystemTable;
 	args->buff = buff;
 	args->syscalls = syscalls;
-	uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&args->FileSystem);
+	args->FileSystem = FileSystem;
 	//
 	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
 	EFI_INPUT_KEY k = {0};

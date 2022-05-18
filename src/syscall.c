@@ -28,12 +28,18 @@ size_t __attribute__((ms_abi)) read(struct args args){
 	return kfread(buff, count,1,*fd);
 }
 size_t __attribute__((ms_abi)) open(struct args args){
-	FILE f = 0x0;
+	FILE *f = kmalloc(sizeof(FILE));
 	CHAR16 *filename = (CHAR16 *)args.arg0;
 	CHAR16 *mode = (CHAR16*)args.arg1;
-	EFI_HANDLE ImageHandle = (EFI_HANDLE)args.arg2;
-	kfopen(filename, mode, ImageHandle);
+	EFI_HANDLE lImageHandle = (EFI_HANDLE)args.arg2;
+	*f = kfopen(filename, mode, lImageHandle);
 	return (size_t)f;
+}
+size_t __attribute__((ms_abi)) close(struct args args){
+	FILE *f = (FILE *)args.arg0;
+	kfclose(*f);
+	kfree(f);
+	return 0;
 }
 size_t __attribute__((ms_abi)) sysmalloc(struct args args){
 	size_t sz = args.arg0;
@@ -54,4 +60,9 @@ size_t __attribute__((ms_abi)) sysfree(struct args args){
 	//ptr not allocated by the program
 	Print(L"sysfree() : error : pointer 0x%x not allocated by program\n", args.arg0);
 	return 1;
+}
+size_t __attribute__((ms_abi)) sysloadelf(struct args args){
+	CHAR16 *filename = (CHAR16 *)args.arg0;
+	struct fnargs *fnargs = (struct fnargs *)args.arg1;
+	return elfshell(filename, fnargs);		
 }

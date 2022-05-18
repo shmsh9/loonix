@@ -3,10 +3,6 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
-#include "syscall.h"
-extern struct syscall *syscalls;
-extern EFI_HANDLE ImageHandle;
-extern EFI_SYSTEM_TABLE *SystemTable;
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
@@ -23,10 +19,12 @@ struct fnstruct {
 	CHAR16 *description;
 	int (*function)(struct fnargs *);
 };
-#include "magic.h"
-#include "lamegame.h"
-#include "elf.h"
-#include "stack.h"
+#include <extern.h>
+#include <syscall.h>
+#include <magic.h>
+#include <lamegame.h>
+#include <elf.h>
+#include <stack.h>
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);
