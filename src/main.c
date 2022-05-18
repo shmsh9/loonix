@@ -10,8 +10,13 @@
 #include <shell.h>
 #include <stack.h>
 #include <std.h>
-struct stack *usralloc;
-struct syscall *syscalls;
+/*
+ Put all the ugly globals here
+ */
+struct stack     *usralloc;
+struct syscall   *syscalls;
+EFI_HANDLE       ImageHandle;
+EFI_SYSTEM_TABLE *SystemTable;
 struct syscall syscalltable[] = {
 	{read},
 	{write},
@@ -20,14 +25,16 @@ struct syscall syscalltable[] = {
 	{sysfree}
 };
 
-EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
-{
+
+EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
+	ImageHandle = aImageHandle;
+	SystemTable = aSystemTable;
 #if defined(_GNU_EFI)
 	InitializeLib(ImageHandle, SystemTable);
 #endif
 	usralloc = kcalloc(1,sizeof(struct stack));
 	syscalls = syscalltable;
-	shell(ImageHandle, SystemTable);
+	shell();
 	kfree(usralloc);
 	return EFI_SUCCESS;
 }

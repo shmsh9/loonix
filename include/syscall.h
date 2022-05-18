@@ -26,7 +26,6 @@ size_t __attribute__((ms_abi)) sysfree(struct args args);
  stores userland processes allocations
 */
 extern struct stack *usralloc;
-
 #define SYSCALL(SYS_NUM, args) (syscalls[SYS_NUM].fn(args))
 
 #define SYS_READ   0

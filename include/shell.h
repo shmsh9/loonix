@@ -5,6 +5,8 @@
 #include <libsmbios.h>
 #include "syscall.h"
 extern struct syscall *syscalls;
+extern EFI_HANDLE ImageHandle;
+extern EFI_SYSTEM_TABLE *SystemTable;
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
@@ -28,7 +30,7 @@ struct fnstruct {
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);
-EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable);
+int shell();
 int exitshell(struct fnargs *args);
 int testargs(struct fnargs *args);
 int fart(struct fnargs *args);
@@ -39,5 +41,5 @@ int drawpx(struct fnargs *args);
 void rmchar(CHAR16 *str, size_t pos);
 int testkey(struct fnargs *args);
 size_t completion(CHAR16 *buff);
-void clearline(CHAR16 *buff, EFI_SYSTEM_TABLE *SystemTable);
+void clearline(CHAR16 *buff);
 #endif

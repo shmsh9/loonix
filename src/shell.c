@@ -74,9 +74,7 @@ size_t completion(CHAR16 *buff){
 		}
 		return r;
 }
-//END BUILTINS
-// Application entrypoint (must be set to 'efi_main' for gnu-efi crt0 compatibility)
-EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
+int shell(){
 	EFI_TIME Time;
 	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
 	#define PROMPT L"l00n1x $> "
@@ -121,7 +119,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 		//up arrow
 		case 0x01:
 			if(currhist){
-				clearline(buff, SystemTable);
+				clearline(buff);
 				buff[0] = L'\0';
 				StrCpy(buff, currhist->data);
 				currhist = currhist->next == NULL ? currhist : currhist->next;
@@ -132,7 +130,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 		//down arrow
 		case 0x02:
 			if(currhist && currhist->prev){
-				clearline(buff, SystemTable);
+				clearline(buff);
 				buff[0] = L'\0';
 				StrCpy(buff, currhist->prev->data);
 				currhist = currhist->prev == NULL ? currhist : currhist->prev;
@@ -196,7 +194,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 			case 0x09:
 				completion_size = completion(buff);
 				if(completion_size){
-					clearline(buff, SystemTable);
+					clearline(buff);
 					Print(buff);
 					posbuff += completion_size;
 				}
@@ -226,7 +224,7 @@ EFI_STATUS shell(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
 	cleanstack(&history);
 	return EFI_SUCCESS;
 }
-void clearline(CHAR16 *buff, EFI_SYSTEM_TABLE *SystemTable){
+void clearline(CHAR16 *buff){
 	size_t lbuff = StrnLen(buff, CMD_BUFF_SIZE);
 	uefi_call_wrapper(SystemTable->ConOut->SetCursorPosition,3,SystemTable->ConOut, ((sizeof(PROMPT)/sizeof(PROMPT[0]))-1), SystemTable->ConOut->Mode->CursorRow);
 	for(int j = 0; j < lbuff; j++){
