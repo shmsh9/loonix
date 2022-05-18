@@ -210,6 +210,8 @@ int elfshell(CHAR16 *filename, struct fnargs *fnargs){
 	int ret = loadelf(&elf, buff, fnargs);
 	kfree(buff);
 	kfclose(f);
+	//clean every allocation made by the elf loaded
+	cleanstack(usralloc);
 	return ret;
 }
 int elfmain(struct fnargs *fnargs){

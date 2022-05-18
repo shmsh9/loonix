@@ -14,7 +14,6 @@ struct fnargs{
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 	unsigned int argc;
 	struct syscall *syscalls;
-	void *InternalPrint;
 };
 struct fnstruct {
 	CHAR16 *name;

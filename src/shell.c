@@ -8,7 +8,6 @@ struct syscall syscalls[] = {
 	{read},
 	{write},
 	{open},
-	{print},
 	{sysmalloc},
 	{sysfree}
 };

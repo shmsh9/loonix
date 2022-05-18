@@ -1,13 +1,15 @@
 #ifndef ELF_PARSER_H
 #define ELF_PARSER_H
-#include "std.h"
-#include "shell.h"
-#include "syscall.h"
+#include <std.h>
+#include <shell.h>
+#include <syscall.h>
+#include <stack.h>
 #define ARCH_64 2
 #define ARCH_32 1
 #define ENDIAN_L 1
 #define ENDIAN_B 2
 
+extern struct stack *usralloc;
 struct elf_header{
 	unsigned char magic_number[4];
 	uint8_t   arch;

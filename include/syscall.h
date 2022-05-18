@@ -2,7 +2,8 @@
 #define SYSCALL_H_
 #include <efi.h>
 #include <efilib.h>
-#include "std.h"
+#include <stack.h>
+#include <std.h>
 
 struct args{
 	size_t arg0;
@@ -19,17 +20,19 @@ struct syscall{
 size_t __attribute__((ms_abi)) write(struct args);
 size_t __attribute__((ms_abi)) read(struct args);
 size_t __attribute__((ms_abi)) open(struct args);
-size_t __attribute__((ms_abi)) print(struct args);
 size_t __attribute__((ms_abi)) sysmalloc(struct args args);
 size_t __attribute__((ms_abi)) sysfree(struct args args);
+/*
+ stores userland processes allocations
+*/
+extern struct stack *usralloc;
 
 #define SYSCALL(SYS_NUM, args) (syscalls[SYS_NUM].fn(args))
 
 #define SYS_READ   0
 #define SYS_WRITE  1
 #define SYS_OPEN   2
-#define SYS_PRINT  3
-#define SYS_MALLOC 4
-#define SYS_FREE   5
+#define SYS_MALLOC 3
+#define SYS_FREE   4
 
 #endif

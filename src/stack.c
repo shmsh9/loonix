@@ -22,4 +22,5 @@ void cleanstack(struct stack *stack){
 		kfree(n);
 		n = next;
 	}
+	stack->root = NULL;
 }

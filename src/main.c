@@ -6,8 +6,9 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
-#include "magic.h"
-#include "shell.h"
+#include <shell.h>
+#include <stack.h>
+#include <std.h>
 /*
 #if defined(_M_X64) || defined(__x86_64__)
 
@@ -29,12 +30,13 @@ static CHAR16* ArchName = L"32-bit ARM";
 */
 //END BUILTINS
 // Application entrypoint (must be set to 'efi_main' for gnu-efi crt0 compatibility)
-
+struct stack *usralloc;
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
 #if defined(_GNU_EFI)
 	InitializeLib(ImageHandle, SystemTable);
 #endif
+	usralloc = kmalloc(sizeof(struct stack));
 	shell(ImageHandle, SystemTable);
 	return EFI_SUCCESS;
 }
