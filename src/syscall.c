@@ -53,7 +53,6 @@ size_t __attribute__((ms_abi)) sysfree(struct args args){
 	while(n){
 		if(n->data == (void *)args.arg0){
 			n->data = NULL;
-			//return uefi_call_wrapper(gBS->FreePool, 1,(void *)args.arg0);
 			kfree((void *)args.arg0);
 			return 0;
 		}
@@ -67,4 +66,8 @@ size_t __attribute__((ms_abi)) syselfload(struct args args){
 	CHAR16 *filename = (CHAR16 *)args.arg0;
 	struct fnargs *fnargs = (struct fnargs *)args.arg1;
 	return elfshell(filename, fnargs);		
+}
+size_t __attribute__((ms_abi)) sysprint(struct args args){
+	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, (CHAR16 *)args.arg0);
+	return 0;
 }

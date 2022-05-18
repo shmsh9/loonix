@@ -14,5 +14,6 @@ void printf(CHAR16 *fmt, ...);
 void putchar(CHAR16 c);
 void puts(CHAR16 *s);
 void print(CHAR16 *s);
+void __internalprint(CHAR16 *str);
 EFI_INPUT_KEY getchar();
 #endif

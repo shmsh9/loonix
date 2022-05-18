@@ -25,10 +25,10 @@ size_t __attribute__((ms_abi)) sysmalloc(struct args args);
 size_t __attribute__((ms_abi)) sysfree(struct args args);
 size_t __attribute__((ms_abi)) close(struct args args);
 size_t __attribute__((ms_abi)) syselfload(struct args args);
+size_t __attribute__((ms_abi)) sysprint(struct args args);
 /*
  stores userland processes allocations
 */
-extern struct stack *usralloc;
 #define SYSCALL(SYS_NUM, args) (syscalls[SYS_NUM].fn(args))
 
 #define SYS_READ    0
@@ -38,4 +38,5 @@ extern struct stack *usralloc;
 #define SYS_MALLOC  4
 #define SYS_FREE    5
 #define SYS_ELFLOAD 6
+#define SYS_PRINT   7
 #endif

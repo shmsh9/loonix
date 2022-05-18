@@ -8,8 +8,6 @@
 struct fnstruct fn[] = {
 		{L"fart",L"    : Farting on you",      fart},
 		{L"clear",L"   : Clear the screen",    clear},
-		{L"fbinit",L"  : Init framebuffer",    fbinit},
-		{L"drawpx",L"  : Draw pixel",          drawpx},
 		{L"lame",L"    : Lame game",           lamegame},
 		{L"date",L"    : Get time",            date},
 		{L"exit",L"    : Exit l00n1x",         exitshell},
@@ -79,7 +77,7 @@ int shell(){
 	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
 	#define PROMPT L"l00n1x $> "
 	Print(L"Date : %d/%d/%d %d:%d:%d UTC\nType help to get some\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
-	UINTN Event;
+	UINTN KeyEvent;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
 	CHAR16 *buff = kcalloc(CMD_BUFF_SIZE+1, sizeof(CHAR16));
 	int posbuff = 0;
@@ -94,12 +92,12 @@ int shell(){
 	args->buff = buff;
 	args->syscalls = syscalls;
 	args->FileSystem = FileSystem;
-	//
-	SIMPLE_INPUT_INTERFACE *stdin = SystemTable->ConIn;
+	//endof should move
 	EFI_INPUT_KEY k = {0};
 	Print(PROMPT);
 	while(1){
-		uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, stdin, &k);
+		uefi_call_wrapper(SystemTable->BootServices->WaitForEvent, 3,1, &SystemTable->ConIn->WaitForKey, &KeyEvent);
+		uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, SystemTable->ConIn, &k);
 		switch(k.ScanCode){
 		//backspace
 		case 0x08:
@@ -214,8 +212,6 @@ int shell(){
 				}
 				break;
 		}	
-	uefi_call_wrapper(SystemTable->ConIn->Reset, 2, SystemTable->ConIn, FALSE);
-	uefi_call_wrapper(SystemTable->BootServices->WaitForEvent,3,1, &SystemTable->ConIn->WaitForKey, &Event);
 	}
 #if defined(_DEBUG)
 	// If running in debug mode, use the EFI shut down call to close QEMU
@@ -263,11 +259,12 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 			k = 0;
 			argv[x] = StrDuplicate(tmp);
 			x++;
-			for(int j = i; j < l; j++)
+			for(int j = i; j < l; j++){
 				if(stdin[j] != L' '){
 					i = j;
 					break;
 				}
+			}
 		}
 		tmp[k] = stdin[i];
 	}
@@ -286,9 +283,8 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 	return ret;
 }
 void cleanargs(int argc, CHAR16 **argv){
-	for(int i = 0; i < argc; i++){
+	for(int i = 0; i < argc; i++)
 		FreePool(argv[i]);
-	}
 }
 int exitshell(struct fnargs *args){
 	Exit(EFI_SUCCESS, 0, NULL);
@@ -307,30 +303,6 @@ int date(struct fnargs *args){
 	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
 	Print(L"%d/%d/%d %d:%d:%d UTC\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
 	return 0;
-}
-int fbinit(struct fnargs *args){
-	uefi_call_wrapper(args->SystemTable->ConOut->Reset,2,args->SystemTable->ConOut, FALSE);
-	uefi_call_wrapper(args->SystemTable->ConOut->SetAttribute,2,args->SystemTable->ConOut, EFI_TEXT_ATTR(EFI_BLUE, EFI_YELLOW));
-	uefi_call_wrapper(args->SystemTable->ConOut->ClearScreen,1,args->SystemTable->ConOut);
-
-	return EFI_SUCCESS;
-	
-}
-int drawpx(struct fnargs *args){
-//	fbinit(args);
-	EFI_STATUS rc;
-    EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
-    rc = LibLocateProtocol(&GraphicsOutputProtocol, (void **)&gop);	
-	EFI_GRAPHICS_OUTPUT_BLT_PIXEL pixels[256];
-	for(int i = 0; i < 256; i++){
-		pixels[i].Blue = 255-i;
-		pixels[i].Red = 240-i;
-		pixels[i].Green = 230-i;
-		pixels[i].Reserved = 0;
-		rc = uefi_call_wrapper(gop->Blt, 10, gop, (EFI_GRAPHICS_OUTPUT_BLT_PIXEL *)&pixels, EfiBltVideoFill, 0, 0, 0, 0, 10, 10, 0);
-
-	}
-	return rc;
 }
 void rehash(CHAR16 *path){
 	

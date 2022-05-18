@@ -1,4 +1,7 @@
 #include <stdio.h>
+void __internalprint(CHAR16 *str){
+	SYSCALL(SYS_PRINT, ((struct args){(size_t)str,0,0,0,0,0}));
+}
 FILE *fopen(CHAR16 *filename, const CHAR16 *mode){
 	FILE *f = malloc(sizeof(FILE));
 	*f = (FILE)SYSCALL(SYS_OPEN, ((struct args){(size_t)filename,(size_t)mode,(size_t)ImageHandle,0,0,0}));
@@ -9,14 +12,11 @@ size_t fread(void *buffer, size_t size, size_t count, FILE *f){
 }
 void putchar(CHAR16 c){
 	CHAR16 tmp[2] = {c, 0};
-	SystemTable->ConOut->OutputString(SystemTable->ConOut, tmp);
-}
-void print(CHAR16 *s){
-	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, s);
+	__internalprint(tmp);
 }
 void puts(CHAR16 *s){
-	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, s);
-	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, L"\n");
+	__internalprint(s);
+	__internalprint(L"\n");
 }
 EFI_INPUT_KEY getchar(){
 	EFI_INPUT_KEY k = {0};
@@ -35,10 +35,9 @@ void printf(CHAR16 *fmt, ...){
 		if(fmt[i] == L'%' && i+1 < l){
 			if(fmt[i+1] == L's'){
 				CHAR16 *ptrstr = va_arg(args, CHAR16*);
-				SystemTable->ConOut->OutputString(SystemTable->ConOut, ptrstr);
+				__internalprint(ptrstr);
 				i += 2;
 			}
-			//Cannot print int == 0 for some reason
 			if(fmt[i+1] == L'd'){
 				CHAR16 tmpnum[64] =  {0};
 				CHAR16 *ptrtmpnum = tmpnum;
@@ -62,10 +61,10 @@ void printf(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				SystemTable->ConOut->OutputString(SystemTable->ConOut, tmpnum);	
+				__internalprint(tmpnum);
 				i += 2;
 			}
-			if(fmt[i+1] == L'x'){
+			if(fmt[i+1] == L'x' || fmt[i+1] == L'X'){
 				CHAR16 tmpnum[64] =  {0};
 				CHAR16 *ptrtmpnum = tmpnum;
 				uint32_t num = va_arg(args, uint32_t);
@@ -73,7 +72,7 @@ void printf(CHAR16 *fmt, ...){
 				if(!num)
 					tmpnum[0] = L'0';
 				while(num){
-						*ptrtmpnum = hexlow[num % 16];
+						*ptrtmpnum = fmt[i+1] == L'x' ? hexlow[num % 16] : hexupp[num %16];
 						ptrtmpnum++;
 						c++;
 						num /= 16;
@@ -87,12 +86,11 @@ void printf(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				SystemTable->ConOut->OutputString(SystemTable->ConOut, tmpnum);	
+				__internalprint(tmpnum);
 				i += 2;
 			}
 		}
 		putchar(fmt[i]);
 	}
 	va_end(args);
-	//Print(fmt, args=ms);
 }

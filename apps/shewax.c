@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
-
 int main(int argc, CHAR16 **argv){
 	CHAR16 *prompt = L"sh33w4x $> ";
-	size_t lprompt = strlen(prompt);
-	CHAR16 *buffercmd = calloc(256, sizeof(CHAR16));
-	size_t positioncmd = 0;
-	print(prompt);
+	//size_t lprompt = strlen(prompt);
+	//CHAR16 *buffercmd = calloc(256, sizeof(CHAR16));
+	//size_t positioncmd = 0;
+	__internalprint(prompt);
 	while(1){
 		EFI_INPUT_KEY k = getchar();
 		switch(k.ScanCode){
@@ -43,9 +42,8 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*RETURN*/
 			case 0x0d:
-				printf(L"\n");
-				printf(prompt);
-				//printf(L"\n%s", prompt);
+				putchar(L'\n');
+				__internalprint(prompt);
 				break;
 			default  :
 				putchar(k.UnicodeChar);
