@@ -26,5 +26,5 @@ void cleanstack(struct stack *stack){
 			n = next;
 		}
 	}
-	end:
+	end:;
 }

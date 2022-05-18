@@ -43,8 +43,8 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*RETURN*/
 			case 0x0d:
-				print(L"\n");
-				print(prompt);
+				printf(L"\n");
+				printf(prompt);
 				//printf(L"\n%s", prompt);
 				break;
 			default  :
