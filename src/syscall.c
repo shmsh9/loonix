@@ -61,7 +61,7 @@ size_t __attribute__((ms_abi)) sysfree(struct args args){
 	Print(L"sysfree() : error : pointer 0x%x not allocated by program\n", args.arg0);
 	return 1;
 }
-size_t __attribute__((ms_abi)) sysloadelf(struct args args){
+size_t __attribute__((ms_abi)) syselfload(struct args args){
 	CHAR16 *filename = (CHAR16 *)args.arg0;
 	struct fnargs *fnargs = (struct fnargs *)args.arg1;
 	return elfshell(filename, fnargs);		

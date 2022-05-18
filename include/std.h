@@ -3,12 +3,7 @@
 #include <efi.h>
 #include <efilib.h>
 #define kfree(ptr) FreePool(ptr)
-#ifdef	__amd64__
-typedef unsigned long long size_t;
-#endif
-#ifdef __aarch64__
-typedef unsigned long size_t;
-#endif
+typedef uintptr_t size_t;
 typedef BOOLEAN bool;
 typedef EFI_FILE_HANDLE FILE;
 

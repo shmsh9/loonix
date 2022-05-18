@@ -9,7 +9,7 @@ EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 
 extern int main(int argc, CHAR16 **argv);
-int entry(struct fnargs *fnargs){
+int __attribute__((ms_abi)) entry(struct fnargs *fnargs){
 	syscalls = fnargs->syscalls;
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
