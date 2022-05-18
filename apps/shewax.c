@@ -33,6 +33,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*CTRL+D*/
 			case 0x04:
+				return 0;
 				break;
 			/*BACKSPACE*/
 			case 0x08:

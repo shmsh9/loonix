@@ -53,7 +53,9 @@ size_t __attribute__((ms_abi)) sysfree(struct args args){
 	while(n){
 		if(n->data == (void *)args.arg0){
 			n->data = NULL;
-			return uefi_call_wrapper(gBS->FreePool, 1,(void *)args.arg0);
+			//return uefi_call_wrapper(gBS->FreePool, 1,(void *)args.arg0);
+			kfree((void *)args.arg0);
+			return 0;
 		}
 		n = n->next;
 	}

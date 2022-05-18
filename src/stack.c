@@ -12,10 +12,12 @@ void pushstack(struct stack *stack, void *data){
 }
 void cleanstack(struct stack *stack){
 	struct node *n = stack->root;
+	stack->root = NULL;
 	if(n){
 		if(!n->next){
 			kfree(n->data);
 			kfree(n);
+			goto end;
 		}
 		while(n->next){
 			struct node *next = n->next;
@@ -23,6 +25,6 @@ void cleanstack(struct stack *stack){
 			kfree(n);
 			n = next;
 		}
-		stack->root = NULL;
 	}
+	end:
 }
