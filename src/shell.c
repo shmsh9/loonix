@@ -4,13 +4,6 @@
  * See COPYING for the full licensing terms.
  */
 #include "shell.h"
-struct syscall syscalls[] = {
-	{read},
-	{write},
-	{open},
-	{sysmalloc},
-	{sysfree}
-};
 //shell builtins
 struct fnstruct fn[] = {
 		{L"fart",L"    : Farting on you",      fart},

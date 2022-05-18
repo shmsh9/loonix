@@ -3,7 +3,8 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
-
+#include "syscall.h"
+extern struct syscall *syscalls;
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
@@ -24,7 +25,6 @@ struct fnstruct {
 #include "lamegame.h"
 #include "elf.h"
 #include "stack.h"
-#include "syscall.h"
 int parseargs(CHAR16 *stdin, CHAR16 **argv);
 void cleanargs(int argc, CHAR16 **argv);
 int shell_exec(struct fnargs *args);
