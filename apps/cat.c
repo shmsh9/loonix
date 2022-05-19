@@ -9,7 +9,7 @@ int main(int argc, CHAR16 **argv){
 	if(argc < 2)
 		return usage(argv);
 	FILE *f = fopen(argv[1], L"r");
-	printf(L"After fopen()\n");
+printf(L"After fopen()\n");
 	if(!f){
 		printf(L"%s : error : cannot open %s\n", argv[0], argv[1]);
 		return -1;

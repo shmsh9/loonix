@@ -1,10 +1,11 @@
 #include "std.h"
 
 void *kmalloc(size_t sz){
-	void *r = 0x0;
-	uefi_call_wrapper(gBS->AllocatePool,3,EfiLoaderData, sz, &r);
-	if(!r){
+	void *r = NULL;
+	EFI_STATUS s = uefi_call_wrapper(gBS->AllocatePool,3,EfiLoaderData, sz, &r);
+	if(!r || s != EFI_SUCCESS){
 		Print(L"error : malloc() : failure\n");
+		return NULL;
 	}
 	return r;
 }

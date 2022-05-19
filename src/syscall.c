@@ -43,9 +43,9 @@ EFIAPI size_t close(struct args args){
 }
 EFIAPI size_t sysmalloc(struct args args){
 	size_t sz = args.arg0;
-	void *r = NULL;
-	uefi_call_wrapper(gBS->AllocatePool,3, EfiLoaderData, sz, &r);
-	pushstack(usralloc, r);
+	void *r = kmalloc(sz);
+	if(r)
+		pushstack(usralloc, r);
 	return (size_t)r;
 }
 EFIAPI size_t sysfree(struct args args){
