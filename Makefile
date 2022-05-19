@@ -1,10 +1,10 @@
 SHELL := /bin/bash
-ARCH            = x64
+ARCH  = x64
 # You can alter the subsystem according to your EFI binary target:
 # 10 = EFI application
 # 11 = EFI boot service driver
 # 12 = EFI runtime driver
-SUBSYSTEM       = 10
+SUBSYSTEM = 10
 
 # Try to auto-detect the target ARCH
 ifeq ($(shell uname -o),Msys)
@@ -153,7 +153,6 @@ main.o:
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
 	@ld -r *.o -o main_.o $(LDARCH)
-	@echo [building userland]
 	@bash scripts/build_bin.sh
 	@mkdir -p image/bin
 	@bash scripts/move_bin.sh
@@ -173,10 +172,8 @@ $(FW_BASE)_$(FW_ARCH).fd:
 
 clean:
 	rm -f main.efi *.o
-	rm -f stdlib/*.o
-	rm -f stdlib/*.a
 	rm -rf image
-
+	rm -f stdlib/*.a
 superclean: clean
 	$(MAKE) -C$(GNUEFI_DIR) ARCH=$(GNUEFI_ARCH) clean
 	rm -f *.fd
