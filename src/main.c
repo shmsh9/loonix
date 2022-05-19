@@ -27,7 +27,8 @@ struct syscall syscalltable[] = {
 	{sysmalloc},
 	{sysfree},
 	{syselfload},
-	{sysprint}
+	{sysprint},
+	{sysreadkey}
 	
 };
 

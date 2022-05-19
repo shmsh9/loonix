@@ -19,10 +19,8 @@ void puts(CHAR16 *s){
 	__internalprint(L"\n");
 }
 EFI_INPUT_KEY getchar(){
-	EFI_INPUT_KEY k = {0};
-	UINTN KeyEvent;
-	uefi_call_wrapper(SystemTable->BootServices->WaitForEvent, 3,1, &SystemTable->ConIn->WaitForKey, &KeyEvent);
-	uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, SystemTable->ConIn, &k);
+	EFI_INPUT_KEY k = {0, 0};
+	SYSCALL(SYS_READKEY, ((struct args){(size_t)&k, 0,0,0,0,0}));
 	return k;
 }
 void printf(CHAR16 *fmt, ...){

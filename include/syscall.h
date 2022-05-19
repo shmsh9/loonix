@@ -16,16 +16,17 @@ struct args{
 };
 
 struct syscall{
-	size_t __attribute__((ms_abi)) (*fn)(struct args);
+	EFIAPI size_t (*fn)(struct args);
 };
-size_t __attribute__((ms_abi)) write(struct args);
-size_t __attribute__((ms_abi)) read(struct args);
-size_t __attribute__((ms_abi)) open(struct args);
-size_t __attribute__((ms_abi)) sysmalloc(struct args args);
-size_t __attribute__((ms_abi)) sysfree(struct args args);
-size_t __attribute__((ms_abi)) close(struct args args);
-size_t __attribute__((ms_abi)) syselfload(struct args args);
-size_t __attribute__((ms_abi)) sysprint(struct args args);
+EFIAPI size_t write(struct args);
+EFIAPI size_t read(struct args);
+EFIAPI size_t open(struct args);
+EFIAPI size_t sysmalloc(struct args args);
+EFIAPI size_t sysfree(struct args args);
+EFIAPI size_t close(struct args args);
+EFIAPI size_t syselfload(struct args args);
+EFIAPI size_t sysprint(struct args args);
+EFIAPI size_t sysreadkey(struct args args);
 /*
  stores userland processes allocations
 */
@@ -39,4 +40,5 @@ size_t __attribute__((ms_abi)) sysprint(struct args args);
 #define SYS_FREE    5
 #define SYS_ELFLOAD 6
 #define SYS_PRINT   7
+#define SYS_READKEY 8
 #endif

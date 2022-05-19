@@ -5,10 +5,13 @@ int main(int argc, CHAR16 **argv){
 	//size_t lprompt = strlen(prompt);
 	//CHAR16 *buffercmd = calloc(256, sizeof(CHAR16));
 	//size_t positioncmd = 0;
+	EFI_INPUT_KEY k = {0, 0};
 	__internalprint(prompt);
 	while(1){
-		EFI_INPUT_KEY k = getchar();
+		k = getchar();
 		switch(k.ScanCode){
+			case 0x00:
+				break;
 			/*UP ARROW*/
 			case 0x01:
 				break;
@@ -23,7 +26,6 @@ int main(int argc, CHAR16 **argv){
 				break;
 		}
 		switch(k.UnicodeChar){
-			/*SCANCODE*/
 			case 0x0 :
 				break;
 			/*CTRL+C*/
