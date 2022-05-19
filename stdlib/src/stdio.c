@@ -10,6 +10,12 @@ FILE *fopen(CHAR16 *filename, const CHAR16 *mode){
 size_t fread(void *buffer, size_t size, size_t count, FILE *f){	
 	return SYSCALL(SYS_READ, ((struct args){(size_t)f, (size_t)buffer, (size_t)(count*size), 0,0,0}));
 }
+size_t fclose(FILE *f){
+	return SYSCALL(SYS_CLOSE, ((struct args){(size_t)f,0,0,0,0,0}));
+}
+size_t fsize(FILE *f){
+	return SYSCALL(SYS_FSIZE, ((struct args){(size_t)f,0,0,0,0,0}));
+}
 void putchar(CHAR16 c){
 	CHAR16 tmp[2] = {c, 0};
 	__internalprint(tmp);

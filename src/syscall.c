@@ -77,3 +77,6 @@ EFIAPI size_t sysreadkey(struct args args){
 	uefi_call_wrapper(SystemTable->ConIn->ReadKeyStroke, 2, SystemTable->ConIn, (EFI_INPUT_KEY *)args.arg0);
 	return 0;
 }
+EFIAPI size_t sysfsize(struct args args){
+	return kfsize(*(FILE *)args.arg0);
+}

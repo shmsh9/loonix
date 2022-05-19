@@ -24,6 +24,7 @@ struct syscall syscalltable[] = {
 	{write},
 	{open},
 	{close},
+	{sysfsize},
 	{sysmalloc},
 	{sysfree},
 	{syselfload},

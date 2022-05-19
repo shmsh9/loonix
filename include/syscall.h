@@ -21,6 +21,7 @@ struct syscall{
 EFIAPI size_t write(struct args);
 EFIAPI size_t read(struct args);
 EFIAPI size_t open(struct args);
+EFIAPI size_t sysfsize(struct args args);
 EFIAPI size_t sysmalloc(struct args args);
 EFIAPI size_t sysfree(struct args args);
 EFIAPI size_t close(struct args args);
@@ -36,9 +37,10 @@ EFIAPI size_t sysreadkey(struct args args);
 #define SYS_WRITE   1
 #define SYS_OPEN    2
 #define SYS_CLOSE   3
-#define SYS_MALLOC  4
-#define SYS_FREE    5
-#define SYS_ELFLOAD 6
-#define SYS_PRINT   7
-#define SYS_READKEY 8
+#define SYS_FSIZE   4
+#define SYS_MALLOC  5
+#define SYS_FREE    6
+#define SYS_ELFLOAD 7
+#define SYS_PRINT   8
+#define SYS_READKEY 9
 #endif
