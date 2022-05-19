@@ -9,7 +9,8 @@ EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 
-extern EFIAPI int main(int argc, CHAR16 **argv);
+extern int main(int argc, CHAR16 **argv);
+
 int EFIAPI entry(struct fnargs *fnargs){
 	syscalls = fnargs->syscalls;
 	ImageHandle = fnargs->ImageHandle;

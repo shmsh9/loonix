@@ -166,10 +166,10 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	int (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
+	int EFIAPI (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
 	//Print(L"Loading program at 0x%x\n", fnptr);
 	//Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
-	int ret = uefi_call_wrapper(fnptr, 1,fnargs);
+	int ret = fnptr(fnargs);
 	//Print(L"Program returned 0x%x\n", ret);
 	kfree(prog);
 	return ret;
