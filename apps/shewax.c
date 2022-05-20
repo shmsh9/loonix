@@ -31,10 +31,11 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*CTRL+C*/
 			case 0x03:
-				puts(L"^C");
+				printf(L"^C\n%s",prompt);
 				break;
 			/*CTRL+D*/
 			case 0x04:
+				puts(L"^D");
 				return 0;
 				break;
 			/*BACKSPACE*/
@@ -45,7 +46,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*RETURN*/
 			case 0x0d:
-				printf("\n%s", prompt);
+				printf(L"\n%s", prompt);
 				break;
 			default  :
 				/*Only print ASCII (Printable)*/

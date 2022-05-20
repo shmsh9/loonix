@@ -76,9 +76,10 @@ else ifeq ($(ARCH),aa64)
   CROSS_COMPILE = $(GCC_ARCH)-linux-android-
   EP_PREFIX     =
   CFLAGS        = -fpic -fshort-wchar
-  LDFLAGS       = -Wl, -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
+  LDFLAGS       = -Wl,--defsym=EFI_SUBSYSTEM=$(SUBSYSTEM)
   CRT0_LIBS     = -lgnuefi
   QEMU_OPTS     = -M virt -cpu cortex-a57
+  LDARCH        = --oformat=pei-aarch64-little
 endif
 FW_ARCH         = $(shell echo $(ARCH) | tr a-z A-Z)
 FW_ZIP          = $(FW_BASE)-$(FW_ARCH).zip
@@ -152,11 +153,11 @@ main.o:
 	@echo  [CC]  $(notdir $@)
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
-	@ld -r *.o -o main_.o $(LDARCH)
+	@$(CROSS_COMPILE)ld -r *.o -o main_.o
+	@mv main_.o main.o
 	@bash scripts/build_bin.sh
 	@mkdir -p image/bin
 	@bash scripts/move_bin.sh
-	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
 	$(QEMU) $(QEMU_OPTS) -nographic -bios ./$(FW_BASE)_$(FW_ARCH).fd -s -net none -hda fat:rw:image
