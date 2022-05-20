@@ -11,7 +11,7 @@
 
 extern struct stack *usralloc;
 struct elf_header{
-	unsigned char magic_number[4];
+	uint32_t  magic_number;
 	uint8_t   arch;
 	uint8_t   endianness;
 	uint8_t   elf_header_version;
