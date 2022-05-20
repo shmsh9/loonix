@@ -1,13 +1,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 int main(int argc, CHAR16 **argv){
-	CHAR16 *prompt = L"sh33w4x $> ";
+	CHAR16 prompt[] = L"sh33w4x $> ";
 	
 	//size_t lprompt = strlen(prompt);
 	//CHAR16 *buffercmd = calloc(256, sizeof(CHAR16));
 	//size_t positioncmd = 0;
 	EFI_INPUT_KEY k = {0, 0};
-	printf(prompt);
+	__internalprint(prompt);
 	while(1){
 		k = getchar();
 		switch(k.ScanCode){
@@ -31,7 +31,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*CTRL+C*/
 			case 0x03:
-				puts(L"^C");
+				__internalprint(L"^C");
 				break;
 			/*CTRL+D*/
 			case 0x04:
@@ -45,7 +45,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*RETURN*/
 			case 0x0d:
-				printf(L"\n%s", prompt);
+				__internalprint(prompt);
 				break;
 			default  :
 				/*Only print ASCII (Printable)*/

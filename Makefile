@@ -105,7 +105,7 @@ endif
 CC             := $(CROSS_COMPILE)gcc
 OBJCOPY        := $(CROSS_COMPILE)objcopy
 CFLAGS         += -fno-stack-protector -Wshadow -Wall -Wunused -Werror-implicit-function-declaration
-CFLAGS         += -I$(GNUEFI_DIR)/inc -I$(GNUEFI_DIR)/inc/$(GNUEFI_ARCH) -I$(GNUEFI_DIR)/inc/protocol
+CFLAGS         += -ggdb -I$(GNUEFI_DIR)/inc -I$(GNUEFI_DIR)/inc/$(GNUEFI_ARCH) -I$(GNUEFI_DIR)/inc/protocol
 CFLAGS         += -DCONFIG_$(GNUEFI_ARCH) -D__MAKEWITH_GNUEFI -DGNU_EFI_USE_MS_ABI
 CFLAGS         += -Iinclude
 LDFLAGS        += -L$(GNUEFI_DIR)/$(GNUEFI_ARCH)/lib -e $(EP_PREFIX)efi_main
@@ -144,7 +144,7 @@ ifeq ($(CRT0_LIBS),)
 else
 	@$(CC) $(LDFLAGS) $< -o $*.elf $(LIBS)
 	@$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel* \
-	            -j .rela* -j .reloc -j .eh_frame -O binary $*.elf $@
+		-j .rela* -j .reloc -j .eh_frame -O binary $*.elf $@
 	@rm -f $*.elf
 	@rm -f *.o
 endif
@@ -159,7 +159,7 @@ main.o:
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
-	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -nographic -net none -hda fat:rw:image
+	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -s -nographic -net none -hda fat:rw:image
 image/efi/boot/boot$(ARCH).efi: main.efi
 	mkdir -p image/efi/boot
 	cp -f $< $@

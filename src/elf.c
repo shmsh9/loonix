@@ -95,6 +95,8 @@ void printseg(const struct elf *elf){
 	CHAR16 *segt[] = {L"null", L"load", L"dynamic", L"interp", L"note"};
 	Print(L"[PROGRAM]\n");
 	for(int i = 0; i < elf->program.count; i++){
+		if(elf->program.entries[i].segment_type != 1)
+			continue;
 		Print(
 			L"OFFSET: 0x%x\n"
 			L"PVADDR: 0x%x\n"
@@ -114,6 +116,7 @@ void printseg(const struct elf *elf){
 			);
 		Print(L"\n");
 	}
+	/*
 	Print(L"\n");
 	Print(L"[SECTION]\n");
 	for(int i = 0; i < elf->section.count; i++){
@@ -136,6 +139,7 @@ void printseg(const struct elf *elf){
 			);
 		Print(L"\n");
 	}
+	*/
 }
 uintptr_t baseaddr(struct elf *elf){
 #define MIN2(a, b) ((a) < (b) ? (a) : (b))

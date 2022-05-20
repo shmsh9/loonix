@@ -68,7 +68,7 @@ EFIAPI size_t syselfload(struct args args){
 	return elfshell(filename, fnargs);		
 }
 EFIAPI size_t sysprint(struct args args){
-	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2, SystemTable->ConOut, (CHAR16 *)args.arg0);
+	uefi_call_wrapper(SystemTable->ConOut->OutputString, 2,SystemTable->ConOut, (CHAR16 *)args.arg0);
 	return 0;
 }
 EFIAPI size_t sysreadkey(struct args args){
