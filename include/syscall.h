@@ -16,18 +16,18 @@ struct args{
 };
 
 struct syscall{
-	EFIAPI size_t (*fn)(struct args);
+	size_t EFIAPI (*fn)(struct args);
 };
-EFIAPI size_t write(struct args);
-EFIAPI size_t read(struct args);
-EFIAPI size_t open(struct args);
-EFIAPI size_t sysfsize(struct args args);
-EFIAPI size_t sysmalloc(struct args args);
-EFIAPI size_t sysfree(struct args args);
-EFIAPI size_t close(struct args args);
-EFIAPI size_t syselfload(struct args args);
-EFIAPI size_t sysprint(struct args args);
-EFIAPI size_t sysreadkey(struct args args);
+size_t EFIAPI write(struct args);
+size_t EFIAPI read(struct args);
+size_t EFIAPI open(struct args);
+size_t EFIAPI sysfsize(struct args args);
+size_t EFIAPI sysmalloc(struct args args);
+size_t EFIAPI sysfree(struct args args);
+size_t EFIAPI close(struct args args);
+size_t EFIAPI syselfload(struct args args);
+size_t EFIAPI sysprint(struct args args);
+size_t EFIAPI sysreadkey(struct args args);
 /*
  stores userland processes allocations
 */

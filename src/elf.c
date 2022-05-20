@@ -170,7 +170,7 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 	//Print(L"Loading program at 0x%x\n", fnptr);
 	//Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
 	int ret = fnptr(fnargs);
-	//Print(L"Program returned 0x%x\n", ret);
+	Print(L"%s returned 0x%x\n", fnargs->argv[0],ret);
 	kfree(prog);
 	return ret;
 }

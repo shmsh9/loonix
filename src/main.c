@@ -41,6 +41,8 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	InitializeLib(ImageHandle, SystemTable);
 #endif
 	uefi_call_wrapper(BS->LocateProtocol, 3, &FileSystemProtocol, NULL, (void **)&FileSystem);
+	//removes 5min timeout
+	uefi_call_wrapper(SystemTable->BootServices->SetWatchdogTimer,4,0, 0, 0, NULL);
 	usralloc = kcalloc(1,sizeof(struct stack));
 	syscalls = syscalltable;
 	shell();

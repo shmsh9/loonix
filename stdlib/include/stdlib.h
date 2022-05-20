@@ -1,9 +1,10 @@
 #ifndef STDLIB_H_
 #define STDLIB_H_
+#include <efibind.h>
+#include <eficompiler.h>
 #include <syscall.h>
 #include <shell.h>
 #include <stdlib_h.h>
-#include <efibind.h>
 struct syscall *syscalls;
 EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
