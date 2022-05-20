@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 ARCH="$(uname -m)"
-CFLAGS="-fpic -D__MAKEWITH_GNUEFI -Wshadow -Wall -Bsymbolic -m64 -DGNU_EFI_USE_MS_ABI -nodefaultlibs -fno-stack-protector -nostdlib -ffreestanding -fshort-wchar -Iinclude -Ignu-efi/inc/"
+CFLAGS="-fpic -D__MAKEWITH_GNUEFI -Wshadow -Wall -Bsymbolic -m64 -DGNU_EFI_USE_MS_ABI -nodefaultlibs -fno-stack-protector -nostdlib -ffreestanding -fshort-wchar"
 IFLAGS="-Iinclude -Ignu-efi/inc/ -Istdlib/include -Ignu-efi/inc/$ARCH"
 #build "libc"
 echo "[building stdlib]"

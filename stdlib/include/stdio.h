@@ -1,6 +1,5 @@
 #ifndef STDIO_H_
 #define STDIO_H_
-#include <type.h>
 #include <string.h>
 #include <stdlib_h.h>
 #include <syscall.h>

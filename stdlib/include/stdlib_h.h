@@ -1,6 +1,5 @@
 #ifndef STDLIB_H_H_
 #define STDLIB_H_H_
-#include <type.h>
 #include <efi.h>
 #include <efilib.h>
 #include <syscall.h>
