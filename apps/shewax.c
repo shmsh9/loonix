@@ -7,7 +7,7 @@ int main(int argc, CHAR16 **argv){
 	//CHAR16 *buffercmd = calloc(256, sizeof(CHAR16));
 	//size_t positioncmd = 0;
 	EFI_INPUT_KEY k = {0, 0};
-	__internalprint(prompt);
+	printf(prompt);
 	while(1){
 		k = getchar();
 		switch(k.ScanCode){
@@ -31,7 +31,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*CTRL+C*/
 			case 0x03:
-				__internalprint(L"^C");
+				puts(L"^C");
 				break;
 			/*CTRL+D*/
 			case 0x04:
@@ -45,7 +45,7 @@ int main(int argc, CHAR16 **argv){
 				break;
 			/*RETURN*/
 			case 0x0d:
-				__internalprint(prompt);
+				printf("\n%s", prompt);
 				break;
 			default  :
 				/*Only print ASCII (Printable)*/

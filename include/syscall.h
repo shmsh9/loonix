@@ -31,7 +31,7 @@ size_t EFIAPI sysreadkey(struct args *args);
 /*
  stores userland processes allocations
 */
-#define SYSCALL(SYS_NUM) (syscalls[SYS_NUM].fn(syscallargs))
+#define SYSCALL(SYS_NUM) syscalls[SYS_NUM].fn(syscallargs)
 
 #define SYS_READ    0
 #define SYS_WRITE   1

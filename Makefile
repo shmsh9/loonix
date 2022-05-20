@@ -99,7 +99,7 @@ ifneq ($(SYSTEMROOT),)
   # so we remove the cross compiler tuple altogether
   CROSS_COMPILE =
 else
-  QEMU          = qemu-system-$(QEMU_ARCH) #-nographic
+  QEMU          = qemu-system-$(QEMU_ARCH)
 endif
 
 CC             := $(CROSS_COMPILE)gcc
@@ -145,7 +145,7 @@ else
 	@$(CC) $(LDFLAGS) $< -o $*.elf $(LIBS)
 	@$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel* \
 		-j .rela* -j .reloc -j .eh_frame -O binary $*.elf $@
-	@rm -f $*.elf
+	#@rm -f $*.elf
 	@rm -f *.o
 endif
 main.o:
@@ -159,7 +159,7 @@ main.o:
 	@mv main_.o main.o
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
-	$(QEMU) $(QEMU_OPTS) -bios ./$(FW_BASE)_$(FW_ARCH).fd -s -nographic -net none -hda fat:rw:image
+	$(QEMU) $(QEMU_OPTS) -nographic -bios ./$(FW_BASE)_$(FW_ARCH).fd -s -net none -hda fat:rw:image
 image/efi/boot/boot$(ARCH).efi: main.efi
 	mkdir -p image/efi/boot
 	cp -f $< $@

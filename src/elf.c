@@ -170,11 +170,14 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	int EFIAPI (*fnptr)(struct fnargs *) = (prog+elf->header.program_entry_position);
-	//Print(L"Loading program at 0x%x\n", fnptr);
-	//Print(L"Sending fnargs ptr at 0x%x\n", fnargs);
+	int EFIAPI (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
+	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
+		Print(L"loading program : 0x%x\n", fnptr);
+	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
+		Print(L"program size is : 0x%x bytes\n", alloc);
 	int ret = fnptr(fnargs);
-	Print(L"%s returned 0x%x\n", fnargs->argv[0],ret);
+	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
+		Print(L"%s returned    : 0x%x\n", fnargs->argv[0],ret);
 	kfree(prog);
 	return ret;
 }

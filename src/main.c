@@ -45,6 +45,9 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	uefi_call_wrapper(SystemTable->BootServices->SetWatchdogTimer,4,0, 0, 0, NULL);
 	usralloc = kcalloc(1,sizeof(struct stack));
 	syscalls = syscalltable;
+	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_BACKGROUND_BLACK);
+	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_WHITE);
+	uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
 	shell();
 	kfree(usralloc);
 	return EFI_SUCCESS;
