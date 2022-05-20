@@ -146,7 +146,7 @@ else
 	@$(CC) $(LDFLAGS) $< -o $*.elf $(LIBS)
 	@$(OBJCOPY) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel* \
 		-j .rela* -j .reloc -j .eh_frame -O binary $*.elf $@
-	#@rm -f $*.elf
+	@rm -f $*.elf
 	@rm -f *.o
 endif
 main.o:

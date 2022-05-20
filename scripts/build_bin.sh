@@ -7,17 +7,20 @@ if [[ ${CROSS_COMPILE} != "" ]]
 fi
 CC="${CROSS_COMPILE}gcc"
 echo "[building for $ARCH]"
-CFLAGS="-g -s -fpic -D__MAKEWITH_GNUEFI -Wshadow -Wall \
--Bsymbolic -DGNU_EFI_USE_MS_ABI -nodefaultlibs \
--fno-strict-aliasing -fno-merge-all-constants -fno-stack-check \
--fno-stack-protector -nostdlib -ffreestanding -fshort-wchar -DCONFIG_$ARCH \
---std=c11 -DGNU_EFI_USE_MS_ABI"
+IFLAGS="-Iinclude -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Istdlib/include -Ignu-efi/inc/$ARCH"
+LDFLAGS="-Wl,--defsym=EFI_SUBSYSTEM=10 -Lgnu-efi/$ARCH/lib -fpic \
+-s -Wl,-Bsymbolic -nostdlib -shared"
+CFLAGS="-Wpedantic -Wshadow -Wall -Werror-implicit-function-declaration \
+-DGNU_EFI_USE_MS_ABI -D__MAKEWITH_GNUEFI -DCONFIG_$ARCH \
+-nodefaultlibs -ffreestanding -fno-strict-aliasing \
+-fno-merge-all-constants -fno-stack-check \
+-fno-stack-protector -fshort-wchar \
+-fno-jump-tables --std=c11"
 x86_64CFLAGS="-m64"
-aarch64CFLAGS="-march=armv8-a"
+aarch64CFLAGS=""
 EVIL="${ARCH}CFLAGS"
 CFLAGS="${!EVIL} $CFLAGS"
 echo $CFLAGS
-IFLAGS="-Iinclude -Ignu-efi/inc/ -Istdlib/include -Ignu-efi/inc/$ARCH"
 
 #build "libc"
 echo "[building stdlib]"
@@ -34,5 +37,5 @@ echo "[building userland]"
 for binary in apps/*.c;
 do
 	echo "[CC] $binary"
-	$CC $CFLAGS $IFLAGS -e entry "$binary" -o "${binary%.c}" stdlib/stdlib.a
+	$CC $LDFLAGS $CFLAGS $IFLAGS -e entry "$binary" -o "${binary%.c}" stdlib/stdlib.a
 done

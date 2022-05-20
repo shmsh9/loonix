@@ -7,27 +7,27 @@
 #include <elf.h>
 #include <shell.h>
 struct args{
-	size_t arg0;
-	size_t arg1;
-	size_t arg2;
-	size_t arg3;
-	size_t arg4;
-	size_t arg5;
+	uint64_t arg0;
+	uint64_t arg1;
+	uint64_t arg2;
+	uint64_t arg3;
+	uint64_t arg4;
+	uint64_t arg5;
 };
 
 struct syscall{
-	size_t EFIAPI (*fn)(struct args *);
+	uint64_t EFIAPI (*fn)(struct args *);
 };
-size_t EFIAPI write(struct args *args);
-size_t EFIAPI read(struct args *args);
-size_t EFIAPI open(struct args *args);
-size_t EFIAPI sysfsize(struct args *args);
-size_t EFIAPI sysmalloc(struct args *args);
-size_t EFIAPI sysfree(struct args *args);
-size_t EFIAPI close(struct args *args);
-size_t EFIAPI syselfload(struct args *args);
-size_t EFIAPI sysprint(struct args *args);
-size_t EFIAPI sysreadkey(struct args *args);
+uint64_t EFIAPI write(struct args *args);
+uint64_t EFIAPI read(struct args *args);
+uint64_t EFIAPI open(struct args *args);
+uint64_t EFIAPI sysfsize(struct args *args);
+uint64_t EFIAPI sysmalloc(struct args *args);
+uint64_t EFIAPI sysfree(struct args *args);
+uint64_t EFIAPI close(struct args *args);
+uint64_t EFIAPI syselfload(struct args *args);
+uint64_t EFIAPI sysprint(struct args *args);
+uint64_t EFIAPI sysreadkey(struct args *args);
 /*
  stores userland processes allocations
 */
