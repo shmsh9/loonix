@@ -155,6 +155,7 @@ main.o:
 	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
 	@$(CROSS_COMPILE)ld -r *.o -o main_.o
 	@mv main_.o main.o
+	export CROSS_COMPILE=$(CROSS_COMPILE)
 	@bash scripts/build_bin.sh
 	@mkdir -p image/bin
 	@bash scripts/move_bin.sh
