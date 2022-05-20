@@ -1,20 +1,29 @@
 #include <stdio.h>
 void __internalprint(CHAR16 *str){
-	SYSCALL(SYS_PRINT, ((struct args){(size_t)str,0,0,0,0,0}));
+	syscallargs->arg0 = (size_t)str;
+	SYSCALL(SYS_PRINT);
 }
 FILE *fopen(CHAR16 *filename, const CHAR16 *mode){
 	FILE *f = malloc(sizeof(FILE));
-	*f = (FILE)SYSCALL(SYS_OPEN, ((struct args){(size_t)filename,(size_t)mode,(size_t)ImageHandle,0,0,0}));
+	syscallargs->arg0 = (size_t)filename;
+	syscallargs->arg1 = (size_t)mode;
+	syscallargs->arg2 = (size_t)ImageHandle;
+	*f = (FILE)SYSCALL(SYS_OPEN);
 	return f;
 }
 size_t fread(void *buffer, size_t size, size_t count, FILE *f){	
-	return SYSCALL(SYS_READ, ((struct args){(size_t)f, (size_t)buffer, (size_t)(count*size), 0,0,0}));
+	syscallargs->arg0 = (size_t)f;
+	syscallargs->arg1 = (size_t)buffer;
+	syscallargs->arg2 = (size_t)(count*size);
+	return SYSCALL(SYS_READ);
 }
 size_t fclose(FILE *f){
-	return SYSCALL(SYS_CLOSE, ((struct args){(size_t)f,0,0,0,0,0}));
+	syscallargs->arg0 = (size_t)f;
+	return SYSCALL(SYS_CLOSE);
 }
 size_t fsize(FILE *f){
-	return SYSCALL(SYS_FSIZE, ((struct args){(size_t)f,0,0,0,0,0}));
+	syscallargs->arg0 = (size_t)f;
+	return SYSCALL(SYS_FSIZE);
 }
 void putchar(CHAR16 c){
 	CHAR16 tmp[2] = {c, 0};
@@ -26,7 +35,8 @@ void puts(CHAR16 *s){
 }
 EFI_INPUT_KEY getchar(){
 	EFI_INPUT_KEY k = {0, 0};
-	SYSCALL(SYS_READKEY, ((struct args){(size_t)&k, 0,0,0,0,0}));
+	syscallargs->arg0 = (size_t)&k;
+	SYSCALL(SYS_READKEY);
 	return k;
 }
 void printf(CHAR16 *fmt, ...){

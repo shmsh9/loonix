@@ -9,6 +9,7 @@ typedef EFI_FILE_HANDLE FILE;
 extern EFI_SYSTEM_TABLE *SystemTable;
 extern EFI_HANDLE ImageHandle; 
 extern struct syscall *syscalls;
+extern struct args *syscallargs;
 void printf(CHAR16 *fmt, ...);
 void putchar(CHAR16 c);
 void puts(CHAR16 *s);

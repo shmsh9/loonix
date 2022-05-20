@@ -1,6 +1,7 @@
 #include <stdlib_h.h>
 void *malloc(size_t sz){
-	return (void*)SYSCALL(SYS_MALLOC, ((struct args){sz,0,0,0,0,0}));
+	syscallargs->arg0 = sz;
+	return (void*)SYSCALL(SYS_MALLOC);
 }
 void *calloc(size_t elementCount, size_t elementSize){
 	void *r = malloc(elementCount*elementSize);
@@ -9,5 +10,6 @@ void *calloc(size_t elementCount, size_t elementSize){
 	return r;
 }
 void free(void *ptr){
-	SYSCALL(SYS_FREE, ((struct args){(size_t)ptr,0,0,0,0,0}));
+	syscallargs->arg0 = (size_t)ptr;
+	SYSCALL(SYS_FREE);
 }
