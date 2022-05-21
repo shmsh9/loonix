@@ -11,10 +11,10 @@ struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
 	CHAR16 *buff;
-	EFI_SIMPLE_TEXT_IN_PROTOCOL stdin;
-	EFI_SIMPLE_TEXT_OUT_PROTOCOL stdout;
 	CHAR16 *argv[256];
+	char *charargv[256];
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
+	EFI_RUNTIME_SERVICES *RuntimeServices;
 	unsigned int argc;
 };
 struct fnstruct {

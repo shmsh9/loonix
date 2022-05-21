@@ -6,12 +6,14 @@
 EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-extern int main(int argc, CHAR16 **argv);
+EFI_RUNTIME_SERVICES *RuntimeServices;
+extern int main(int argc, char **argv);
 
 int EFIAPI entry(struct fnargs *fnargs){
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
 	FileSystem = fnargs->FileSystem;
-	return main(fnargs->argc, fnargs->argv); 
+	RuntimeServices = fnargs->RuntimeServices;
+	return main(fnargs->argc, fnargs->charargv); 
 }
 #endif

@@ -16,6 +16,9 @@ struct fnstruct fn[] = {
 
 int shell_exec(struct fnargs *args){
 	args->argc = parseargs(args->buff,args->argv);
+	for(int i = 0; i < args->argc; i++){
+		args->charargv[i] = (char *)StrDuplicate(args->argv[i]);
+	}
 	if(args->argv[0][0] == L'\0')
 		return 0;
 	if(StrCmp(args->argv[0], L"help") == 0){
@@ -89,6 +92,7 @@ int shell(){
 	args->SystemTable = SystemTable;
 	args->buff = buff;
 	args->FileSystem = FileSystem;
+	args->RuntimeServices = gRT;
 	//endof should move
 	EFI_INPUT_KEY k = {0};
 	Print(PROMPT);
