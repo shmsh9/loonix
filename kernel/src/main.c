@@ -1,8 +1,13 @@
 #include <kernel.h>
 
-int entry(struct fnargs *fnargs){
-	fnargs->SystemTable->ConOut->OutputString(fnargs->SystemTable->ConOut, L"henlo\n");
-//	return main(fnargs->argc, fnargs->charargv); 
+int main(struct fnargs *fnargs){
+    fnargs->SystemTable->out->output_string(fnargs->SystemTable->out, L"Hello World !\n");
+//	return main(fnargs->argc, fnargs->charargv);
+    while (1)
+    {
+
+    }
+    
 	return 0xdeadcaca;
 }
 

@@ -5,12 +5,12 @@
 #include <shell.h>
 #include <stdlib_h.h>
 #include <string.h>
-EFI_HANDLE ImageHandle;
+efi_handle_t ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 extern int main(int argc, CHAR16 **argv);
 
-int EFIAPI entry(struct fnargs *fnargs){
+int entry(struct fnargs *fnargs){
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
 	FileSystem = fnargs->FileSystem;

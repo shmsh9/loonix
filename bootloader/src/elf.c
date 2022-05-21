@@ -165,12 +165,12 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 	for(int i = 0; i < elf->header.entry_program_number; i++){
 		//LOAD == 0x01 entry PHDR == 0x06
 		if(elf->program.entries[i].segment_type == 0x01 || elf->program.entries[i].segment_type == 0x06){
-			void *addr = prog + elf->program.entries[i].p_vaddr - base;
+			void *addr =  (void *)((uintptr_t)prog + elf->program.entries[i].p_vaddr - base);
 			SetMem((addr), 0, elf->program.entries[i].p_memsz);
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	int SYSVABI (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
+	int SYSVABI (*fnptr)(struct fnargs *) = (int SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf->header.program_entry_position);
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
 		Print(L"loading program : 0x%x\n", fnptr);
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
@@ -186,7 +186,7 @@ int usage(CHAR16 **argv){
 	return -1;
 }
 int elfshell(CHAR16 *filename, struct fnargs *fnargs){
-	FILE f = kfopen(filename, L"r", fnargs->ImageHandle);
+	FILE *f = kfopen(filename, L"r", fnargs->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", filename);
 		return -1;
@@ -229,7 +229,7 @@ int elfmain(struct fnargs *fnargs){
 	if(StrCmp(argv[1], L"-h") == 0 || StrCmp(argv[1], L"--help") == 0)
 		return usage(argv);
 
-	FILE f = kfopen(argv[2], L"r", fnargs->ImageHandle);
+	FILE *f = kfopen(argv[2], L"r", fnargs->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", argv[2]);
 		return -1;

@@ -7,7 +7,7 @@
 #include <efilib.h>
 typedef EFI_FILE_HANDLE FILE;
 extern EFI_SYSTEM_TABLE *SystemTable;
-extern EFI_HANDLE ImageHandle; 
+extern efi_handle_t ImageHandle; 
 extern struct syscall *syscalls;
 extern struct args *syscallargs;
 void printf(CHAR16 *fmt, ...);

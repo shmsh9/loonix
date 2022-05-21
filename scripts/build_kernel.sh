@@ -9,7 +9,7 @@ CC="${CROSS_COMPILE}gcc"
 LD="${CROSS_COMPILE}ld"
 echo "[building for $ARCH]"
 IFLAGS="-Ibootloader/include -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Ikernel/include -Ignu-efi/inc/$ARCH"
-LDFLAGS="-shared -fPIC -e entry"
+LDFLAGS="-fPIC -shared -e entry"
 CFLAGS="-fPIC -pedantic -Wshadow -Wall -Werror-implicit-function-declaration \
 -DGNU_EFI_USE_MS_ABI -nodefaultlibs -nostdlib -ffreestanding \
 -fno-stack-check -fno-stack-protector -fshort-wchar"

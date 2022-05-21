@@ -1,20 +1,16 @@
 #ifndef SHELL_H_
 #define SHELL_H_
 #include <efi.h>
-#include <efilib.h>
-#include <libsmbios.h>
 
 #define BOOTLOADER_NAME L"loonixloader"
 #define PROMPT BOOTLOADER_NAME L" $> "
 
 struct fnargs{
-	EFI_HANDLE ImageHandle;
+	efi_handle_t ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
 	CHAR16 *buff;
 	CHAR16 *argv[256];
 	char *charargv[256];
-	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-	EFI_RUNTIME_SERVICES *RuntimeServices;
 	unsigned int argc;
 };
 struct fnstruct {
