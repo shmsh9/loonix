@@ -12,5 +12,6 @@ int main(int argc, char **argv){
     EFI_TIME Time;
 	RuntimeServices->GetTime(&Time, NULL);
     SystemTable->ConOut->OutputString(SystemTable->ConOut, L"Hello from kernel\n");
+    SystemTable->ConOut->OutputString(SystemTable->ConOut, L"Hello again\n");
     return Time.Second;
 }

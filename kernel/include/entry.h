@@ -2,14 +2,15 @@
 #define ENTRY_H_
 #include <efi.h>
 #include <shell.h>
-
+#include <efibind.h>
+#include <eficompiler.h>
 EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 EFI_RUNTIME_SERVICES *RuntimeServices;
 extern int main(int argc, char **argv);
 
-int EFIAPI entry(struct fnargs *fnargs){
+int entry(struct fnargs *fnargs){
 	ImageHandle = fnargs->ImageHandle;
 	SystemTable = fnargs->SystemTable;
 	FileSystem = fnargs->FileSystem;

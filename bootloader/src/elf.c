@@ -170,7 +170,7 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	int EFIAPI (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
+	int __attribute__((sysv_abi)) (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
 		Print(L"loading program : 0x%x\n", fnptr);
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
