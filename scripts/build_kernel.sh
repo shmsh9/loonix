@@ -6,10 +6,11 @@ if [[ ${CROSS_COMPILE} != "" ]]
 		ARCH="$(uname -m)"
 fi
 CC="${CROSS_COMPILE}gcc"
+LD="${CROSS_COMPILE}ld"
 echo "[building for $ARCH]"
 IFLAGS="-Ibootloader/include -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Ikernel/include -Ignu-efi/inc/$ARCH"
-LDFLAGS=""
-CFLAGS="-fPIC -Wpedantic -Wshadow -Wall -Werror-implicit-function-declaration \
+LDFLAGS="-e entry"
+CFLAGS="-fPIC -pedantic -Wshadow -Wall -Werror-implicit-function-declaration \
 -DGNU_EFI_USE_MS_ABI -nodefaultlibs -nostdlib -ffreestanding \
 -fno-stack-check -fno-stack-protector -fshort-wchar"
 x86_64CFLAGS="-m64"
@@ -19,4 +20,9 @@ CFLAGS="${!EVIL} $CFLAGS"
 echo $CFLAGS
 
 echo "[building kernel]"
-$CC $LDFLAGS $CFLAGS $IFLAGS -e entry kernel/src/*.c -o kernel/kernel.elf
+for object in kernel/src/*.c
+do
+	$CC $CFLAGS $IFLAGS -c $object -o "${object%.c}.o"
+done
+$LD $LDFLAGS kernel/src/*.o -o kernel/kernel.elf
+rm -rf kernel/src/*.o
