@@ -11,10 +11,8 @@ EFI_RUNTIME_SERVICES *RuntimeServices;
 extern int main(int argc, char **argv);
 
 int entry(struct fnargs *fnargs){
-	ImageHandle = fnargs->ImageHandle;
-	SystemTable = fnargs->SystemTable;
-	FileSystem = fnargs->FileSystem;
-	RuntimeServices = fnargs->RuntimeServices;
-	return main(fnargs->argc, fnargs->charargv); 
+	fnargs->SystemTable->ConOut->OutputString(fnargs->SystemTable->ConOut, L"henlo\n");
+//	return main(fnargs->argc, fnargs->charargv); 
+	return 0xdeadcaca;
 }
 #endif
