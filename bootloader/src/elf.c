@@ -1,4 +1,4 @@
-#include "elf.h"
+#include <elf.h>
 void parseheader(struct elf *elf, uint8_t *buff){
 	CopyMem(&elf->header, buff, sizeof(struct elf_header));
 }

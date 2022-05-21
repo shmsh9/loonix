@@ -106,8 +106,8 @@ endif
 CC             := $(CROSS_COMPILE)gcc
 OBJCOPY        := $(CROSS_COMPILE)objcopy
 CFLAGS         += -fno-stack-protector -Wshadow -Wall -Wunused -Werror-implicit-function-declaration
-CFLAGS         += -ggdb -I$(GNUEFI_DIR)/inc -I$(GNUEFI_DIR)/inc/$(GNUEFI_ARCH) -I$(GNUEFI_DIR)/inc/protocol
-CFLAGS         += -DCONFIG_$(GNUEFI_ARCH) -D__MAKEWITH_GNUEFI -DGNU_EFI_USE_MS_ABI
+CFLAGS         += -I$(GNUEFI_DIR)/inc -I$(GNUEFI_DIR)/inc/$(GNUEFI_ARCH) -I$(GNUEFI_DIR)/inc/protocol
+CFLAGS         += -Ibootloader/include -DCONFIG_$(GNUEFI_ARCH) -D__MAKEWITH_GNUEFI -DGNU_EFI_USE_MS_ABI
 CFLAGS         += -Iinclude
 LDFLAGS        += -L$(GNUEFI_DIR)/$(GNUEFI_ARCH)/lib -e $(EP_PREFIX)efi_main
 LDFLAGS        += -s -Wl,-Bsymbolic -nostdlib -shared
@@ -152,13 +152,13 @@ endif
 main.o:
 	@echo  [CC]  $(notdir $@)
 	@#$(CC) $(CFLAGS) -ffreestanding -c $<
-	@$(CC) $(CFLAGS) -ffreestanding src/*.c -c $<
+	@$(CC) $(CFLAGS) -ffreestanding bootloader/src/*.c -c $<
 	@$(CROSS_COMPILE)ld -r *.o -o main_.o
 	@mv main_.o main.o
 	export CROSS_COMPILE=$(CROSS_COMPILE)
-	@bash scripts/build_bin.sh
-	@mkdir -p image/bin
-	@bash scripts/move_bin.sh
+	@bash scripts/build_kernel.sh
+	@mkdir -p image
+	@mv kernel/kernel.elf image/
 qemu: CFLAGS += -D_DEBUG
 qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
 	$(QEMU) $(QEMU_OPTS) -nographic -bios ./$(FW_BASE)_$(FW_ARCH).fd -s -net none -hda fat:rw:image

@@ -3,6 +3,10 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
+
+#define BOOTLOADER_NAME L"loonixloader"
+#define PROMPT BOOTLOADER_NAME L" $> "
+
 struct fnargs{
 	EFI_HANDLE ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
@@ -12,7 +16,6 @@ struct fnargs{
 	CHAR16 *argv[256];
 	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
 	unsigned int argc;
-	struct syscall *syscalls;
 };
 struct fnstruct {
 	CHAR16 *name;
@@ -20,9 +23,7 @@ struct fnstruct {
 	int (*function)(struct fnargs *);
 };
 #include <extern.h>
-#include <syscall.h>
 #include <magic.h>
-#include <lamegame.h>
 #include <elf.h>
 #include <stack.h>
 int parseargs(CHAR16 *stdin, CHAR16 **argv);

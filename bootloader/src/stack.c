@@ -1,4 +1,4 @@
-#include "stack.h"
+#include <stack.h>
 
 
 void pushstack(struct stack *stack, void *data){

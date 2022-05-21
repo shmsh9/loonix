@@ -6,7 +6,6 @@
 #include <efi.h>
 #include <efilib.h>
 #include <libsmbios.h>
-#include <syscall.h>
 #include <shell.h>
 #include <stack.h>
 #include <std.h>
@@ -14,25 +13,9 @@
  Put all the ugly globals here
  */
 struct stack     *usralloc;
-struct syscall   *syscalls;
 EFI_HANDLE       ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-
-struct syscall syscalltable[] = {
-	{read},
-	{write},
-	{open},
-	{close},
-	{sysfsize},
-	{sysmalloc},
-	{sysfree},
-	{syselfload},
-	{sysprint},
-	{sysreadkey}
-	
-};
-
 
 EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
@@ -44,7 +27,6 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	//removes 5min timeout
 	uefi_call_wrapper(SystemTable->BootServices->SetWatchdogTimer,4,0, 0, 0, NULL);
 	usralloc = kcalloc(1,sizeof(struct stack));
-	syscalls = syscalltable;
 	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_BACKGROUND_BLACK);
 	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_WHITE);
 	uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);

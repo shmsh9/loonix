@@ -1,7 +1,6 @@
 #ifndef STACK_H_
 #define STACK_H_
-#include "syscall.h"
-#include "std.h"
+#include <std.h>
 struct node{
 	struct node *next;
 	struct node *prev;

@@ -2,7 +2,6 @@
 #define ELF_PARSER_H
 #include <std.h>
 #include <shell.h>
-#include <syscall.h>
 #include <stack.h>
 #define ARCH_64 2
 #define ARCH_32 1

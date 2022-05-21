@@ -7,7 +7,7 @@ if [[ ${CROSS_COMPILE} != "" ]]
 fi
 CC="${CROSS_COMPILE}gcc"
 echo "[building for $ARCH]"
-IFLAGS="-Iinclude -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Istdlib/include -Ignu-efi/inc/$ARCH"
+IFLAGS="-Ibootloader/include -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Ikernel/include -Ignu-efi/inc/$ARCH"
 LDFLAGS="-Wl,--defsym=EFI_SUBSYSTEM=10 -Lgnu-efi/$ARCH/lib -fpic \
 -s -Wl,-Bsymbolic -nostdlib -shared"
 CFLAGS="-O2 -Wpedantic -Wshadow -Wall -Werror-implicit-function-declaration \
@@ -22,20 +22,5 @@ EVIL="${ARCH}CFLAGS"
 CFLAGS="${!EVIL} $CFLAGS"
 echo $CFLAGS
 
-#build "libc"
-echo "[building stdlib]"
-for c in stdlib/src/*.c
-do
-	echo "[CC] $c"
-	$CC -c $CFLAGS $IFLAGS $c -o "${c%.c}.o"
-done
-ar rcs stdlib/stdlib.a stdlib/src/*.o
-rm stdlib/src/*.o
-
-#build userland
-echo "[building userland]"
-for binary in apps/*.c;
-do
-	echo "[CC] $binary"
-	$CC $LDFLAGS $CFLAGS $IFLAGS -e entry "$binary" -o "${binary%.c}" stdlib/stdlib.a
-done
+echo "[building kernel]"
+$CC $LDFLAGS $CFLAGS $IFLAGS -e entry kernel/src/*.c -o kernel/kernel.elf

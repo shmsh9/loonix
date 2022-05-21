@@ -1,10 +1,8 @@
-#ifndef STDLIB_H_
-#define STDLIB_H_
-#include <efibind.h>
-#include <eficompiler.h>
+#ifndef ENTRY_H_
+#define ENTRY_H_
+#include <efi.h>
 #include <shell.h>
-#include <stdlib_h.h>
-#include <string.h>
+
 EFI_HANDLE ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
@@ -16,5 +14,4 @@ int EFIAPI entry(struct fnargs *fnargs){
 	FileSystem = fnargs->FileSystem;
 	return main(fnargs->argc, fnargs->argv); 
 }
-
 #endif

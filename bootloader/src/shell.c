@@ -3,12 +3,11 @@
  * Copyright ©️ 2014-2021 Pete Batard <pete@akeo.ie> - Public Domain
  * See COPYING for the full licensing terms.
  */
-#include "shell.h"
+#include <shell.h>
 //shell builtins
 struct fnstruct fn[] = {
 		{L"fart",L"    : Farting on you",      fart},
 		{L"clear",L"   : Clear the screen",    clear},
-		{L"lame",L"    : Lame game",           lamegame},
 		{L"date",L"    : Get time",            date},
 		{L"exit",L"    : Exit l00n1x",         exitshell},
 		{L"elf",L"     : Load elf",            elfmain},
@@ -48,7 +47,7 @@ int shell_exec(struct fnargs *args){
 		return ret;
 	}
 	if(args->argv[0][0] != L'\0')
-		Print(L"shewax : %s : command not found\n", args->argv[0]);
+		Print(L"%s : %s : command not found\n", BOOTLOADER_NAME,args->argv[0]);
 	return -1;
 }
 size_t completion(CHAR16 *buff){
@@ -75,7 +74,6 @@ size_t completion(CHAR16 *buff){
 int shell(){
 	EFI_TIME Time;
 	uefi_call_wrapper(gRT->GetTime,2,&Time, NULL);
-	#define PROMPT L"l00n1x $> "
 	Print(L"Date : %d/%d/%d %d:%d:%d UTC\nType help to get some\n", Time.Day, Time.Month, Time.Year, Time.Hour, Time.Minute, Time.Second);
 	UINTN KeyEvent;
 	uefi_call_wrapper(SystemTable->ConOut->EnableCursor, 2,SystemTable->ConOut, TRUE);
@@ -90,7 +88,6 @@ int shell(){
 	args->ImageHandle = ImageHandle;
 	args->SystemTable = SystemTable;
 	args->buff = buff;
-	args->syscalls = syscalls;
 	args->FileSystem = FileSystem;
 	//endof should move
 	EFI_INPUT_KEY k = {0};
@@ -167,7 +164,9 @@ int shell(){
 				break;
 			//CTRL+C
 			case 0x03:
-				Print(L"^C\n");
+				Print(L"^C\n%s", PROMPT);
+				SetMem(buff, CMD_BUFF_SIZE*sizeof(CHAR16), 0);
+				posbuff = 0;
 				break;
 			//CTRL+D
 			case 0x04:
@@ -245,7 +244,7 @@ int parseargs(CHAR16 *stdin, CHAR16 **argv){
 	}
 	if(ret > 255){
 		ret = 1;
-		Print(L"shewax : error : to much args\n");
+		Print(L"%s : error : to much args\n", BOOTLOADER_NAME);
 		return ret;
 	}
 	CHAR16 *tmp = kcalloc(l,sizeof(CHAR16));
