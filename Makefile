@@ -43,7 +43,7 @@ qemu: all $(FW_BASE)_$(FW_ARCH).fd image/efi/boot/boot$(ARCH).efi
 image/efi/boot/boot$(ARCH).efi: boot.efi
 	mkdir -p image/efi/boot
 	cp -f $< image/efi/boot/boot$(FW_ARCH).efi
-
+	cp -f kernel.elf image/
 $(FW_BASE)_$(FW_ARCH).fd:
 	wget https://efi.akeo.ie/$(FW_BASE)/$(FW_ZIP)
 	unzip $(FW_ZIP) $(FW_BASE).fd

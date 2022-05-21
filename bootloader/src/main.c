@@ -6,6 +6,7 @@
 #include <efi.h>
 #include <shell.h>
 #include <stack.h>
+#include <elf.h>
 #include <std.h>
 /*
  Put all the ugly globals here
@@ -29,6 +30,17 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
 	shell();
 	*/
+	struct fnargs args;
+	args.argv[0] = L"elf";
+	args.argc = 1;
+	args.SystemTable = SystemTable;
+	args.ImageHandle = ImageHandle;
+	SystemTable->out->output_string(SystemTable->out, L"Loading kernel\n");
+	elfshell(L"kernel.elf", &args);
+	while (1)
+	{
+	}
+	
 	kfree(usralloc);
 	return EFI_SUCCESS;
 }
