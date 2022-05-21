@@ -163,14 +163,14 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
 	void *prog = kmalloc(alloc);
 	for(int i = 0; i < elf->header.entry_program_number; i++){
-		//LOAD == 0x01 entry
-		if(elf->program.entries[i].segment_type == 0x01){
+		//LOAD == 0x01 entry PHDR == 0x06
+		if(elf->program.entries[i].segment_type == 0x01 || elf->program.entries[i].segment_type == 0x06){
 			void *addr = prog + elf->program.entries[i].p_vaddr - base;
 			SetMem((addr), 0, elf->program.entries[i].p_memsz);
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
 	} 
-	int __attribute__((sysv_abi)) (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
+	int SYSVABI (*fnptr)(struct fnargs *) = prog + elf->header.program_entry_position;
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
 		Print(L"loading program : 0x%x\n", fnptr);
 	if(StrCmp(fnargs->argv[0], L"elf") == 0 )

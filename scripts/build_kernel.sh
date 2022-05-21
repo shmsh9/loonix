@@ -10,18 +10,20 @@ LD="${CROSS_COMPILE}ld"
 echo "[building for $ARCH]"
 IFLAGS="-Ibootloader/include -Ignu-efi/inc/ -Ignu-efi/inc/protocol -Ikernel/include -Ignu-efi/inc/$ARCH"
 LDFLAGS="-shared -fPIC -e entry"
-CFLAGS="-fPIC -mno-red-zone -pedantic -Wshadow -Wall -Werror-implicit-function-declaration \
+CFLAGS="-fPIC -pedantic -Wshadow -Wall -Werror-implicit-function-declaration \
 -DGNU_EFI_USE_MS_ABI -nodefaultlibs -nostdlib -ffreestanding \
 -fno-stack-check -fno-stack-protector -fshort-wchar"
-x86_64CFLAGS="-m64"
-aarch64CFLAGS=""
+x86_64CFLAGS="-m64 -mno-red-zone"
+aarch64CFLAGS="-fno-jump-tables"
 EVIL="${ARCH}CFLAGS"
 CFLAGS="${!EVIL} $CFLAGS"
 echo $CFLAGS
+echo $LDFLAGS
 
 echo "[building kernel]"
 for object in kernel/src/*.c
 do
+	echo "[CC] $object"
 	$CC $CFLAGS $IFLAGS -c $object -o "${object%.c}.o"
 done
 $LD $LDFLAGS kernel/src/*.o -o kernel/kernel.elf

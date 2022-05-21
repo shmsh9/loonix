@@ -7,7 +7,12 @@
 #define ARCH_32 1
 #define ENDIAN_L 1
 #define ENDIAN_B 2
-
+#ifdef __aarch64__
+#define SYSVABI
+#endif
+#ifdef __x86_64__
+#define SYSVABI __attribute__((sysv_abi))
+#endif
 extern struct stack *usralloc;
 struct elf_header{
 	uint32_t  magic_number;
