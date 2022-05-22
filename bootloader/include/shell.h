@@ -12,6 +12,7 @@ struct fnargs{
 	CHAR16 *argv[16];
 	char *charargv[256];
 	unsigned int argc;
+	void *printfn;
 };
 struct fnstruct {
 	CHAR16 *name;

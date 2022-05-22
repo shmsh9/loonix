@@ -48,17 +48,16 @@ void kfclose(FILE *f){
 	f->close(f);
 }
 size_t kfsize(FILE *f){
-	size_t ret = 0;
+	uint64_t ret = 0;
 	struct efi_file_info *FileInfo = NULL;
+	efi_uint_t size = 0;
 	struct efi_guid guid = EFI_FILE_INFO_GUID;
-	efi_uint_t size;
-	f->get_info(f, &guid, &size, &FileInfo);
-	if(FileInfo){
-		ret = FileInfo->file_size;
-		kfree(FileInfo);
-		return ret;
-	}
-	return 0;
+	f->get_info(f, &guid, &size, NULL);
+	FileInfo = kcalloc(size,1);
+	f->get_info(f, &guid, &size, FileInfo);
+	ret = FileInfo->file_size;
+	kfree(FileInfo);
+	return ret;
 }
 size_t kfread(void *buff, size_t szelement, size_t nbelement, FILE *f){
 	size_t ret = szelement*nbelement;

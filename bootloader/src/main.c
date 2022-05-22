@@ -35,7 +35,7 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	args.argc = 1;
 	args.SystemTable = SystemTable;
 	args.ImageHandle = ImageHandle;
-	SystemTable->out->output_string(SystemTable->out, L"Loading kernel\n");
+	args.printfn = (void *)Print;
 	elfshell(L"kernel.elf", &args);
 	while (1)
 	{
