@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <string.h>
+#include <kstd.h>
 #include <port_io.h>
 /* COM1 Port address*/
 #define UART_PORT_COM1 0x3f8

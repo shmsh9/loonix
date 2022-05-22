@@ -1,6 +1,6 @@
 #include <kstd.h>
 
-int strlen(char *str){
+int strlen(const char *str){
     int r = 0;
     while(*str++)
         r++;
