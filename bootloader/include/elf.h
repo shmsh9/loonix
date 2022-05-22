@@ -1,8 +1,8 @@
 #ifndef ELF_PARSER_H
 #define ELF_PARSER_H
+#include <efi.h>
 #include <std.h>
 #include <shell.h>
-#include <stack.h>
 #define ARCH_64 2
 #define ARCH_32 1
 #define ENDIAN_L 1
@@ -63,12 +63,11 @@ void parseheader(struct elf *elf, uint8_t *buff);
 void parseprog(struct elf *elf, uint8_t *buff);
 void parself(struct elf *elf, uint8_t *buff);
 bool magichck(const uint8_t *buff);
-int usageelf(CHAR16 **argv);
 void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
-int elfmain(struct fnargs *fnargs);
 int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs);
-int elfshell(CHAR16 *filename, struct fnargs *fnargs);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
+uint64_t __loadelf_with_no_return(CHAR16 *filename, struct fnargs *fnargs);
+efi_status_t exit_boot_services(struct fnargs *fnargs);
 #endif

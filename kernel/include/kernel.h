@@ -1,6 +1,7 @@
 #ifndef KERNEL_H_
 #define KERNEL_H_
 #include <efi.h>
+#include <uart.h>
 struct fnargs{
 	efi_handle_t ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;

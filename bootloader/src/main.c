@@ -5,42 +5,39 @@
  */
 #include <efi.h>
 #include <shell.h>
-#include <stack.h>
 #include <elf.h>
 #include <std.h>
 /*
  Put all the ugly globals here
  */
-struct stack     *usralloc;
 efi_handle_t      ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 
 efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
-#if defined(_GNU_EFI)
-	InitializeLib(ImageHandle, SystemTable);
-#endif
-	//removes 5min timeout
-	usralloc = kcalloc(1,sizeof(struct stack));
-	/*
-	uefi_call_wrapper(SystemTable->BootServices->SetWatchdogTimer,4,0, 0, 0, NULL);
-	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_BACKGROUND_BLACK);
-	uefi_call_wrapper(SystemTable->ConOut->SetAttribute, 2, SystemTable->ConOut, EFI_WHITE);
-	uefi_call_wrapper(SystemTable->ConOut->ClearScreen, 1, SystemTable->ConOut);
-	shell();
-	*/
-	struct fnargs args;
-	args.argv[0] = L"elf";
-	args.argc = 1;
+	efi_status_t status = 0;
+	struct fnargs args = {0};
 	args.SystemTable = SystemTable;
 	args.ImageHandle = ImageHandle;
 	args.printfn = (void *)Print;
-	elfshell(L"kernel.elf", &args);
-	while (1)
-	{
+	//Configure Serial port
+	EFI_SERIAL_IO_PROTOCOL *serial_protocol = NULL;
+	struct efi_guid serial_guid = EFI_SERIAL_IO_PROTOCOL_GUID;
+	status = SystemTable->boot->open_protocol(ImageHandle, &serial_guid, (void **)&serial_protocol, ImageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+	if(status == 0){
+		Print(L"protocol opened\n");
+		serial_protocol->SetAttributes(serial_protocol, 0, 0, 0, 0, 0, DefaultStopBits);
+		char buff[] = "hello from serial\n";
+		efi_uint_t szbuff = sizeof(buff);
+		serial_protocol->Write(serial_protocol, &szbuff, (void *)buff);
 	}
-	
-	//kfree(usralloc);
+	else{
+		Print(L"serial_protocol error : status == %d\n", status);
+	}
+	Print(L"loading kernel\n");
+	__loadelf_with_no_return(L"kernel.elf", &args);
+	Print(L"rip kernel x_x\n");
+	while(1){}	
 	return EFI_SUCCESS;
 }

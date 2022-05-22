@@ -34,4 +34,4 @@ then
     rm -f "$FW_ZIP"
 fi
 
-$QEMU $QEMUOPTS -bios $BIOS -nographic -s -net none -hda fat:rw:image
+$QEMU $QEMUOPTS -bios $BIOS -nographic -serial mon:stdio -s -net none -hda fat:rw:image

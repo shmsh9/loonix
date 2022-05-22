@@ -116,30 +116,6 @@ void printseg(const struct elf *elf){
 			);
 		Print(L"\n");
 	}
-	/*
-	Print(L"\n");
-	Print(L"[SECTION]\n");
-	for(int i = 0; i < elf->section.count; i++){
-		Print(
-			L"OFFSET: 0x%x\n"
-			L"PVADDR: 0x%x\n"
-			L"SEGTYP: %s\n"
-			L"FLAGS : 0x%x\n"
-			L"FILESZ: %lu\n"
-			L"MEMSZ : %lu\n"
-			L"ALIGN : %lu\n"
-			,
-			elf->section.entries[i].p_offset,
-			elf->section.entries[i].p_vaddr,
-			elf->section.entries[i].segment_type < 5 ? segt[elf->section.entries[i].segment_type] : L"unknown",
-			elf->section.entries[i].p_flags,
-			elf->section.entries[i].p_filesz,
-			elf->section.entries[i].p_memsz,
-			elf->section.entries[i].p_align
-			);
-		Print(L"\n");
-	}
-	*/
 }
 uintptr_t baseaddr(struct elf *elf){
 #define MIN2(a, b) ((a) < (b) ? (a) : (b))
@@ -169,23 +145,17 @@ int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
 			SetMem((addr), 0, elf->program.entries[i].p_memsz);
 			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
 		}
-	} 
+	}
+
 	int SYSVABI (*fnptr)(struct fnargs *) = (int SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf->header.program_entry_position);
-	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
-		Print(L"loading program : 0x%x\n", fnptr);
-	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
-		Print(L"program size is : 0x%x bytes\n", alloc);
+	Print(L"loading program : 0x%x\n", fnptr);
+	Print(L"program size is : 0x%x bytes\n", alloc);
 	int ret = fnptr(fnargs);
-	if(StrCmp(fnargs->argv[0], L"elf") == 0 )
-		Print(L"%s returned    : 0x%x\n", fnargs->argv[0],ret);
+	Print(L"%s returned    : 0x%x\n", fnargs->argv[0],ret);
 	kfree(prog);
 	return ret;
 }
-int usage(CHAR16 **argv){
-	Print(L"usage : %s [ -l --load | -i --info ] <elffile>\n", argv[0]);
-	return -1;
-}
-int elfshell(CHAR16 *filename, struct fnargs *fnargs){
+uint64_t __loadelf_with_no_return(CHAR16 *filename, struct fnargs *fnargs){
 	FILE *f = kfopen(filename, L"r", fnargs->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", filename);
@@ -214,57 +184,60 @@ int elfshell(CHAR16 *filename, struct fnargs *fnargs){
 	struct elf elf;
 	elf.filesz = fs;
 	parself(&elf, buff);
-	int ret = loadelf(&elf, buff, fnargs);
+	uintptr_t base = baseaddr(&elf);
+	uintptr_t alloc = basealloc(&elf, base);
+	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
+	void *prog = kmalloc(alloc);
+	for(int i = 0; i < elf.header.entry_program_number; i++){
+		//LOAD == 0x01 entry PHDR == 0x06
+		if(elf.program.entries[i].segment_type == 0x01 || elf.program.entries[i].segment_type == 0x06){
+			void *addr =  (void *)((uintptr_t)prog + elf.program.entries[i].p_vaddr - base);
+			SetMem((addr), 0, elf.program.entries[i].p_memsz);
+			CopyMem((addr), buff+elf.program.entries[i].p_offset, elf.program.entries[i].p_filesz);
+		}
+	}
 	kfree(buff);
 	kfclose(f);
-	//clean every allocation made by the elf loaded
-	//cleanstack(usralloc);
-	return ret;
+	exit_boot_services(fnargs);
+	uint64_t SYSVABI (*fnptr)(struct fnargs *) = (uint64_t SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf.header.program_entry_position);
+	return fnptr(fnargs);
 }
-int elfmain(struct fnargs *fnargs){
-	int argc = fnargs->argc;
-	CHAR16 **argv = fnargs->argv;
-	if(argc < 3)
-		return usage(argv);
-	if(StrCmp(argv[1], L"-h") == 0 || StrCmp(argv[1], L"--help") == 0)
-		return usage(argv);
+efi_status_t exit_boot_services(struct fnargs *fnargs){
+	struct efi_memory_descriptor *mmap;
+	efi_uint_t mmap_size = 4096;
+	efi_uint_t mmap_key;
+	efi_uint_t desc_size;
+	uint32_t desc_version;
+	efi_status_t status = 0;
 
-	FILE *f = kfopen(argv[2], L"r", fnargs->ImageHandle);
-	if(!f){
-		Print(L"error : cannot open %s\n", argv[2]);
-		return -1;
+	while (1) {
+		status = fnargs->SystemTable->boot->allocate_pool(
+			EFI_LOADER_DATA,
+			mmap_size,
+			(void **)&mmap);
+		if (status != EFI_SUCCESS)
+			return status;
+
+		status = fnargs->SystemTable->boot->get_memory_map(
+			&mmap_size,
+			mmap,
+			&mmap_key,
+			&desc_size,
+			&desc_version);
+		if (status == EFI_SUCCESS)
+			break;
+
+		fnargs->SystemTable->boot->free_pool(mmap);
+
+		// If the buffer size turned out too small then get_memory_map
+		// should have updated mmap_size to contain the buffer size
+		// needed for the memory map. However subsequent free_pool and
+		// allocate_pool might change the memory map and therefore I
+		// additionally multiply it by 2.
+		if (status == EFI_BUFFER_TOO_SMALL) {
+			mmap_size *= 2;
+			continue;
+		}
 	}
-	size_t fs = kfsize(f);
-	uint8_t *buff = kcalloc( 1, fs);
-	if(!buff){
-		kfclose(f);
-		Print(L"error : buff == 0x0\n");
-		return -1;
-	}
-	size_t read = kfread(buff, 1, fs, f);
-	if(!read){
-		Print(L"error : reading file\n");
-		kfree(buff);
-		kfclose(f);
-		return -1;
-	}
-	if(!magichck(buff)){
-		Print(L"invalid elf magic number\n");
-		kfree(buff);
-		kfclose(f);
-		return -1;
-	}
-	struct elf elf;
-	elf.filesz = fs;
-	parself(&elf, buff);
-	if(StrCmp(argv[1], L"-l") == 0 || StrCmp(argv[1], L"--load") == 0)
-		loadelf(&elf, buff, fnargs);
-	if(StrCmp(argv[1], L"-i") == 0 || StrCmp(argv[1], L"--info") == 0){
-		printheader(&elf);
-		printseg(&elf);
-	}
-	kfclose(f);
-	kfree(elf.program.entries);
-	kfree(buff);
-	return 0;
+	return status;
 }

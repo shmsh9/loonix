@@ -8,6 +8,7 @@
 #include "simple_file_system_protocol.h"
 #include "simple_text_output_protocol.h"
 #include "system_table.h"
+#include "serial.h"
 #include "types.h"
 
 #endif // __EFI_H__
