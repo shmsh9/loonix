@@ -19,6 +19,9 @@ BIOS="${FW_BASE}_${EFIARCH}.fd"
 FW_ZIP="${FW_BASE}-${EFIARCH}.zip"
 QEMU="qemu-system-${ARCH/-/_}"
 
+rm -rf bootloader/*.efi
+rm -rf kernel/*.elf
+rm -rf image/
 bash scripts/build_all.sh
 mkdir -p image/efi/boot
 cp -f bootloader/*.efi image/efi/boot

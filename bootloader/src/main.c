@@ -41,6 +41,6 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	{
 	}
 	
-	kfree(usralloc);
+	//kfree(usralloc);
 	return EFI_SUCCESS;
 }
