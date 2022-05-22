@@ -218,7 +218,7 @@ int elfshell(CHAR16 *filename, struct fnargs *fnargs){
 	kfree(buff);
 	kfclose(f);
 	//clean every allocation made by the elf loaded
-	cleanstack(usralloc);
+	//cleanstack(usralloc);
 	return ret;
 }
 int elfmain(struct fnargs *fnargs){

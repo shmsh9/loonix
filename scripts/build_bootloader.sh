@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 TARGET="bootloader"
 OBJ="bootx64.efi"

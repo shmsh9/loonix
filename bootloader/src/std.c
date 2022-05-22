@@ -14,6 +14,9 @@ void *kcalloc(size_t elementCount, size_t elementSize){
 	SetMem(r, elementCount*elementSize, 0);
 	return r;
 }
+void kfree(void *ptr){
+	SystemTable->boot->free_pool(ptr);
+}
 FILE * kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image){
 	CHAR16 *pathcopy = StrDuplicate(path);
 	CHAR16 *ptrpath = pathcopy;
