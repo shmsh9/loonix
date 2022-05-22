@@ -133,24 +133,53 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 	}
 	return ret;
 }
-int loadelf(struct elf *elf, uint8_t *buff, struct fnargs *fnargs){
-	uintptr_t base = baseaddr(elf);
-	uintptr_t alloc = basealloc(elf, base);
+uint64_t loadelf(CHAR16 *filename, struct fnargs *fnargs){
+	FILE *f = kfopen(filename, L"r", fnargs->ImageHandle);
+	if(!f){
+		Print(L"error : cannot open %s\n", filename);
+		return -1;
+	}
+	size_t fs = kfsize(f);
+	uint8_t *buff = kcalloc( 1, fs);
+	if(!buff){
+		kfclose(f);
+		Print(L"error : buff == 0x0\n");
+		return -1;
+	}
+	size_t read = kfread(buff, 1, fs, f);
+	if(!read){
+		Print(L"error : reading file\n");
+		kfree(buff);
+		kfclose(f);
+		return -1;
+	}
+	if(!magichck(buff)){
+		Print(L"invalid elf magic number\n");
+		kfree(buff);
+		kfclose(f);
+		return -1;
+	}
+	struct elf elf;
+	elf.filesz = fs;
+	parself(&elf, buff);
+	uintptr_t base = baseaddr(&elf);
+	uintptr_t alloc = basealloc(&elf, base);
 	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
 	void *prog = kmalloc(alloc);
-	for(int i = 0; i < elf->header.entry_program_number; i++){
+	for(int i = 0; i < elf.header.entry_program_number; i++){
 		//LOAD == 0x01 entry PHDR == 0x06
-		if(elf->program.entries[i].segment_type == 0x01 || elf->program.entries[i].segment_type == 0x06){
-			void *addr =  (void *)((uintptr_t)prog + elf->program.entries[i].p_vaddr - base);
-			SetMem((addr), 0, elf->program.entries[i].p_memsz);
-			CopyMem((addr), buff+elf->program.entries[i].p_offset, elf->program.entries[i].p_filesz);
+		if(elf.program.entries[i].segment_type == 0x01 || elf.program.entries[i].segment_type == 0x06){
+			void *addr =  (void *)((uintptr_t)prog + elf.program.entries[i].p_vaddr - base);
+			SetMem((addr), 0, elf.program.entries[i].p_memsz);
+			CopyMem((addr), buff+elf.program.entries[i].p_offset, elf.program.entries[i].p_filesz);
 		}
 	}
-
-	int SYSVABI (*fnptr)(struct fnargs *) = (int SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf->header.program_entry_position);
+	kfree(buff);
+	kfclose(f);
+	uint64_t SYSVABI (*fnptr)(struct fnargs *) = (uint64_t SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf.header.program_entry_position);
 	Print(L"loading program : 0x%x\n", fnptr);
 	Print(L"program size is : 0x%x bytes\n", alloc);
-	int ret = fnptr(fnargs);
+	uint64_t ret = fnptr(fnargs);
 	Print(L"%s returned    : 0x%x\n", fnargs->argv[0],ret);
 	kfree(prog);
 	return ret;

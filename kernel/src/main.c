@@ -1,11 +1,13 @@
 #include <kernel.h>
-#include <efi_khelpers.h>
 
 uint64_t main(struct fnargs *fnargs){
-    //fnargs->SystemTable->out->output_string(fnargs->SystemTable->out, fnargs->argv[0]);
-    uart_initialize();
-    uart_puts("HELLO UART\n");
-    while(1){}
-    return 0xdeadcaca;
+    int r = init_serial();
+    if(r == 1){
+        return 0xdead;
+    }
+    char *b = "Hello World from kernel.elf ! \n";
+    for(int i = 0; i < sizeof(b); i++)
+        write_serial('a');
+    return 0xcafe;
 }
 

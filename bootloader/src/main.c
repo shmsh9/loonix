@@ -16,12 +16,13 @@ EFI_SYSTEM_TABLE *SystemTable;
 efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
-	efi_status_t status = 0;
 	struct fnargs args = {0};
 	args.SystemTable = SystemTable;
 	args.ImageHandle = ImageHandle;
 	args.printfn = (void *)Print;
 	//Configure Serial port
+	/*
+	efi_status_t status = 0;
 	EFI_SERIAL_IO_PROTOCOL *serial_protocol = NULL;
 	struct efi_guid serial_guid = EFI_SERIAL_IO_PROTOCOL_GUID;
 	status = SystemTable->boot->open_protocol(ImageHandle, &serial_guid, (void **)&serial_protocol, ImageHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
@@ -35,9 +36,15 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	else{
 		Print(L"serial_protocol error : status == %d\n", status);
 	}
+	*/
 	Print(L"loading kernel\n");
-	__loadelf_with_no_return(L"kernel.elf", &args);
-	Print(L"rip kernel x_x\n");
-	while(1){}	
+	//loadelf(L"kernel.elf", &args);
+	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &args);
+	Print(L"rip kernel x_x : 0x%x\n", ret);
+	while (1)
+	{
+		/* code */
+	}
+	
 	return EFI_SUCCESS;
 }
