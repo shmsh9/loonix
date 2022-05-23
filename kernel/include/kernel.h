@@ -9,7 +9,9 @@ struct fnargs{
 	CHAR16 *argv[16];
 	char *charargv[256];
 	unsigned int argc;
-    void *printfn;
+	void *printfn;
+	void *stackptr;
 };
-//#define printf(fmt, ..) (void __attribute__((ms_abi))(*)(fmt, ...))
+
 #endif
+

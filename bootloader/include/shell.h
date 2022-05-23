@@ -13,6 +13,7 @@ struct fnargs{
 	char *charargv[256];
 	unsigned int argc;
 	void *printfn;
+	void *stackptr;
 };
 struct fnstruct {
 	CHAR16 *name;
