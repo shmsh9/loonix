@@ -64,7 +64,7 @@ void write_serial(char a) {
    outb(SERIAL_PORT,a);
 }
 
-void puts_serial(char *str){
+void puts_serial(const char *str){
     while(*str){
         write_serial(*str);
         str++;

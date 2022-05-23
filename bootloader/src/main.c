@@ -22,7 +22,6 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	args.printfn = (void *)Print;
 	args.stackptr = kcalloc(1,0x7a1200);
 	Print(L"loading kernel\n");
-	//loadelf(L"kernel.elf", &args);
 	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &args);
 	Print(L"rip kernel x_x : 0x%x\n", ret);
 	while (1)
