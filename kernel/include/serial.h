@@ -15,6 +15,6 @@ int init_serial();
 void write_serial(char a);
 void puts_serial(const char *str);
 void wait_transmission();
-
+void __x86_outb(uint16_t port, uint8_t b);
+uint8_t __x86_inb(uint16_t port);
 #endif
-

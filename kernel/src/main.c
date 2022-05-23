@@ -21,9 +21,9 @@ uint64_t main(struct fnargs *fnargs){
 	if(r == 1){
 		return 0xdead;
 	}
-	//char b[] = "Hello World from kernel.elf ! \n";
-	//kprint(b);
-	//kprintf("Hello again ! %d 0x%x %s\n", 42, 0xdeadbeef, "stranger", 0xcafe);
+	char b[] = "Hello World from kernel.elf ! \n";
+    kprint(b);
+	kprintf("Hello again ! %d 0x%x %s\n", 42, 0xdeadbeef, "stranger", 0xcafe);
 	return 0xcafe;
 }
 
