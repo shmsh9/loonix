@@ -43,8 +43,9 @@ void kprintf(const char *fmt, ...){
                 kprint(tmps);
                 i += 2;
             } 
-        } 
-        write_serial(fmt[i]);
+        }
+        if(i < lfmt) 
+            write_serial(fmt[i]);
     }
     __builtin_va_end(arg);
 }

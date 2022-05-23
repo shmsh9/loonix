@@ -1,14 +1,7 @@
 #include <serial.h>
-#ifdef __x86_64__
-void outb(uint16_t port, uint8_t val){
-	__asm__ __volatile__ ("outb %0, %1" : : "a"(val), "Nd"(port));
-}
-uint8_t inb(uint16_t port){
-	uint8_t ret = 0;
-	__asm__ __volatile__ ("inb %1, %0" : "=a"(ret) : "Nd"(port));
-	return ret;
-}
+
 int init_serial() {
+#ifdef __x86_64__
    outb(SERIAL_PORT + 1, 0x00);    // Disable all interrupts
    outb(SERIAL_PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
    outb(SERIAL_PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
@@ -27,43 +20,41 @@ int init_serial() {
    // If serial is not faulty set it in normal operation mode
    // (not-loopback with IRQs enabled and OUT#1 and OUT#2 bits enabled)
    outb(SERIAL_PORT + 4, 0x0F);
-   return 0;
-}
+   return 0
 #endif
 #ifdef __aarch64__
-void outb(uint64_t port, uint8_t val){
-	// (1<<4) == full neet to wait
-	while( (UART->channel_sts_reg0 & (1<<4)) != 0){}
-	*SERIAL_FIFO = (uint32_t)val;
-}
-uint8_t inb(uint64_t port){
-	return (uint8_t)*(uint32_t *)SERIAL_FIFO;
-}
-int init_serial(){
-/*
-	UART->control_reg0=0;
-	UART->baud_rate_divider=6;
-	UART->baud_rate_gen=62;
-	UART->mode_reg0=(1<<5);
-	UART->control_reg0=(1<<4) | (1<<2) | (1<<2) | (1<<0);
-	*/
-	outb(SERIAL_PORT, 0xAE);
-	if(inb(SERIAL_PORT) != 0xAE)
-		return 1;
-	return 0;
-}
+	return pl011_setup(&SERIAL_PORT, 0x90000000, 24000000);
 #endif
-
-int is_transmit_empty() {
-   return inb(SERIAL_PORT + 5) & 0x20;
 }
- 
+void outb(uint8_t val){
+	#ifdef __x86_64__
+	__asm__ __volatile__ ("outb %0, %1" : : "a"(val), "Nd"(SERIAL_PORT));
+	#endif
+	#ifdef __aarch64__
+	pl011_send(&SERIAL_PORT, val);
+	#endif
+}
+uint8_t inb(){
+	uint8_t ret = 0;
+	#ifdef __x86_64__
+	__asm__ __volatile__ ("inb %1, %0" : "=a"(ret) : "Nd"(SERIAL_PORT));
+	#endif
+	#ifdef __aarch64__
+	#endif
+	return ret;
+}
+void wait_transmission(){
+	#ifdef __x86_64__
+	while(inb(SERIAL_PORT + 5) & 0x20);
+	#endif
+	#ifdef __aarch64__
+	wait_tx_complete(&SERIAL_PORT);
+	#endif	
+}
 void write_serial(char a) {
-   while (is_transmit_empty() == 0);
- 
-   outb(SERIAL_PORT,a);
+	wait_transmission();
+	outb(a);
 }
-
 void puts_serial(const char *str){
     while(*str){
         write_serial(*str);

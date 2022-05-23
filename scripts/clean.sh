@@ -1,3 +1,3 @@
-rm -rf *.efi *.elf *.o *.d *.lib \
-       bootloader/src/*.o bootloader/src/*.d \
-       kernel/src/*.o kernel/src/*.d kernel/*.elf bootloader/*.efi
+rm -f $(find . -type f -name "*.efi" -o -name "*.elf" -o -name "*.o" -o -name "*.d" -o -name "*.lib")
+rm -rf image/
+
