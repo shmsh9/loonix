@@ -16,7 +16,7 @@ EFI_SYSTEM_TABLE *SystemTable;
 efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
-	struct bootinfo bootinfo = {ImageHandle, SystemTable,0,0,0};
+	struct bootinfo bootinfo = {ImageHandle, SystemTable, 0, 0, 0, 0};
 	Print(L"loading kernel\n");
 	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &bootinfo);
 	Print(L"rip kernel x_x : 0x%x\n", ret);

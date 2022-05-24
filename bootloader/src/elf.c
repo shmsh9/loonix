@@ -185,6 +185,7 @@ uint64_t loadelf(CHAR16 *filename, struct fnargs *fnargs){
 	return ret;
 }
 uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
+
 	FILE *f = kfopen(filename, L"r", bootinfo->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", filename);
@@ -215,8 +216,12 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	parself(&elf, buff);
 	uintptr_t base = baseaddr(&elf);
 	uintptr_t alloc = basealloc(&elf, base);
-	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
+	
+	//allocate stack at the same time
 	void *prog = kmalloc(alloc);
+	bootinfo->kernelsize = alloc;
+	bootinfo->kernelbase = prog;
+	//loading program into memory	
 	for(int i = 0; i < elf.header.entry_program_number; i++){
 		//LOAD == 0x01 entry PHDR == 0x06
 		if(elf.program.entries[i].segment_type == 0x01 || elf.program.entries[i].segment_type == 0x06){

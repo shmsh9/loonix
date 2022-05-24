@@ -1,29 +1,14 @@
 #include <kernel.h>
 
-uint64_t main(struct bootinfo *bootinfo){
-	/*
-	uint8_t stack[16384];
-	uint64_t ptrstack = (uint64_t)(stack+16384);
-	#ifdef __aarch64__
-	__asm__ __volatile__ (
-			"mov %%sp, #%0"
-			: "=r" (ptrstack)
-	);
-	#endif	
-	#ifdef __x86_64__
-		__asm__ __volatile__ (
-			"mov %0, %%rsp"
-			: "=r" (ptrstack)
-		);
-	#endif
-	*/
+uint64_t kmain(struct bootinfo *bootinfo){
 	int r = init_serial();
 	if(r == 1){
 		return 0xdead;
 	}
-	char b[] = "Hello World from kernel.elf ! \n";
-    kprint(b);
-	kprintf("Hello again ! %d 0x%x %s\n", 42, 0xdeadbeef, "stranger", 0xcafe);
+	kprintf("kbase    : 0x%x\nksize    : 0x%x\n", bootinfo->kernelbase, bootinfo->kernelsize);
+	while(1){
+	/* we cannot return since we switched the stack */
+	}
 	return 0xcafe;
 }
 

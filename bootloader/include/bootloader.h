@@ -1,13 +1,15 @@
 #ifndef BOOTLOADER_H_
 #define BOOTLOADER_H_
 #include <efi.h>
-
+#define K_STACK_SIZE 0x400000
 struct bootinfo{
-	efi_handle_t ImageHandle;
+	efi_handle_t     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
-	void *stackptr;
-	void *kernelbegin;
-	void *kernelend;
+	void             *stackbase;
+	void             *kernelbase;
+	void             *stacktop;
+	uint64_t         kernelsize;
+	uint64_t         stacksize;
 };
 
 #endif
