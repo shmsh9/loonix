@@ -16,13 +16,9 @@ EFI_SYSTEM_TABLE *SystemTable;
 efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
-	struct fnargs args = {0};
-	args.SystemTable = SystemTable;
-	args.ImageHandle = ImageHandle;
-	args.printfn = (void *)Print;
-	args.stackptr = kcalloc(1,0x7a1200);
+	struct bootinfo bootinfo = {ImageHandle, SystemTable,0,0,0};
 	Print(L"loading kernel\n");
-	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &args);
+	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &bootinfo);
 	Print(L"rip kernel x_x : 0x%x\n", ret);
 	while (1)
 	{

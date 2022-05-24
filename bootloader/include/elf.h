@@ -3,6 +3,7 @@
 #include <efi.h>
 #include <std.h>
 #include <shell.h>
+#include <bootloader.h>
 #define ARCH_64 2
 #define ARCH_32 1
 #define ENDIAN_L 1
@@ -67,7 +68,7 @@ void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
-uint64_t __loadelf_with_no_return(CHAR16 *filename, struct fnargs *fnargs);
+uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo);
 uint64_t loadelf(CHAR16 *filename, struct fnargs *fnargs);
-efi_status_t exit_boot_services(struct fnargs *fnargs);
+efi_status_t exit_boot_services(struct bootinfo *bootinfo);
 #endif

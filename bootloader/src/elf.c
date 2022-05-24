@@ -184,8 +184,8 @@ uint64_t loadelf(CHAR16 *filename, struct fnargs *fnargs){
 	kfree(prog);
 	return ret;
 }
-uint64_t __loadelf_with_no_return(CHAR16 *filename, struct fnargs *fnargs){
-	FILE *f = kfopen(filename, L"r", fnargs->ImageHandle);
+uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
+	FILE *f = kfopen(filename, L"r", bootinfo->ImageHandle);
 	if(!f){
 		Print(L"error : cannot open %s\n", filename);
 		return -1;
@@ -227,11 +227,11 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct fnargs *fnargs){
 	}
 	kfree(buff);
 	kfclose(f);
-	exit_boot_services(fnargs);
-	uint64_t SYSVABI (*fnptr)(struct fnargs *) = (uint64_t SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf.header.program_entry_position);
-	return fnptr(fnargs);
+	exit_boot_services(bootinfo);
+	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
+	return fnptr(bootinfo);
 }
-efi_status_t exit_boot_services(struct fnargs *fnargs){
+efi_status_t exit_boot_services(struct bootinfo *bootinfo){
 	struct efi_memory_descriptor *mmap;
 	efi_uint_t mmap_size = 4096;
 	efi_uint_t mmap_key;
@@ -240,14 +240,14 @@ efi_status_t exit_boot_services(struct fnargs *fnargs){
 	efi_status_t status = 0;
 
 	while (1) {
-		status = fnargs->SystemTable->boot->allocate_pool(
+		status = bootinfo->SystemTable->boot->allocate_pool(
 			EFI_LOADER_DATA,
 			mmap_size,
 			(void **)&mmap);
 		if (status != EFI_SUCCESS)
 			return status;
 
-		status = fnargs->SystemTable->boot->get_memory_map(
+		status = bootinfo->SystemTable->boot->get_memory_map(
 			&mmap_size,
 			mmap,
 			&mmap_key,
@@ -256,7 +256,7 @@ efi_status_t exit_boot_services(struct fnargs *fnargs){
 		if (status == EFI_SUCCESS)
 			break;
 
-		fnargs->SystemTable->boot->free_pool(mmap);
+		bootinfo->SystemTable->boot->free_pool(mmap);
 
 		// If the buffer size turned out too small then get_memory_map
 		// should have updated mmap_size to contain the buffer size

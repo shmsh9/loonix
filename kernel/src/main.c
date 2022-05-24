@@ -1,6 +1,6 @@
 #include <kernel.h>
 
-uint64_t main(struct fnargs *fnargs){
+uint64_t main(struct bootinfo *bootinfo){
 	/*
 	uint8_t stack[16384];
 	uint64_t ptrstack = (uint64_t)(stack+16384);

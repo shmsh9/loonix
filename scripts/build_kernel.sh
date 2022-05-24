@@ -8,7 +8,7 @@ fi
 CC="clang"
 LD="lld"
 echo "[building $TARGET for $ARCH]"
-IFLAGS="-I$TARGET/include -Iefi"
+IFLAGS="-I$TARGET/include -Ibootloader/include -Iefi"
 LDFLAGS="-flavor ld -e main"
 CFLAGS="-fpic -ffreestanding -mno-red-zone -std=c11 \
 		-Wno-unused-function -Wall -Werror -pedantic -fshort-wchar"
