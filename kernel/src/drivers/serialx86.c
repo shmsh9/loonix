@@ -1,5 +1,7 @@
 #include <drivers/serialx86.h>
 
+#ifdef __x86_64__
+
 struct serial_port serialx86_new(uint16_t port){
     struct serial_port serial;
     //need a malloc before this
@@ -11,30 +13,22 @@ struct serial_port serialx86_new(uint16_t port){
 }
 
 void serialx86_putchar(struct serial_port serial, char b){
-#ifdef __x86_64__
     uint16_t port = serial.port;
     __asm__ __volatile__ ("outb %0, %1" : : "a"(b), "Nd"(port));
-#endif 
 }
 char serialx86_getchar(struct serial_port serial){
 char ret = 0;
-#ifdef __x86_64__
     uint16_t port = serial.port;
     __asm__ __volatile__ ("inb %1, %0" : "=a"(ret) : "Nd"(port));
-#endif
 	return ret;
 }
 
 void __x86_outb(uint16_t port, uint8_t b){
-#ifdef __x86_64__
     __asm__ __volatile__ ("outb %0, %1" : : "a"(b), "Nd"(port));
-#endif 
 }
 uint8_t __x86_inb(uint16_t port){
     uint8_t ret = 0;
-#ifdef __x86_64__
     __asm__ __volatile__ ("inb %1, %0" : "=a"(ret) : "Nd"(port));
-#endif
 	return ret;
 }
 int serialx86_init(struct serial_port serial){
@@ -57,3 +51,6 @@ int serialx86_init(struct serial_port serial){
    __x86_outb(port + 4, 0x0F);
    return 0;
 }
+
+#endif
+

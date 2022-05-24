@@ -1,5 +1,5 @@
 #include <drivers/serialaa64.h>
-
+#ifdef __aarch64__
 struct serial_port serialaa64_new(){
     struct serial_port serial;
     serial.port = 0;
@@ -16,4 +16,5 @@ char serialaa64_getchar(struct serial_port serial){
 }
 void serialaa64_putchar(struct serial_port serial, char b){
 }
+#endif
 
