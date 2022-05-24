@@ -44,7 +44,7 @@ void kprintf(const char *fmt, ...){
                 i += 2;
             } 
         }
-        write_serial(fmt[i]);
+        serial_out.putchar(serial_out, fmt[i]);
     }
     __builtin_va_end(arg);
 }

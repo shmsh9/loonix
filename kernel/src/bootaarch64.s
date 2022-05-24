@@ -5,5 +5,5 @@
 
 _start:
 	/*Need to change this address */
-	mov 	sp, #0x80000000	
+	/*mov 	sp, #0x80000000	     */
 	b 		kmain

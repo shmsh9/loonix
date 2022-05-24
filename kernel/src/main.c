@@ -1,7 +1,16 @@
 #include <kernel.h>
+#include <drivers/serialx86.h>
+#include <drivers/serialaa64.h>
+struct serial_port serial_out = { 0 };
 
 uint64_t kmain(struct bootinfo *bootinfo){
-	int r = init_serial();
+#ifdef __x86_64__
+	serial_out = serialx86_new(0x3f8);
+#endif
+#ifdef __aarch64__
+	serial_out = serialaa64_new(0x90000000);
+#endif
+	int r = serial_out.init(serial_out);
 	if(r == 1){
 		return 0xdead;
 	}
