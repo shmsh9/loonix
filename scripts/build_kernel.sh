@@ -7,6 +7,9 @@ then
 fi
 CC="clang"
 LD="lld"
+
+bash scripts/clean.sh $TARGET
+
 echo "[building $TARGET for $ARCH]"
 IFLAGS="-I$TARGET/include -Ibootloader/include -Iefi"
 LDFLAGS="-flavor ld -e _start"

@@ -12,6 +12,9 @@ then
 fi
 CC="clang"
 LD="lld"
+
+bash scripts/clean.sh $TARGET
+
 echo "[building $TARGET for $ARCH]"
 IFLAGS="-I$TARGET/include -Iefi"
 LDFLAGS="-flavor link -subsystem:efi_application -entry:efi_main"
