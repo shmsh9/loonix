@@ -1,4 +1,5 @@
 .section .bss
+.align 16
 stack_bottom:
 .skip 65536
 stack_top:
@@ -8,4 +9,5 @@ stack_top:
 
 _start:
 	mov	 $stack_top, %rsp
-	call kmain 
+	call kmain
+	ret 
