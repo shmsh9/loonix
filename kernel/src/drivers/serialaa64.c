@@ -67,8 +67,7 @@ inline void __aarch64_setreg(uint64_t reg, uint32_t val){
 inline volatile uint32_t __aarch64_getreg(uint64_t reg){
     uint32_t ret = 0;
     __asm__ __volatile (
-        "ldr w6, [x0]\t\n"
-        "mov %w0, w6"
+        "ldr %w0, [x0]\t\n"
         : "=r"(ret)
     );
     return ret;
