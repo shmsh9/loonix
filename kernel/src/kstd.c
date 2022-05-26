@@ -55,5 +55,5 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
     for(uint64_t i = 0; i < sz; i++)
-        *(uint8_t *)dst = *(uint8_t *)src;
+        ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
 }

@@ -10,7 +10,6 @@ uint64_t kmain(struct bootinfo *bootinfo){
 #ifdef __aarch64__
 	serial_out = serialaa64_new(0x9000000);
 #endif
-	//return (uint64_t )serial_out.putchar;
 	int r = serial_out.init(serial_out);
 	if(r == 1){
 		return 0xdead;

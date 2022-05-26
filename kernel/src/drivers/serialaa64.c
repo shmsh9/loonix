@@ -35,9 +35,14 @@ char serialaa64_getchar(struct serial_port serial){
     return *((char *)((void*)serial.port));
 }
 void serialaa64_calculatedivisors(uint32_t *integer, uint32_t *fractional){
+    /*
+    Fixme init fpu to get proper div
+    
     uint32_t baudrate = 115200;
     uint32_t base_clock = 24000000;
     uint32_t div = 4 * base_clock / baudrate;
+    */
+    uint32_t div = 0x341;
     *fractional = div & 0x3f;
     *integer = (div >> 6) & 0xffff;
 }
@@ -46,19 +51,19 @@ void serialaa64_putchar(struct serial_port serial, char b){
     __aarch64_outb(serial, (uint32_t)b);
 }
 void serialaa64_waittx(struct serial_port serial){
-   while( __aarch64_getreg(serial.port+FR_OFFSET) * FR_BUSY != 0){} 
+   //while( __aarch64_getreg(serial.port+FR_OFFSET) * FR_BUSY != 0){} 
 }
 void __aarch64_outb(struct serial_port serial, uint32_t b){
     __aarch64_setreg(serial.port+CR_OFFSET, b);
 }
 volatile int __aarch64_inb(struct serial_port serial){
-    return *(uint32_t *)serial.port;
+    return *(volatile uint32_t *)serial.port;
 }
 void __aarch64_setreg(uint64_t reg, uint32_t val){
-    *((uint32_t *)((void *)(reg))) = val;
+    *((volatile uint32_t *)((volatile void *)(reg))) = val;
 }
 volatile uint32_t __aarch64_getreg(uint64_t reg){
-    return *((uint32_t *)((void *)(reg)));
+    return *((volatile uint32_t *)((volatile void *)(reg)));
 }
 #endif
 
