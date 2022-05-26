@@ -1,9 +1,8 @@
 .globl kmain, _start, stack_bottom, stack_top
 
 .section .bss
-.align 8
 stack_bottom:
-.skip 16384
+.skip 65536
 stack_top:
 
 
@@ -18,8 +17,8 @@ _initfpu:
 //	msr   cptr_el2, xzr
 //  mov   x6, #3 << 20
 //	msr   cpacr_el1, x6
-//	ldr		x6, stack_top
-//  mov   sp, x6
-	  b 		kmain
+//		ldr		x6, stack_top
+//		mov   sp, x6
+	  bl	kmain
 
 

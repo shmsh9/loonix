@@ -59,11 +59,19 @@ void __aarch64_outb(struct serial_port serial, uint32_t b){
 volatile int __aarch64_inb(struct serial_port serial){
     return *(volatile uint32_t *)serial.port;
 }
-void __aarch64_setreg(uint64_t reg, uint32_t val){
-    *((volatile uint32_t *)((volatile void *)(reg))) = val;
+inline void __aarch64_setreg(uint64_t reg, uint32_t val){
+    __asm__ __volatile__ (
+        "str w1, [x0]"
+    );
 }
-volatile uint32_t __aarch64_getreg(uint64_t reg){
-    return *((volatile uint32_t *)((volatile void *)(reg)));
+inline volatile uint32_t __aarch64_getreg(uint64_t reg){
+    uint32_t ret = 0;
+    __asm__ __volatile (
+        "ldr w6, [x0]\t\n"
+        "mov %w0, w6"
+        : "=r"(ret)
+    );
+    return ret;
 }
 #endif
 
