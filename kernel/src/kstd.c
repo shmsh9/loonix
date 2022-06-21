@@ -17,7 +17,7 @@ void kprintf(const char *fmt, ...){
     for(int i = 0; i < lfmt; i++){
         if(fmt[i] == '%' && i+1 < lfmt){
             if(fmt[i+1] == 'd' || fmt[i+1] == 'x'){
-                uint32_t n = __builtin_va_arg(arg, uint64_t);
+                uint64_t n = __builtin_va_arg(arg, uint64_t);
                 uint8_t base = fmt[i+1] == 'd' ? 10 : 16;
                 char strn[32] = {0};
                 char *ptr = strn;

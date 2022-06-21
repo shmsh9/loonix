@@ -1,9 +1,9 @@
 //credits to https://krinkinmu.github.io/2020/11/29/PL011.html
 #include <drivers/serialaa64.h>
 #ifdef __aarch64__
-struct serial_port serialaa64_new(){
+struct serial_port serialaa64_new(uint64_t port){
     struct serial_port serial;
-    serial.port = 0;
+    serial.port = port;
     serial.init = serialaa64_init;
     serial.putchar = serialaa64_putchar;
     serial.getchar = serialaa64_getchar;
@@ -32,7 +32,7 @@ int serialaa64_init(struct serial_port serial){
 }
 char serialaa64_getchar(struct serial_port serial){
     serialaa64_waittx(serial);
-    return *((char *)((void*)serial.port));
+    return *((char *)((uint32_t *)serial.port));
 }
 void serialaa64_calculatedivisors(uint32_t *integer, uint32_t *fractional){
     /*
@@ -48,7 +48,7 @@ void serialaa64_calculatedivisors(uint32_t *integer, uint32_t *fractional){
 }
 void serialaa64_putchar(struct serial_port serial, char b){
     serialaa64_waittx(serial);
-    __aarch64_outb(serial, (uint32_t)b);
+    *(volatile uint32_t *)serial.port = (uint32_t)b;
 }
 void serialaa64_waittx(struct serial_port serial){
    //while( __aarch64_getreg(serial.port+FR_OFFSET) * FR_BUSY != 0){} 
@@ -60,17 +60,10 @@ volatile int __aarch64_inb(struct serial_port serial){
     return *(volatile uint32_t *)serial.port;
 }
 inline void __aarch64_setreg(uint64_t reg, uint32_t val){
-    __asm__ __volatile__ (
-        "str w1, [x0]"
-    );
+    *(volatile uint32_t *)(reg) = val;
 }
 inline volatile uint32_t __aarch64_getreg(uint64_t reg){
-    uint32_t ret = 0;
-    __asm__ __volatile (
-        "ldr %w0, [x0]\t\n"
-        : "=r"(ret)
-    );
-    return ret;
+    return *(volatile uint32_t *)(reg);
 }
 #endif
 
