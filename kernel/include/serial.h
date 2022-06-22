@@ -1,7 +1,14 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 #include <stdint.h>
+#ifdef aarch64
 
+
+#endif
+
+#ifdef x86_64
+
+#endif
 struct serial_port{
   void (*putchar)(struct serial_port, char);
   char (*getchar)(struct serial_port);

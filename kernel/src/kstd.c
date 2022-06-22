@@ -7,7 +7,10 @@ int strlen(const char *str){
     return r;
 }
 void kprint(const char *str){
-    puts_serial(str);
+	while(*str){
+		SERIAL_PUTCHAR(*str);
+		str++;
+	}
 }
 void kprintf(const char *fmt, ...){
     __builtin_va_list arg;
@@ -44,7 +47,7 @@ void kprintf(const char *fmt, ...){
                 i += 2;
             } 
         }
-        serial_out.putchar(serial_out, fmt[i]);
+        SERIAL_PUTCHAR(fmt[i]);
     }
     __builtin_va_end(arg);
 }
