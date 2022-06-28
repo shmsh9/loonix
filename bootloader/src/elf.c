@@ -233,8 +233,7 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfree(buff);
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
-	Print(L"loading program : 0x%x\n", fnptr);
-	Print(L"program size is : 0x%x bytes\n", alloc);
+	Print(L"loading %s (0x%x Bytes)\n", filename, alloc );
 	exit_boot_services(bootinfo);
 	return fnptr(bootinfo);
 }

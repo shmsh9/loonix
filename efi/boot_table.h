@@ -60,7 +60,7 @@ struct efi_boot_table
 	// Miscellaneius Services
 	void (*unused26)();
 	void (*unused27)();
-	void (*unused28)();
+	void (*set_watch_dog_timer)(efi_uint_t, uint64_t, efi_uint_t, CHAR16 *);
 
 	// DriverSupport Services
 	void (*unused29)();

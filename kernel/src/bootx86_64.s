@@ -1,3 +1,4 @@
+.global _start, kmain, kprint, init_serial
 .section .bss
 .align 16
 stack_bottom:
@@ -5,7 +6,6 @@ stack_bottom:
 stack_top:
 
 .section .text
-.global _start, kmain, kprint, init_serial
 
 _start:
 	mov	 $stack_top, %rsp
