@@ -5,7 +5,14 @@ uint8_t SERIAL_READCHAR(){
     return (uint8_t)inb(SERIAL_ADDRESS);
 }
 void SERIAL_WAITCHAR(){
-    while( (inb(SERIAL_ADDRESS+5) & 1) == 0){
+    int offset = 0;
+    #ifdef __aarch664__
+        offset = 0x018;
+    #endif
+    #ifdef __x86_64__
+        offset = 0x05
+    #endif
+    while( (inb(SERIAL_ADDRESS+offset) & 1) == 0){
         kprintf("SERIAL_WAITCHAR() : inb == 0x%x\r", inb(SERIAL_ADDRESS+5));
     }
 }
