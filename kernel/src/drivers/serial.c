@@ -12,3 +12,8 @@ void SERIAL_WAITCHAR(){
 void SERIAL_PUTCHAR(char c){
     outb(SERIAL_ADDRESS, (uint32_t)c);
 }
+
+void SERIAL_INIT(){
+   outb(SERIAL_ADDRESS, 0x00);    // Disable all interrupts
+
+}
