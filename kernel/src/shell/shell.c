@@ -4,7 +4,7 @@ int32_t shell(){
     kprint(SHELL_PROMPT);
     uint8_t c = 0;
     uint8_t cmdline[CMDLINE_MAX] = {0};
-    uint32_t cmdlinepos = 0;
+    int32_t cmdlinepos = 0;
     while(1){
         c = kgetchar();
         switch(c){
@@ -29,7 +29,24 @@ int32_t shell(){
                 cmdlinepos = 0;
                 kprint(SHELL_PROMPT);
                 break;
-            
+            //Backspace
+            case 0x8:
+                if( (cmdlinepos - 1) >= 0){
+                    kputc('\b');
+                    kputc(' ');
+                    kputc('\b');
+                    cmdline[cmdlinepos-1] = 0x0;
+                    cmdlinepos--;
+                }
+                //kprint("\033[2A");
+                break;
+            //left arrow
+            case 0x1b:
+                if (cmdlinepos - 1 >= 0){
+                    cmdlinepos -= 1;
+                    kputc('\b');
+                }
+                break;
             default:
                 if(cmdlinepos < CMDLINE_MAX - 1){
                     cmdline[cmdlinepos++] = c;
@@ -43,6 +60,7 @@ int32_t shell(){
                     kprintf("0x%x", c);
                 else
                     kputc(c);
+                break;
         }
     }
     return 0;
