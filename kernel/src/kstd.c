@@ -10,6 +10,9 @@ void kprint(const char *str){
 	while(*str)
 		SERIAL_PUTCHAR(*str++);
 }
+void kputc(uint8_t c){
+    SERIAL_PUTCHAR(c);
+}
 char kgetchar(){
     return SERIAL_READCHAR();
 }
@@ -46,7 +49,12 @@ void kprintf(const char *fmt, ...){
                 char *tmps = __builtin_va_arg(arg, char*);
                 kprint(tmps);
                 i += 2;
-            } 
+            }
+            if(fmt[i+1] == 'c'){
+                //                                  Hum....
+                kputc((char)__builtin_va_arg(arg, uint32_t));
+                i += 2;
+            }
         }
         SERIAL_PUTCHAR(fmt[i]);
     }

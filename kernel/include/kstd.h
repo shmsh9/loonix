@@ -7,4 +7,5 @@ void kprintf(const char *fmt, ...);
 void kprint(const char *str);
 void memcpy(void *dst, const void *src, uint64_t sz);
 char kgetchar();
+void kputc(uint8_t c);
 #endif
