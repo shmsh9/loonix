@@ -2,11 +2,10 @@
 uint32_t inb(uint64_t address){
     uint32_t r = 0;
     #ifdef __x86_64__
-        uint8_t tmp = 0;
-        __asm__ __volatile__("inb %1, %0" : : "a"(tmp), "Nd"((uint16_t)address));
-        r = (uint32_t)r;
+        volatile uint8_t tmp = 0;
+        __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));
+        r = tmp;
     #endif 
-
     #ifdef __aarch64__
         r = *(volatile uint32_t *)address;
     #endif

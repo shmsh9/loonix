@@ -1,42 +1,47 @@
 #include <drivers/serial.h>
 #include <kstd.h>
 uint8_t SERIAL_READCHAR(){
-    SERIAL_WAITGETCHAR();
+    SERIAL_WAITRX();
     uint8_t ret = (uint8_t)inb(SERIAL_ADDRESS);
+    /*
+    #ifdef __aarch64__
+        //flush fifo
+        outb(SERIAL_ADDRESS+0x02c, ret & (~(1 << 4)));
+    #endif
+    */
     return ret;
 }
-void SERIAL_WAITGETCHAR(){
+void SERIAL_WAITTX(){
     #ifdef __aarch664__
         uint32_t offset = 0x18;
         uint32_t mask = (1 << 3);
-        while(! (inb(SERIAL_ADDRESS+offset)*mask ) ){}
+        while(! (inb(SERIAL_ADDRESS+offset) & mask ) ){}
     #endif
     #ifdef __x86_64__
         uint32_t offset = 0x5;
-        uint32_t mask = 0x1;
-        while(! (inb(SERIAL_ADDRESS+offset) & mask) ){}
+        uint32_t mask   = 0x20;
+        while( (inb(SERIAL_ADDRESS+offset) & mask) == 0 ){ }
     #endif
 }
-void SERIAL_PUTCHAR(char c){
-    SERIAL_WAITPUTCHAR();
-    /*
-    if(c == '\n')
-        outb(SERIAL_ADDRESS, (uint32_t)'\r');
-    */
-    outb(SERIAL_ADDRESS, (uint32_t)c);
-}
-void SERIAL_WAITPUTCHAR(){
+void SERIAL_WAITRX(){
     #ifdef __aarch664__
-        SERIAL_WAITGETCHAR();
+        SERIAL_WAITTX();
     #endif
     #ifdef __x86_64__
-        //uint32_t offset = 0x5;
-        //uint32_t mask = 0x1;
+        uint32_t offset = 0x5;
+        uint32_t mask   = 0x1;
+        while( (inb(SERIAL_ADDRESS+offset) & mask) == 0 ){ }
     #endif
+
+}
+void SERIAL_PUTCHAR(char c){
+    SERIAL_WAITTX();
+    outb(SERIAL_ADDRESS, (uint32_t)c);
 }
 void SERIAL_INIT(){
    #ifdef __x86_64__
-    outb(SERIAL_ADDRESS, 0x00);    // Disable all interrupts
+    // Disable all interrupts
+    outb(SERIAL_ADDRESS, 0x00);
    #endif
    #ifdef __aarch64__
    /*

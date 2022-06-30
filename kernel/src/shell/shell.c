@@ -1,7 +1,7 @@
 #include <shell/shell.h>
 
 int shell(){
-    char *prompt = "sh3w4x $ > ";
+    char *prompt = "sh3w4x $> ";
     kprint(prompt);
     char c = 0;
     while(1){
