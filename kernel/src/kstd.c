@@ -7,10 +7,11 @@ int strlen(const char *str){
     return r;
 }
 void kprint(const char *str){
-	while(*str){
-		SERIAL_PUTCHAR(*str);
-		str++;
-	}
+	while(*str)
+		SERIAL_PUTCHAR(*str++);
+}
+char kgetchar(){
+    return SERIAL_READCHAR();
 }
 void kprintf(const char *fmt, ...){
     __builtin_va_list arg;

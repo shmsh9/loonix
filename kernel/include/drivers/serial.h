@@ -5,8 +5,9 @@
 
 uint8_t SERIAL_READCHAR();
 void SERIAL_PUTCHAR(char c);
-void SERIAL_WAITCHAR();
 void SERIAL_INIT();
+void SERIAL_WAITGETCHAR();
+void SERIAL_WAITPUTCHAR();
 #ifdef __x86_64__
 	#define SERIAL_ADDRESS (uint16_t)0x3f8
 #endif

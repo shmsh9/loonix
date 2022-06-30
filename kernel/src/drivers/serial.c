@@ -1,26 +1,87 @@
 #include <drivers/serial.h>
 #include <kstd.h>
 uint8_t SERIAL_READCHAR(){
-    SERIAL_WAITCHAR();
-    return (uint8_t)inb(SERIAL_ADDRESS);
+    SERIAL_WAITGETCHAR();
+    uint8_t ret = (uint8_t)inb(SERIAL_ADDRESS);
+    return ret;
 }
-void SERIAL_WAITCHAR(){
-    int offset = 0;
+void SERIAL_WAITGETCHAR(){
     #ifdef __aarch664__
-        offset = 0x018;
+        uint32_t offset = 0x18;
+        uint32_t mask = (1 << 3);
+        while(! (inb(SERIAL_ADDRESS+offset)*mask ) ){}
     #endif
     #ifdef __x86_64__
-        offset = 0x05
+        uint32_t offset = 0x5;
+        uint32_t mask = 0x1;
+        while(! (inb(SERIAL_ADDRESS+offset) & mask) ){}
     #endif
-    while( (inb(SERIAL_ADDRESS+offset) & 1) == 0){
-        kprintf("SERIAL_WAITCHAR() : inb == 0x%x\r", inb(SERIAL_ADDRESS+5));
-    }
 }
 void SERIAL_PUTCHAR(char c){
+    SERIAL_WAITPUTCHAR();
+    /*
+    if(c == '\n')
+        outb(SERIAL_ADDRESS, (uint32_t)'\r');
+    */
     outb(SERIAL_ADDRESS, (uint32_t)c);
 }
-
+void SERIAL_WAITPUTCHAR(){
+    #ifdef __aarch664__
+        SERIAL_WAITGETCHAR();
+    #endif
+    #ifdef __x86_64__
+        //uint32_t offset = 0x5;
+        //uint32_t mask = 0x1;
+    #endif
+}
 void SERIAL_INIT(){
-   outb(SERIAL_ADDRESS, 0x00);    // Disable all interrupts
+   #ifdef __x86_64__
+    outb(SERIAL_ADDRESS, 0x00);    // Disable all interrupts
+   #endif
+   #ifdef __aarch64__
+   /*
+   //credits to https://krinkinmu.github.io/2020/11/29/PL011.html
+    //static const uint32_t DR_OFFSET = 0x000;
+    //static const uint32_t FR_OFFSET = 0x018;
+    static const uint32_t IBRD_OFFSET = 0x024;
+    static const uint32_t FBRD_OFFSET = 0x028;
+    static const uint32_t LCR_OFFSET = 0x02c;
+    static const uint32_t CR_OFFSET = 0x030;
+    static const uint32_t IMSC_OFFSET = 0x038;
+    static const uint32_t DMACR_OFFSET = 0x048;
+    static const uint32_t CR_TXEN = (1 << 8);
+    static const uint32_t CR_UARTEN = (1 << 0);
+    static const uint32_t LCR_FEN = (1 << 4);
+    //static const uint32_t LCR_STP2 = (1 << 3);
 
+    uint32_t cr = inb(SERIAL_ADDRESS+CR_OFFSET);
+    uint32_t lcr = inb(SERIAL_ADDRESS+LCR_OFFSET);
+
+    // Disable UART before anything else
+    outb(SERIAL_ADDRESS+CR_OFFSET, (cr & CR_UARTEN));
+
+    // Wait for any ongoing transmissions to complete
+    //wait_tx_complete(dev);
+
+    // Flush FIFOs
+    outb(SERIAL_ADDRESS+LCR_OFFSET, (lcr & ~LCR_FEN));
+
+    // Set frequency divisors (UARTIBRD and UARTFBRD) to configure the speed
+    //claculate_divisors(dev, &ibrd, &fbrd);
+    outb(SERIAL_ADDRESS+IBRD_OFFSET, (0x341 & 0x3f));
+    outb(SERIAL_ADDRESS+FBRD_OFFSET, ((0x341 >> 6) & 0xffff) );
+
+    // Mask all interrupts by setting corresponding bits to 1
+    outb(SERIAL_ADDRESS+IMSC_OFFSET, 0x7ff);
+
+    // Disable DMA by setting all bits to 0
+    outb(SERIAL_ADDRESS+DMACR_OFFSET, 0x0);
+
+    // I only need transmission, so that's the only thing I enabled.
+    // *reg(dev, CR_OFFSET) = CR_TXEN;
+
+    // Finally enable UART
+    outb(SERIAL_ADDRESS+CR_OFFSET, CR_TXEN | CR_UARTEN);
+    */
+   #endif
 }

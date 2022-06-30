@@ -4,5 +4,6 @@
 #include <kstd.h>
 #include <drivers/serial.h>
 #include <bootloader.h>
+#include <shell/shell.h>
 #endif
 
