@@ -34,7 +34,7 @@ void SERIAL_WAITRX(){
     #endif
 
 }
-void SERIAL_PUTCHAR(char c){
+void SERIAL_PUTCHAR(uint8_t c){
     SERIAL_WAITTX();
     outb(SERIAL_ADDRESS, (uint32_t)c);
 }

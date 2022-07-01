@@ -5,6 +5,8 @@
 #define SHELL_NAME   "sh3w4x"
 #define SHELL_PROMPT SHELL_NAME" $> "
 #define CMDLINE_MAX  1024
-int32_t shell();
-int32_t shell_exec(uint8_t cmdline[CMDLINE_MAX]);
+int shell();
+int shell_exec(char cmdline[CMDLINE_MAX]);
+void rmchar(char cmdline[CMDLINE_MAX], int pos);
+void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos);
 #endif

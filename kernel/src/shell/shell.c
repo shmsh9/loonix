@@ -1,19 +1,19 @@
 #include <shell/shell.h>
 
-int32_t shell(){
+int shell(){
     kprint(SHELL_PROMPT);
-    uint8_t c = 0;
-    uint8_t cmdline[CMDLINE_MAX] = {0};
-    int32_t cmdlinepos = 0;
+    char c = 0;
+    char cmdline[CMDLINE_MAX+1] = {0};
+    int cmdlinepos = 0;
     while(1){
         c = kgetchar();
         switch(c){
             case '\r':
                 kputc('\n');
                 shell_exec(cmdline);
-                kprint(SHELL_PROMPT);
                 memset(cmdline, 0, CMDLINE_MAX);
                 cmdlinepos = 0;
+                kprint(SHELL_PROMPT);
                 break;
             case '\n':
                 kputc('\n');
@@ -30,45 +30,94 @@ int32_t shell(){
                 kprint(SHELL_PROMPT);
                 break;
             //Backspace
-            case 0x8:
+            case 0x7f:
                 if( (cmdlinepos - 1) >= 0){
-                    kputc('\b');
-                    kputc(' ');
-                    kputc('\b');
-                    cmdline[cmdlinepos-1] = 0x0;
                     cmdlinepos--;
+                    rmchar(cmdline, cmdlinepos);
+                    refreshline(cmdline, cmdlinepos);
                 }
-                //kprint("\033[2A");
                 break;
-            //left arrow
+            //Escape sequence
             case 0x1b:
-                if (cmdlinepos - 1 >= 0){
-                    cmdlinepos -= 1;
-                    kputc('\b');
+                // literral [
+                if(kgetchar() == 0x5b){
+                    char esc = kgetchar();
+                    switch(esc){
+                        //right arrow
+                        case 0x43:
+                            if( cmdlinepos + 1 < CMDLINE_MAX && cmdline[cmdlinepos] != 0x0){
+                                kprint("\033[1C");
+                                cmdlinepos++;
+                            }
+                            break;
+                        //left arrow
+                        case 0x44:
+                            if( cmdlinepos - 1 >= 0){
+                                kputc('\b');
+                                cmdlinepos--;
+                            }
+                            break;
+                        //non handled char
+                        default:
+                            kprintf("0x%x", esc);
+                            break;
+                    }
                 }
                 break;
             default:
-                if(cmdlinepos < CMDLINE_MAX - 1){
-                    cmdline[cmdlinepos++] = c;
+                if( (cmdlinepos < CMDLINE_MAX - 1)){
+                    if(c != 0x0){
+                        cmdline[cmdlinepos] = c;
+                        cmdlinepos++;
+                        if(c < 32)
+                            kprintf("0x%x", c);
+                        else
+                            kputc(c);
+                    }
                 }
-                else{   
+                else{ 
+                    kprintf("CMDLINE_MAX overflow : %d !\n", cmdlinepos);
+                    memset(cmdline, 0, CMDLINE_MAX);
                     cmdlinepos = 0;
-                    cmdline[cmdlinepos] = c;
-                    cmdlinepos++;
+                    kprint(SHELL_PROMPT);
                 }
-                if(c < 32)
-                    kprintf("0x%x", c);
-                else
-                    kputc(c);
                 break;
         }
     }
     return 0;
 }
 
-int32_t shell_exec(uint8_t cmdline[CMDLINE_MAX]){
+int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
     kprintf("-"SHELL_NAME": %s: command not found\n", cmdline);
+    kprint("cmdline : ");
+    int l = strlen(cmdline);
+    for(int i = 0; i < l; i++)
+        kprintf("0x%x ", cmdline[i]);
+    kputc('\n');
     return -1;
+}
+void rmchar(char cmdline[CMDLINE_MAX], int pos){
+    int l = strlen(cmdline);
+    for(int i = pos; i < l; i++){
+        cmdline[i] = cmdline[i+1];
+    }
+}
+
+void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos){
+    kprintf("\033[%dD%s \033[1D\033 \033[%dD\033[%dC",
+        (cmdlinepos+1), 
+        cmdline,
+        strlen(cmdline), 
+        cmdlinepos
+    );
+    /*
+    kprintf("\033[%dD", cmdlinepos+1);
+    kprint(cmdline);
+    kputc(' ');
+    kputc('\b');
+    kprintf("\033[%dD", strlen(cmdline));
+    kprintf("\033[%dC", cmdlinepos);
+    */
 }

@@ -4,7 +4,7 @@
 #include <io.h>
 
 uint8_t SERIAL_READCHAR();
-void SERIAL_PUTCHAR(char c);
+void SERIAL_PUTCHAR(uint8_t c);
 void SERIAL_INIT();
 void SERIAL_WAITTX();
 void SERIAL_WAITRX();
