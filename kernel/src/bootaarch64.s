@@ -3,17 +3,17 @@
 .section .bss
 
 stack_bottom:
-.skip 65536
+.skip 4096
 stack_top:
 
 
 .section .text
 
 _start:
-		adr   x9, stack_top
-		add   x9, x9, :lo12:stack_top
-		mov   sp, x9
-		bl	  kmain
+		msr   	daifset, #2 //disable interrputs
+		ldr			x29, stack_top
+		mov			x29, sp
+		bl	  	kmain
 		ret
 
 

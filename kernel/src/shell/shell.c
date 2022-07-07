@@ -1,6 +1,15 @@
 #include <shell/shell.h>
 
+
 int shell(){
+    /* Why compiler does not do this for me ??? */
+    /*
+    builtins[0].ptrfn = clear;
+    builtins[0].name = "clear";
+    builtins[1].ptrfn = help;
+    builtins[1].name = "help";
+    */
+
     kprint(SHELL_PROMPT);
     char c = 0;
     char cmdline[CMDLINE_MAX+1] = {0};
@@ -86,16 +95,15 @@ int shell(){
     }
     return 0;
 }
-
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
+    for(int i = 0; i < BUILTIN_SIZE; i++){
+        if(strcmp(cmdline, builtins[i].name) == 0){
+            return builtins[i].ptrfn(0, 0);
+        }
+    }
     kprintf("-"SHELL_NAME": %s: command not found\n", cmdline);
-    kprint("cmdline : ");
-    int l = strlen(cmdline);
-    for(int i = 0; i < l; i++)
-        kprintf("0x%x ", cmdline[i]);
-    kputc('\n');
     return -1;
 }
 void rmchar(char cmdline[CMDLINE_MAX], int pos){

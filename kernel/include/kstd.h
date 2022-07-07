@@ -2,6 +2,7 @@
 #define KSTD_H_
 #include <drivers/serial.h>
 int strlen(const char *str);
+int strcmp(const char *str1, const char *str2);
 void memset(void *ptr, uint8_t b, uint64_t sz);
 void kprintf(const char *fmt, ...);
 void kprint(const char *str);

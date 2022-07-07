@@ -9,4 +9,3 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	}
 	return 0xcafe;
 }
-

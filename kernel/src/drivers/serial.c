@@ -44,8 +44,8 @@ void SERIAL_INIT(){
     outb(SERIAL_ADDRESS, 0x00);
    #endif
    #ifdef __aarch64__
-   /*
-   //credits to https://krinkinmu.github.io/2020/11/29/PL011.html
+    /*
+    //credits to https://krinkinmu.github.io/2020/11/29/PL011.html
     //static const uint32_t DR_OFFSET = 0x000;
     //static const uint32_t FR_OFFSET = 0x018;
     static const uint32_t IBRD_OFFSET = 0x024;
@@ -84,9 +84,9 @@ void SERIAL_INIT(){
 
     // I only need transmission, so that's the only thing I enabled.
     // *reg(dev, CR_OFFSET) = CR_TXEN;
-
+    outb(SERIAL_ADDRESS+CR_OFFSET, CR_TXEN);
     // Finally enable UART
     outb(SERIAL_ADDRESS+CR_OFFSET, CR_TXEN | CR_UARTEN);
-    */
-   #endif
+   */
+    #endif
 }

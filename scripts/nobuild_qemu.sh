@@ -1,5 +1,10 @@
 #!/bin/bash
 set -e
+if [[ ! -f "$1" ]]
+then
+    echo "please provide kernel as argument"
+    exit -1
+fi
 if [[ ${ARCH} == "" ]]
 then
 	ARCH="$(uname -m)"
@@ -19,11 +24,6 @@ BIOS="${FW_BASE}_${EFIARCH}.fd"
 FW_ZIP="${FW_BASE}-${EFIARCH}.zip"
 QEMU="qemu-system-${ARCH/-/_}"
 
-rm -rf image/
-bash scripts/build_all.sh
-mkdir -p image/efi/boot
-cp -f bootloader/*.efi image/efi/boot
-cp -f kernel/*.elf image
 if [[ ! -f "$BIOS" ]]
 then
     wget "https://efi.akeo.ie/${FW_BASE}/${FW_ZIP}"
@@ -31,5 +31,6 @@ then
     mv "${FW_BASE}.fd" "$BIOS"
     rm -f "$FW_ZIP"
 fi
+cp $1 kernel/kernel.elf
 echo [$QEMU]
-$QEMU $QEMUOPTS -m 128M -bios $BIOS -nographic -s -net none -drive format=raw,file=fat:rw:image
+$QEMU $QEMUOPTS -m 256M -bios $BIOS -nographic -s -net none -drive format=raw,file=fat:rw:image

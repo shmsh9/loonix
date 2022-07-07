@@ -6,6 +6,15 @@ int strlen(const char *str){
         r++;
     return r;
 }
+int strcmp(const char *str1, const char *str2){
+    while(*str1 || *str2){
+        if(*str1 != *str2)
+            return -1;
+        str1++;
+        str2++;
+    }
+    return *str1 == *str2 ? 0 : -1;
+}
 void kprint(const char *str){
 	while(*str)
 		SERIAL_PUTCHAR(*str++);
