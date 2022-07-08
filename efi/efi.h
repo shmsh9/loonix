@@ -10,5 +10,8 @@
 #include "system_table.h"
 #include "serial.h"
 #include "types.h"
-
+#define  EFI_PAGE_SHIFT 12
+#define  EFI_PAGE_MASK  0xFFF
+#define  EFI_SIZE_TO_PAGES(Size) (((Size) >> EFI_PAGE_SHIFT) + (((Size) & EFI_PAGE_MASK) ? 1 : 0))
+#define  EFI_ERROR(Status) (((int)(Status)) < 0)
 #endif // __EFI_H__

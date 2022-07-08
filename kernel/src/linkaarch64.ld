@@ -22,8 +22,4 @@ SECTIONS
 		*(.bss)
 	__BSS_END   = .;
 	}
-	. = ALIGN(0x10);
-	stack_bottom = .;
-	. += 0x4000;
-	stack_top    = .;
 }

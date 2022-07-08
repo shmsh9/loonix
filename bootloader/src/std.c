@@ -3,8 +3,8 @@
 void *kmalloc(size_t sz){
 	void *r = NULL;
 	efi_status_t s = SystemTable->boot->allocate_pool(EFI_LOADER_DATA, sz, &r);
-	if(!r || s != EFI_SUCCESS){
-		Print(L"error : kmalloc() : failure\n");
+	if(EFI_ERROR(s)){
+		Print(L"error : kmalloc() : 0x%x\n", s);
 		return NULL;
 	}
 	return r;
@@ -15,7 +15,9 @@ void *kcalloc(size_t elementCount, size_t elementSize){
 	return r;
 }
 void *kallocaddress(size_t sz, void *address){
-		SystemTable->boot->allocate_pages(EFI_ALLOCATE_ADDRESS, EFI_PERSISTENT_MEMORY, sz, address);
+		efi_status_t s = SystemTable->boot->allocate_pages(EFI_ALLOCATE_ADDRESS, EFI_BOOT_SERVICES_DATA, EFI_SIZE_TO_PAGES(sz), address);
+		if(EFI_ERROR(s))
+			Print(L"error : kallocaddress : 0x%x\n", s);
 		return address;
 }
 void kfree(void *ptr){

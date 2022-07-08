@@ -2,7 +2,7 @@
 #define SERIAL_DRIVER_H_
 #include <stdint.h>
 #include <io.h>
-
+#include <drivers/pl011uart.h>
 uint8_t SERIAL_READCHAR();
 void SERIAL_PUTCHAR(uint8_t c);
 void SERIAL_INIT();
