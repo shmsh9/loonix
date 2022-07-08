@@ -3,19 +3,13 @@
 uint8_t SERIAL_READCHAR(){
     SERIAL_WAITRX();
     uint8_t ret = (uint8_t)inb(SERIAL_ADDRESS);
-    /*
-    #ifdef __aarch64__
-        //flush fifo
-        outb(SERIAL_ADDRESS+0x02c, ret & (~(1 << 4)));
-    #endif
-    */
     return ret;
 }
 void SERIAL_WAITTX(){
-    #ifdef __aarch664__
+    #ifdef __aarch64__
         uint32_t offset = 0x18;
-        uint32_t mask = (1 << 3);
-        while(! (inb(SERIAL_ADDRESS+offset) & mask ) ){}
+        uint32_t mask = (1 << 7);
+        while((inb(SERIAL_ADDRESS+offset) & mask ) == 0 ){}
     #endif
     #ifdef __x86_64__
         uint32_t offset = 0x5;
