@@ -7,13 +7,14 @@ int strlen(const char *str){
     return r;
 }
 int strcmp(const char *str1, const char *str2){
-    while(*str1 || *str2){
-        if(*str1 != *str2)
+    int l1 = strlen(str1);
+    int l2 = strlen(str2);
+    if(l1 != l2)
+        return -1;
+    for(int i = 0; i < l1; i++)
+        if(str1[i] != str2[i])
             return -1;
-        str1++;
-        str2++;
-    }
-    return *str1 == *str2 ? 0 : -1;
+    return 0;
 }
 void kprint(const char *str){
 	while(*str)
@@ -78,3 +79,4 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     for(uint64_t i = 0; i < sz; i++)
         ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
 }
+

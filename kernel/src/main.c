@@ -2,7 +2,8 @@
 
 uint64_t kmain(struct bootinfo *bootinfo){
 	SERIAL_INIT();
-	kprintf("Loon1x started at 0x%x\n", bootinfo->kernelbase);
+	kprintf("Loon1x started at 0x%x\n", bootinfo->kernelentry);
+	kprint("FAILL second print\n");
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

@@ -14,6 +14,10 @@ void *kcalloc(size_t elementCount, size_t elementSize){
 	SetMem(r, elementCount*elementSize, 0);
 	return r;
 }
+void *kallocaddress(size_t sz, void *address){
+		SystemTable->boot->allocate_pages(EFI_ALLOCATE_ADDRESS, EFI_PERSISTENT_MEMORY, sz, address);
+		return address;
+}
 void kfree(void *ptr){
 	SystemTable->boot->free_pool(ptr);
 }

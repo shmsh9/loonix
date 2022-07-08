@@ -216,9 +216,14 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	parself(&elf, buff);
 	uintptr_t base = baseaddr(&elf);
 	uintptr_t alloc = basealloc(&elf, base);
-	
-	//allocate stack at the same time
-	void *prog = kmalloc(alloc);
+	void *kaddr;
+	#ifdef __aarch64__
+		kaddr = (void *)0x40000000;
+	#endif
+	#ifdef __x86_64__
+		kaddr = (void *)0x1000000;
+	#endif
+	void *prog = kallocaddress(alloc, kaddr);
 	bootinfo->kernelsize = alloc;
 	bootinfo->kernelbase = prog;
 	//loading program into memory	
@@ -233,7 +238,8 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfree(buff);
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
-	Print(L"loading %s (0x%x Bytes)\n", filename, alloc );
+	bootinfo->kernelentry = (void *)fnptr;
+	Print(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x )\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
 	exit_boot_services(bootinfo);
 	return fnptr(bootinfo);
 }

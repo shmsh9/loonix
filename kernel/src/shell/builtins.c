@@ -1,8 +1,8 @@
 #include <shell/builtins.h>
 
-struct fnbuiltin builtins[BUILTIN_SIZE] = {
-        (struct fnbuiltin){.ptrfn = clear, .name = "clear"},
-        (struct fnbuiltin){.ptrfn = help,  .name = "help"}
+const struct fnbuiltin builtins[BUILTIN_SIZE] = {
+        { clear, "clear"},
+        { help,  "help"}
 };
 int clear(int argc, char **argv){
     kprint("\033[2J\033[H");

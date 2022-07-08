@@ -20,4 +20,5 @@ CHAR16 *StrDuplicate(CHAR16 *str);
 void * memset(void *dst, char b, size_t sz);
 void * memcpy(void *dst, const void * src, size_t sz);
 void kfree(void *ptr);
+void *kallocaddress(size_t sz, void *address);
 #endif

@@ -6,7 +6,7 @@
 #define SHELL_NAME   "sh3w4x"
 #define SHELL_PROMPT SHELL_NAME" $> "
 #define CMDLINE_MAX  1024
-extern struct fnbuiltin builtins[BUILTIN_SIZE];
+extern const struct fnbuiltin builtins[BUILTIN_SIZE];
 int shell();
 int shell_exec(char cmdline[CMDLINE_MAX]);
 void rmchar(char cmdline[CMDLINE_MAX], int pos);

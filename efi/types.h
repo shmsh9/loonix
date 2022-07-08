@@ -78,5 +78,23 @@ enum efi_memory_type {
 	EFI_PERSISTENT_MEMORY,
 	EFI_MAX_MEMORY_TYPE,
 };
-
+typedef enum {
+  ///
+  /// Allocate any available range of pages that satisfies the request.
+  ///
+  AllocateAnyPages,
+  ///
+  /// Allocate any available range of pages whose uppermost address is less than
+  /// or equal to a specified maximum address.
+  ///
+  AllocateMaxAddress,
+  ///
+  /// Allocate pages at a specified address.
+  ///
+  AllocateAddress,
+  ///
+  /// Maximum enumeration value that may be used for bounds checking.
+  ///
+  MaxAllocateType
+} EFI_ALLOCATE_TYPE;
 #endif // __EFI_TYPES_H__

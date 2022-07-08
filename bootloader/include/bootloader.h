@@ -5,9 +5,8 @@
 struct bootinfo{
 	efi_handle_t     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
-	void             *stackbase;
 	void             *kernelbase;
-	void             *stacktop;
+	void						 *kernelentry;
 	uint64_t         kernelsize;
 	uint64_t         stacksize;
 };
