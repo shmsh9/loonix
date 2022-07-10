@@ -1,5 +1,6 @@
 #include <shell/shell.h>
 
+extern struct fnbuiltin builtins[BUILTIN_SIZE];
 
 int shell(){
     /* Why compiler does not do this for me ??? */

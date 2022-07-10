@@ -15,7 +15,7 @@ IFLAGS="-I$TARGET/include -Ibootloader/include -Iefi"
 ABI="${ARCH}-none-elf"
 LDFLAGS=""
 CFLAGS="-fPIC -nostdlib -ffreestanding -mno-red-zone -std=c11 \
-		-Wno-unused-function -Wall -Werror -pedantic -fshort-wchar \
+		-Wno-unused-function -Wall -Werror -pedantic \
 		-target $ABI -ggdb"
 
 for object in $(find $TARGET/src/ -name "*.c")

@@ -10,5 +10,6 @@ _start:
     cli  //disable all interrupts
     mov  $stack_top,   %r14
 	  mov	 %r14, %rsp
-	  call kmain
+		call __init_glob
+		call kmain
 	  ret 
