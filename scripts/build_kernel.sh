@@ -28,7 +28,5 @@ do
 	echo "[CC] $object"
 	$CC $IFLAGS -target $ABI -c $object -o "${object%.S}.o"
 done
-#$CC -target $ABI -c $TARGET/src/boot${ARCH}.s -o $TARGET/src/boot${ARCH}.o
-
 $LD -T "${TARGET}/src/link${ARCH}.ld" $LDFLAGS $(find $TARGET -name "*.o") -o $TARGET/$OBJ
 

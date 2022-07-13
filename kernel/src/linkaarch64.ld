@@ -4,7 +4,7 @@ ENTRY(_start)
 SECTIONS
 {
 	.text.start : {
-		bootaarch64.o(.text)
+		aarch64boot.o(.text)
 	}
 	.text : ALIGN(0x10){
 	__TEXT_START_ = .;
