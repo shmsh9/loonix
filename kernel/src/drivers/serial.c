@@ -8,8 +8,8 @@ uint8_t SERIAL_READCHAR(){
 void SERIAL_WAITTX(){
     #ifdef __aarch64__
         uint32_t offset = 0x18;
-        uint32_t mask = (1 << 7);
-        while((inb(SERIAL_ADDRESS+offset) & mask ) == 0 ){}
+        uint32_t mask = (1 << 5);
+        while((inb(SERIAL_ADDRESS+offset) & mask )){}
     #endif
     #ifdef __x86_64__
         uint32_t offset = 0x5;

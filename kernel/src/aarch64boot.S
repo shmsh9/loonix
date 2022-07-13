@@ -7,7 +7,7 @@ stack_top:
 
 _start:
 		msr   	daifset, #2 //disable interrputs
-		adr			x9, stack_top
+		adrp		x9, stack_top
 		mov			sp, x9
 		bl			__init_glob
 		bl	  	kmain
