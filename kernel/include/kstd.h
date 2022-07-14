@@ -1,6 +1,7 @@
 #ifndef KSTD_H_
 #define KSTD_H_
 #include <drivers/serial.h>
+#include <mem.h>
 #ifdef __x86_64__
     #define JMPNOARCH "jmp"
 #endif
@@ -18,5 +19,7 @@ void kprint(const char *str);
 void memcpy(void *dst, const void *src, uint64_t sz);
 char kgetchar();
 void kputc(uint8_t c);
+void *kmalloc(uint32_t b);
+void kfree(void *p);
 #endif
 

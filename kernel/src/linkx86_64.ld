@@ -21,5 +21,6 @@ SECTIONS
 	__BSS_START = .;
 		*(.bss)
 	__BSS_END   = .;
+	__HEAP_START = .;
 	}
 }

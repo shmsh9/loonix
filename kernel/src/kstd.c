@@ -80,3 +80,10 @@ void memcpy(void *dst, const void *src, uint64_t sz){
         ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
 }
 
+void * kmalloc(uint32_t b){
+    return k_heapBMAlloc(&__HEAP_START, b);
+}
+
+void kfree(void *p){
+    k_heapBMFree(&__HEAP_START, p);
+}

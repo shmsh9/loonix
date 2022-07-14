@@ -19,5 +19,6 @@ struct fnbuiltin {
 int clear(int argc, char **argv);
 int help(int argc, char **argv);
 
+extern struct fnbuiltin builtins[BUILTIN_SIZE];
 
 #endif
