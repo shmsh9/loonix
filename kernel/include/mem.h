@@ -13,7 +13,8 @@ typedef struct _KHEAPBLOCKBM {
 typedef struct _KHEAPBM {
     KHEAPBLOCKBM			*fblock;
 } KHEAPBM;
-extern KHEAPBM __HEAP_START;
+extern uintptr_t __HEAP_START;
+extern KHEAPBM HEAP;
 void k_heapBMInit(KHEAPBM *heap);
 int k_heapBMAddBlock(KHEAPBM *heap, uintptr_t addr, uint32_t size, uint32_t bsize);
 //static uint8_t k_heapBMGetNID(uint8_t a, uint8_t b);

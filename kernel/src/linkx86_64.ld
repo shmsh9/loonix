@@ -21,6 +21,11 @@ SECTIONS
 	__BSS_START = .;
 		*(.bss)
 	__BSS_END   = .;
+	__STACK_BOTTOM = .;
+	. = . + 0x4000;
+	__STACK_TOP = .;
 	__HEAP_START = .;
+	. = . + 0x10000;
+	__HEAP_END = .;
 	}
 }
