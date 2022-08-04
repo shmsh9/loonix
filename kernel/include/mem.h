@@ -1,23 +1,34 @@
 #ifndef MEM_H_
 #define MEM_H_
 #include <stdint.h>
+#include <kstd.h>
 
-typedef struct _KHEAPBLOCKBM {
-	struct _KHEAPBLOCKBM        *next;
+
+#define KHEAPFLAG_USED			0x80000000
+
+typedef struct _KHEAPHDRLCAB {
+	uint32_t				prevsize;
+	uint32_t				flagsize;
+} KHEAPHDRLCAB;
+
+typedef struct _KHEAPBLOCKLCAB {
 	uint32_t					size;
 	uint32_t					used;
-	uint32_t					bsize;
-    uint32_t                    lfb;
-} KHEAPBLOCKBM;
+	struct _KHEAPBLOCKLCAB	                *next;
+	uint32_t					lastdsize;
+	KHEAPHDRLCAB			        *lastdhdr;
+} KHEAPBLOCKLCAB;
 
-typedef struct _KHEAPBM {
-    KHEAPBLOCKBM			*fblock;
-} KHEAPBM;
-extern uintptr_t __HEAP_START;
-extern KHEAPBM HEAP;
-void k_heapBMInit(KHEAPBM *heap);
-int k_heapBMAddBlock(KHEAPBM *heap, uintptr_t addr, uint32_t size, uint32_t bsize);
-//static uint8_t k_heapBMGetNID(uint8_t a, uint8_t b);
-void *k_heapBMAlloc(KHEAPBM *heap, uint32_t size);
-void k_heapBMFree(KHEAPBM *heap, void *ptr);
+typedef struct _KHEAPLCAB {
+	KHEAPBLOCKLCAB		       *fblock;
+	uint32_t				bcnt;
+} KHEAPLCAB;
+
+extern KHEAPLCAB HEAP;
+
+void k_heapLCABInit(KHEAPLCAB *heap);
+int k_heapLCABAddBlock(KHEAPLCAB *heap, uintptr_t addr, uint32_t size);
+void k_heapLCABFree(KHEAPLCAB *heap, void *ptr);
+void* k_heapLCABAlloc(KHEAPLCAB *heap, uint32_t size);
+
 #endif

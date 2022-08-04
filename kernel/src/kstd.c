@@ -16,6 +16,14 @@ int strcmp(const char *str1, const char *str2){
             return -1;
     return 0;
 }
+char *strdup(const char *str){
+    int l = strlen(str);
+    if(!l)
+        return 0x0;
+    char *ret = kmalloc(l+1);
+    memcpy(ret, str, l+1);
+    return ret;
+}
 void kprint(const char *str){
 	while(*str)
 		SERIAL_PUTCHAR(*str++);
@@ -81,9 +89,9 @@ void memcpy(void *dst, const void *src, uint64_t sz){
 }
 
 void * kmalloc(uint32_t b){
-    return k_heapBMAlloc(&HEAP, b);
+    return k_heapLCABAlloc(&HEAP, b);
 }
 
 void kfree(void *p){
-    k_heapBMFree(&HEAP, p);
+    k_heapLCABFree(&HEAP, p);
 }
