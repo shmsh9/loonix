@@ -4,10 +4,12 @@ KHEAPLCAB HEAP;
 
 #ifdef __x86_64__
 	//ugly
+	#define ARCH "x64"
 	#define HEAP_START 0x10FFFF
 #endif
 
 #ifdef __aarch64__
+	#define ARCH "aarch64"
 	#define HEAP_START (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize	
 #endif
 
@@ -15,7 +17,8 @@ uint64_t kmain(struct bootinfo *bootinfo){
   k_heapLCABInit(&HEAP);
   k_heapLCABAddBlock(&HEAP, HEAP_START, 0x10000);
 	SERIAL_INIT();
-	kprintf("HEAP_START at 0x%x\n", HEAP.fblock);
+	kprintf("HEAP_START 0x%x\n", HEAP.fblock);
+	kprint("ARCH "ARCH"\n");
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);	

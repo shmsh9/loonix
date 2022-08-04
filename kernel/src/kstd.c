@@ -77,9 +77,14 @@ void kprintf(const char *fmt, ...){
 }
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
-    int mod = sz % 8;
+    int mod = sz % 16;
     switch(mod){
         case 0:
+            for(uint64_t i = 0; i < sz; i += 16)
+                ((__uint128_t *)ptr)[i >> 4] = (__uint128_t)b;
+            return;
+            break;
+        case 8:
             for(uint64_t i = 0; i < sz; i += 8)
                 ((uint64_t *)ptr)[i >> 3] = (uint64_t)b;
             return;
@@ -102,9 +107,14 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
     }
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
-    int mod = sz % 8;
+    int mod = sz % 16;
     switch(mod){
         case 0:
+            for(uint64_t i = 0; i < sz; i += 16)
+                ((__uint128_t *)dst)[i >> 4] = ((__uint128_t *)src)[i >> 4];
+            return;
+            break;
+        case 8:
             for(uint64_t i = 0; i < sz; i += 8)
                 ((uint64_t *)dst)[i >> 3] = ((uint64_t *)src)[ i >> 3];
             return;
@@ -127,9 +137,15 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     }
 }
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
-    int mod = sz % 8;
+    int mod = sz % 16;
     switch(mod){
         case 0:
+            for(uint64_t i = 0; i < sz; i += 16){
+                if( ((__uint128_t *)ptr1)[i >> 4] != ((__uint128_t *)ptr2)[i >> 4] )
+                    return -1;
+            }
+            break;
+        case 8:
             for(uint64_t i = 0; i < sz; i += 8){
                 if( ((uint64_t *)ptr1)[i >> 3] != ((uint64_t *)ptr2)[i >> 3] )
                     return -1;
