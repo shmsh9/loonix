@@ -12,16 +12,13 @@ KHEAPLCAB HEAP;
 #endif
 
 uint64_t kmain(struct bootinfo *bootinfo){
-  k_heapLCABInit(&HEAP);                              /* initialize the heap */
-  k_heapLCABAddBlock(&HEAP, HEAP_START, 0x10000);  /* add block to heap */
+  k_heapLCABInit(&HEAP);
+  k_heapLCABAddBlock(&HEAP, HEAP_START, 0x10000);
 	SERIAL_INIT();
-	kprintf("HEAP_START = 0x%x\n", HEAP.fblock);
-	char *f = strdup("Hello World from heap !\n");
-  char *f2 = strdup("HEnlo again bugless heap\n");
-	kprint(f);
-	kprint(f2);
-	kfree(f);
-	kfree(f2);
+	kprintf("HEAP_START at 0x%x\n", HEAP.fblock);
+	char *heap_motd = strdup("Welcome to l00n1x !\n");
+	kprint(heap_motd);	
+	kfree(heap_motd);	
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

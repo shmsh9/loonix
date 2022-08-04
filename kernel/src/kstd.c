@@ -11,10 +11,7 @@ int strcmp(const char *str1, const char *str2){
     int l2 = strlen(str2);
     if(l1 != l2)
         return -1;
-    for(int i = 0; i < l1; i++)
-        if(str1[i] != str2[i])
-            return -1;
-    return 0;
+    return memcmp(str1, str2, l1);
 }
 char *strdup(const char *str){
     int l = strlen(str);
@@ -80,14 +77,85 @@ void kprintf(const char *fmt, ...){
 }
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
-    for(uint64_t i = 0; i < sz; i++)
-        ((uint8_t *)ptr)[i] = b;
+    int mod = sz % 8;
+    switch(mod){
+        case 0:
+            for(uint64_t i = 0; i < sz; i += 8)
+                ((uint64_t *)ptr)[i >> 3] = (uint64_t)b;
+            return;
+            break;
+        case 2: 
+            for(uint64_t i = 0; i < sz; i+=2)
+                ((uint16_t *)ptr)[i >> 1] = (uint16_t)b;
+            return;
+            break;
+        case 4:
+            for(uint64_t i = 0; i < sz; i+=4)
+                ((uint32_t *)ptr)[i >> 2] = (uint32_t)b;
+            return;
+            break;
+        default:
+            for(uint64_t i = 0; i < sz; i++)
+                ((uint8_t *)ptr)[i] = b;
+            return;
+            break;
+    }
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
-    for(uint64_t i = 0; i < sz; i++)
-        ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
+    int mod = sz % 8;
+    switch(mod){
+        case 0:
+            for(uint64_t i = 0; i < sz; i += 8)
+                ((uint64_t *)dst)[i >> 3] = ((uint64_t *)src)[ i >> 3];
+            return;
+            break;
+        case 2: 
+            for(uint64_t i = 0; i < sz; i+=2)
+                ((uint16_t *)dst)[i >> 1] = ((uint16_t *)src)[i >> 1];
+            return;
+            break;
+        case 4:
+            for(uint64_t i = 0; i < sz; i+=4)
+                ((uint32_t *)dst)[i >> 2] = ((uint32_t *)src)[i >> 2];
+            return;
+            break;
+        default:
+            for(uint64_t i = 0; i < sz; i++)
+                ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
+            return;
+            break;
+    }
 }
-
+int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
+    int mod = sz % 8;
+    switch(mod){
+        case 0:
+            for(uint64_t i = 0; i < sz; i += 8){
+                if( ((uint64_t *)ptr1)[i >> 3] != ((uint64_t *)ptr2)[i >> 3] )
+                    return -1;
+            }
+            break;
+        case 2:
+            for(uint64_t i = 0; i < sz; i += 2){
+                if( ((uint16_t *)ptr1)[i >> 1] != ((uint16_t *)ptr2)[i >> 1] )
+                    return -1;
+            }
+            break;
+        case 4:
+            for(uint64_t i = 0; i < sz; i += 4){
+                if( ((uint32_t *)ptr1)[i >> 2] != ((uint32_t *)ptr2)[i >> 2] )
+                    return -1;
+            }
+            break;
+        default:
+            for(uint64_t i = 0; i < sz; i++){
+                if(((uint8_t *)ptr1)[i] != ((uint8_t *)ptr2)[i])
+                    return -1;
+            }
+            break;
+    } 
+    return 0;
+}
 void * kmalloc(uint32_t b){
     return k_heapLCABAlloc(&HEAP, b);
 }
