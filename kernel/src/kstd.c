@@ -78,6 +78,7 @@ void kprintf(const char *fmt, ...){
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
     int mod = sz % 16;
+    kprintf("memset() mod == 0x%x\n", mod);
     switch(mod){
         case 0:
             for(uint64_t i = 0; i < sz; i += 16)
