@@ -69,7 +69,10 @@ int shell(){
                             break;
                         //non handled char
                         default:
-                            kprintf("0x%x", esc);
+                            kprintf("0x%x\n", esc);
+                            memset(cmdline, 0, CMDLINE_MAX);
+                            cmdlinepos = 0;
+                            kprint(SHELL_PROMPT);
                             break;
                     }
                 }
