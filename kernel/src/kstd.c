@@ -78,7 +78,7 @@ void kprintf(const char *fmt, ...){
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
     int mod = sz % 16;
-    kprintf("memset() mod == 0x%x\n", mod);
+    //kprintf("memset() mod == 0x%x\n", mod);
     switch(mod){
         case 0:
             for(uint64_t i = 0; i < sz; i += 16)
@@ -173,10 +173,81 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     } 
     return 0;
 }
-void * kmalloc(uint32_t b){
+void *kmalloc(uint32_t b){
     return k_heapLCABAlloc(&HEAP, b);
 }
-
+void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
+    kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
+    void *ret = kmalloc(newsz);
+    //kprintf("krealloc() after ret == 0x%x\n", ret);
+    if(!ret)
+        return 0x0;
+    //possible buffer nopeoverrun
+    memcpy(ret, ptr, (uint64_t)newsz);
+    return ret; 
+}
 void kfree(void *p){
     k_heapLCABFree(&HEAP, p);
 }
+
+void karray_push(karray *array, uint64_t elem){
+    kprintf("karray_push() : array->array == 0x%x array->length == %d && array->elementsz == %d\n", array->array, array->length, array->elementsz);
+    if(array->length+1 > array->alloc){
+        void *tmp = krealloc(array->array, array->alloc*array->elementsz, ((array->alloc*array->elementsz)<<1));
+        if(tmp){
+            kfree(array->array);
+            array->alloc <<= 1;
+            array->array = tmp;
+        }
+        else{
+            kprint("karray_push() : realloc() : failure\n");
+            return;
+        }
+    }
+    switch(array->elementsz){
+        case 1:
+            ((uint8_t *)array->array)[array->length++] = (uint8_t)elem;
+            break;
+        case 2:
+            ((uint16_t *)array->array)[array->length++] = (uint16_t)elem;
+            break;
+        case 4:
+            ((uint32_t *)array->array)[array->length++] = (uint32_t)elem;
+            break;
+        case 8:
+            ((uint64_t *)array->array)[array->length++] = (uint64_t)elem;
+            break;
+    }
+}
+
+karray *karray_new(uint8_t elementsz){
+    switch(elementsz){
+        case 1:
+            break;
+        case 2:
+            break;
+        case 4:
+            break;
+        case 8:
+            break;
+        default:
+            kprintf("karray_new() : 0x%x is not a valid element size\n");
+            return 0x0;
+            break;
+    }
+    karray *ret = kmalloc(sizeof(karray));
+    ret->elementsz = elementsz; 
+    ret->length = 0x0;
+    ret->alloc = 16;
+    ret->array = kmalloc(ret->elementsz*ret->alloc);
+    return ret;
+}
+void karray_free(karray *array){
+    kfree(array->array);
+    array->array = 0x0;
+    array->length = 0x0;
+    array->alloc = 0x0;
+    array->elementsz = 0x0;
+    kfree(array);
+}
+

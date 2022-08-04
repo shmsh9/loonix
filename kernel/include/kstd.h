@@ -11,6 +11,14 @@
 #define BREAKPOINT() {\
     __asm__ __volatile__ ("1: "JMPNOARCH" 1b");\
 }
+
+typedef struct {
+    uint8_t elementsz;
+    uint32_t length;
+    uint32_t alloc;
+    void *array;  
+} karray;
+
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 char *strdup(const char *str);
@@ -22,6 +30,10 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);
 char kgetchar();
 void kputc(uint8_t c);
 void *kmalloc(uint32_t b);
+void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz);
 void kfree(void *p);
+karray *karray_new(uint8_t elementsz);
+void karray_free(karray *array);
+void karray_push(karray *array, uint64_t elem);
 #endif
 

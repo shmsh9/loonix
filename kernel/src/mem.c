@@ -39,6 +39,7 @@ int k_heapLCABAddBlock(KHEAPLCAB *heap, uintptr_t addr, uint32_t size) {
 	Look behind and forward to see if we can merge back into some chunks.
 */
 void k_heapLCABFree(KHEAPLCAB *heap, void *ptr) {
+	kprintf("k_heapLCABFree() ptr == 0x%x\n", ptr);
 	KHEAPHDRLCAB				*hdr, *phdr, *nhdr;
 	KHEAPBLOCKLCAB				*hb;
 	//uint32_t						sz;

@@ -1,7 +1,5 @@
 #include <shell/shell.h>
 
-extern struct fnbuiltin builtins[BUILTIN_SIZE];
-
 int shell(){
     /* Why compiler does not do this for me ??? */
     /*
@@ -103,8 +101,8 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
     for(int i = 0; i < BUILTIN_SIZE; i++){
-        if(strcmp(cmdline, builtins[i].name) == 0){
-            return builtins[i].ptrfn(0, 0);
+        if(strcmp(cmdline, builtins.builtins[i].name) == 0){
+            return builtins.builtins[i].ptrfn(0, 0);
         }
     }
     kprintf("-"SHELL_NAME": %s: command not found\n", cmdline);
