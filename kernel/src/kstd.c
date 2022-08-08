@@ -193,7 +193,6 @@ void karray_push(karray *array, uint64_t elem){
             kfree(array->array);
             array->array = tmp;
             array->alloc <<= 1;
-            BREAKPOINT();
         }
         else{
             kprint("karray_push() : krealloc() : failure\n");

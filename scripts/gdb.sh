@@ -7,7 +7,7 @@ then
 fi
 if [[ $ARCH = "x86_64" ]]
 then
-		OFFSET="0x100000"
+		OFFSET="0x1000000"
 fi 
 gdb -q \
 		-ex "target remote localhost:1234"\
