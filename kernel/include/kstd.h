@@ -30,10 +30,12 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);
 char kgetchar();
 void kputc(uint8_t c);
 void *kmalloc(uint32_t b);
+void *kcalloc(uint32_t n, uint32_t sz);
 void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz);
 void kfree(void *p);
 karray *karray_new(uint8_t elementsz);
 void karray_free(karray *array);
 void karray_push(karray *array, uint64_t elem);
+void karray_print(karray *array);
 #endif
 

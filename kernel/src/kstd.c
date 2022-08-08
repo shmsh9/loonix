@@ -77,15 +77,10 @@ void kprintf(const char *fmt, ...){
 }
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
-    int mod = sz % 16;
+    int mod = sz % 8;
     //kprintf("memset() mod == 0x%x\n", mod);
     switch(mod){
         case 0:
-            for(uint64_t i = 0; i < sz; i += 16)
-                ((__uint128_t *)ptr)[i >> 4] = (__uint128_t)b;
-            return;
-            break;
-        case 8:
             for(uint64_t i = 0; i < sz; i += 8)
                 ((uint64_t *)ptr)[i >> 3] = (uint64_t)b;
             return;
@@ -108,14 +103,9 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
     }
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
-    int mod = sz % 16;
+    int mod = sz % 8;
     switch(mod){
         case 0:
-            for(uint64_t i = 0; i < sz; i += 16)
-                ((__uint128_t *)dst)[i >> 4] = ((__uint128_t *)src)[i >> 4];
-            return;
-            break;
-        case 8:
             for(uint64_t i = 0; i < sz; i += 8)
                 ((uint64_t *)dst)[i >> 3] = ((uint64_t *)src)[ i >> 3];
             return;
@@ -138,15 +128,9 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     }
 }
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
-    int mod = sz % 16;
+    int mod = sz % 8;
     switch(mod){
         case 0:
-            for(uint64_t i = 0; i < sz; i += 16){
-                if( ((__uint128_t *)ptr1)[i >> 4] != ((__uint128_t *)ptr2)[i >> 4] )
-                    return -1;
-            }
-            break;
-        case 8:
             for(uint64_t i = 0; i < sz; i += 8){
                 if( ((uint64_t *)ptr1)[i >> 3] != ((uint64_t *)ptr2)[i >> 3] )
                     return -1;
@@ -176,14 +160,25 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
 void *kmalloc(uint32_t b){
     return k_heapLCABAlloc(&HEAP, b);
 }
+void *kcalloc(uint32_t n, uint32_t sz){
+    void *ret = kmalloc(n*sz);
+    memset(ret, 0, n*sz);
+    return ret;
+}
 void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
+    //BREAKPOINT();
     kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
     void *ret = kmalloc(newsz);
     //kprintf("krealloc() after ret == 0x%x\n", ret);
     if(!ret)
         return 0x0;
     //possible buffer nopeoverrun
-    memcpy(ret, ptr, (uint64_t)newsz);
+    
+    for(int i = 0; i < oldsz; i++){
+        ((uint8_t *)ret)[i] = ((uint8_t *)ptr)[i]; 
+    }
+    
+    //memcpy(ret, ptr, (uint64_t)oldsz);
     return ret; 
 }
 void kfree(void *p){
@@ -191,16 +186,17 @@ void kfree(void *p){
 }
 
 void karray_push(karray *array, uint64_t elem){
-    kprintf("karray_push() : array->array == 0x%x array->length == %d && array->elementsz == %d\n", array->array, array->length, array->elementsz);
     if(array->length+1 > array->alloc){
         void *tmp = krealloc(array->array, array->alloc*array->elementsz, ((array->alloc*array->elementsz)<<1));
+        //kprintf("krealloc(%d, %d)\n", array->alloc*array->elementsz, ((array->alloc*array->elementsz)<<1));
         if(tmp){
             kfree(array->array);
-            array->alloc <<= 1;
             array->array = tmp;
+            array->alloc <<= 1;
+            BREAKPOINT();
         }
         else{
-            kprint("karray_push() : realloc() : failure\n");
+            kprint("karray_push() : krealloc() : failure\n");
             return;
         }
     }
@@ -218,6 +214,7 @@ void karray_push(karray *array, uint64_t elem){
             ((uint64_t *)array->array)[array->length++] = (uint64_t)elem;
             break;
     }
+    //kprintf("karray_push() : elem == 0x%x array->alloc == %d array->array == 0x%x array->length == %d && array->elementsz == %d\n", elem,array->alloc, array->array, array->length, array->elementsz);
 }
 
 karray *karray_new(uint8_t elementsz){
@@ -249,5 +246,39 @@ void karray_free(karray *array){
     array->alloc = 0x0;
     array->elementsz = 0x0;
     kfree(array);
+}
+void karray_print(karray *array){
+    kprint("{ ");
+    switch(array->elementsz){
+        case 1:
+	          for(int i = 0; i < array->length; i++){
+		            kprintf("0x%x ",((uint8_t *)array->array)[i]);
+		            if(i+1 < array->length)
+			              kputc(',');
+	          }
+            break;
+        case 2:
+	          for(int i = 0; i < array->length; i++){
+		            kprintf("0x%x ",((uint16_t *)array->array)[i]);
+		            if(i+1 < array->length)
+			              kputc(',');
+	          }
+            break;
+        case 4:
+	          for(int i = 0; i < array->length; i++){
+		            kprintf("0x%x ",((uint32_t *)array->array)[i]);
+		            if(i+1 < array->length)
+			              kputc(',');
+	          }
+            break;
+        case 8:
+	          for(int i = 0; i < array->length; i++){
+		            kprintf("0x%x ",((uint64_t *)array->array)[i]);
+		            if(i+1 < array->length)
+			              kputc(',');
+	          }
+            break;
+    }
+	  kprint("}\n");
 }
 

@@ -16,8 +16,7 @@ ABI="${ARCH}-none-elf"
 LDFLAGS=""
 CFLAGS="-fPIC -nostdlib -ffreestanding -mno-red-zone -std=c11 \
 		-Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable\
-		-target $ABI -ggdb"
-
+		-target $ABI -g -O0"
 for object in $(find $TARGET/src/ -name "*.c")
 do
 	echo "[CC] $object"
@@ -29,4 +28,5 @@ do
 	$CC $IFLAGS -target $ABI -c $object -o "${object%.S}.o"
 done
 $LD -T "${TARGET}/src/link${ARCH}.ld" $LDFLAGS $(find $TARGET -name "*.o") -o $TARGET/$OBJ
-
+#objcopy --only-keep-debug "$TARGET/$OBJ" "$TARGET/${OBJ}.dbg"
+#strip "$TARGET/$OBJ"
