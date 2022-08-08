@@ -1,5 +1,12 @@
 #include <kstd.h>
 
+__attribute__((noreturn))
+void __stack_chk_fail(void){
+	kprint("stack_chk_fail() !");
+	BREAKPOINT();
+	while(1){}
+}
+
 int strlen(const char *str){
     int r = 0;
     while(*str++)
@@ -32,6 +39,7 @@ char kgetchar(){
     return SERIAL_READCHAR();
 }
 void kprintf(const char *fmt, ...){
+    uintptr_t canary = __stack_chk_guard;
     __builtin_va_list arg;
     __builtin_va_start(arg, fmt); 
     int lfmt = strlen(fmt);
@@ -74,6 +82,8 @@ void kprintf(const char *fmt, ...){
         SERIAL_PUTCHAR(fmt[i]);
     }
     __builtin_va_end(arg);
+    if ( (canary = canary ^ __stack_chk_guard) != 0 )
+        __stack_chk_fail();
 }
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
@@ -166,7 +176,7 @@ void *kcalloc(uint32_t n, uint32_t sz){
     return ret;
 }
 void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
-    //BREAKPOINT();
+    uintptr_t canary = __stack_chk_guard;
     kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
     void *ret = kmalloc(newsz);
     //kprintf("krealloc() after ret == 0x%x\n", ret);
@@ -178,6 +188,8 @@ void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
         ((uint8_t *)ret)[i] = ((uint8_t *)ptr)[i]; 
     }
     
+    if ( (canary = canary ^ __stack_chk_guard) != 0 )
+        __stack_chk_fail();
     //memcpy(ret, ptr, (uint64_t)oldsz);
     return ret; 
 }

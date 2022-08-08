@@ -11,6 +11,7 @@
 #define BREAKPOINT() {\
     __asm__ __volatile__ ("1: "JMPNOARCH" 1b");\
 }
+extern uintptr_t __stack_chk_guard;
 
 typedef struct {
     uint8_t elementsz;
@@ -18,7 +19,7 @@ typedef struct {
     uint32_t alloc;
     void *array;  
 } karray;
-
+void __stack_chk_fail(void);
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 char *strdup(const char *str);
