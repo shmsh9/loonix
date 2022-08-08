@@ -39,7 +39,6 @@ char kgetchar(){
     return SERIAL_READCHAR();
 }
 void kprintf(const char *fmt, ...){
-    uintptr_t canary = __stack_chk_guard;
     __builtin_va_list arg;
     __builtin_va_start(arg, fmt); 
     int lfmt = strlen(fmt);
@@ -82,8 +81,6 @@ void kprintf(const char *fmt, ...){
         SERIAL_PUTCHAR(fmt[i]);
     }
     __builtin_va_end(arg);
-    if ( (canary = canary ^ __stack_chk_guard) != 0 )
-        __stack_chk_fail();
 }
 
 void memset(void *ptr, uint8_t b, uint64_t sz){
@@ -160,8 +157,9 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
             break;
         default:
             for(uint64_t i = 0; i < sz; i++){
-                if(((uint8_t *)ptr1)[i] != ((uint8_t *)ptr2)[i])
+                if(((uint8_t *)ptr1)[i] != ((uint8_t *)ptr2)[i]){
                     return -1;
+                }
             }
             break;
     } 
@@ -176,7 +174,6 @@ void *kcalloc(uint32_t n, uint32_t sz){
     return ret;
 }
 void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
-    uintptr_t canary = __stack_chk_guard;
     kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
     void *ret = kmalloc(newsz);
     //kprintf("krealloc() after ret == 0x%x\n", ret);
@@ -188,8 +185,6 @@ void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
         ((uint8_t *)ret)[i] = ((uint8_t *)ptr)[i]; 
     }
     
-    if ( (canary = canary ^ __stack_chk_guard) != 0 )
-        __stack_chk_fail();
     //memcpy(ret, ptr, (uint64_t)oldsz);
     return ret; 
 }

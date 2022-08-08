@@ -11,6 +11,10 @@
 #define BREAKPOINT() {\
     __asm__ __volatile__ ("1: "JMPNOARCH" 1b");\
 }
+#define STACK_GUARD_START() uintptr_t canary = __stack_chk_guard
+#define STACK_GUARD_STOP() {if ( (canary = canary ^ __stack_chk_guard) != 0 )\
+    {__stack_chk_fail();}\
+}
 extern uintptr_t __stack_chk_guard;
 
 typedef struct {
