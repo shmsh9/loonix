@@ -78,6 +78,12 @@ uintptr_t kheap_get_free_mem(kheap *heap, uint64_t size){
         uint16_t start_bitfield = 0x0;
         uint16_t start_bit = 0x0;
         for(uint64_t bitfield =  0; bitfield < HEAP_HEADER_SIZE; bitfield++){
+            if(!kheap_free_uint8(current->header[bitfield])){
+                start_bitfield = bitfield+1;
+                start_bit = 0;
+                aligned_bytes = 0;
+                continue;
+            }
             for(uint8_t bitfield_byte = 0; bitfield_byte < 8; bitfield_byte++){
                 if(get_bit(current->header[bitfield], bitfield_byte)){
                     aligned_bytes = 0;

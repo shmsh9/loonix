@@ -44,9 +44,12 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	kheap heap;
 	kheap_init(&heap);
 	kheap_add_block(&heap, HEAP_START);
-	kheap_get_free_mem(&heap, 512);
 	//kheap_get_free_mem(&heap, 512);
-	kheap_get_free_mem(&heap, 8);
+	//kheap_get_free_mem(&heap, 512);
+	kheap_get_free_mem(&heap, 4);
+	kheap_get_free_mem(&heap, 6);
+	kheap_get_free_mem(&heap, 2);
+
 	kheap_debug_print(&heap);
 	kprintf("last bitfield == 0x%x\n", heap.root->header[127]);
 	shell();
