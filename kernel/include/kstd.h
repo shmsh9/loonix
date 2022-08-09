@@ -4,16 +4,19 @@
 #include <mem.h>
 #ifdef __x86_64__
     #define JMPNOARCH "jmp"
+    #define INTNOARCH "int3"
 #endif
 #ifdef __aarch64__
     #define JMPNOARCH "b"
+    #define INTNOARCH "svc #0"
 #endif
-#define BREAKPOINT() {\
-    __asm__ __volatile__ ("1: "JMPNOARCH" 1b");\
-}
+#define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
+#define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
 #define STACK_GUARD_START() uintptr_t canary = __stack_chk_guard
-#define STACK_GUARD_STOP() {if ( (canary = canary ^ __stack_chk_guard) != 0 )\
-    {__stack_chk_fail();}\
+#define STACK_GUARD_STOP() {if ( canary != __stack_chk_guard ){\
+    kprint(__func__);\
+    __stack_chk_fail();\
+    }\
 }
 extern uintptr_t __stack_chk_guard;
 

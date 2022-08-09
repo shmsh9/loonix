@@ -31,5 +31,5 @@ then
     mv "${FW_BASE}.fd" "$BIOS"
     rm -f "$FW_ZIP"
 fi
-echo [$QEMU]
+echo "[$QEMU]"
 $QEMU $QEMUOPTS -m 128M -bios $BIOS -nographic -s -net none -drive format=raw,file=fat:rw:image

@@ -166,7 +166,10 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     return 0;
 }
 void *kmalloc(uint32_t b){
-    return k_heapLCABAlloc(&HEAP, b);
+    void *ret = k_heapLCABAlloc(&HEAP, b);
+    if(!ret)
+        kprint("kmalloc() : failed !\n");
+    return ret;
 }
 void *kcalloc(uint32_t n, uint32_t sz){
     void *ret = kmalloc(n*sz);
@@ -174,18 +177,18 @@ void *kcalloc(uint32_t n, uint32_t sz){
     return ret;
 }
 void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
-    kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
+    //kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
     void *ret = kmalloc(newsz);
     //kprintf("krealloc() after ret == 0x%x\n", ret);
     if(!ret)
         return 0x0;
     //possible buffer nopeoverrun
-    
+    /* 
     for(int i = 0; i < oldsz; i++){
         ((uint8_t *)ret)[i] = ((uint8_t *)ptr)[i]; 
     }
-    
-    //memcpy(ret, ptr, (uint64_t)oldsz);
+    */
+    memcpy(ret, ptr, (uint64_t)oldsz);
     return ret; 
 }
 void kfree(void *p){
@@ -234,13 +237,13 @@ karray *karray_new(uint8_t elementsz){
         case 8:
             break;
         default:
-            kprintf("karray_new() : 0x%x is not a valid element size\n");
+            kprintf("karray_new() : 0x%x is not a valid element size\n", elementsz);
             return 0x0;
             break;
     }
     karray *ret = kmalloc(sizeof(karray));
     ret->elementsz = elementsz; 
-    ret->length = 0x0;
+    ret->length = 0;
     ret->alloc = 16;
     ret->array = kmalloc(ret->elementsz*ret->alloc);
     return ret;

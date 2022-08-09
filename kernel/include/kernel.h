@@ -6,5 +6,7 @@
 #include <drivers/serial.h>
 #include <bootloader.h>
 #include <shell/shell.h>
+#include <newmem.h>
+
 #endif
 

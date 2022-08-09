@@ -14,7 +14,7 @@ echo "[building $TARGET for $ARCH]"
 IFLAGS="-I$TARGET/include -Ibootloader/include -Iefi"
 ABI="${ARCH}-none-elf"
 LDFLAGS=""
-CFLAGS="-fPIC -nostdlib -ffreestanding -mno-red-zone -std=c11 \
+CFLAGS="-fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -mno-red-zone -std=c11 \
 		-Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable\
 		-target $ABI -g -O0"
 for object in $(find $TARGET/src/ -name "*.c")
