@@ -13,31 +13,17 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	SERIAL_INIT();
 	kprintf("HEAP_START 0x%x\n", HEAP_START);
 	kprint("ARCH "ARCH"\n");
-/*
-	k_heapLCABInit(&HEAP);
-	k_heapLCABAddBlock(&HEAP, HEAP_START, 0x10000);
-	k_heapLCABAddBlock(&HEAP, HEAP_START+0x10000, 0x10000);
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);
 	karray *a = karray_new(4);
 	if(a){
-		karray_test(a, 8192);
+		karray_test(a, 128);
 		karray_print(a);
+		kheap_debug_print(&heap);
 		karray_free(a);	
+		kheap_debug_print(&heap);
 	}
-	*/
-
-	//void *foo = kmalloc(32);
-	//kheap_debug_print(&heap);
-	//kfree(foo);
-	//kheap_free_mem(&kalloc_list[0]);
-	kprintf("")
-	kalloc_list[0] = kheap_get_free_mem(&heap, 32);
-	kheap_debug_print(&heap);
-	kheap_free_mem(&kalloc_list[0]);
-	kheap_debug_print(&heap);
-
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

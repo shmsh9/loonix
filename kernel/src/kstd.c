@@ -169,7 +169,6 @@ void *kmalloc(uint32_t b){
     for(int i = 0; i < KALLOC_LIST_MAX; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem(&heap, b);
-            kprintf("block.block == 0x%x\n", block.block);
             kalloc_list[i] = block;
             if(block.ptr){
                 return (void *)block.ptr;
@@ -210,8 +209,8 @@ void kfree(void *p){
     }
     for(uint64_t i = 0; i < KALLOC_LIST_MAX; i++){
         if(kalloc_list[i].ptr == (uintptr_t)p){
-            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
             kheap_free_mem(&kalloc_list[i]);
+            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
             return;
         }
     }
