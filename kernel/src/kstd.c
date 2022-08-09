@@ -166,10 +166,22 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     return 0;
 }
 void *kmalloc(uint32_t b){
-    void *ret = k_heapLCABAlloc(&HEAP, b);
-    if(!ret)
-        kprint("kmalloc() : failed !\n");
-    return ret;
+    for(int i = 0; i < KALLOC_LIST_MAX; i++){
+        if(kalloc_list[i].ptr == 0){
+            kheap_allocated_block block = kheap_get_free_mem(&heap, b);
+            kprintf("block.block == 0x%x\n", block.block);
+            kalloc_list[i] = block;
+            if(block.ptr){
+                return (void *)block.ptr;
+            }
+            else{
+                kprint("kmalloc() : failed !\n");
+                return 0x0;
+            }
+        }
+    }
+    kprint("kmalloc() : KALLOC_LIST_MAX !\n");
+    return 0x0;
 }
 void *kcalloc(uint32_t n, uint32_t sz){
     void *ret = kmalloc(n*sz);
@@ -192,7 +204,18 @@ void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
     return ret; 
 }
 void kfree(void *p){
-    k_heapLCABFree(&HEAP, p);
+    if(!p){
+        kprint("kfree() : null pointer !\n");
+        return;
+    }
+    for(uint64_t i = 0; i < KALLOC_LIST_MAX; i++){
+        if(kalloc_list[i].ptr == (uintptr_t)p){
+            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
+            kheap_free_mem(&kalloc_list[i]);
+            return;
+        }
+    }
+    kprint("kfree() : pointer not allocated !\n");
 }
 
 void karray_push(karray *array, uint64_t elem){

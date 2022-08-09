@@ -1,7 +1,6 @@
 #ifndef NEW_MEM_H_
 #define NEW_MEM_H_
 #include <stdint.h>
-#include <kstd.h>
 #include <stdbool.h>
 #define HEAP_BLOCK_SIZE  1024
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE / 8
@@ -15,6 +14,7 @@ typedef struct _memblock {
 typedef struct _kheap {
     struct _memblock *root;
 } kheap;
+
 typedef struct _kheap_allocated_block{
     struct _memblock *block;
     uint16_t         bitfield;
@@ -23,6 +23,8 @@ typedef struct _kheap_allocated_block{
     uintptr_t        ptr;
 
 }kheap_allocated_block;
+#include <kstd.h>
+
 bool get_bit(uint8_t field, uint8_t bit);
 void set_bit(uint8_t *field, uint8_t bit);
 void unset_bit(uint8_t *field, uint8_t bit);

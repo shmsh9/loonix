@@ -61,10 +61,10 @@ void kheap_free_mem(kheap_allocated_block *k){
 kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size){
     if(size > HEAP_BLOCK_SIZE){
         kprint("kheap_get_free_mem() : error : size > HEAP_BLOCK_SIZE !\n");
-        return (kheap_allocated_block){0, 0, 0 ,0};
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
     }
     if(!heap->root)
-        return (kheap_allocated_block){0, 0, 0 ,0};
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
     struct _memblock *current = heap->root;
     while(current){
         uint64_t aligned_bytes = 0;
@@ -97,17 +97,18 @@ kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size){
             kprintf("kheap_get_free_mem() : found 0x%x bytes free at bitfield : 0x%x bit : 0x%x\n", aligned_bytes, start_bitfield, start_bit);
             kheap_set_used_bytes(current, start_bitfield, start_bit, aligned_bytes);
             return (kheap_allocated_block){
-                current,
-                start_bitfield,
-                start_bit,
-                aligned_bytes
+                .block = current,
+                .bitfield = start_bitfield,
+                .bit = start_bit,
+                .size = aligned_bytes,
+                .ptr = (uintptr_t)current->block+(start_bitfield*8)+start_bit
             };
             //return (uintptr_t)current->block+start_bitfield+start_bit;
         }
         kprint("kheap_get_free_mem() : not enough free mem changing block\n");
         current = current->next;
     }
-    return (kheap_allocated_block){0, 0, 0 ,0};
+    return (kheap_allocated_block){0, 0, 0 ,0, 0};
 }
 
 void kheap_debug_print(kheap *heap){

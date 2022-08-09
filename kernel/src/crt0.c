@@ -1,5 +1,13 @@
 #include <shell/builtins.h>
 #include <mem.h>
+#include <newmem.h>
+#include <kernel.h>
+ 
+uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
+
+kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
+kheap heap;
+uint32_t kalloc_list_last = 0;
 
 void __init_glob(){
     builtins.length = 0;

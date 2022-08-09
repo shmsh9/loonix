@@ -1,21 +1,5 @@
 #include <kernel.h>
 
-#if UINT32_MAX == UINTPTR_MAX
-	#define STACK_CHK_GUARD 0xe2dee396
-#else
-	#define STACK_CHK_GUARD 0x595e9fbd94fda766
-#endif
-#ifdef __x86_64__
-	#define ARCH "x86_64"
-	#define HEAP_START 0x10FFFF
-#endif
-#ifdef __aarch64__
-	#define ARCH "aarch64"
-	#define HEAP_START (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize	
-#endif
- 
-KHEAPLCAB HEAP;
-uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 
 void karray_test(karray *array, uint64_t n){
 	for(uint64_t i = 0 ; i < n; i++){
@@ -24,6 +8,8 @@ void karray_test(karray *array, uint64_t n){
 		
 }
 uint64_t kmain(struct bootinfo *bootinfo){
+	kheap_init(&heap);
+	kheap_add_block(&heap, HEAP_START);
 	SERIAL_INIT();
 	kprintf("HEAP_START 0x%x\n", HEAP_START);
 	kprint("ARCH "ARCH"\n");
@@ -41,17 +27,17 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		karray_free(a);	
 	}
 	*/
-	kheap heap;
-	kheap_init(&heap);
-	kheap_add_block(&heap, HEAP_START+HEAP_BLOCK_SIZE);
 
-	kheap_allocated_block t = kheap_get_free_mem(&heap, 512);
-	kheap_get_free_mem(&heap, 512);
-	kheap_free_mem(&t);
-	t = kheap_get_free_mem(&heap, 32);
-	kheap_get_free_mem(&heap, 64);
-	kheap_free_mem(&t);
+	//void *foo = kmalloc(32);
+	//kheap_debug_print(&heap);
+	//kfree(foo);
+	//kheap_free_mem(&kalloc_list[0]);
+	kprintf("")
+	kalloc_list[0] = kheap_get_free_mem(&heap, 32);
 	kheap_debug_print(&heap);
+	kheap_free_mem(&kalloc_list[0]);
+	kheap_debug_print(&heap);
+
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

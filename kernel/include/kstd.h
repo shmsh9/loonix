@@ -2,6 +2,8 @@
 #define KSTD_H_
 #include <drivers/serial.h>
 #include <mem.h>
+#include <newmem.h>
+
 #ifdef __x86_64__
     #define JMPNOARCH "jmp"
     #define INTNOARCH "int3"
@@ -18,7 +20,12 @@
     __stack_chk_fail();\
     }\
 }
+#define KALLOC_LIST_MAX 1024
+
 extern uintptr_t __stack_chk_guard;
+extern uint32_t kalloc_list_last;
+extern kheap_allocated_block kalloc_list[KALLOC_LIST_MAX];
+extern kheap heap;
 
 typedef struct {
     uint8_t elementsz;
@@ -26,6 +33,7 @@ typedef struct {
     uint32_t alloc;
     void *array;  
 } karray;
+
 void __stack_chk_fail(void);
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
