@@ -103,7 +103,6 @@ kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size){
                 .size = aligned_bytes,
                 .ptr = (uintptr_t)current->block+(start_bitfield*8)+start_bit
             };
-            //return (uintptr_t)current->block+start_bitfield+start_bit;
         }
         kprint("kheap_get_free_mem() : not enough free mem changing block\n");
         current = current->next;
