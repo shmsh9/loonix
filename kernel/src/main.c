@@ -43,15 +43,15 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	*/
 	kheap heap;
 	kheap_init(&heap);
-	kheap_add_block(&heap, HEAP_START);
-	//kheap_get_free_mem(&heap, 512);
-	//kheap_get_free_mem(&heap, 512);
-	kheap_get_free_mem(&heap, 4);
-	kheap_get_free_mem(&heap, 6);
-	kheap_get_free_mem(&heap, 2);
+	kheap_add_block(&heap, HEAP_START+HEAP_BLOCK_SIZE);
 
+	kheap_allocated_block t = kheap_get_free_mem(&heap, 512);
+	kheap_get_free_mem(&heap, 512);
+	kheap_free_mem(&t);
+	t = kheap_get_free_mem(&heap, 32);
+	kheap_get_free_mem(&heap, 64);
+	kheap_free_mem(&t);
 	kheap_debug_print(&heap);
-	kprintf("last bitfield == 0x%x\n", heap.root->header[127]);
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

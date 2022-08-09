@@ -15,7 +15,14 @@ typedef struct _memblock {
 typedef struct _kheap {
     struct _memblock *root;
 } kheap;
+typedef struct _kheap_allocated_block{
+    struct _memblock *block;
+    uint16_t         bitfield;
+    uint8_t          bit;
+    uint32_t         size;
+    uintptr_t        ptr;
 
+}kheap_allocated_block;
 bool get_bit(uint8_t field, uint8_t bit);
 void set_bit(uint8_t *field, uint8_t bit);
 void unset_bit(uint8_t *field, uint8_t bit);
@@ -24,8 +31,8 @@ void kheap_add_block(kheap *heap, uintptr_t mem);
 bool kheap_free_uint8(uint8_t header);
 void kheap_set_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
-void kheap_free_mem(kheap *heap, uint64_t ptr);
-uintptr_t kheap_get_free_mem(kheap *heap, uint64_t size);
+void kheap_free_mem(kheap_allocated_block *k);
+kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size);
 void kheap_debug_print(kheap *heap);
 #endif
 
