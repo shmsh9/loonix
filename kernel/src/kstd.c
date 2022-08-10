@@ -1,8 +1,23 @@
 #include <kstd.h>
 
+void stacktrace(){
+    struct stackframe *stk = {0};
+    #ifdef __x86_64__
+        __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk));
+    #endif
+    #ifdef __aarch64__
+        __asm__ __volatile__("mov %0, x29" : "=r"(stk));
+    #endif
+    kprint("stacktrace() :\n");
+    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){
+        kprintf("[%d] : 0x%x\n", i, stk->instruction_pointer);
+        stk = stk->frame;
+    }
+}
 __attribute__((noreturn))
 void __stack_chk_fail(void){
 	kprint("stack_chk_fail() !");
+    stacktrace();
 	BREAKPOINT();
 	while(1){}
 }

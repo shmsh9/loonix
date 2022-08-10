@@ -21,6 +21,7 @@
     }\
 }
 #define KALLOC_LIST_MAX 1024
+#define STACK_TRACE_NMAX 8
 
 extern uintptr_t __stack_chk_guard;
 extern uint32_t kalloc_list_last;
@@ -34,7 +35,13 @@ typedef struct {
     void *array;  
 } karray;
 
+struct stackframe{
+    struct stackframe *frame;
+    uint64_t instruction_pointer;         
+};
+
 void __stack_chk_fail(void);
+void stacktrace();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 char *strdup(const char *str);

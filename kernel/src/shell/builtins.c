@@ -7,6 +7,7 @@ int clear(int argc, char **argv){
     return 0;
 }
 int help(int argc, char **argv){
+    stacktrace();
     for(int i = 0 ; i < builtins.length; i++){
         kprint(builtins.builtins[i].name);
         kputc('\n');
