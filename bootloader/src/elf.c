@@ -280,5 +280,7 @@ efi_status_t exit_boot_services(struct bootinfo *bootinfo){
 			continue;
 		}
 	}
+	bootinfo->mmap = mmap;
+	bootinfo->SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)bootinfo->ImageHandle);
 	return status;
 }

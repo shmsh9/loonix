@@ -9,6 +9,7 @@ struct bootinfo{
 	void						 *kernelentry;
 	uint64_t         kernelsize;
 	uint64_t         stacksize;
+	struct efi_memory_descriptor *mmap;
 };
 
 #endif
