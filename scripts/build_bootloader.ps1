@@ -5,6 +5,7 @@ $OBJ = "bootx64.efi"
 $CC = "clang"
 $LD = "lld"
 $ARCH_TABLE = @{
+    "x86" = "x86_64"
     "AMD64" = "x86_64"
     "aarch64" = "aarch64"
 }

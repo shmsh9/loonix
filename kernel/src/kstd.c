@@ -16,7 +16,7 @@ void stacktrace(){
 }
 __attribute__((noreturn))
 void __stack_chk_fail(void){
-	kprint("stack_chk_fail() !");
+	kprint("stack_chk_fail() !\n");
     stacktrace();
 	BREAKPOINT();
 	while(1){}

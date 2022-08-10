@@ -7,6 +7,7 @@ $CC="clang"
 $LD="ld.lld"
 
 $ARCH_TABLE = @{
+    "x86" = "x86_64"
     "AMD64" = "x86_64"
     "aarch64" = "aarch64"
 }

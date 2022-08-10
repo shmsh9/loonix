@@ -1,7 +1,6 @@
 #ifndef KSTD_H_
 #define KSTD_H_
 #include <drivers/serial.h>
-#include <mem.h>
 #include <newmem.h>
 
 #ifdef __x86_64__

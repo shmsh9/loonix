@@ -2,6 +2,7 @@
 
 $ErrorActionPreference = "stop"
 $ARCH_TABLE = @{
+    "x86" = "x86_64"
     "AMD64" = "x86_64"
     "aarch64" = "aarch64"
 }
