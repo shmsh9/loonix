@@ -5,6 +5,7 @@
 _start:
     //cli  //disable all interrupts
 	mov	 $__STACK_TOP, %rsp
+	xor  %rbp, %rbp
 	call __init_glob
 	call kmain
 	ret 
