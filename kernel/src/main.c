@@ -20,6 +20,7 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	for(int i = 0; i < fb.height; i++){
 		framebuffer_draw_pixel(&fb, i, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0x00, .Red = 0x00, .Reserved = 0x00});
 	}
+	framebuffer_update_device(&fb);
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);
