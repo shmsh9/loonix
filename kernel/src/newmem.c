@@ -7,7 +7,7 @@ void kheap_init(kheap *heap){
 void kheap_add_block(kheap *heap, uintptr_t mem){
     struct _memblock *m = (struct _memblock *)mem;
     m->next = 0;
-    KDEBUG("adding block 0x%x of size %d bytes && header of %d bytes", mem, HEAP_BLOCK_SIZE, HEAP_HEADER_SIZE);
+    KDEBUG("adding block 0x%x of size %d bytes && header of %d bytes", mem+HEAP_HEADER_SIZE, HEAP_BLOCK_SIZE, HEAP_HEADER_SIZE);
     memset(m->header, 0, HEAP_HEADER_SIZE);
     if(!heap->root){
         heap->root = m;

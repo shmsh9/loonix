@@ -12,7 +12,7 @@ void __init_glob(struct bootinfo *bootinfo){
     SERIAL_INIT();
 	kheap_init(&heap);
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
-    while(ram_address % ALIGN){
+    while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
         ram_address++;
     }
 	for(int i = 0; i < 2; i++){
