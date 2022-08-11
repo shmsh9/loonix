@@ -1,21 +1,32 @@
 #include <kernel.h>
 
 uint64_t kmain(struct bootinfo *bootinfo){
+
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d Bytes)", fb.width, fb.height, fb.buffer, fb.size);
-	karray *arr = karray_new(sizeof(uint16_t));
-	for(int i = 0; i < 512; i++)
-		karray_push(arr, i);
-	karray_print(arr);
-	karray_free(arr);
-	while (1)
-	{
-		for(int i = 0; i < 256; i++){
-			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = i, .Blue = i, .Red = i, .Alpha = 0x00});
-			framebuffer_update_device(&fb);
+	graphics_pixel sprite_px[] = {
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
+		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,    GRAPHICS_PIXEL_RED, GRAPHICS_PIXEL_BLACK,
+
+	};
+	graphics_sprite sprite = {
+		.height = 8,
+		.width = 8,
+		.pixels = sprite_px,
+	};
+	while(1){
+		for(uint8_t i = 0; i <= 0xff; i++){
+			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });
+			framebuffer_draw_sprite(&fb, fb.width/2 - sprite.width/2, fb.height/2 - sprite.height/2, &sprite);
+			framebuffer_update_device(&fb);	
 		}
 	}
-	
 	kprint("Welcome to l00n1x !\n");	
 	shell();
 	while(1){

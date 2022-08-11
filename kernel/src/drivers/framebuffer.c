@@ -95,9 +95,11 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
     }    
 }
 
-void framebuffer_draw_sprite(framebuffer_device *framebuffer, graphics_sprite *sprite, uint16_t x, uint16_t y){
-    uint64_t sprite_size = x*y;
-    for(uint64_t i = 0; i < sprite_size; i++){
-        
+void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint16_t x, uint16_t y, graphics_sprite *sprite){
+    uint64_t j = 0;
+    for(uint64_t l = j = 0; l < sprite->height; l++){
+        for(uint64_t i = 0; i < sprite->width; i++, j++){
+            framebuffer_draw_pixel(framebuffer, x+i, y+l, &sprite->pixels[i]);
+        }
     }
 }
