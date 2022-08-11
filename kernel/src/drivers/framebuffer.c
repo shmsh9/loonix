@@ -23,8 +23,8 @@ void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_
 }
 
 framebuffer_device framebuffer_new_device(uintptr_t address, uint16_t width, uint16_t height, uint64_t size){
-    if(!address){
-        KERROR("0x0 is not a valid framebuffer address !\n");
+    if(!address || address == -1){
+        KERROR("0x%x is not a valid framebuffer address !\n", address);
         return (framebuffer_device){0};
     }
     void *tmp = kcalloc(size, 1);
