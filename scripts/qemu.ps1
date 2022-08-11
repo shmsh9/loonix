@@ -16,7 +16,7 @@ if($ARCH -eq "x86_64"){
 }
 if($ARCH -eq "aarch64"){
     $EFIARCH="AA64"
-    $QEMUOPTS="-M virt -cpu cortex-a57 -device virtio-gpu-pci"
+    $QEMUOPTS="-M virt -cpu cortex-a57 -device VGA"
     $FW_BASE="QEMU_EFI"
 }
 $BIOS="$($FW_BASE)_$($EFIARCH).fd"
