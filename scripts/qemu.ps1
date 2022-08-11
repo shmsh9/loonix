@@ -38,4 +38,4 @@ if(!(Test-Path -Path $BIOS)){
     Remove-Item -Force $FW_ZIP
 }
 Write-Host "[$QEMU]"
-Invoke-Expression "$QEMU $QEMUOPTS -m 128M -bios $BIOS -nographic -net none -drive format=raw,file=fat:rw:image"
+Invoke-Expression "$QEMU $QEMUOPTS -m 128M -bios $BIOS -serial stdio -net none -drive format=raw,file=fat:rw:image"

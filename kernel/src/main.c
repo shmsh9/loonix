@@ -16,21 +16,13 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("HEAP_START 0x%x\n", HEAP_START);
 	KDEBUG("ARCH "ARCH"\n");
 	KDEBUG("FB %dx%d at 0x%x\n", bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.address);
-	for(int i = 0; i < bootinfo->framebuffer.size; i += 4){
-		uint8_t pix[4] = {i, i , i , i};
-		memcpy( (void *)(bootinfo->framebuffer.address+i), &pix, 4);
+	framebuffer_device fb = framebuffer_new_device(bootinfo->framebuffer.address, bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.size);
+	for(int i = 0; i < fb.height; i++){
+		framebuffer_draw_pixel(&fb, i, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0x00, .Red = 0x00, .Reserved = 0x00});
 	}
-	//KDEBUG("sizeof(memblock) == %d\n", sizeof(memblock));
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);
-	karray *a = karray_new(sizeof(uint64_t));
-	if(a){
-		karray_test(a, 512);
-		//kheap_debug_print(&heap);
-		//karray_print(a);
-		karray_free(a);	
-	}
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

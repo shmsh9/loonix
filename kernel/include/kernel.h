@@ -3,10 +3,10 @@
 #include <efi.h>
 #include <kstd.h>
 #include <drivers/serial.h>
+#include <drivers/framebuffer.h>
 #include <bootloader.h>
 #include <shell/shell.h>
 #include <newmem.h>
-
 #define STACK_CHK_GUARD 0xcafe1337deadbeef
 #ifdef __x86__
 	#define __x86_64__
