@@ -12,7 +12,7 @@ fi
 if [[ ${ARCH} == "aarch64" ]]
 then
     EFIARCH="AA64"
-    QEMUOPTS="-M virt -cpu cortex-a57"
+    QEMUOPTS="-M virt -cpu cortex-a57 -device VGA"
     FW_BASE="QEMU_EFI"
 fi
 BIOS="${FW_BASE}_${EFIARCH}.fd"
@@ -32,4 +32,4 @@ then
     rm -f "$FW_ZIP"
 fi
 echo "[$QEMU]"
-$QEMU $QEMUOPTS -m 128M -bios $BIOS -nographic -s -net none -drive format=raw,file=fat:rw:image
+$QEMU $QEMUOPTS -m 128M -bios $BIOS -serial stdio -s -net none -drive format=raw,file=fat:rw:image

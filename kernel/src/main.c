@@ -17,6 +17,7 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("ARCH "ARCH"\n");
 	KDEBUG("FB %dx%d at 0x%x\n", bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.address);
 	framebuffer_device fb = framebuffer_new_device(bootinfo->framebuffer.address, bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.size);
+	framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0x00, .Blue = 0x00, .Red = 0x00, .Alpha = 0x00});
 	for(int i = 0; i < fb.height; i++){
 		framebuffer_draw_pixel(&fb, i, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0x00, .Red = 0x00, .Alpha = 0x00});
 	}

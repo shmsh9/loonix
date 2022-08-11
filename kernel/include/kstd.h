@@ -13,26 +13,24 @@
 #endif
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
 #define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
-#ifdef KERNEL_DEBUG
-#define KDEBUG(...) {\
+#define KMSG(type, ...) {\
+    kputc('[');\
+    kprint(type);\
+    kprint("] : ");\
     kprint(__func__);\
-    kprint("() : debug : ");\
+    kprint("() : ");\
     kprintf(__VA_ARGS__);\
 }
+#define KMESSAGE(...) KMSG("message", __VA_ARGS__)
 #define KERROR(...) {\
-    kprint(__func__);\
-    kprint("() : error : ");\
-    kprintf(__VA_ARGS__);\
+    KMSG("error", __VA_ARGS__);\
     stacktrace();\
 }
+#ifdef KERNEL_DEBUG
+#define KDEBUG(...) KMSG("debug", __VA_ARGS__)
 #endif
 #ifndef KERNEL_DEBUG
 #define KDEBUG(...)
-#define KERROR(...) {\
-    kprint(__func__);\
-    kprint("() : error : ");\
-    kprintf(__VA_ARGS__);\
-}
 #endif
 #define KALLOC_LIST_MAX 1024
 #define STACK_TRACE_NMAX 8
