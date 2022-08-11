@@ -16,7 +16,7 @@ void stacktrace(){
 }
 __attribute__((noreturn))
 void __stack_chk_fail(void){
-    KERROR("__stack_chk_guard == 0x%x\n", __stack_chk_guard);
+    KERROR("__stack_chk_guard == 0x%x", __stack_chk_guard);
     stacktrace();
 	BREAKPOINT();
 	while(1){}
@@ -97,26 +97,47 @@ void kprintf(const char *fmt, ...){
     }
     __builtin_va_end(arg);
 }
-
 void memset(void *ptr, uint8_t b, uint64_t sz){
-    int mod = sz % 8;
-    //kprintf("memset() mod == 0x%x\n", mod);
+    int mod = sz % 16;
     switch(mod){
         case 0:
-            for(uint64_t i = 0; i < sz; i += 8)
-                ((uint64_t *)ptr)[i >> 3] = (uint64_t)b;
+        {
+            __uint128_t newb = (__uint128_t)b;
+            uint64_t sz_octword = sz >> 4;
+            for(uint64_t i = 0; i < sz_octword; i++){
+                ((__uint128_t *)ptr)[i] = newb;
+            }
             return;
             break;
-        case 2: 
-            for(uint64_t i = 0; i < sz; i+=2)
-                ((uint16_t *)ptr)[i >> 1] = (uint16_t)b;
+
+        }
+        case 8:
+        {
+            uint64_t sz_qword = (sz >> 3);
+            uint64_t newb = (uint64_t)b;
+            for(uint64_t i = 0; i < sz_qword; i ++){
+                ((uint64_t *)ptr)[i] = newb;
+            }
             return;
             break;
-        case 4:
-            for(uint64_t i = 0; i < sz; i+=4)
-                ((uint32_t *)ptr)[i >> 2] = (uint32_t)b;
+        }
+        case 2:
+        {
+            uint64_t sz_word = (sz >> 1);
+            uint16_t newb = (uint16_t)b;
+            for(uint64_t i = 0; i < sz_word; i++)
+                ((uint16_t *)ptr)[i] = newb;
             return;
             break;
+        }
+        case 4:{
+            uint64_t sz_dword = (sz >> 2);
+            uint32_t newb = (uint32_t)b;
+            for(uint64_t i = 0; i < sz_dword; i++)
+                ((uint32_t *)ptr)[i] = newb;
+            return;
+            break;
+        }
         default:
             for(uint64_t i = 0; i < sz; i++)
                 ((uint8_t *)ptr)[i] = b;
@@ -124,10 +145,26 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
             break;
     }
 }
+void __fast_zeromem(void *ptr, uint64_t sz){
+    #ifdef __aarch64__
+        __asm__ __volatile__ (
+            "mrs %0, DCZID_EL0\r\n"
+            "DC ZVA, %1\r\n" ::  "r"(sz), "r"(ptr)
+            );
+    #endif
+}
 void memcpy(void *dst, const void *src, uint64_t sz){
-    int mod = sz % 8;
+    int mod = sz % 16;
     switch(mod){
-        case 0:
+        case 0:{
+            uint64_t sz_octword = sz >> 4;
+            for(uint64_t i = 0; i < sz_octword; i++)
+                ((__uint128_t *)dst)[i] = ((__uint128_t *)src)[i];
+            return;
+            break;
+        }
+
+        case 8:
             for(uint64_t i = 0; i < sz; i += 8)
                 ((uint64_t *)dst)[i >> 3] = ((uint64_t *)src)[ i >> 3];
             return;
@@ -189,12 +226,12 @@ void *kmalloc(uint32_t b){
                 return (void *)block.ptr;
             }
             else{
-                KERROR("allocation failed !\n");
+                KERROR("allocation failed !");
                 return 0x0;
             }
         }
     }
-    KERROR("KALLOC_LIST_MAX !\n");
+    KERROR("KALLOC_LIST_MAX !");
     return 0x0;
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
@@ -202,13 +239,13 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
         if(kalloc_list[i].ptr == (uintptr_t)ptr)
             return i;
     }
-    KERROR("0x%x not in allocation table !\n", ptr);
+    KERROR("0x%x not in allocation table !", ptr);
     return -1;
 }
 void *kcalloc(uint32_t n, uint32_t sz){
     void *ret = kmalloc(n*sz);
     if(!ret){
-        KERROR("kmalloc() failed\n")
+        KERROR("kmalloc() failed")
         return ret;
     }
     memset(ret, 0, n*sz);
@@ -226,7 +263,7 @@ void *krealloc(const void *ptr, uint32_t newsz){
 }
 void kfree(void *p){
     if(!p){
-        KERROR("null pointer !\n");
+        KERROR("null pointer !");
         return;
     }
     int32_t ptrindex = kalloc_find_ptr_alloc(p);
@@ -245,7 +282,7 @@ void karray_push(karray *array, uint64_t elem){
             array->alloc <<= 1;
         }
         else{
-            KERROR("krealloc() : failed\n");
+            KERROR("krealloc() : failed");
             return;
         }
     }
@@ -276,7 +313,7 @@ karray *karray_new(uint8_t elementsz){
         case 8:
             break;
         default:
-            KERROR("0x%x is not a valid element size\n", elementsz);
+            KERROR("0x%x is not a valid element size", elementsz);
             return 0x0;
             break;
     }

@@ -239,7 +239,7 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
 	bootinfo->kernelentry = (void *)fnptr;
-	Print(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
+	Print(L"[debug] : bootloader() : loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
 	exit_boot_services(bootinfo);
 	return fnptr(bootinfo);
 }

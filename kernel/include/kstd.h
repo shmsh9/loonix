@@ -1,6 +1,7 @@
 #ifndef KSTD_H_
 #define KSTD_H_
 #include <drivers/serial.h>
+#include <drivers/framebuffer.h>
 #include <newmem.h>
 #define KERNEL_DEBUG
 #ifdef __x86_64__
@@ -14,12 +15,9 @@
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
 #define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
 #define KMSG(type, ...) {\
-    kputc('[');\
-    kprint(type);\
-    kprint("] : ");\
-    kprint(__func__);\
-    kprint("() : ");\
+    kprintf("[%s] : %s() : ", type, __func__);\
     kprintf(__VA_ARGS__);\
+    kputc('\n');\
 }
 #define KMESSAGE(...) KMSG("message", __VA_ARGS__)
 #define KERROR(...) {\
@@ -53,6 +51,7 @@ struct stackframe{
 };
 
 void __stack_chk_fail(void);
+void __fast_zeromem(void *ptr, uint64_t sz);
 void stacktrace();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);

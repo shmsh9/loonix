@@ -2,8 +2,8 @@
 #define NEW_MEM_H_
 #include <stdint.h>
 #include <stdbool.h>
-#define HEAP_BLOCK_SIZE  8192
-#define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE / 8
+#define HEAP_BLOCK_SIZE  0x1d5000
+#define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
 
 typedef struct _memblock {
     struct   _memblock *next;
