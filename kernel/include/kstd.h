@@ -2,7 +2,7 @@
 #define KSTD_H_
 #include <drivers/serial.h>
 #include <newmem.h>
-
+#define KERNEL_DEBUG
 #ifdef __x86_64__
     #define JMPNOARCH "jmp"
     #define INTNOARCH "int3"
@@ -13,12 +13,27 @@
 #endif
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
 #define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
-#define STACK_GUARD_START() uintptr_t canary = __stack_chk_guard
-#define STACK_GUARD_STOP() {if ( canary != __stack_chk_guard ){\
+#ifdef KERNEL_DEBUG
+#define KDEBUG(...) {\
     kprint(__func__);\
-    __stack_chk_fail();\
-    }\
+    kprint("() : debug : ");\
+    kprintf(__VA_ARGS__);\
 }
+#define KERROR(...) {\
+    kprint(__func__);\
+    kprint("() : error : ");\
+    kprintf(__VA_ARGS__);\
+    stacktrace();\
+}
+#endif
+#ifndef KERNEL_DEBUG
+#define KDEBUG(...)
+#define KERROR(...) {\
+    kprint(__func__);\
+    kprint("() : error : ");\
+    kprintf(__VA_ARGS__);\
+}
+#endif
 #define KALLOC_LIST_MAX 1024
 #define STACK_TRACE_NMAX 8
 

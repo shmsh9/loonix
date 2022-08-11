@@ -13,20 +13,19 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		kheap_add_block(&heap, HEAP_START+(sizeof(memblock)*i));
 	}
 	SERIAL_INIT();
-	kprintf("HEAP_START 0x%x\n", HEAP_START);
-	kprint("ARCH "ARCH"\n");
-	kprintf("sizeof(memblock) == %d\n", sizeof(memblock));
+	KDEBUG("HEAP_START 0x%x\n", HEAP_START);
+	KDEBUG("ARCH "ARCH"\n");
+	//KDEBUG("sizeof(memblock) == %d\n", sizeof(memblock));
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);
-	karray *a = karray_new(sizeof(uint8_t));
+	karray *a = karray_new(sizeof(uint64_t));
 	if(a){
-		karray_test(a, 512);
-		kheap_debug_print(&heap);
-		karray_print(a);
+		karray_test(a, 513);
+		//kheap_debug_print(&heap);
+		//karray_print(a);
 		karray_free(a);	
 	}
-	kfree((void *)0x39201);
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

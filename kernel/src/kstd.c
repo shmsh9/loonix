@@ -8,7 +8,7 @@ void stacktrace(){
     #ifdef __aarch64__
         __asm__ __volatile__("mov %0, x29" : "=r"(stk));
     #endif
-    kprint("stacktrace() :\n");
+    kprint("stacktrace : \n");
     for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){
         kprintf("[%d] : 0x%x\n", i, stk->instruction_pointer);
         stk = stk->frame;
@@ -16,7 +16,7 @@ void stacktrace(){
 }
 __attribute__((noreturn))
 void __stack_chk_fail(void){
-    kprintf("stack_chk_fail() ! __stack_chk_guard == 0x%x\n", __stack_chk_guard);
+    KERROR("__stack_chk_guard == 0x%x\n", __stack_chk_guard);
     stacktrace();
 	BREAKPOINT();
 	while(1){}
@@ -189,12 +189,12 @@ void *kmalloc(uint32_t b){
                 return (void *)block.ptr;
             }
             else{
-                kprint("kmalloc() : failed !\n");
+                KERROR("allocation failed !\n");
                 return 0x0;
             }
         }
     }
-    kprint("kmalloc() : KALLOC_LIST_MAX !\n");
+    KERROR("KALLOC_LIST_MAX !\n");
     return 0x0;
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
@@ -202,7 +202,7 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
         if(kalloc_list[i].ptr == (uintptr_t)ptr)
             return i;
     }
-    kprintf("kalloc_find_ptr_alloc() : error : 0x%x not in allocation table !\n", ptr);
+    KERROR("0x%x not in allocation table !\n", ptr);
     return -1;
 }
 void *kcalloc(uint32_t n, uint32_t sz){
@@ -222,7 +222,7 @@ void *krealloc(const void *ptr, uint32_t newsz){
 }
 void kfree(void *p){
     if(!p){
-        kprint("kfree() : null pointer !\n");
+        KERROR("null pointer !\n");
         return;
     }
     int32_t ptrindex = kalloc_find_ptr_alloc(p);
@@ -241,7 +241,7 @@ void karray_push(karray *array, uint64_t elem){
             array->alloc <<= 1;
         }
         else{
-            kprint("karray_push() : krealloc() : failure\n");
+            KERROR("krealloc() : failed\n");
             return;
         }
     }
@@ -272,7 +272,7 @@ karray *karray_new(uint8_t elementsz){
         case 8:
             break;
         default:
-            kprintf("karray_new() : 0x%x is not a valid element size\n", elementsz);
+            KERROR("0x%x is not a valid element size\n", elementsz);
             return 0x0;
             break;
     }
@@ -325,4 +325,3 @@ void karray_print(karray *array){
     }
 	  kprint("}\n");
 }
-
