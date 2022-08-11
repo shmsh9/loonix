@@ -9,5 +9,4 @@ _start:
 		mov			sp, x9
 		mov			x29, #0
 		bl			__init_glob
-		bl	  		kmain
 		ret

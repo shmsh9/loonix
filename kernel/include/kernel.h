@@ -7,7 +7,7 @@
 #include <shell/shell.h>
 #include <newmem.h>
 
-#define STACK_CHK_GUARD 0x1337deadbeefcafe
+#define STACK_CHK_GUARD 0xcafe1337deadbeef
 #ifdef __x86__
 	#define __x86_64__
 #endif
@@ -19,6 +19,7 @@
 	#define ARCH "aarch64"
 	#define HEAP_START (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize	
 #endif
+uint64_t kmain(struct bootinfo *bootinfo);
 
 #endif
 
