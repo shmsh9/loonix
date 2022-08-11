@@ -45,6 +45,14 @@ int shell(){
                     refreshline(cmdline, cmdlinepos);
                 }
                 break;
+            //Also Backspace
+            case 0x8:
+                if( (cmdlinepos - 1) >= 0){
+                    cmdlinepos--;
+                    rmchar(cmdline, cmdlinepos);
+                    refreshline(cmdline, cmdlinepos);
+                }
+                break;
             //Escape sequence
             case 0x1b:
                 // literral [

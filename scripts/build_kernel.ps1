@@ -31,6 +31,6 @@ foreach($object in (Get-ChildItem -Recurse $TARGET\src\$ARCH*.S)){
     Write-Host "[CC] $($object.Fullname)"
     Invoke-Expression "$CC -target $ABI $IFLAGS -c $($object.Fullname) -o $($object.Fullname.Replace(".S", ".o"))"
 }
-Invoke-Expression "$LD -T '$TARGET/src/link$ARCH.ld' $LDFLAGS $(Get-ChildItem -Recurse $TARGET/*.o | Select-Object -ExpandProperty Fullname) -o $TARGET/$OBJ"
+Invoke-Expression "$LD -T '$TARGET/src/link$ARCH.ld' $LDFLAGS $(Get-ChildItem -Recurse $TARGET\*.o | Select-Object -ExpandProperty Fullname) -o $TARGET/$OBJ"
 #objcopy --only-keep-debug "$TARGET/$OBJ" "$TARGET/${OBJ}.dbg"
 #strip "$TARGET/$OBJ"

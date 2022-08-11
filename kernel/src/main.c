@@ -26,6 +26,7 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		karray_print(a);
 		karray_free(a);	
 	}
+	kfree((void *)0x39201);
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

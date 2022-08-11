@@ -6,10 +6,10 @@
 #include <bootloader.h>
 #include <shell/shell.h>
 #include <newmem.h>
-#if UINT32_MAX == UINTPTR_MAX
-	#define STACK_CHK_GUARD 0xe2dee396
-#else
-	#define STACK_CHK_GUARD 0x595e9fbd94fda766
+
+#define STACK_CHK_GUARD 0x1337deadbeefcafe
+#ifdef __x86__
+	#define __x86_64__
 #endif
 #ifdef __x86_64__
 	#define ARCH "x86_64"

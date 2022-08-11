@@ -16,7 +16,7 @@ void stacktrace(){
 }
 __attribute__((noreturn))
 void __stack_chk_fail(void){
-	kprint("stack_chk_fail() !\n");
+    kprintf("stack_chk_fail() ! __stack_chk_guard == 0x%x\n", __stack_chk_guard);
     stacktrace();
 	BREAKPOINT();
 	while(1){}
@@ -197,24 +197,27 @@ void *kmalloc(uint32_t b){
     kprint("kmalloc() : KALLOC_LIST_MAX !\n");
     return 0x0;
 }
+int32_t kalloc_find_ptr_alloc(const void *ptr){
+    for(int i = 0; i < KALLOC_LIST_MAX; i++){
+        if(kalloc_list[i].ptr == (uintptr_t)ptr)
+            return i;
+    }
+    kprintf("kalloc_find_ptr_alloc() : error : 0x%x not in allocation table !\n", ptr);
+    return -1;
+}
 void *kcalloc(uint32_t n, uint32_t sz){
     void *ret = kmalloc(n*sz);
     memset(ret, 0, n*sz);
     return ret;
 }
-void *krealloc(const void *ptr, uint32_t oldsz , uint32_t newsz){
-    //kprintf("krealloc() *ptr == 0x%x oldsz == %d && newsz == %d\n", ptr, oldsz, newsz);
+void *krealloc(const void *ptr, uint32_t newsz){
+    int32_t oldptr = kalloc_find_ptr_alloc(ptr);
+    if(oldptr == -1)
+        return 0x0;
     void *ret = kmalloc(newsz);
-    //kprintf("krealloc() after ret == 0x%x\n", ret);
     if(!ret)
         return 0x0;
-    //possible buffer nopeoverrun
-    /* 
-    for(int i = 0; i < oldsz; i++){
-        ((uint8_t *)ret)[i] = ((uint8_t *)ptr)[i]; 
-    }
-    */
-    memcpy(ret, ptr, (uint64_t)oldsz);
+    memcpy(ret, ptr, (uint64_t)kalloc_list[oldptr].size);
     return ret; 
 }
 void kfree(void *p){
@@ -222,20 +225,16 @@ void kfree(void *p){
         kprint("kfree() : null pointer !\n");
         return;
     }
-    for(uint64_t i = 0; i < KALLOC_LIST_MAX; i++){
-        if(kalloc_list[i].ptr == (uintptr_t)p){
-            kheap_free_mem(&kalloc_list[i]);
-            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
-            return;
-        }
-    }
-    kprint("kfree() : pointer not allocated !\n");
+    int32_t ptrindex = kalloc_find_ptr_alloc(p);
+    if(ptrindex == -1)
+        return;
+    kheap_free_mem(&kalloc_list[ptrindex]);
+    memset(kalloc_list+ptrindex, 0, sizeof(kheap_allocated_block));
 }
 
 void karray_push(karray *array, uint64_t elem){
     if(array->length+1 > array->alloc){
-        void *tmp = krealloc(array->array, array->alloc*array->elementsz, ((array->alloc*array->elementsz)<<1));
-        //kprintf("krealloc(%d, %d)\n", array->alloc*array->elementsz, ((array->alloc*array->elementsz)<<1));
+        void *tmp = krealloc(array->array, ((array->alloc*array->elementsz)<<1));
         if(tmp){
             kfree(array->array);
             array->array = tmp;
@@ -260,7 +259,6 @@ void karray_push(karray *array, uint64_t elem){
             ((uint64_t *)array->array)[array->length++] = (uint64_t)elem;
             break;
     }
-    //kprintf("karray_push() : elem == 0x%x array->alloc == %d array->array == 0x%x array->length == %d && array->elementsz == %d\n", elem,array->alloc, array->array, array->length, array->elementsz);
 }
 
 karray *karray_new(uint8_t elementsz){
