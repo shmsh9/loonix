@@ -18,8 +18,18 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("FB %dx%d at 0x%x\n", bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.address);
 	framebuffer_device fb = framebuffer_new_device(bootinfo->framebuffer.address, bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.size);
 	for(int i = 0; i < fb.height; i++){
-		framebuffer_draw_pixel(&fb, i, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0x00, .Red = 0x00, .Reserved = 0x00});
+		framebuffer_draw_pixel(&fb, i, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0x00, .Red = 0x00, .Alpha = 0x00});
 	}
+	for(int i = 0; i < fb.height; i++){
+		framebuffer_draw_pixel(&fb, 0, i, &(framebuffer_pixel){.Green = 0x00, .Blue = 0xff, .Red = 0x00, .Alpha = 0x00});
+	}
+	for(int i = 0; i < fb.width; i++){
+		framebuffer_draw_pixel(&fb, i, 0, &(framebuffer_pixel){.Green = 0x00, .Blue = 0x00, .Red = 0xff, .Alpha = 0x00});
+	}
+	for(int i = 0; i < fb.height; i++){
+		framebuffer_draw_pixel(&fb, 799, i, &(framebuffer_pixel){.Green = 0xff, .Blue = 0xff, .Red = 0xff, .Alpha = 0x00});
+	}
+
 	framebuffer_update_device(&fb);
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
