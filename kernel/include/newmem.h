@@ -2,7 +2,7 @@
 #define NEW_MEM_H_
 #include <stdint.h>
 #include <stdbool.h>
-#define HEAP_BLOCK_SIZE  2097152
+#define HEAP_BLOCK_SIZE  8192
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE / 8
 
 typedef struct _memblock {

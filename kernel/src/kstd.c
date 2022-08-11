@@ -207,6 +207,10 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
 }
 void *kcalloc(uint32_t n, uint32_t sz){
     void *ret = kmalloc(n*sz);
+    if(!ret){
+        KERROR("kmalloc() failed\n")
+        return ret;
+    }
     memset(ret, 0, n*sz);
     return ret;
 }
