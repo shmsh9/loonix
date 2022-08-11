@@ -85,7 +85,11 @@ struct efi_boot_table
 	efi_status_t (*protocols_per_handle)(
 		efi_handle_t, struct efi_guid ***, efi_uint_t *);
 	void (*unused35)();
-	void (*unused36)();
+	efi_status_t (*locate_protocol)(
+		struct efi_guid *protocol,
+		void *registration,
+		void **interface
+	);
 	void (*unused37)();
 	void (*unused38)();
 

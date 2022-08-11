@@ -17,7 +17,21 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
 	SystemTable->boot->set_watch_dog_timer(0, 0, 0, NULL);
-	struct bootinfo bootinfo = {ImageHandle, SystemTable, 0, 0, 0, 0};
+	struct bootinfo bootinfo = {ImageHandle, SystemTable, 0, 0, 0, 0, 0, {0}};
+	struct efi_guid gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	efi_graphics_output_protocol *gop;
+	efi_status_t s = SystemTable->boot->locate_protocol(&gopGuid, NULL, (void **)&gop);
+	if(EFI_ERROR(s)){
+		Print(L"Error opening gop protocol !");
+	}
+	else{
+    	bootinfo.framebuffer.address =  gop->Mode->FrameBufferBase;
+    	bootinfo.framebuffer.size = gop->Mode->FrameBufferSize;
+    	bootinfo.framebuffer.width = gop->Mode->Info->HorizontalResolution;
+    	bootinfo.framebuffer.height = gop->Mode->Info->VerticalResolution;
+	}
+
+
 	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &bootinfo);
 	Print(L"rip kernel x_x : 0x%x\n", ret);
 	while (1){}

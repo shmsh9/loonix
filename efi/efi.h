@@ -7,6 +7,7 @@
 #include "loaded_image_protocol.h"
 #include "simple_file_system_protocol.h"
 #include "simple_text_output_protocol.h"
+#include "graphics_output_protocol.h"
 #include "system_table.h"
 #include "serial.h"
 #include "types.h"

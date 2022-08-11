@@ -15,13 +15,15 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	SERIAL_INIT();
 	KDEBUG("HEAP_START 0x%x\n", HEAP_START);
 	KDEBUG("ARCH "ARCH"\n");
+	KDEBUG("FB %dx%d at 0x%x\n", bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.address);
+
 	//KDEBUG("sizeof(memblock) == %d\n", sizeof(memblock));
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
 	kfree(heap_motd);
 	karray *a = karray_new(sizeof(uint64_t));
 	if(a){
-		karray_test(a, 513);
+		karray_test(a, 512);
 		//kheap_debug_print(&heap);
 		//karray_print(a);
 		karray_free(a);	
