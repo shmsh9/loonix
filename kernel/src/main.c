@@ -16,7 +16,11 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("HEAP_START 0x%x\n", HEAP_START);
 	KDEBUG("ARCH "ARCH"\n");
 	KDEBUG("FB %dx%d at 0x%x\n", bootinfo->framebuffer.width, bootinfo->framebuffer.height, bootinfo->framebuffer.address);
-
+	/*
+	for(int i = 0; i < bootinfo->framebuffer.size; i++){
+		((uint8_t *)bootinfo->framebuffer.address)[i] = 0xff;
+	}
+	*/
 	//KDEBUG("sizeof(memblock) == %d\n", sizeof(memblock));
 	char *heap_motd = strdup("Welcome to l00n1x !\n");
 	kprint(heap_motd);	
