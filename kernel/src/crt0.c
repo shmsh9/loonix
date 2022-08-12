@@ -16,7 +16,7 @@ void __init_glob(struct bootinfo *bootinfo){
         ram_address++;
     }
     //514 * 4096 == 2MB
-	for(int i = 0; i < 2; i++){
+	for(int i = 0; i < 512; i++){
 		kheap_add_block(&heap, ram_address+(sizeof(memblock)*i));
 	}
 	fb = framebuffer_new_device(

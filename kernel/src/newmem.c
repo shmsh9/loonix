@@ -49,15 +49,19 @@ void kheap_set_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8
     }
 }
 void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size){
+    struct _memblock *tmpblock = block;
     uint64_t n_bit_unset = 0;
-    for(int i = start_bitfield; i < HEAP_HEADER_SIZE; i++){
-        uint8_t j = n_bit_unset == 0 ? start_bit : 0;
-        for(; j < 8; j++){
-            unset_bit(block->header+i, j);
-            n_bit_unset++;
-            if(n_bit_unset == size)
-                return;
+    while(n_bit_unset != size){
+        for(int i = start_bitfield; i < HEAP_HEADER_SIZE; i++){
+            uint8_t j = n_bit_unset == 0 ? start_bit : 0;
+            for(; j < 8; j++){
+                unset_bit(tmpblock->header+i, j);
+                n_bit_unset++;
+                if(n_bit_unset == size)
+                    return;
+            }
         }
+        tmpblock = block->next;
     }
 }
 void kheap_free_mem(kheap_allocated_block *k){
@@ -116,7 +120,7 @@ kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size){
                 .ptr = (uintptr_t)start_block->block+(start_bitfield*8)+start_bit
             };
         }
-        KDEBUG("not enough free mem changing block");
+        //KDEBUG("not enough free mem changing block");
         current = current->next;
         start_bit = 0;
         start_bitfield = 0;
