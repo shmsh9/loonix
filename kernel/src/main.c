@@ -20,13 +20,18 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		.width = 8,
 		.pixels = sprite_px,
 	};
-	char *fg = kmalloc(16);
-	char *fg2 = kmalloc(16);
-	char *fg3 =  kmalloc(16);
+	char *fg = kmalloc(256);
+	char *fg1 = kmalloc(128);
+	char *fg2 = kmalloc(128);
+	char *fg4 = kmalloc(3);
+	char *fg5 = kmalloc(7);
 	kheap_debug_print2(&heap);
 	kfree(fg);
+	kfree(fg1);
 	kfree(fg2);
-	kfree(fg3);
+	kfree(fg4);
+	kfree(fg5);
+	kheap_debug_print2(&heap);
 	while(1){
 		for(uint8_t i = 0; i <= 0xff; i++){
 			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });
