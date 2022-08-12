@@ -10,8 +10,9 @@ uint32_t kalloc_list_last = 0;
 
 void __init_glob(struct bootinfo *bootinfo){
     SERIAL_INIT();
-	kheap_init(&heap);    
+	kheap_init(&heap);
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
+    kheap_add_blocks(&heap, ram_address);  
     while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
         ram_address++;
     }

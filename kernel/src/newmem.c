@@ -35,6 +35,7 @@ void kheap_add_blocks(kheap *heap, uintptr_t mem){
     heap->memory = (uint8_t *)heap_memory_address;
     memset(heap->header, 0, HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER);
     heap->n_block = HEAP_BLOCK_NUMBER;
+    KDEBUG("heap->header : 0x%x heap->memory : 0x%x heap->n_blocks : 0x%x", heap->header, heap->memory, heap->n_block);
 }
 bool get_bit(uint8_t field, uint8_t bit){
     return field >> bit & 0x1;

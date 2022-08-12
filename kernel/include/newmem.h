@@ -11,7 +11,7 @@
 #endif
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
-#define HEAP_BLOCK_NUMBER 2
+#define HEAP_BLOCK_NUMBER 512
 
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];
@@ -48,6 +48,7 @@ void set_bit(uint8_t *field, uint8_t bit);
 void unset_bit(uint8_t *field, uint8_t bit);
 void kheap_init(kheap *heap);
 void kheap_add_block(kheap *heap, uintptr_t mem);
+void kheap_add_blocks(kheap *heap, uintptr_t mem);
 bool kheap_free_uint8(uint8_t header);
 void kheap_set_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
