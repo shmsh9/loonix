@@ -217,10 +217,10 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     } 
     return 0;
 }
-void *kmalloc(uint32_t b){
+void *kmalloc(uint64_t b){
     for(int i = 0; i < KALLOC_LIST_MAX; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = kheap_get_free_mem(&heap, b);
+            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
                 return (void *)block.ptr;
@@ -242,7 +242,7 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
     KERROR("0x%x not in allocation table !", ptr);
     return -1;
 }
-void *kcalloc(uint32_t n, uint32_t sz){
+void *kcalloc(uint64_t n, uint64_t sz){
     void *ret = kmalloc(n*sz);
     if(!ret){
         KERROR("kmalloc() failed")
@@ -251,7 +251,7 @@ void *kcalloc(uint32_t n, uint32_t sz){
     memset(ret, 0, n*sz);
     return ret;
 }
-void *krealloc(const void *ptr, uint32_t newsz){
+void *krealloc(const void *ptr, uint64_t newsz){
     int32_t oldptr = kalloc_find_ptr_alloc(ptr);
     if(oldptr == -1)
         return 0x0;
@@ -269,7 +269,7 @@ void kfree(void *p){
     int32_t ptrindex = kalloc_find_ptr_alloc(p);
     if(ptrindex == -1)
         return;
-    kheap_free_mem(&kalloc_list[ptrindex]);
+    kheap_free_mem2(&heap, &kalloc_list[ptrindex]);
     memset(kalloc_list+ptrindex, 0, sizeof(kheap_allocated_block));
 }
 

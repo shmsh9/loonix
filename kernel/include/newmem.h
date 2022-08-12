@@ -4,14 +4,14 @@
 #include <stdbool.h>
 
 #ifdef __x86_64__
-	#define ALIGN 0x1000
+	#define ALIGN 0x10
 #endif
 #ifdef __aarch64__
 	#define ALIGN 0x10
 #endif
-#define HEAP_BLOCK_SIZE  4096
+#define HEAP_BLOCK_SIZE  512
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
-#define HEAP_BLOCK_NUMBER 512
+#define HEAP_BLOCK_NUMBER 2
 
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];
@@ -35,9 +35,9 @@ typedef struct _kheap {
 
 typedef struct _kheap_allocated_block{
     struct _memblock *block;
-    uint16_t         bitfield;
+    uint64_t         bitfield;
     uint8_t          bit;
-    uint32_t         size;
+    uint64_t         size;
     uintptr_t        ptr;
 
 }kheap_allocated_block;
@@ -52,8 +52,13 @@ void kheap_add_blocks(kheap *heap, uintptr_t mem);
 bool kheap_free_uint8(uint8_t header);
 void kheap_set_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
+void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size);
+void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_free_mem(kheap_allocated_block *k);
+void kheap_free_mem2(kheap *heap, kheap_allocated_block *k);
 kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size);
+kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
 void kheap_debug_print(kheap *heap);
+void kheap_debug_print2(kheap *heap);
 #endif
 

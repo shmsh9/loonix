@@ -81,8 +81,109 @@ void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uin
         tmpblock = block->next;
     }
 }
+void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size){
+    uint64_t n_bit_set = 0;
+    for(int i = start_bitfield; i < HEAP_HEADER_SIZE; i++){
+        uint8_t j = 0;
+        switch(n_bit_set){
+            case 0:
+                j = start_bit;
+                break;
+            default:
+                j = 0;
+                break;
+        }
+        for(; j < 8; j++){
+            set_bit(heap->header+i, j);
+            n_bit_set++;
+            if(n_bit_set == size)
+                return;
+        }
+    }
+}
+void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size){
+    uint64_t n_bit_unset = 0;
+
+    for(int i = start_bitfield; i < HEAP_HEADER_SIZE; i++){
+        uint8_t j = 0;
+        switch (n_bit_unset)
+        {
+        case 0:
+            j = start_bit;
+            break;
+        default:
+            j = 0;
+            break;
+        }
+        for(; j < 8; j++){
+            unset_bit(heap->header+i, j);
+            n_bit_unset++;
+            if(n_bit_unset == size)
+                return;
+        }
+    }
+}
+
 void kheap_free_mem(kheap_allocated_block *k){
     kheap_unset_used_bytes(k->block, k->bitfield, k->bit, k->size);
+}
+void kheap_free_mem2(kheap *heap, kheap_allocated_block *k){
+    kheap_unset_used_bytes2(heap, k->bitfield, k->bit, k->size);
+}
+kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
+    if(!heap->header || !heap->memory){
+        KERROR("heap is not initialized");
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+    uint64_t available_mem = heap->n_block * HEAP_BLOCK_SIZE;
+    if(size > available_mem){
+        KERROR("%d bytes exceeds total memory available (%d bytes)", size, available_mem);
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+    uint64_t aligned_bytes = 0;
+    uint64_t start_bitfield = 0;
+    uint64_t start_bit = 0;
+    uint64_t header_size = HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER;
+    for(uint64_t bitfield = 0; bitfield < header_size; bitfield++){
+        if(!kheap_free_uint8(heap->header[bitfield])){
+            aligned_bytes = 0;
+            start_bit = 0;
+            start_bitfield = bitfield+1;
+            continue;
+        }
+        for(uint8_t bitfield_byte = 0; bitfield_byte < 8; bitfield_byte++){
+            //KDEBUG("testing heap->header[%d][%d]", bitfield, bitfield_byte);
+            if(get_bit(heap->header[bitfield], bitfield_byte)){
+                aligned_bytes = 0;
+                start_bitfield = bitfield;
+                start_bit = bitfield_byte + 1 < 8 ? bitfield_byte+1 : 0;
+            }
+            else{
+                aligned_bytes++;
+            }
+            if(aligned_bytes == size){
+                break;
+            }
+        }
+        if(aligned_bytes == size){
+            KDEBUG("found %d bytes free at block : 0x%x bitfield : %d bit : %d", 
+            aligned_bytes, heap->memory+(start_bitfield*8)+start_bit,
+            start_bitfield,
+            start_bit);
+
+            kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
+            return (kheap_allocated_block){
+                .block = 0x0,
+                .bitfield = start_bitfield,
+                .bit = start_bit,
+                .size = aligned_bytes,
+                .ptr = (uintptr_t)heap->memory+(start_bitfield*8)+start_bit
+            };
+        }
+    }
+    KERROR("not enough free mem to allocate %d bytes", size);
+    return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+
 }
 kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size){
     /*
@@ -173,4 +274,32 @@ void kheap_debug_print(kheap *heap){
         }
         current = current->next;
     }
+}
+void kheap_debug_print2(kheap *heap){
+    for(uint64_t i = 0 ; i < heap->n_block; i++){
+        KDEBUG("block 0x%x :", heap->memory+(i*HEAP_BLOCK_SIZE));
+        for(uint64_t current_bitfield = 0; current_bitfield < HEAP_HEADER_SIZE; current_bitfield++){
+            kprintf("[%d", current_bitfield);
+            if(current_bitfield < 10){
+                kprint("  ]");
+            }
+            if(current_bitfield >= 10 && current_bitfield < 100){
+                kprint(" ]");
+            }
+            if(current_bitfield >= 100){
+                kprint("]");
+            }
+            kprint(" [ ");
+            for(uint8_t j = 0; j < 8; j++){
+                kprintf("%d", get_bit(heap->header[current_bitfield+i*HEAP_HEADER_SIZE], j));
+            }
+            kprint(" ] ");
+            if(!((current_bitfield+1) % 4) && current_bitfield != 0)
+                kputc('\n');
+            if(current_bitfield+1 == HEAP_HEADER_SIZE)
+                kputc('\n');
+
+        }
+    }
+
 }

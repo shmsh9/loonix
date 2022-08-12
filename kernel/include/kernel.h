@@ -15,11 +15,9 @@
 #endif
 #ifdef __x86_64__
 	#define ARCH "x64"
-	#define ALIGN 0x1000
 #endif
 #ifdef __aarch64__
 	#define ARCH "aarch64"
-	#define ALIGN 0x10
 #endif
 extern framebuffer_device fb;
 uint64_t kmain(struct bootinfo *bootinfo);

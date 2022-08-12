@@ -12,13 +12,15 @@ void __init_glob(struct bootinfo *bootinfo){
     SERIAL_INIT();
 	kheap_init(&heap);
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
-    kheap_add_blocks(&heap, ram_address);  
+    kheap_add_blocks(&heap, ram_address); 
+    /*
     while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
         ram_address++;
     }
 	for(int i = 0; i < HEAP_BLOCK_NUMBER; i++){
 		kheap_add_block(&heap, ram_address+(sizeof(memblock)*i));
 	}
+    */
 	fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 
