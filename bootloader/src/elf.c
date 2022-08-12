@@ -239,52 +239,42 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
 	bootinfo->kernelentry = (void *)fnptr;
-	Print(L"[debug] : bootloader() : loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
 	exit_boot_services(bootinfo);
+    
+	Print(L"[debug] : bootloader() : mmap at 0x%x\n", bootinfo->mmap);
+	Print(L"[debug] : bootloader() : loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
 	return fnptr(bootinfo);
 }
 efi_status_t exit_boot_services(struct bootinfo *bootinfo){
-	struct efi_memory_descriptor *mmap;
-	efi_uint_t mmap_size = 4096;
-	efi_uint_t mmap_key;
-	efi_uint_t desc_size;
-	uint32_t desc_version;
-	efi_status_t status = 0;
-
-	while (1) {
-		status = bootinfo->SystemTable->boot->allocate_pool(
-			EFI_LOADER_DATA,
-			mmap_size,
-			(void **)&mmap);
-		if (status != EFI_SUCCESS){
-			return status;
-			Print(L"[error] : bootloader() : cannot allocate mmap structure : 0x%x\n", status);
+    efi_status_t result = -1;
+    struct efi_memory_descriptor *memoryMap = NULL;
+    uint32_t descriptorVersion = 1;
+	uint64_t mmap_size = 0;
+	uint64_t mmap_key = 0;
+	uint64_t mmap_entry_size = 0;
+    while(0 != (result = bootinfo->SystemTable->boot->get_memory_map(&(mmap_size),
+                                                   memoryMap, &(mmap_key), &mmap_entry_size, &descriptorVersion)))
+    {
+        if(result)
+        {
+            mmap_size += 2 * mmap_entry_size;
+			//2 == EfiLoaderdata
+            bootinfo->SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
+        }
+        else{
+			Print(L"[debug] : bootloader() : mmap_size == %d\n", mmap_size);
+			Print(L"[debug] : bootloader() : mmap_entry_size == %d (probably false)\n", mmap_entry_size);
+			bootinfo->mmap = memoryMap;
+			bootinfo->mmap_size = mmap_size;
+			//bootinfo->SystemTable->boot->exit_boot_services(memoryMap, (efi_uint_t)bootinfo->ImageHandle);
+			return result;
 		}
+    }
+	Print(L"[debug] : bootloader() : mmap_size == %d\n", mmap_size);
+	Print(L"[debug] : bootloader() : mmap_entry_size == %d (probably false)\n", mmap_entry_size);
 
-		status = bootinfo->SystemTable->boot->get_memory_map(
-			&mmap_size,
-			mmap,
-			&mmap_key,
-			&desc_size,
-			&desc_version);
-		if (status == EFI_SUCCESS)
-			break;
-
-		bootinfo->SystemTable->boot->free_pool(mmap);
-
-		// If the buffer size turned out too small then get_memory_map
-		// should have updated mmap_size to contain the buffer size
-		// needed for the memory map. However subsequent free_pool and
-		// allocate_pool might change the memory map and therefore I
-		// additionally multiply it by 2.
-		if (status == EFI_BUFFER_TOO_SMALL) {
-			mmap_size *= 2;
-			continue;
-		}
-	}
-	Print(L"[debug] : bootloader() : desc_size == %d\n", desc_size);
-	bootinfo->mmap = mmap;
-	bootinfo->mmap_size = desc_size;
-	bootinfo->SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)bootinfo->ImageHandle);
-	return status;
+	bootinfo->mmap = memoryMap;
+	bootinfo->mmap_size = mmap_size;
+	//bootinfo->SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)bootinfo->ImageHandle);
+	return result;
 }

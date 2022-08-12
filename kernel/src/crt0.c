@@ -15,17 +15,34 @@ void __init_glob(struct bootinfo *bootinfo){
     bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
 	kheap_init(&heap);
-    for(int i = 0; i < bootinfo->mmap_size; i++){
-	    KDEBUG("available pages : %d", bootinfo->mmap[i].pages);
-        KDEBUG("pages physical start : 0x%x", bootinfo->mmap[i].physical_start);
-        KDEBUG("pages virtual start : 0x%x", bootinfo->mmap[i].virtual_start);
-        KDEBUG("mem type 0x%x", bootinfo->mmap[i].type);
-        kputc('\n');
-    }
-    uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
+    KDEBUG("mmap at 0x%x", bootinfo->mmap);
+    KDEBUG("sizeof(mmap) == %d (probably true)", sizeof(struct efi_memory_descriptor));
     
+    uint8_t *startOfMemoryMap = (uint8_t *)bootinfo->mmap;
+    uint8_t *endOfMemoryMap = startOfMemoryMap + bootinfo->mmap_size;
+    uint8_t *offset = startOfMemoryMap;
+    uint32_t counter = 0;
+    if(!bootinfo->mmap){
+        KERROR("fatal cannot retrieve memory map at 0x%x !");
+        BREAKPOINT();
+    }
+    while (offset < endOfMemoryMap){
+        struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)offset;
+        if(desc->type == EFI_CONVENTIAL_MEMORY){
+            KDEBUG("EFI_CONVENTIAL_MEMORY %d bytes at 0x%x", desc->pages * HEAP_BLOCK_SIZE, desc->physical_start)
+            if(desc->pages >= 0x35e1){
+                kheap_add_blocks(&heap, desc->physical_start, desc->pages);
+            }
+        }
+        offset += sizeof(struct efi_memory_descriptor);
+
+        counter++;
+    }
+    if(!heap.n_block){
+        KERROR("ram not found : trying something stupid");
+        kheap_add_blocks(&heap, (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize, HEAP_RAM_NOT_FOUND_DEFAULT);
+    }
     //!\ contiguous memory is needed
-    kheap_add_blocks(&heap, ram_address); 
 	fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 

@@ -22,19 +22,23 @@ void kheap_add_block(kheap *heap, uintptr_t mem){
     }
     current->next = m;
 }
-void kheap_add_blocks(kheap *heap, uintptr_t mem){
+void kheap_add_blocks(kheap *heap, uintptr_t mem, uint64_t nblock){
     uintptr_t heap_header_address = mem;
+    /*
     while(heap_header_address % ALIGN){
         heap_header_address++;
     }
-    uintptr_t heap_memory_address = heap_header_address+(HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER);
+    */
+    uintptr_t heap_memory_address = heap_header_address+(HEAP_HEADER_SIZE*nblock);
+    /*
     while(heap_memory_address % ALIGN){
         heap_memory_address++;
     }
+    */
     heap->header = (uint8_t *)heap_header_address;
     heap->memory = (uint8_t *)heap_memory_address;
-    memset(heap->header, 0, HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER);
-    heap->n_block = HEAP_BLOCK_NUMBER;
+    memset(heap->header, 0, HEAP_HEADER_SIZE*nblock);
+    heap->n_block = nblock;
     KDEBUG("heap->header : 0x%x heap->memory : 0x%x heap->n_blocks : 0x%x", heap->header, heap->memory, heap->n_block);
 }
 bool get_bit(uint8_t field, uint8_t bit){

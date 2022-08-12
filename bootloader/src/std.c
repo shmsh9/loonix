@@ -106,6 +106,8 @@ void Print(CHAR16 *fmt, ...){
 	CHAR16 hexlow[] = L"0123456789abcdef";
 	CHAR16 hexupp[] = L"0123456789ABCDEF";
 	for(int i = 0; i < l; i++){
+		if(fmt[i] == L'\n')
+			SystemTable->out->output_string(SystemTable->out,L"\r");
 		if(fmt[i] == L'%' && i+1 < l){
 			if(fmt[i+1] == L's'){
 				CHAR16 *ptrstr = __builtin_va_arg(args, CHAR16*);
