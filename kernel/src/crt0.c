@@ -15,6 +15,7 @@ void __init_glob(struct bootinfo *bootinfo){
     while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
         ram_address++;
     }
+    //514 * 4096 == 2MB
 	for(int i = 0; i < 2; i++){
 		kheap_add_block(&heap, ram_address+(sizeof(memblock)*i));
 	}

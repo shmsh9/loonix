@@ -6,9 +6,9 @@
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
 
 typedef struct _memblock {
-    struct   _memblock *next;
     uint8_t  header[HEAP_HEADER_SIZE];
     uint8_t  block[HEAP_BLOCK_SIZE];
+    struct   _memblock *next;
 } memblock;
 
 typedef struct _kheap {
