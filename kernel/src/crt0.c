@@ -15,10 +15,13 @@ void __init_glob(struct bootinfo *bootinfo){
     bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
 	kheap_init(&heap);
-	KDEBUG("available pages : %d", bootinfo->mmap->pages);
-    KDEBUG("pages physical start : 0x%x", bootinfo->mmap->physical_start);
-    KDEBUG("pages virtual start : 0x%x", bootinfo->mmap->virtual_start);
-    KDEBUG("mem type 0x%x", bootinfo->mmap->type);
+    for(int i = 0; i < bootinfo->mmap_size; i++){
+	    KDEBUG("available pages : %d", bootinfo->mmap[i].pages);
+        KDEBUG("pages physical start : 0x%x", bootinfo->mmap[i].physical_start);
+        KDEBUG("pages virtual start : 0x%x", bootinfo->mmap[i].virtual_start);
+        KDEBUG("mem type 0x%x", bootinfo->mmap[i].type);
+        kputc('\n');
+    }
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
     
     //!\ contiguous memory is needed

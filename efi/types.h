@@ -47,6 +47,7 @@ struct efi_table_header {
 
 struct efi_memory_descriptor {
 	uint32_t type;
+	uint32_t padding;
 	uint64_t physical_start;
 	uint64_t virtual_start;
 	uint64_t pages;

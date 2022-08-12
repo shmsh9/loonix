@@ -256,8 +256,10 @@ efi_status_t exit_boot_services(struct bootinfo *bootinfo){
 			EFI_LOADER_DATA,
 			mmap_size,
 			(void **)&mmap);
-		if (status != EFI_SUCCESS)
+		if (status != EFI_SUCCESS){
 			return status;
+			Print(L"[error] : bootloader() : cannot allocate mmap structure : 0x%x\n", status);
+		}
 
 		status = bootinfo->SystemTable->boot->get_memory_map(
 			&mmap_size,
@@ -280,7 +282,9 @@ efi_status_t exit_boot_services(struct bootinfo *bootinfo){
 			continue;
 		}
 	}
+	Print(L"[debug] : bootloader() : desc_size == %d\n", desc_size);
 	bootinfo->mmap = mmap;
+	bootinfo->mmap_size = desc_size;
 	bootinfo->SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)bootinfo->ImageHandle);
 	return status;
 }

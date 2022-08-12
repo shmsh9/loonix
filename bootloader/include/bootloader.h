@@ -1,7 +1,6 @@
 #ifndef BOOTLOADER_H_
 #define BOOTLOADER_H_
 #include <efi.h>
-#define K_STACK_SIZE 0x400000
 
 struct framebuffer{
 	uint16_t	height;
@@ -17,6 +16,7 @@ struct bootinfo{
 	void			 *kernelentry;
 	uint64_t         kernelsize;
 	struct efi_memory_descriptor *mmap;
+	uint64_t mmap_size;
 	struct framebuffer framebuffer;
 };
 #endif
