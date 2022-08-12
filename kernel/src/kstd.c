@@ -158,8 +158,9 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     switch(mod){
         case 0:{
             uint64_t sz_octword = sz >> 4;
-            for(uint64_t i = 0; i < sz_octword; i++)
+            for(uint64_t i = 0; i < sz_octword; i++){
                 ((__uint128_t *)dst)[i] = ((__uint128_t *)src)[i];
+            }
             return;
             break;
         }

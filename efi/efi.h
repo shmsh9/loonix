@@ -11,6 +11,7 @@
 #include "system_table.h"
 #include "serial.h"
 #include "types.h"
+#include "efi_runtime_services.h"
 #define  EFI_PAGE_SHIFT 12
 #define  EFI_PAGE_MASK  0xFFF
 #define  EFI_SIZE_TO_PAGES(Size) (((Size) >> EFI_PAGE_SHIFT) + (((Size) & EFI_PAGE_MASK) ? 1 : 0))

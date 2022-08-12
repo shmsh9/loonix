@@ -3,6 +3,7 @@
 #include <drivers/serial.h>
 #include <drivers/framebuffer.h>
 #include <newmem.h>
+#include <bootloader.h>
 #define KERNEL_DEBUG
 #ifdef __x86_64__
     #define JMPNOARCH "jmp"
@@ -15,7 +16,8 @@
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
 #define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
 #define KMSG(type, ...) {\
-    kprintf("[%s] : %s() : ", type, __func__);\
+    runtime_services->GetTime(&global_efi_time, 0);\
+    kprintf("[%s][%d:%d:%d] : %s() : ", type, global_efi_time.hour, global_efi_time.minute, global_efi_time.second,__func__);\
     kprintf(__VA_ARGS__);\
     kputc('\n');\
 }
@@ -37,6 +39,8 @@ extern uintptr_t __stack_chk_guard;
 extern uint32_t kalloc_list_last;
 extern kheap_allocated_block kalloc_list[KALLOC_LIST_MAX];
 extern kheap heap;
+extern efi_runtime_services *runtime_services;
+extern struct efi_time global_efi_time;
 
 typedef struct {
     uint8_t elementsz;
@@ -49,7 +53,6 @@ struct stackframe{
     struct stackframe *frame;
     uint64_t instruction_pointer;         
 };
-
 void __stack_chk_fail(void);
 void __fast_zeromem(void *ptr, uint64_t sz);
 void stacktrace();

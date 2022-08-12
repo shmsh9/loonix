@@ -1,9 +1,9 @@
 #include <kernel.h>
 
 uint64_t kmain(struct bootinfo *bootinfo){
-
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d Bytes)", fb.width, fb.height, fb.buffer, fb.size);
+	//KDEBUG("available system memory : %d bytes", heap.n_block*HEAP_BLOCK_SIZE);
 	graphics_pixel sprite_px[] = {
 		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
 		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
@@ -20,23 +20,12 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		.width = 8,
 		.pixels = sprite_px,
 	};
-	char *fg = kmalloc(256);
-	char *fg1 = kmalloc(128);
-	char *fg2 = kmalloc(128);
-	char *fg4 = kmalloc(3);
-	char *fg5 = kmalloc(7);
-	kheap_debug_print2(&heap);
-	kfree(fg);
-	kfree(fg1);
-	kfree(fg2);
-	kfree(fg4);
-	kfree(fg5);
-	kheap_debug_print2(&heap);
 	while(1){
 		for(uint8_t i = 0; i <= 0xff; i++){
 			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });
 			framebuffer_draw_sprite(&fb, fb.width/2 - sprite.width/2, fb.height/2 - sprite.height/2, &sprite);
-			framebuffer_update_device(&fb);	
+			framebuffer_update_device(&fb);
+	
 		}
 	}
 	kprint("Welcome to l00n1x !\n");	

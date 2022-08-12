@@ -7,26 +7,28 @@ kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
 kheap heap;
 framebuffer_device fb = {0};
 uint32_t kalloc_list_last = 0;
+efi_runtime_services *runtime_services = 0;
+struct efi_time global_efi_time = {0};
 
 void __init_glob(struct bootinfo *bootinfo){
+    runtime_services = bootinfo->RuntimeServices;
+    bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
 	kheap_init(&heap);
+	KDEBUG("available pages : %d", bootinfo->mmap->pages);
+    KDEBUG("pages physical start : 0x%x", bootinfo->mmap->physical_start);
+    KDEBUG("pages virtual start : 0x%x", bootinfo->mmap->virtual_start);
+    KDEBUG("mem type 0x%x", bootinfo->mmap->type);
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
+    
+    //!\ contiguous memory is needed
     kheap_add_blocks(&heap, ram_address); 
-    /*
-    while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
-        ram_address++;
-    }
-	for(int i = 0; i < HEAP_BLOCK_NUMBER; i++){
-		kheap_add_block(&heap, ram_address+(sizeof(memblock)*i));
-	}
-    */
 	fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 
         bootinfo->framebuffer.height, 
         bootinfo->framebuffer.size, 
-        FRAMEBUFFER_DIRECT_WRITE);
+        FRAMEBUFFER_DOUBLE_BUFFERING);
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");

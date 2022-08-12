@@ -9,9 +9,9 @@
 #ifdef __aarch64__
 	#define ALIGN 0x10
 #endif
-#define HEAP_BLOCK_SIZE  512
+#define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
-#define HEAP_BLOCK_NUMBER 2
+#define HEAP_BLOCK_NUMBER 512
 
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];

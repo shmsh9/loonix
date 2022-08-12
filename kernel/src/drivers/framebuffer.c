@@ -60,7 +60,7 @@ framebuffer_device framebuffer_new_device(uintptr_t address, uint16_t width, uin
         .flags = flags
         };
     if( (flags & FRAMEBUFFER_DOUBLE_BUFFERING) == FRAMEBUFFER_DOUBLE_BUFFERING){
-        void *double_buffer = kcalloc(size, 1);
+        void *double_buffer = kmalloc(size);
         if(!double_buffer){
             KERROR("not enough memory for double buffering");
         }

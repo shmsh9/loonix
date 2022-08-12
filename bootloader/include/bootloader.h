@@ -12,10 +12,10 @@ struct framebuffer{
 struct bootinfo{
 	efi_handle_t     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
+	efi_runtime_services *RuntimeServices;
 	void             *kernelbase;
 	void			 *kernelentry;
 	uint64_t         kernelsize;
-	uint64_t         stacksize;
 	struct efi_memory_descriptor *mmap;
 	struct framebuffer framebuffer;
 };
