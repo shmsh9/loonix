@@ -20,13 +20,6 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		.width = 8,
 		.pixels = sprite_px,
 	};
-	karray *arr = karray_new(sizeof(uint64_t));
-	for(int i = 0; i < 512; i++){
-		karray_push(arr, i);
-	}
-	karray_print(arr);
-	kheap_debug_print(&heap);
-	karray_free(arr);
 	while(1){
 		for(uint8_t i = 0; i <= 0xff; i++){
 			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });

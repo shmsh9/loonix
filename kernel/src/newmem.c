@@ -2,6 +2,9 @@
 
 void kheap_init(kheap *heap){
     heap->root = 0x0;
+    heap->memory = 0x0;
+    heap->header = 0x0;
+    heap->n_block = 0;
 }
 
 void kheap_add_block(kheap *heap, uintptr_t mem){
@@ -19,7 +22,20 @@ void kheap_add_block(kheap *heap, uintptr_t mem){
     }
     current->next = m;
 }
-
+void kheap_add_blocks(kheap *heap, uintptr_t mem){
+    uintptr_t heap_header_address = mem;
+    while(heap_header_address % ALIGN){
+        heap_header_address++;
+    }
+    uintptr_t heap_memory_address = heap_header_address+(HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER);
+    while(heap_memory_address % ALIGN){
+        heap_memory_address++;
+    }
+    heap->header = (uint8_t *)heap_header_address;
+    heap->memory = (uint8_t *)heap_memory_address;
+    memset(heap->header, 0, HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER);
+    heap->n_block = HEAP_BLOCK_NUMBER;
+}
 bool get_bit(uint8_t field, uint8_t bit){
     return field >> bit & 0x1;
 }

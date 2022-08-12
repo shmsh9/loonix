@@ -10,13 +10,12 @@ uint32_t kalloc_list_last = 0;
 
 void __init_glob(struct bootinfo *bootinfo){
     SERIAL_INIT();
-	kheap_init(&heap);
+	kheap_init(&heap);    
     uintptr_t ram_address = (uint64_t)bootinfo->kernelbase+bootinfo->kernelsize;
     while((ram_address+HEAP_BLOCK_SIZE) % ALIGN){
         ram_address++;
     }
-    //514 * 4096 == 2MB
-	for(int i = 0; i < 512; i++){
+	for(int i = 0; i < HEAP_BLOCK_NUMBER; i++){
 		kheap_add_block(&heap, ram_address+(sizeof(memblock)*i));
 	}
 	fb = framebuffer_new_device(

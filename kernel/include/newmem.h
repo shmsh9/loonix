@@ -2,17 +2,35 @@
 #define NEW_MEM_H_
 #include <stdint.h>
 #include <stdbool.h>
+
+#ifdef __x86_64__
+	#define ALIGN 0x1000
+#endif
+#ifdef __aarch64__
+	#define ALIGN 0x10
+#endif
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
+#define HEAP_BLOCK_NUMBER 2
 
+typedef struct{
+    uint8_t block[HEAP_BLOCK_SIZE];
+}block;
 typedef struct _memblock {
     uint8_t  header[HEAP_HEADER_SIZE];
     uint8_t  block[HEAP_BLOCK_SIZE];
     struct   _memblock *next;
 } memblock;
 
+typedef struct _memblock_header {
+    uint8_t header[HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER];
+}memblock_header;
+
 typedef struct _kheap {
     struct _memblock *root;
+    uint8_t *header;
+    uint8_t  *memory;
+    uint16_t n_block;
 } kheap;
 
 typedef struct _kheap_allocated_block{
