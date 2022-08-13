@@ -22,7 +22,7 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	efi_graphics_output_protocol *gop;
 	efi_status_t s = SystemTable->boot->locate_protocol(&gopGuid, NULL, (void **)&gop);
 	if(EFI_ERROR(s)){
-		Print(L"[bootloader] : error : can not opening gop protocol !");
+		DEBUG(L"can not open gop protocol !");
 	}
 	else{
     	bootinfo.framebuffer.address =  gop->Mode->FrameBufferBase;
@@ -32,8 +32,8 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	}
 
 
-	uint64_t ret = __loadelf_with_no_return(L"kernel.elf", &bootinfo);
-	Print(L"rip kernel x_x : 0x%x\n", ret);
+	uint64_t ret = loadelf(L"kernel.elf", &bootinfo);
+	DEBUG(L"rip kernel x_x : 0x%x\n", ret);
 	while (1){}
 	
 	return EFI_SUCCESS;

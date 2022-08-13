@@ -133,62 +133,11 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 	}
 	return ret;
 }
-uint64_t loadelf(CHAR16 *filename, struct fnargs *fnargs){
-	FILE *f = kfopen(filename, L"r", fnargs->ImageHandle);
-	if(!f){
-		Print(L"error : cannot open %s\n", filename);
-		return -1;
-	}
-	size_t fs = kfsize(f);
-	uint8_t *buff = kcalloc( 1, fs);
-	if(!buff){
-		kfclose(f);
-		Print(L"error : buff == 0x0\n");
-		return -1;
-	}
-	size_t read = kfread(buff, 1, fs, f);
-	if(!read){
-		Print(L"error : reading file\n");
-		kfree(buff);
-		kfclose(f);
-		return -1;
-	}
-	if(!magichck(buff)){
-		Print(L"invalid elf magic number\n");
-		kfree(buff);
-		kfclose(f);
-		return -1;
-	}
-	struct elf elf;
-	elf.filesz = fs;
-	parself(&elf, buff);
-	uintptr_t base = baseaddr(&elf);
-	uintptr_t alloc = basealloc(&elf, base);
-	//Print(L"base  == 0x%lx\nalloc == 0x%lx\nentry == 0x%x\n", base, elf, elf->header.program_entry_position);
-	void *prog = kmalloc(alloc);
-	for(int i = 0; i < elf.header.entry_program_number; i++){
-		//LOAD == 0x01 entry PHDR == 0x06
-		if(elf.program.entries[i].segment_type == 0x01 || elf.program.entries[i].segment_type == 0x06){
-			void *addr =  (void *)((uintptr_t)prog + elf.program.entries[i].p_vaddr - base);
-			SetMem((addr), 0, elf.program.entries[i].p_memsz);
-			CopyMem((addr), buff+elf.program.entries[i].p_offset, elf.program.entries[i].p_filesz);
-		}
-	}
-	kfree(buff);
-	kfclose(f);
-	uint64_t SYSVABI (*fnptr)(struct fnargs *) = (uint64_t SYSVABI(*)(struct fnargs *))((uintptr_t)prog + elf.header.program_entry_position);
-	Print(L"loading program : 0x%x\n", fnptr);
-	Print(L"program size is : 0x%x bytes\n", alloc);
-	uint64_t ret = fnptr(fnargs);
-	Print(L"%s returned    : 0x%x\n", fnargs->argv[0],ret);
-	kfree(prog);
-	return ret;
-}
-uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
+uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 
 	FILE *f = kfopen(filename, L"r", bootinfo->ImageHandle);
 	if(!f){
-		Print(L"error : cannot open %s\n", filename);
+		DEBUG(L"cannot open %s", filename);
 		return -1;
 	}
 	size_t fs = kfsize(f);
@@ -241,8 +190,8 @@ uint64_t __loadelf_with_no_return(CHAR16 *filename, struct bootinfo *bootinfo){
 	bootinfo->kernelentry = (void *)fnptr;
 	exit_boot_services(bootinfo);
     
-	Print(L"[debug] : bootloader() : mmap at 0x%x\n", bootinfo->mmap);
-	Print(L"[debug] : bootloader() : loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)\n", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
+	DEBUG(L"mmap at 0x%x", bootinfo->mmap);
+	DEBUG(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
 	return fnptr(bootinfo);
 }
 efi_status_t exit_boot_services(struct bootinfo *bootinfo){
@@ -262,16 +211,16 @@ efi_status_t exit_boot_services(struct bootinfo *bootinfo){
             bootinfo->SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
         }
         else{
-			Print(L"[debug] : bootloader() : mmap_size == %d\n", mmap_size);
-			Print(L"[debug] : bootloader() : mmap_entry_size == %d (probably false)\n", mmap_entry_size);
+			DEBUG(L"mmap_size == %d", mmap_size);
+			DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
 			bootinfo->mmap = memoryMap;
 			bootinfo->mmap_size = mmap_size;
 			//bootinfo->SystemTable->boot->exit_boot_services(memoryMap, (efi_uint_t)bootinfo->ImageHandle);
 			return result;
 		}
     }
-	Print(L"[debug] : bootloader() : mmap_size == %d\n", mmap_size);
-	Print(L"[debug] : bootloader() : mmap_entry_size == %d (probably false)\n", mmap_entry_size);
+	DEBUG(L"mmap_size == %d", mmap_size);
+	DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
 
 	bootinfo->mmap = memoryMap;
 	bootinfo->mmap_size = mmap_size;

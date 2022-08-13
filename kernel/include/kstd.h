@@ -16,9 +16,10 @@
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
 #define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
 #define BYTES_TO_MB(b) ((b) >> 20)
+#define MB_TO_BYTES(mb) ((mb) << 20) 
 #define KMSG(type, ...) {\
     runtime_services->GetTime(&global_efi_time, 0);\
-    kprintf("[%s][%d:%d:%d] : %s() : ", type, global_efi_time.hour, global_efi_time.minute, global_efi_time.second,__func__);\
+    kprintf("[kernel][%s][%d:%d:%d] : %s() : ", type, global_efi_time.hour, global_efi_time.minute, global_efi_time.second,__func__);\
     kprintf(__VA_ARGS__);\
     kputc('\n');\
 }

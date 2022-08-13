@@ -4,7 +4,17 @@
 #include <extern.h>
 typedef uintptr_t size_t;
 typedef struct efi_file_protocol FILE;
-
+#define DEBUG(...) {\
+	Print(L"[bootloader][debug] : ");\
+	for(int DEBUGfunciterator = 0; __func__[DEBUGfunciterator]; DEBUGfunciterator++){\
+		CHAR16 tmpDEBUG16[2] = {0};\
+		tmpDEBUG16[0] = (CHAR16)__func__[DEBUGfunciterator];\
+		Print(tmpDEBUG16);\
+	}\
+	Print(L"() : ");\
+	Print(__VA_ARGS__);\
+	Print(L"\r\n");\
+}
 void *kmalloc(size_t sz);
 void *kcalloc(size_t elementCount, size_t elementSize);
 FILE *kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image);

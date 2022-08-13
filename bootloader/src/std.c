@@ -99,6 +99,7 @@ void SetMem(void *dst, uint8_t b, uint64_t sz){
 	for(uint64_t i = 0; i < sz; i++)
 		((uint8_t *)(dst))[i] = b;
 }
+
 void Print(CHAR16 *fmt, ...){
 	__builtin_va_list args;
 	__builtin_va_start(args, fmt);
@@ -106,8 +107,6 @@ void Print(CHAR16 *fmt, ...){
 	CHAR16 hexlow[] = L"0123456789abcdef";
 	CHAR16 hexupp[] = L"0123456789ABCDEF";
 	for(int i = 0; i < l; i++){
-		if(fmt[i] == L'\n')
-			SystemTable->out->output_string(SystemTable->out,L"\r");
 		if(fmt[i] == L'%' && i+1 < l){
 			if(fmt[i+1] == L's'){
 				CHAR16 *ptrstr = __builtin_va_arg(args, CHAR16*);
