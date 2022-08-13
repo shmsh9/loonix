@@ -66,6 +66,7 @@ kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size);
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
 void kheap_debug_print(kheap *heap);
 void kheap_debug_print2(kheap *heap);
+struct efi_memory_descriptor * mmap_find_largest_block(mmap *mmap);
 void mmap_debug_print(mmap *mmap);
 mmap mmap_new(struct bootinfo *bootinfo);
 #endif

@@ -352,3 +352,20 @@ mmap mmap_new(struct bootinfo *bootinfo){
     return ret;
 }
 
+struct efi_memory_descriptor * mmap_find_largest_block(mmap *mmap){
+    if(!mmap){
+        KERROR("mmap == NULL");
+        return 0x0;
+    }
+    uint64_t largest_mem = 0;
+    struct efi_memory_descriptor *ret = 0;
+    for(int i = 0; i < mmap->length; i++){
+        struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
+        if(desc->type == EFI_CONVENTIAL_MEMORY && desc->pages > largest_mem){
+            ret = desc;
+            largest_mem = desc->pages;
+        }
+    } 
+   return ret; 
+}
+

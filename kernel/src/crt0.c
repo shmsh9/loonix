@@ -14,59 +14,39 @@ void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
     runtime_services->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
-    
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
     if(!bootinfo->mmap)
         KPANIC("cannot retrieve memory map at 0x%x !", bootinfo->mmap);
-
-    kheap_init(&heap);
+    
     mmap mmap = mmap_new(bootinfo);
-    mmap_debug_print(&mmap);
-    uint8_t *startOfMemoryMap = (uint8_t *)bootinfo->mmap;
-    uint8_t *endOfMemoryMap = startOfMemoryMap + bootinfo->mmap_size;
-    uint8_t *offset = startOfMemoryMap;
-    uint32_t counter = 0;
-    uint64_t latest_high = 0;
-    struct efi_memory_descriptor *highest_mem_block = 0;
-    //minimum of of 2mb is required 1MB for double buffer
-    uint64_t min_ram = MB_TO_BYTES(2);
-    while (offset < endOfMemoryMap){
-        struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)offset;
-        if(desc->type == EFI_CONVENTIAL_MEMORY){
-            KDEBUG("EFI_CONVENTIONAL_MEMORY %d bytes at 0x%x", desc->pages * HEAP_BLOCK_SIZE, desc->physical_start)
-            KDEBUG("mem attributes : 0x%x", desc->attributes);
-            uint64_t curr_mem = desc->pages * HEAP_BLOCK_SIZE;
-            if(curr_mem >= min_ram && curr_mem > latest_high){
-                latest_high = curr_mem;
-                highest_mem_block = desc;
-            }
-        }
-        offset += MMAP_ELEMENT_SIZE;
-
-        counter++;
-    }
-    if(!highest_mem_block){
+    //mmap_debug_print(&mmap);
+    struct efi_memory_descriptor *largest_mem_block = mmap_find_largest_block(&mmap);
+    if(!largest_mem_block)
         KPANIC("no available memory found !");
+
+    KDEBUG("largest mem block : 0x%x %dMB", 
+            largest_mem_block->physical_start, 
+            BYTES_TO_MB(largest_mem_block->pages*HEAP_BLOCK_SIZE)
+            );
+    uintptr_t ram_addr = largest_mem_block->physical_start;
+    uint64_t ram_pages_n = largest_mem_block->pages;
+    if(ram_addr == (uintptr_t)bootinfo->kernelbase){
+        KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
+        ram_addr += bootinfo->kernelsize;
+        ram_pages_n -= (bootinfo->kernelsize / HEAP_BLOCK_SIZE)+1;
     }
-    else{
-        KDEBUG("largest mem block : 0x%x %dMB", highest_mem_block->physical_start, BYTES_TO_MB(latest_high));
-        uintptr_t ram_addr = highest_mem_block->physical_start;
-        uint64_t ram_pages_n = highest_mem_block->pages;
-        if(ram_addr == (uintptr_t)bootinfo->kernelbase){
-            KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
-            ram_addr += bootinfo->kernelsize;
-            ram_pages_n -= (bootinfo->kernelsize / HEAP_BLOCK_SIZE)+1;
-        }
-        kheap_add_blocks(&heap, ram_addr, ram_pages_n);
-    }
+    kheap_init(&heap);
+    kheap_add_blocks(&heap, ram_addr, ram_pages_n);
+   
     //!\ contiguous memory is needed
-	fb = framebuffer_new_device(
+    fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 
         bootinfo->framebuffer.height, 
         bootinfo->framebuffer.size, 
         FRAMEBUFFER_DOUBLE_BUFFERING);
+   
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");
