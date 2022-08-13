@@ -188,18 +188,11 @@ uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
 	bootinfo->kernelentry = (void *)fnptr;
-	struct efi_memory_descriptor *mmap = get_mmap(bootinfo);
-	efi_status_t bs_exit = -1;
-	DEBUG(L"ImageHandle == 0x%x", ImageHandle);
-	while(EFI_ERROR(bs_exit)){
-		bs_exit = SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)ImageHandle);
-		DEBUG(L"exit_boot_services == 0x%x", bs_exit); 
-	}
-	DEBUG(L"mmap at 0x%x", bootinfo->mmap);
 	DEBUG(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)", 
 			filename, alloc , bootinfo->kernelentry, 
 			bootinfo->kernelbase);
-
+	get_mmap(bootinfo);
+	bootinfo->uefi_exit_code = SystemTable->boot->exit_boot_services(ImageHandle, bootinfo->mmap_key);
 	return fnptr(bootinfo);
 }
 struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
@@ -217,16 +210,41 @@ struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
 						SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
         }
         else{
-					DEBUG(L"mmap_size == %d", mmap_size);
-					DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
 					bootinfo->mmap = memoryMap;
 					bootinfo->mmap_size = mmap_size;
+					bootinfo->mmap_key = mmap_key;
 					return memoryMap;
 				}
   	}
-	DEBUG(L"mmap_size == %d", mmap_size);
-	DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
 	bootinfo->mmap = memoryMap;
 	bootinfo->mmap_size = mmap_size;
+	bootinfo->mmap_key = mmap_key;
 	return memoryMap;
+}
+
+void print_mmap(struct efi_memory_descriptor *mmap, uint64_t mmap_size){
+/*
+enum efi_memory_type {
+	EFI_RESERVED_MEMORY_TYPE,
+	EFI_LOADER_CODE,
+	EFI_LOADER_DATA,
+	EFI_BOOT_SERVICES_CODE,
+	EFI_BOOT_SERVICES_DATA,
+	EFI_RUNTIME_SERVICES_CODE,
+	EFI_RUNTIME_SERVICES_DATA,
+	EFI_CONVENTIAL_MEMORY,
+	EFI_UNUSABLE_MEMORY,
+	EFI_ACPI_RECLAIM_MEMORY,
+	EFI_ACPI_MEMORY_NVS,
+	EFI_MEMORY_MAPPED_IO,
+	EFI_MEMORY_MAPPED_IO_PORT_SPACE,
+	EFI_PAL_CODE,
+	EFI_PERSISTENT_MEMORY,
+	EFI_MAX_MEMORY_TYPE,
+};
+*/
+	for(uint64_t i = 0; i < mmap_size; i += sizeof(struct efi_memory_descriptor)){
+		//struct efi_memory_desc *curr = (struct efi_memory_desc *)((uint8_t *)mmap+i);
+		//DEBUG("");
+	}	
 }

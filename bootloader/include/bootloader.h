@@ -17,6 +17,8 @@ struct bootinfo{
 	uint64_t         kernelsize;
 	struct efi_memory_descriptor *mmap;
 	uint64_t mmap_size;
+	uint64_t mmap_key;
+	uint64_t uefi_exit_code;
 	struct framebuffer framebuffer;
 };
 #endif

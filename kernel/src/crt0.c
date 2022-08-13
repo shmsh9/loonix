@@ -12,9 +12,10 @@ struct efi_time global_efi_time = {0};
 
 void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
-    bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
+    runtime_services->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
     kheap_init(&heap);
+    KDEBUG("uefi_exit_code == 0x%x", bootinfo->uefi_exit_code);
     if(!bootinfo->mmap){
         KERROR("fatal cannot retrieve memory map at 0x%x !", bootinfo->mmap);
         BREAKPOINT();
