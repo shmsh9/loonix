@@ -10,7 +10,7 @@ uint32_t kalloc_list_last = 0;
 efi_runtime_services *runtime_services = 0;
 struct efi_time global_efi_time = {0};
 
-void __init_glob(struct bootinfo *bootinfo){
+void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
     bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
     SERIAL_INIT();

@@ -12,6 +12,7 @@ if($ARCH -eq $null){
 
 if($ARCH -eq "x86_64"){
     $EFIARCH="X64"
+    $QEMU_OPTS="-M q35"
     $FW_BASE="OVMF"
 }
 if($ARCH -eq "aarch64"){

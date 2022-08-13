@@ -1,10 +1,10 @@
-.global _start, kmain
-.extern __init_glob, kmain, __STACK_TOP
+.global _start
+.extern crt0, __STACK_TOP
 
 .section .text
 _start:
     //cli  //disable all interrupts
 	mov	 $__STACK_TOP, %rsp
 	xor  %rbp, %rbp
-	call __init_glob
+	call crt0
 	ret 

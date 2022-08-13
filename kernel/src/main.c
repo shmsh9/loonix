@@ -4,6 +4,9 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d MB)", fb.width, fb.height, fb.buffer, BYTES_TO_MB(fb.size));
 	KDEBUG("Available system memory %d MB", BYTES_TO_MB(heap.n_block*HEAP_BLOCK_SIZE));
+	struct efi_time t = {0};
+	efi_status_t status = bootinfo->SystemTable->RuntimeServices->GetTime(&t, 0x0);
+	KDEBUG("GetTime returned 0x%x\n", status);
 	graphics_pixel sprite_px[] = {
 		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
 		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,

@@ -8,6 +8,7 @@ if [[ ${ARCH} == "x86_64" ]]
 then
     EFIARCH="X64"
     FW_BASE="OVMF"
+    QEMUOPTS="-M q35"
 fi
 if [[ ${ARCH} == "aarch64" ]]
 then
