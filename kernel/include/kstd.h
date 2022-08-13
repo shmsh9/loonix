@@ -28,10 +28,12 @@
 #define KMESSAGE(...) KMSG("message", __VA_ARGS__)
 #define KERROR(...) {\
     KMSG("error", __VA_ARGS__);\
+    kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
 }
 #define KPANIC(...){\
     KMSG("kernel panic !", __VA_ARGS__);\
+    kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
     BREAKPOINT();\
 }

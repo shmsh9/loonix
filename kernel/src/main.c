@@ -4,6 +4,7 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d MB)", fb.width, fb.height, fb.buffer, BYTES_TO_MB(fb.size));
 	KDEBUG("Available system memory %d MB", BYTES_TO_MB(heap.n_block*HEAP_BLOCK_SIZE));
+	KDEBUG("Npages == %d", heap.n_block);
 	struct efi_time t = {0};
 	efi_status_t status = bootinfo->SystemTable->RuntimeServices->GetTime(&t, 0x0);
 	KDEBUG("GetTime returned 0x%x\n", status);
@@ -23,6 +24,12 @@ uint64_t kmain(struct bootinfo *bootinfo){
 		.width = 8,
 		.pixels = sprite_px,
 	};
+	for(uint64_t i = 1; i < 0xffffffff; i <<= 1){
+		char *foo = kcalloc(i,1);
+		if(!foo)
+			KPANIC("fucked here");
+		kfree(foo);
+	}
 	while(1){
 		for(uint8_t i = 0; i <= 0xff; i++){
 			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });

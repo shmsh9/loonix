@@ -5,9 +5,11 @@
 #include <bootloader.h>
 #ifdef __x86_64__
 	#define ALIGN 0x10
+  #define HACK_UGLY_OFFSET 0
 #endif
 #ifdef __aarch64__
 	#define ALIGN 0x10
+  #define HACK_UGLY_OFFSET 0x100000
 #endif
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
@@ -31,7 +33,7 @@ typedef struct _kheap {
     struct _memblock *root;
     uint8_t *header;
     uint8_t  *memory;
-    uint16_t n_block;
+    uint64_t n_block;
 } kheap;
 
 typedef struct _kheap_allocated_block{

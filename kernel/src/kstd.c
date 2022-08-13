@@ -10,7 +10,7 @@ void stacktrace(){
     #endif
     kprint("stacktrace : \n");
     for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){
-        kprintf("[%d] : 0x%x\n", i, stk->instruction_pointer);
+        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);
         stk = stk->frame;
     }
 }
@@ -159,14 +159,6 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
             break;
     }
 }
-void __fast_zeromem(void *ptr, uint64_t sz){
-    #ifdef __aarch64__
-        __asm__ __volatile__ (
-            "mrs %0, DCZID_EL0\r\n"
-            "DC ZVA, %1\r\n" ::  "r"(sz), "r"(ptr)
-            );
-    #endif
-}
 void memcpy(void *dst, const void *src, uint64_t sz){
     if(!dst){
         KERROR("dst == NULL");
@@ -282,6 +274,14 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
     return -1;
 }
 void *kcalloc(uint64_t n, uint64_t sz){
+    if(n == 0){
+        KERROR("n == 0");
+        return 0x0;
+    }
+    if(sz == 0){
+        KERROR("sz == 0");
+        return 0x0;
+    }
     void *ret = kmalloc(n*sz);
     if(!ret){
         KERROR("kmalloc() failed")

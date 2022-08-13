@@ -25,16 +25,17 @@ void crt0(struct bootinfo *bootinfo){
     if(!largest_mem_block)
         KPANIC("no available memory found !");
 
-    KDEBUG("largest mem block : 0x%x %dMB", 
+    KDEBUG("largest mem block : 0x%x %dMB (%d pages)", 
             largest_mem_block->physical_start, 
-            BYTES_TO_MB(largest_mem_block->pages*HEAP_BLOCK_SIZE)
+            BYTES_TO_MB(largest_mem_block->pages*HEAP_BLOCK_SIZE),
+            largest_mem_block->pages
             );
     uintptr_t ram_addr = largest_mem_block->physical_start;
     uint64_t ram_pages_n = largest_mem_block->pages;
     if(ram_addr == (uintptr_t)bootinfo->kernelbase){
         KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
-        ram_addr += bootinfo->kernelsize;
-        ram_pages_n -= (bootinfo->kernelsize / HEAP_BLOCK_SIZE)+1;
+        ram_addr += bootinfo->kernelsize+HACK_UGLY_OFFSET;
+        //ram_pages_n -= (bootinfo->kernelsize+HACK_UGLY_OFFSET / HEAP_BLOCK_SIZE)+1;
     }
     kheap_init(&heap);
     kheap_add_blocks(&heap, ram_addr, ram_pages_n);

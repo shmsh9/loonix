@@ -33,4 +33,4 @@ then
     rm -f "$FW_ZIP"
 fi
 echo "[$QEMU]"
-$QEMU $QEMUOPTS -m 128M -bios $BIOS -serial stdio -s -net none -drive format=raw,file=fat:rw:image
+$QEMU $QEMUOPTS -m 128 -bios $BIOS -serial stdio -s -net none -drive format=raw,file=fat:rw:image
