@@ -13,7 +13,7 @@
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
 #define HEAP_BLOCK_NUMBER 512
 #define HEAP_RAM_NOT_FOUND_DEFAULT 512
-
+#define MMAP_ELEMENT_SIZE 48
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];
 }block;

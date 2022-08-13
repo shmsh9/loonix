@@ -34,7 +34,7 @@ void crt0(struct bootinfo *bootinfo){
     while (offset < endOfMemoryMap){
         struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)offset;
         if(desc->type == EFI_CONVENTIAL_MEMORY){
-            KDEBUG("EFI_CONVENTIAL_MEMORY %d bytes at 0x%x", desc->pages * HEAP_BLOCK_SIZE, desc->physical_start)
+            KDEBUG("EFI_CONVENTIONAL_MEMORY %d bytes at 0x%x", desc->pages * HEAP_BLOCK_SIZE, desc->physical_start)
             KDEBUG("mem attributes : 0x%x", desc->attributes);
             uint64_t curr_mem = desc->pages * HEAP_BLOCK_SIZE;
             if(curr_mem >= min_ram && curr_mem > latest_high){
@@ -42,16 +42,15 @@ void crt0(struct bootinfo *bootinfo){
                 highest_mem_block = desc;
             }
         }
-        offset += sizeof(struct efi_memory_descriptor);
+        offset += MMAP_ELEMENT_SIZE;
 
         counter++;
     }
     if(!highest_mem_block){
-        KERROR("no available memory found : trying something stupid");
-        kheap_add_blocks(&heap, (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize, HEAP_RAM_NOT_FOUND_DEFAULT);
+        KPANIC("no available memory found !");
     }
     else{
-        KDEBUG("found highest mem block : 0x%x %dMB", highest_mem_block->physical_start, BYTES_TO_MB(latest_high));
+        KDEBUG("largest mem block : 0x%x %dMB", highest_mem_block->physical_start, BYTES_TO_MB(latest_high));
         uintptr_t ram_addr = highest_mem_block->physical_start;
         uint64_t ram_pages_n = highest_mem_block->pages;
         if(ram_addr == (uintptr_t)bootinfo->kernelbase){

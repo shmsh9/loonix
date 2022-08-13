@@ -21,8 +21,7 @@
 #define KB_TO_BYTES(kb) ((kb) << 10)
 
 #define KMSG(type, ...) {\
-    runtime_services->GetTime(&global_efi_time, 0);\
-    kprintf("[kernel][%s][%d:%d:%d] : %s() : ", type, global_efi_time.hour, global_efi_time.minute, global_efi_time.second,__func__);\
+    kprintf("[kernel][%s] : %s() : ", type, __func__);\
     kprintf(__VA_ARGS__);\
     kputc('\n');\
 }

@@ -198,7 +198,7 @@ uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
     efi_status_t result = -1;
     struct efi_memory_descriptor *memoryMap = NULL;
-    uint32_t descriptorVersion = 1;
+    uint32_t descriptorVersion = 0;
 		uint64_t mmap_size = 0;
 		uint64_t mmap_key = 0;
 		uint64_t mmap_entry_size = 0;
@@ -220,31 +220,4 @@ struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
 	bootinfo->mmap_size = mmap_size;
 	bootinfo->mmap_key = mmap_key;
 	return memoryMap;
-}
-
-void print_mmap(struct efi_memory_descriptor *mmap, uint64_t mmap_size){
-/*
-enum efi_memory_type {
-	EFI_RESERVED_MEMORY_TYPE,
-	EFI_LOADER_CODE,
-	EFI_LOADER_DATA,
-	EFI_BOOT_SERVICES_CODE,
-	EFI_BOOT_SERVICES_DATA,
-	EFI_RUNTIME_SERVICES_CODE,
-	EFI_RUNTIME_SERVICES_DATA,
-	EFI_CONVENTIAL_MEMORY,
-	EFI_UNUSABLE_MEMORY,
-	EFI_ACPI_RECLAIM_MEMORY,
-	EFI_ACPI_MEMORY_NVS,
-	EFI_MEMORY_MAPPED_IO,
-	EFI_MEMORY_MAPPED_IO_PORT_SPACE,
-	EFI_PAL_CODE,
-	EFI_PERSISTENT_MEMORY,
-	EFI_MAX_MEMORY_TYPE,
-};
-*/
-	for(uint64_t i = 0; i < mmap_size; i += sizeof(struct efi_memory_descriptor)){
-		//struct efi_memory_desc *curr = (struct efi_memory_desc *)((uint8_t *)mmap+i);
-		//DEBUG("");
-	}	
 }
