@@ -14,13 +14,13 @@ void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
     bootinfo->RuntimeServices->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
-	kheap_init(&heap);
-    KDEBUG("mmap at 0x%x", bootinfo->mmap);
-    KDEBUG("sizeof(mmap) == %d (probably true)", sizeof(struct efi_memory_descriptor));
+    kheap_init(&heap);
     if(!bootinfo->mmap){
-        KERROR("fatal cannot retrieve memory map at 0x%x !");
+        KERROR("fatal cannot retrieve memory map at 0x%x !", bootinfo->mmap);
         BREAKPOINT();
     }
+    KDEBUG("mmap at 0x%x", bootinfo->mmap);
+    KDEBUG("sizeof(mmap) == %d (probably true)", sizeof(struct efi_memory_descriptor));
     uint8_t *startOfMemoryMap = (uint8_t *)bootinfo->mmap;
     uint8_t *endOfMemoryMap = startOfMemoryMap + bootinfo->mmap_size;
     uint8_t *offset = startOfMemoryMap;
@@ -33,6 +33,7 @@ void crt0(struct bootinfo *bootinfo){
         struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)offset;
         if(desc->type == EFI_CONVENTIAL_MEMORY){
             KDEBUG("EFI_CONVENTIAL_MEMORY %d bytes at 0x%x", desc->pages * HEAP_BLOCK_SIZE, desc->physical_start)
+            KDEBUG("mem attributes : 0x%x", desc->attributes);
             uint64_t curr_mem = desc->pages * HEAP_BLOCK_SIZE;
             if(curr_mem >= min_ram && curr_mem > latest_high){
                 latest_high = curr_mem;

@@ -188,42 +188,45 @@ uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 	kfclose(f);
 	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
 	bootinfo->kernelentry = (void *)fnptr;
-	exit_boot_services(bootinfo);
-    
+	struct efi_memory_descriptor *mmap = get_mmap(bootinfo);
+	efi_status_t bs_exit = -1;
+	DEBUG(L"ImageHandle == 0x%x", ImageHandle);
+	while(EFI_ERROR(bs_exit)){
+		bs_exit = SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)ImageHandle);
+		DEBUG(L"exit_boot_services == 0x%x", bs_exit); 
+	}
 	DEBUG(L"mmap at 0x%x", bootinfo->mmap);
-	DEBUG(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)", filename, alloc , bootinfo->kernelentry, bootinfo->kernelbase);
+	DEBUG(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)", 
+			filename, alloc , bootinfo->kernelentry, 
+			bootinfo->kernelbase);
+
 	return fnptr(bootinfo);
 }
-efi_status_t exit_boot_services(struct bootinfo *bootinfo){
+struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
     efi_status_t result = -1;
     struct efi_memory_descriptor *memoryMap = NULL;
     uint32_t descriptorVersion = 1;
-	uint64_t mmap_size = 0;
-	uint64_t mmap_key = 0;
-	uint64_t mmap_entry_size = 0;
-    while(0 != (result = bootinfo->SystemTable->boot->get_memory_map(&(mmap_size),
+		uint64_t mmap_size = 0;
+		uint64_t mmap_key = 0;
+		uint64_t mmap_entry_size = 0;
+    while(0 != (result = SystemTable->boot->get_memory_map(&(mmap_size),
                                                    memoryMap, &(mmap_key), &mmap_entry_size, &descriptorVersion)))
     {
-        if(result)
-        {
+        if(result){
             mmap_size += 2 * mmap_entry_size;
-			//2 == EfiLoaderdata
-            bootinfo->SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
+						SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
         }
         else{
-			DEBUG(L"mmap_size == %d", mmap_size);
-			DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
-			bootinfo->mmap = memoryMap;
-			bootinfo->mmap_size = mmap_size;
-			//bootinfo->SystemTable->boot->exit_boot_services(memoryMap, (efi_uint_t)bootinfo->ImageHandle);
-			return result;
-		}
-    }
+					DEBUG(L"mmap_size == %d", mmap_size);
+					DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
+					bootinfo->mmap = memoryMap;
+					bootinfo->mmap_size = mmap_size;
+					return memoryMap;
+				}
+  	}
 	DEBUG(L"mmap_size == %d", mmap_size);
 	DEBUG(L"mmap_entry_size == %d (probably false)", mmap_entry_size);
-
 	bootinfo->mmap = memoryMap;
 	bootinfo->mmap_size = mmap_size;
-	//bootinfo->SystemTable->boot->exit_boot_services(mmap, (efi_uint_t)bootinfo->ImageHandle);
-	return result;
+	return memoryMap;
 }
