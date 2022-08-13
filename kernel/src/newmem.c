@@ -300,3 +300,52 @@ void kheap_debug_print2(kheap *heap){
     }
 
 }
+
+void mmap_debug_print(mmap *mmap){
+    char *efi_memory_types[16] = {0};
+    efi_memory_types[0]  = "EFI_RESERVED_MEMORY_TYPE";
+    efi_memory_types[1]  = "EFI_LOADER_CODE";
+    efi_memory_types[2]  = "EFI_LOADER_DATA";
+    efi_memory_types[3]  = "EFI_BOOT_SERVICES_CODE";
+    efi_memory_types[4]  = "EFI_BOOT_SERVICES_DATA";
+    efi_memory_types[5]  = "EFI_RUNTIME_SERVICES_CODE";
+    efi_memory_types[6]  = "EFI_RUNTIME_SERVICES_DATA";
+    efi_memory_types[7]  = "EFI_CONVENTIONAL_MEMORY";
+    efi_memory_types[8]  = "EFI_UNUSABLE_MEMORY";
+    efi_memory_types[9]  = "EFI_ACPI_RECLAIM_MEMORY";
+    efi_memory_types[10] = "EFI_ACPI_MEMORY_NVS";
+    efi_memory_types[11] = "EFI_MEMORY_MAPPED_IO";
+    efi_memory_types[12] = "EFI_MEMORY_MAPPED_IO_PORT_SPACE";
+    efi_memory_types[13] = "EFI_PAL_CODE";
+    efi_memory_types[14] = "EFI_PERSISTENT_MEMORY";
+    efi_memory_types[15] = "EFI_MAX_MEMORY_TYPE";
+    uint8_t efi_memory_types_count = sizeof(efi_memory_types)/sizeof(efi_memory_types[0]);
+    KDEBUG("mmap at 0x%x", mmap->mmap);
+    KDEBUG("mmap length %d", mmap->length);
+    for(int i = 0; i < mmap->length; i++){
+        KDEBUG("mmap[%d]",i);
+        KDEBUG("0x%x (%d KB)", 
+                mmap->mmap[i].physical_start, 
+                BYTES_TO_KB(mmap->mmap[i].pages*HEAP_BLOCK_SIZE)
+                );
+        KDEBUG("%s", 
+                mmap->mmap[i].type < efi_memory_types_count ? efi_memory_types[mmap->mmap[i].type] : "TYPE NOT FOUND"
+                );
+    } 
+}
+
+mmap mmap_new(struct bootinfo *bootinfo){
+    mmap ret = (mmap){0};
+    if(!bootinfo->mmap){
+        KERROR("mmap == 0x0");
+        return ret;
+    }
+    if(!bootinfo->mmap_size){
+        KERROR("mmap is empty");
+        return ret;
+    }
+    ret.mmap = bootinfo->mmap;
+    ret.length = bootinfo->mmap_size/sizeof(struct efi_memory_descriptor);
+    return ret;
+}
+

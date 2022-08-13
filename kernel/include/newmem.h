@@ -2,7 +2,7 @@
 #define NEW_MEM_H_
 #include <stdint.h>
 #include <stdbool.h>
-
+#include <bootloader.h>
 #ifdef __x86_64__
 	#define ALIGN 0x10
 #endif
@@ -42,6 +42,11 @@ typedef struct _kheap_allocated_block{
     uintptr_t        ptr;
 
 }kheap_allocated_block;
+
+typedef struct {
+    struct efi_memory_descriptor *mmap;
+    uint64_t length;
+}mmap;
 #include <kstd.h>
 
 bool get_bit(uint8_t field, uint8_t bit);
@@ -61,5 +66,7 @@ kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size);
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
 void kheap_debug_print(kheap *heap);
 void kheap_debug_print2(kheap *heap);
+void mmap_debug_print(mmap *mmap);
+mmap mmap_new(struct bootinfo *bootinfo);
 #endif
 

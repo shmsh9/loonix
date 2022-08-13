@@ -14,14 +14,15 @@ void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
     runtime_services->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
+    
+    if(bootinfo->uefi_exit_code)
+        KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
+    if(!bootinfo->mmap)
+        KPANIC("cannot retrieve memory map at 0x%x !", bootinfo->mmap);
+
     kheap_init(&heap);
-    KDEBUG("uefi_exit_code == 0x%x", bootinfo->uefi_exit_code);
-    if(!bootinfo->mmap){
-        KERROR("fatal cannot retrieve memory map at 0x%x !", bootinfo->mmap);
-        BREAKPOINT();
-    }
-    KDEBUG("mmap at 0x%x", bootinfo->mmap);
-    KDEBUG("sizeof(mmap) == %d (probably true)", sizeof(struct efi_memory_descriptor));
+    mmap mmap = mmap_new(bootinfo);
+    mmap_debug_print(&mmap);
     uint8_t *startOfMemoryMap = (uint8_t *)bootinfo->mmap;
     uint8_t *endOfMemoryMap = startOfMemoryMap + bootinfo->mmap_size;
     uint8_t *offset = startOfMemoryMap;
@@ -46,7 +47,7 @@ void crt0(struct bootinfo *bootinfo){
         counter++;
     }
     if(!highest_mem_block){
-        KERROR("ram not found : trying something stupid");
+        KERROR("no available memory found : trying something stupid");
         kheap_add_blocks(&heap, (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize, HEAP_RAM_NOT_FOUND_DEFAULT);
     }
     else{

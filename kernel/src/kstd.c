@@ -16,13 +16,15 @@ void stacktrace(){
 }
 __attribute__((noreturn))
 void __stack_chk_fail(void){
-    KERROR("__stack_chk_guard == 0x%x", __stack_chk_guard);
-    stacktrace();
-	BREAKPOINT();
-	while(1){}
+    KPANIC("0x%x", __stack_chk_guard);
+    while(1){}
 }
 
 int strlen(const char *str){
+	  if(!str){
+        KERROR("str == NULL");
+        return -1;
+    }
     int r = 0;
     while(*str++)
         r++;
@@ -31,7 +33,7 @@ int strlen(const char *str){
 int strcmp(const char *str1, const char *str2){
     int l1 = strlen(str1);
     int l2 = strlen(str2);
-    if(l1 != l2)
+    if(l1 != l2 || l1 == -1 || l2 == -1)
         return -1;
     return memcmp(str1, str2, l1);
 }
@@ -44,8 +46,12 @@ char *strdup(const char *str){
     return ret;
 }
 void kprint(const char *str){
-	while(*str)
-		SERIAL_PUTCHAR(*str++);
+	  if(!str){
+        KERROR("str == NULL");
+        return;
+    }
+    while(*str)
+		    SERIAL_PUTCHAR(*str++);
 }
 void kputc(uint8_t c){
     SERIAL_PUTCHAR(c);
@@ -54,6 +60,10 @@ char kgetchar(){
     return SERIAL_READCHAR();
 }
 void kprintf(const char *fmt, ...){
+    if(!fmt){
+        KERROR("fmt == NULL");
+        return;
+    }
     __builtin_va_list arg;
     __builtin_va_start(arg, fmt); 
     int lfmt = strlen(fmt);
@@ -98,6 +108,10 @@ void kprintf(const char *fmt, ...){
     __builtin_va_end(arg);
 }
 void memset(void *ptr, uint8_t b, uint64_t sz){
+    if(!ptr){
+        KERROR("ptr == NULL");
+        return;
+    }
     int mod = sz % 16;
     switch(mod){
         case 0:
@@ -154,6 +168,14 @@ void __fast_zeromem(void *ptr, uint64_t sz){
     #endif
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
+    if(!dst){
+        KERROR("dst == NULL");
+        return;
+    }
+    if(!src){
+        KERROR("src == NULL");
+        return;
+    }
     int mod = sz % 16;
     switch(mod){
         case 0:{
@@ -188,6 +210,14 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     }
 }
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
+    if(!ptr1){
+        KERROR("ptr1 == NULL");
+        return -1;
+    }
+    if(!ptr2){
+        KERROR("ptr2 == NULL");
+        return -1;
+    }
     int mod = sz % 8;
     switch(mod){
         case 0:
@@ -219,6 +249,10 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     return 0;
 }
 void *kmalloc(uint64_t b){
+    if(!b){
+        KERROR("b == 0");
+        return 0x0;
+    }
     for(int i = 0; i < KALLOC_LIST_MAX; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
@@ -236,6 +270,10 @@ void *kmalloc(uint64_t b){
     return 0x0;
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
+    if(!ptr){
+        KERROR("0x%x not in allocation table !", ptr);
+        return -1;
+    }
     for(int i = 0; i < KALLOC_LIST_MAX; i++){
         if(kalloc_list[i].ptr == (uintptr_t)ptr)
             return i;
@@ -253,6 +291,14 @@ void *kcalloc(uint64_t n, uint64_t sz){
     return ret;
 }
 void *krealloc(const void *ptr, uint64_t newsz){
+    if(!ptr){
+        KERROR("ptr == NULL");
+        return 0x0;
+    }
+    if(!newsz){
+        KERROR("newsz == 0");
+        return 0x0;
+    }
     int32_t oldptr = kalloc_find_ptr_alloc(ptr);
     if(oldptr == -1)
         return 0x0;
