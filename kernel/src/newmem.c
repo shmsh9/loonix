@@ -142,7 +142,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
     uint64_t aligned_bytes = 0;
     uint64_t start_bitfield = 0;
     uint64_t start_bit = 0;
-    uint64_t header_size = HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER;
+    uint64_t header_size = HEAP_HEADER_SIZE*heap->n_block;
     for(uint64_t bitfield = 0; bitfield < header_size; bitfield++){
         if(!kheap_free_uint8(heap->header[bitfield])){
             aligned_bytes = 0;
