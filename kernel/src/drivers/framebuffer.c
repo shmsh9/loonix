@@ -5,8 +5,9 @@ void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_
         KERROR("pixel == NULL");
         return;
     }
-    if(pixel->Alpha == 0xff)
+    if(pixel->Alpha == 0x00){
         return;
+    }
 
     if(!framebuffer->buffer){
         KERROR("framebuffer_device has buffer at 0x0 !");

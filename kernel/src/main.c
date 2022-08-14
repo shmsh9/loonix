@@ -1,5 +1,5 @@
 #include <kernel.h>
-
+#include "../tux.png.h"
 uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d MB)", fb.width, fb.height, fb.buffer, BYTES_TO_MB(fb.size));
@@ -11,25 +11,23 @@ uint64_t kmain(struct bootinfo *bootinfo){
 			&fb,
 			&(framebuffer_pixel){.Green = 0x00 , .Blue = 0x00 , .Red = 0x00 , .Alpha = 0x0 
 	});
-	framebuffer_draw_sprite(
-		&fb, 
-		1,
-		1,
-		&font_pixels_ascii['H']
-		);
-	framebuffer_draw_sprite(
-		&fb, 
-		6,
-		1,
-		&font_pixels_ascii['I']
-		);
-	framebuffer_draw_sprite(
-		&fb, 
-		11,
-		1,
-		&font_pixels_ascii['@']
-		);
+	char *test = "HI ! Loonix";
+	int pos = 1;
+	for(int i = 0; i < strlen(test); i++){
+		font_ascii_draw_framebuffer(&fb, 
+				pos+(i*FONT_ASCII_WIDTH)+ (fb.width/2) - (FONT_ASCII_HEIGHT/2), 
+				(fb.width/2) - (FONT_ASCII_WIDTH/2), 
+				test[i]
+				);
+		pos++;
+	}
+	graphics_sprite *tux = TUX_SPRITE_NEW();
+	TUX_SPRITE_INIT(tux);
+	framebuffer_draw_sprite(&fb,
+			0, 0,
+			tux);
 	framebuffer_update_device(&fb);
+	graphics_sprite_free(tux);
 	kprint("Welcome to l00n1x !\n");	
 	shell();
 	while(1){

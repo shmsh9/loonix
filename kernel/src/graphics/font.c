@@ -2,6 +2,9 @@
 
 #define GRAPHICS_FONT_C_
 graphics_sprite font_pixels_ascii[ASCII_CHARSET_SIZE] = {0};
+void font_ascii_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, char c){
+   framebuffer_draw_sprite(fb, x, y, &font_pixels_ascii[(uint8_t)c]); 
+}
 void font_ascii_init(){
     graphics_pixel font_pixels_H[] = {
 		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
