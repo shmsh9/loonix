@@ -1,7 +1,7 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
 #include <kstd.h>
-#include <graphics.h>
+#include <graphics/graphics.h>
 
 #define FRAMEBUFFER_DIRECT_WRITE        0x0001
 #define FRAMEBUFFER_DOUBLE_BUFFERING    0x0002

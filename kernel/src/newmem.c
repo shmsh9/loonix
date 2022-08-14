@@ -165,11 +165,12 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
             }
         }
         if(aligned_bytes == size){
+            /*
             KDEBUG("found %d bytes free at block : 0x%x bitfield : %d bit : %d", 
             aligned_bytes, heap->memory+(start_bitfield*8)+start_bit,
             start_bitfield,
             start_bit);
-
+            */
             kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
             return (kheap_allocated_block){
                 .block = 0x0,

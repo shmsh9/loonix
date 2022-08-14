@@ -7,26 +7,27 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	struct efi_time t = {0};
 	efi_status_t status = bootinfo->SystemTable->RuntimeServices->GetTime(&t, 0x0);
 	KDEBUG("GetTime returned 0x%x\n", status);
-	graphics_pixel font_pixels_H[] = {
-		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
-		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
-		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
-		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
-	};
-	graphics_sprite font_sprite_H = {
-		.height = 4,
-		.width = 4,
-		.pixels = font_pixels_H,
-	};
 	framebuffer_clear(
 			&fb,
 			&(framebuffer_pixel){.Green = 0x00 , .Blue = 0x00 , .Red = 0x00 , .Alpha = 0x0 
 	});
 	framebuffer_draw_sprite(
 		&fb, 
-		GRAPHICS_CENTER_WIDTH(fb,  font_sprite_H),
-		GRAPHICS_CENTER_HEIGHT(fb, font_sprite_H), 
-		&font_sprite_H
+		1,
+		1,
+		&font_pixels_ascii['H']
+		);
+	framebuffer_draw_sprite(
+		&fb, 
+		6,
+		1,
+		&font_pixels_ascii['I']
+		);
+	framebuffer_draw_sprite(
+		&fb, 
+		11,
+		1,
+		&font_pixels_ascii['@']
 		);
 	framebuffer_update_device(&fb);
 	kprint("Welcome to l00n1x !\n");	

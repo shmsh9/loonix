@@ -3,7 +3,6 @@
 #include <efi.h>
 #include <kstd.h>
 #include <newmem.h>
-#include <graphics.h>
 #include <bootloader.h>
 #include <shell/shell.h>
 #include <drivers/serial.h>
