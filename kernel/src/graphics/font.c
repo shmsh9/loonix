@@ -3,15 +3,7 @@
 #define GRAPHICS_FONT_C_
 graphics_sprite font_pixels_ascii[ASCII_CHARSET_SIZE] = {0};
 void font_ascii_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, char c){
-    KDEBUG("%c at %dx%d", c, x, y);
-    KDEBUG("sprite size : %dx%d", 
-            font_pixels_ascii[(uint8_t)c].width, 
-            font_pixels_ascii[(uint8_t)c].height
-            );
-
     graphics_sprite sp = font_pixels_ascii[(uint8_t)c];
-    KDEBUG("font_pixels_ascii 0x%x", font_pixels_ascii);
-    KDEBUG("sp.width == %d sp.height == %d", sp.width, sp.height);
     framebuffer_draw_sprite(fb, x, y, &sp); 
 }
 void font_ascii_init(){
@@ -27,6 +19,13 @@ void font_ascii_init(){
         GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
         GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
     };
+    graphics_pixel font_pixels_WHITESPACE[] = {
+        GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+    }
+    ;
     graphics_pixel font_pixels_NULL[] = {
         GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
         GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
@@ -36,7 +35,7 @@ void font_ascii_init(){
     ;
     uint64_t font_pixels_char_size = sizeof(graphics_pixel)*(FONT_ASCII_WIDTH*FONT_ASCII_HEIGHT);
     //memory leak
-    graphics_pixel *font_ascii_mem = kmalloc(font_pixels_char_size*ASCII_CHARSET_SIZE);
+    graphics_pixel *font_ascii_mem = kcalloc(font_pixels_char_size,ASCII_CHARSET_SIZE);
     if(!font_ascii_mem){
         KERROR("error allocating memory for font");
         return;
@@ -56,5 +55,5 @@ void font_ascii_init(){
     }
     memcpy(font_pixels_ascii['I'].pixels, font_pixels_I, font_pixels_char_size);
     memcpy(font_pixels_ascii['H'].pixels, font_pixels_H, font_pixels_char_size);
-    memcpy(font_pixels_ascii[' '].pixels, font_pixels_NULL, font_pixels_char_size);
+    memcpy(font_pixels_ascii[' '].pixels, font_pixels_WHITESPACE, font_pixels_char_size);
 }

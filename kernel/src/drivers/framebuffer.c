@@ -104,12 +104,11 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
 }
 
 void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
-    KDEBUG("drawing sprite x : %d y : %d", x, y);
-    char t = kgetchar();
-    t++;
-    KDEBUG("sprite->height == %d sprite->width == %d", sprite->height, sprite->width);
+   // KDEBUG("drawing sprite x : %d y : %d", x, y);
+    KDEBUG("sprite->height == %d", sprite->height);
+    KDEBUG("sprite->width == %d", sprite->width);
     uint64_t sprite_size = sprite->height * sprite->width;
-    KDEBUG("sprite size == %d");
+    KDEBUG("sprite_size == %d", sprite_size);
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
        for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){

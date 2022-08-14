@@ -20,8 +20,8 @@ typedef struct {
 
 typedef struct{
     graphics_pixel *pixels;
-    uint16_t width;
-    uint16_t height;
+    uint64_t width;
+    uint64_t height;
 } graphics_sprite;
 #include <kstd.h>
 graphics_sprite *graphics_sprite_new(uint64_t x, uint64_t y);

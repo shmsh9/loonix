@@ -51,7 +51,7 @@ void kprint(const char *str){
         return;
     }
     while(*str)
-		    SERIAL_PUTCHAR(*str++);
+		    kputc(*str++);
 }
 void kputc(uint8_t c){
     SERIAL_PUTCHAR(c);

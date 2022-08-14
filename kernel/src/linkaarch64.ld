@@ -4,7 +4,7 @@ ENTRY(_start)
 SECTIONS
 {
 	.text.start : {
-		aarch64boot.o(.text)
+		crt0.o(.text)
 	}
 	.text : ALIGN(0x1000){
 	__TEXT_START_ = .;
@@ -22,7 +22,7 @@ SECTIONS
 		*(.bss)
 	__BSS_END   = .;
 	__STACK_BOTTOM = .;
-	. = . + 0x4000;
+	. = . + 0x8000;
 	__STACK_TOP = .;
 	}
 }
