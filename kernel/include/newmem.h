@@ -13,8 +13,6 @@
 #endif
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
-#define HEAP_BLOCK_NUMBER 512
-#define HEAP_RAM_NOT_FOUND_DEFAULT 512
 #define MMAP_ELEMENT_SIZE 48
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];
@@ -24,10 +22,6 @@ typedef struct _memblock {
     uint8_t  block[HEAP_BLOCK_SIZE];
     struct   _memblock *next;
 } memblock;
-
-typedef struct _memblock_header {
-    uint8_t header[HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER];
-}memblock_header;
 
 typedef struct _kheap {
     struct _memblock *root;

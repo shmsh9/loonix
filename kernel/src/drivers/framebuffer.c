@@ -1,6 +1,13 @@
 #include <drivers/framebuffer.h>
 
 void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_t y, framebuffer_pixel *pixel){
+    if(!pixel){
+        KERROR("pixel == NULL");
+        return;
+    }
+    if(pixel->Alpha == 0xff)
+        return;
+
     if(!framebuffer->buffer){
         KERROR("framebuffer_device has buffer at 0x0 !");
         return;
@@ -10,8 +17,6 @@ void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_
         KERROR("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
         return;
     }
-    if(pixel->Alpha == 0xff)
-        return;
     switch((uintptr_t)framebuffer->double_buffer){
         case 0x0:
             //KDEBUG("drawing pixel at framebuffer->buffer[%d]\n", pos);
@@ -98,27 +103,10 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
 }
 
 void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint16_t x, uint16_t y, graphics_sprite *sprite){
-	/*
-    graphics_pixel font_pixels_H[] = {
-		 GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_BLACK,
-	};
-    
-    uint64_t j = 0;
-    for(uint64_t l = j = 0; l < sprite->height; l++){
-        for(uint64_t i = 0; i < sprite->width; i++, j++){
-            framebuffer_draw_pixel(framebuffer, x+i, y+l, &sprite->pixels[i]);
-        }
-    }
-    */
     uint64_t sprite_size = sprite->height * sprite->width;
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
        for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){
-           KDEBUG("x == %d && y == %d", current_x, current_y);
-           KDEBUG("current_pixel == %d", current_pixel);
            framebuffer_draw_pixel(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
            current_pixel++;
        }

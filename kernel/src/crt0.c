@@ -48,10 +48,8 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
         bootinfo->framebuffer.size, 
         FRAMEBUFFER_DOUBLE_BUFFERING);
    
-    /*
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");
-    */
     kmain(bootinfo);
 }

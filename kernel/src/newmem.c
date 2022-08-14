@@ -79,7 +79,7 @@ void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uin
 void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size){
     //KDEBUG("start_bitfield == %d", start_bitfield);
     //KDEBUG("start_bit == %d", start_bit);
-    uint64_t header_size = HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER;
+    uint64_t header_size = HEAP_HEADER_SIZE*heap->n_block;
     uint64_t n_bit_set = 0;
     for(int i = start_bitfield; i < header_size; i++){
         uint8_t j = 0;
@@ -101,7 +101,7 @@ void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_b
 }
 void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size){
     uint64_t n_bit_unset = 0;
-    uint64_t header_size = HEAP_HEADER_SIZE*HEAP_BLOCK_NUMBER;
+    uint64_t header_size = HEAP_HEADER_SIZE*heap->n_block;
 
     for(int i = start_bitfield; i < header_size; i++){
         uint8_t j = 0;
