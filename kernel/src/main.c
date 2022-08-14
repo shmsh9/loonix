@@ -11,16 +11,18 @@ uint64_t kmain(struct bootinfo *bootinfo){
 			&fb,
 			&(framebuffer_pixel){.Green = 0x00 , .Blue = 0x00 , .Red = 0x00 , .Alpha = 0x0 
 	});
+	/*
 	char *test = "HI ! Loonix";
 	int pos = 1;
-	for(int i = 0; i < strlen(test); i++){
+	for(uint64_t i = 1; i < strlen(test); i++){
 		font_ascii_draw_framebuffer(&fb, 
-				pos+(i*FONT_ASCII_WIDTH)+ (fb.width/2) - (FONT_ASCII_HEIGHT/2), 
-				(fb.width/2) - (FONT_ASCII_WIDTH/2), 
+				pos+(i*FONT_ASCII_WIDTH), 
+				0, 
 				test[i]
 				);
 		pos++;
 	}
+	*/
 	graphics_sprite *tux = TUX_SPRITE_NEW();
 	TUX_SPRITE_INIT(tux);
 	framebuffer_draw_sprite(&fb,

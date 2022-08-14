@@ -17,10 +17,10 @@ typedef struct {
 #define FRAMEBUFFER_DOUBLE_BUFFERING    0x0002
 
 
-framebuffer_device framebuffer_new_device(uintptr_t address, uint16_t width, uint16_t height, uint64_t size, uint16_t flags);
+framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uint64_t height, uint64_t size, uint16_t flags);
 void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel);
-void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_t y, framebuffer_pixel *pixel);
-void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint16_t x, uint16_t y, graphics_sprite *sprite);
+void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
+void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_free_device(framebuffer_device *framebuffer);
 void framebuffer_update_device(framebuffer_device *framebuffer);
 #endif

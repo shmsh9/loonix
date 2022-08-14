@@ -1,6 +1,6 @@
 #include <drivers/framebuffer.h>
 
-void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_t y, framebuffer_pixel *pixel){
+void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     if(!pixel){
         KERROR("pixel == NULL");
         return;
@@ -15,7 +15,7 @@ void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint16_t x, uint16_
     }
     uint64_t pos = framebuffer->width*y+x;
     if(pos > framebuffer->width*framebuffer->height){
-        KERROR("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
+        KPANIC("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
         return;
     }
     switch((uintptr_t)framebuffer->double_buffer){
@@ -50,7 +50,7 @@ void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel
 
 }
 
-framebuffer_device framebuffer_new_device(uintptr_t address, uint16_t width, uint16_t height, uint64_t size, uint16_t flags){
+framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uint64_t height, uint64_t size, uint16_t flags){
     uintptr_t bad_addresses[] = {0, 0xffffffffffffffff};
 
     for(int i = 0; i < sizeof(bad_addresses)/sizeof(bad_addresses[0]); i++){
@@ -103,8 +103,13 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
     }    
 }
 
-void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint16_t x, uint16_t y, graphics_sprite *sprite){
+void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+    KDEBUG("drawing sprite x : %d y : %d", x, y);
+    char t = kgetchar();
+    t++;
+    KDEBUG("sprite->height == %d sprite->width == %d", sprite->height, sprite->width);
     uint64_t sprite_size = sprite->height * sprite->width;
+    KDEBUG("sprite size == %d");
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
        for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){
