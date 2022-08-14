@@ -14,6 +14,8 @@ graphics_sprite *graphics_sprite_new(uint64_t x, uint64_t y){
    }
    ret->width = x;
    ret->height = y;
+   KDEBUG("returning %dx%d sprite at 0x%d",x, y, ret);
+   KDEBUG("at 0x%x", ret);
    return ret;
 }
 
