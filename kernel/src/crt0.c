@@ -10,7 +10,7 @@ uint32_t kalloc_list_last = 0;
 efi_runtime_services *runtime_services = 0;
 struct efi_time global_efi_time = {0};
 
-void crt0(struct bootinfo *bootinfo){
+__attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
     runtime_services->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
@@ -48,8 +48,10 @@ void crt0(struct bootinfo *bootinfo){
         bootinfo->framebuffer.size, 
         FRAMEBUFFER_DOUBLE_BUFFERING);
    
+    /*
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");
+    */
     kmain(bootinfo);
 }

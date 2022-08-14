@@ -24,8 +24,9 @@ do
 done
 for object in $(find $TARGET/src/ -name "${ARCH}*.S")
 do
-	echo "[CC] $object"
-	$CC $IFLAGS -target $ABI -c $object -o "${object%.S}.o"
+	OBJ_NOARCH=$(echo $object | sed "s/.S/.o/g" | sed  "s/${ARCH}//g")
+	echo "[CC] $object -> $OBJ_NOARCH"
+	$CC $IFLAGS -target $ABI -c $object -o $OBJ_NOARCH
 done
 $LD -T "${TARGET}/src/link${ARCH}.ld" $LDFLAGS $(find $TARGET -name "*.o") -o $TARGET/$OBJ
 #objcopy --only-keep-debug "$TARGET/$OBJ" "$TARGET/${OBJ}.dbg"

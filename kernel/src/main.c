@@ -4,39 +4,31 @@ uint64_t kmain(struct bootinfo *bootinfo){
 	KDEBUG("ARCH "ARCH);
 	KDEBUG("FB %dx%d at 0x%x (%d MB)", fb.width, fb.height, fb.buffer, BYTES_TO_MB(fb.size));
 	KDEBUG("Available system memory %d MB", BYTES_TO_MB(heap.n_block*HEAP_BLOCK_SIZE));
-	KDEBUG("Npages == %d", heap.n_block);
 	struct efi_time t = {0};
 	efi_status_t status = bootinfo->SystemTable->RuntimeServices->GetTime(&t, 0x0);
 	KDEBUG("GetTime returned 0x%x\n", status);
-	graphics_pixel sprite_px[] = {
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-		GRAPHICS_PIXEL_RED,   GRAPHICS_PIXEL_BLUE,   GRAPHICS_PIXEL_GREEN, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_GRAY, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK, GRAPHICS_PIXEL_BLACK,
-
+	graphics_pixel font_pixels_H[] = {
+		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
+		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
+		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
+		GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
 	};
-	graphics_sprite sprite = {
-		.height = 8,
-		.width = 8,
-		.pixels = sprite_px,
+	graphics_sprite font_sprite_H = {
+		.height = 4,
+		.width = 4,
+		.pixels = font_pixels_H,
 	};
-	for(uint64_t i = 1; i < 0xffffffff; i <<= 1){
-		char *foo = kcalloc(i,1);
-		if(!foo)
-			KPANIC("fucked here");
-		kfree(foo);
-	}
-	while(1){
-		for(uint8_t i = 0; i <= 0xff; i++){
-			framebuffer_clear(&fb, &(framebuffer_pixel){.Green = 0xaa , .Blue = 0xaa+i , .Red = 0xaa , .Alpha = 0x0 });
-			framebuffer_draw_sprite(&fb, fb.width/2 - sprite.width/2, fb.height/2 - sprite.height/2, &sprite);
-			framebuffer_update_device(&fb);
-		}
-	}
+	framebuffer_clear(
+			&fb,
+			&(framebuffer_pixel){.Green = 0x00 , .Blue = 0x00 , .Red = 0x00 , .Alpha = 0x0 
+	});
+	framebuffer_draw_sprite(
+		&fb, 
+		GRAPHICS_CENTER_WIDTH(fb,  font_sprite_H),
+		GRAPHICS_CENTER_HEIGHT(fb, font_sprite_H), 
+		&font_sprite_H
+		);
+	framebuffer_update_device(&fb);
 	kprint("Welcome to l00n1x !\n");	
 	shell();
 	while(1){
