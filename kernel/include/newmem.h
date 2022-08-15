@@ -24,7 +24,6 @@ typedef struct _memblock {
 } memblock;
 
 typedef struct _kheap {
-    struct _memblock *root;
     uint8_t *header;
     uint8_t  *memory;
     uint64_t n_block;
@@ -49,18 +48,12 @@ bool get_bit(uint8_t field, uint8_t bit);
 void set_bit(uint8_t *field, uint8_t bit);
 void unset_bit(uint8_t *field, uint8_t bit);
 void kheap_init(kheap *heap);
-void kheap_add_block(kheap *heap, uintptr_t mem);
 void kheap_add_blocks(kheap *heap, uintptr_t mem, uint64_t nblock);
 bool kheap_free_uint8(uint8_t header);
-void kheap_set_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
-void kheap_unset_used_bytes(struct _memblock *block, uint8_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size);
-void kheap_free_mem(kheap_allocated_block *k);
 void kheap_free_mem2(kheap *heap, kheap_allocated_block *k);
-kheap_allocated_block kheap_get_free_mem(kheap *heap, uint64_t size);
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
-void kheap_debug_print(kheap *heap);
 void kheap_debug_print2(kheap *heap);
 struct efi_memory_descriptor * mmap_find_largest_block(mmap *mmap);
 void mmap_debug_print(mmap *mmap);

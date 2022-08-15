@@ -34,7 +34,7 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
             );
     uintptr_t ram_addr = largest_mem_block->physical_start;
     uint64_t ram_pages_n = largest_mem_block->pages;
-    if(ram_addr == (uintptr_t)bootinfo->kernelbase){
+    if(ram_addr == (uintptr_t)bootinfo->kernelbase || ram_addr <= (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize){
         KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
         ram_addr += bootinfo->kernelsize+HACK_UGLY_OFFSET;
         //ram_pages_n -= (bootinfo->kernelsize+HACK_UGLY_OFFSET / HEAP_BLOCK_SIZE)+1;

@@ -7,16 +7,29 @@ void font_ascii_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y,
     framebuffer_draw_sprite(fb, x, y, &sp); 
 }
 void font_ascii_init(){
+    graphics_pixel font_pixels_o[] = {
+		    GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
+		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
+		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
+		    GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
+    };
     graphics_pixel font_pixels_H[] = {
 		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
 		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
 		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
 		    GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE,
     };
+    
     graphics_pixel font_pixels_I[] = {
         GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
         GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
         GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
+    };
+    graphics_pixel font_pixels_L[] = {
+        GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
+        GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT, GRAPHICS_PIXEL_TRANSPARENT,
         GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_WHITE,
     };
     graphics_pixel font_pixels_WHITESPACE[] = {
@@ -53,7 +66,9 @@ void font_ascii_init(){
         };
         memcpy(font_pixels_ascii[i].pixels, font_pixels_NULL, font_pixels_char_size);
     }
-    memcpy(font_pixels_ascii['I'].pixels, font_pixels_I, font_pixels_char_size);
     memcpy(font_pixels_ascii['H'].pixels, font_pixels_H, font_pixels_char_size);
+    memcpy(font_pixels_ascii['I'].pixels, font_pixels_I, font_pixels_char_size);
+    memcpy(font_pixels_ascii['L'].pixels, font_pixels_L, font_pixels_char_size);
     memcpy(font_pixels_ascii[' '].pixels, font_pixels_WHITESPACE, font_pixels_char_size);
+    memcpy(font_pixels_ascii['o'].pixels, font_pixels_o, font_pixels_char_size);
 }

@@ -2,7 +2,6 @@
 #define SHELL_BUILTINS_H_
 #include <kstd.h>
 #define BUILTIN_SIZE 0xFF
-
 #define SHELL_INIT_BUILTIN(fn, n){\
     if(builtins.length < BUILTIN_SIZE){\
         builtins.builtins[builtins.length].name  = n;\

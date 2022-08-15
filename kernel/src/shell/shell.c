@@ -108,7 +108,7 @@ int shell(){
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
-    for(int i = 0; i < BUILTIN_SIZE; i++){
+    for(int i = 0; i < builtins.length; i++){
         if(strcmp(cmdline, builtins.builtins[i].name) == 0){
             return builtins.builtins[i].ptrfn(0, 0);
         }
