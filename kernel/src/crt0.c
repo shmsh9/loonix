@@ -2,7 +2,6 @@
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
-#include <graphics/font.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
@@ -49,7 +48,6 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
         bootinfo->framebuffer.height, 
         bootinfo->framebuffer.size, 
         FRAMEBUFFER_DOUBLE_BUFFERING);
-    font_ascii_init(); 
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");

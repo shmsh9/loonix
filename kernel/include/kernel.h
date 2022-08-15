@@ -6,8 +6,8 @@
 #include <bootloader.h>
 #include <shell/shell.h>
 #include <drivers/serial.h>
+#include <graphics/font8x8.h>
 #include <drivers/framebuffer.h>
-#include <graphics/font.h>
 
 #define STACK_CHK_GUARD 0xcafe1337deadbeef
 #ifdef __x86__
