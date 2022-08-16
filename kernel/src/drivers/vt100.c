@@ -21,8 +21,12 @@ void vt100_console_reset_y(framebuffer_device *fb){
 }
 void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c){
     vt100_console_escaping = !vt100_console_escaping;
-    vt100_console_escaping_char = c;
-
+    switch(c){
+        case 'D':
+            vt100_console_current_x -= vt100_console_escaping_value;
+            break;
+    }
+    vt100_console_escaping_value = 0;
 }
 void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
     switch((uintptr_t)fb->buffer){
@@ -44,6 +48,7 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             char tmp_char[2] = {c, 0};
                             int tmp_result = atoi(tmp_char);
                             vt100_console_escaping_value += tmp_result == -1 ? 0 : tmp_result;
+                            vt100_console_escaping_value *= 10;
                             break;
                         }
                     }
