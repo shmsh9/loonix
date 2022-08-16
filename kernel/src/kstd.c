@@ -125,7 +125,7 @@ void kprintf(const char *fmt, ...){
                 i += 2;
             }
         }
-        SERIAL_PUTCHAR(fmt[i]);
+        kputc(fmt[i]);
     }
     __builtin_va_end(arg);
 }
