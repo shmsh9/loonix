@@ -58,7 +58,7 @@ void kputc(uint8_t c){
         default:
             switch (c){
                 case '\n':
-                    framebuffer_text_current_y = framebuffer_text_current_y+8 < fb.height ? framebuffer_text_current_y+8 : 0;
+                    framebuffer_text_current_y = framebuffer_text_current_y+8+2 < fb.height ? framebuffer_text_current_y+8+2 : 2;
                     framebuffer_text_current_x = 0;
                     break;
                 case '\r':

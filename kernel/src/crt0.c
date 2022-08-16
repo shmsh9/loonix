@@ -21,7 +21,7 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
     fb.buffer = 0x0;
     fb.double_buffer = 0x0;
     framebuffer_text_current_x = 0;
-    framebuffer_text_current_y = 0;
+    framebuffer_text_current_y = 2;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
     if(!bootinfo->mmap)
