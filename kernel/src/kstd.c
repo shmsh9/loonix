@@ -28,6 +28,16 @@ int strlen(const char *str){
         r++;
     return r;
 }
+int atoi(const char *str){
+    int ret = 0;
+    while(*str++){
+        if(*str - '0' < 9 || *str - '0' < 0)
+            return -1;
+        ret += *str - '0';
+        ret *= 10;
+    }
+    return ret;
+}
 int strcmp(const char *str1, const char *str2){
     int l1 = strlen(str1);
     int l2 = strlen(str2);
