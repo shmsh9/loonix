@@ -3,6 +3,7 @@
 #include <drivers/serial.h>
 #include <drivers/framebuffer.h>
 #include <graphics/font8x8.h>
+#include <drivers/vt100.h>
 #include <newmem.h>
 #include <bootloader.h>
 #define KERNEL_DEBUG

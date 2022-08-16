@@ -52,31 +52,8 @@ void kprint(const char *str){
 		    kputc(*str++);
 }
 void kputc(uint8_t c){
-    switch((uintptr_t)fb.buffer){
-        case 0x0:
-            break;
-        default:
-            switch (c){
-                case '\n':
-                    framebuffer_text_current_y = framebuffer_text_current_y+8+2 < fb.height ? framebuffer_text_current_y+8+2 : 2;
-                    framebuffer_text_current_x = 0;
-                    break;
-                case '\r':
-                    framebuffer_text_current_x = 0;
-                    break;
-                default:
-                    font8x8_draw_framebuffer(&fb,
-                        framebuffer_text_current_x,
-                        framebuffer_text_current_y,
-                        c
-                    );
-                    framebuffer_update_device(&fb);
-                    framebuffer_text_current_x = framebuffer_text_current_x+8 < fb.width ? framebuffer_text_current_x+8 : 0;
-                    break;
-            }
-            break;
-    }
     SERIAL_PUTCHAR(c);
+    vt100_console_putchar(&fb,c);
 }
 char kgetchar(){
     return SERIAL_READCHAR();

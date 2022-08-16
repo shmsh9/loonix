@@ -9,19 +9,11 @@ kheap heap;
 framebuffer_device fb = {0};
 uint32_t kalloc_list_last = 0;
 efi_runtime_services *runtime_services = 0;
-struct efi_time global_efi_time = {0};
-uint64_t framebuffer_text_current_x = 0;
-uint64_t framebuffer_text_current_y = 0;
 char ** font8x8 = {0};
 
 __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
     runtime_services = bootinfo->RuntimeServices;
-    runtime_services->GetTime(&global_efi_time, 0);
     SERIAL_INIT();
-    fb.buffer = 0x0;
-    fb.double_buffer = 0x0;
-    framebuffer_text_current_x = 0;
-    framebuffer_text_current_y = 2;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
     if(!bootinfo->mmap)
