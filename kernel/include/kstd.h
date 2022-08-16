@@ -2,7 +2,7 @@
 #define KSTD_H_
 #include <drivers/serial.h>
 #include <drivers/framebuffer.h>
-#include <graphics/graphics.h>
+#include <graphics/font8x8.h>
 #include <newmem.h>
 #include <bootloader.h>
 #define KERNEL_DEBUG
@@ -53,6 +53,10 @@ extern kheap_allocated_block kalloc_list[KALLOC_LIST_MAX];
 extern kheap heap;
 extern efi_runtime_services *runtime_services;
 extern struct efi_time global_efi_time;
+extern framebuffer_device fb;
+extern uint64_t framebuffer_text_current_x;
+extern uint64_t framebuffer_text_current_y;
+extern char ** font8x8;
 
 typedef struct {
     uint8_t elementsz;

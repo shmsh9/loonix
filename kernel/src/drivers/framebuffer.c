@@ -1,17 +1,26 @@
 #include <drivers/framebuffer.h>
 
 void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
-    if(!pixel){
-        KERROR("pixel == NULL");
-        return;
-    }
-    if(pixel->Alpha == 0x00){
-        return;
-    }
-
-    if(!framebuffer->buffer){
-        KERROR("framebuffer_device has buffer at 0x0 !");
-        return;
+    switch((uintptr_t)pixel){
+        case 0x0: 
+            KERROR("pixel == NULL");
+            return;
+        default:
+            //no not draw invisible pixels
+            switch(pixel->Alpha){
+                case 0x00:
+                    return;
+                default:
+                    switch((uintptr_t)framebuffer->buffer){
+                        case 0x0:
+                            KERROR("framebuffer_device has buffer at 0x0 !");
+                            return;
+                        default:
+                            break;
+                    }
+                    break;
+            }
+            break;
     }
     uint64_t pos = framebuffer->width*y+x;
     if(pos > framebuffer->width*framebuffer->height){

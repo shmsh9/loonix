@@ -1,0 +1,1 @@
+Get-ChildItem $args[0] -Recurse | Where-Object {$_.Extension -in ".o",".d",".lib"} | Remove-Item

@@ -1,10 +1,10 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
-#include <kstd.h>
 #include <graphics/graphics.h>
+#include <kstd.h>
 
 typedef graphics_pixel framebuffer_pixel;
-typedef struct {
+typedef struct _framebuffer_device {
     graphics_pixel *buffer;
     graphics_pixel *double_buffer;
     uint16_t width;
