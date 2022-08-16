@@ -27,6 +27,21 @@ void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, ui
         KERROR("c is out of ascii range");
         return;
     }
+    if(c == ' '){
+        for(uint8_t i = 0; i < 8*8; i++){
+            uint8_t k = y;
+            for(uint8_t j = x; j < 8; j++){
+               framebuffer_draw_pixel(fb,
+                       j,
+                       k,
+                       &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff}
+                       );
+            
+            }
+            k++;
+        }
+        return;
+    }
     uint64_t curr_y = y;
     uint64_t curr_x = x;
     for(uint8_t current_bitfield = 0; current_bitfield < 8; current_bitfield++){
