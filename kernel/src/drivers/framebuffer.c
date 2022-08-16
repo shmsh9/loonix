@@ -1,6 +1,12 @@
 #include <drivers/framebuffer.h>
 
 void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
+    switch((uintptr_t)framebuffer->buffer){
+    case 0x0:
+        return;
+    default:
+        break;
+    }
     switch((uintptr_t)pixel){
         case 0x0: 
             KERROR("pixel == NULL");
@@ -96,6 +102,12 @@ void framebuffer_free_device(framebuffer_device *framebuffer){
 }
 
 void framebuffer_update_device(framebuffer_device *framebuffer){
+    switch((uintptr_t)framebuffer->buffer){
+    case 0x0:
+        return;
+    default:
+        break;
+    }
     switch(framebuffer->flags & FRAMEBUFFER_DIRECT_WRITE){
         case FRAMEBUFFER_DIRECT_WRITE:
             return;

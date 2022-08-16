@@ -183,16 +183,13 @@ void mmap_debug_print(mmap *mmap){
     KDEBUG("mmap length %d", mmap->length);
     for(int i = 0; i < mmap->length; i++){
         struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
-        KDEBUG("mmap[%d]",i);
-        KDEBUG("0x%x (%d KB)", 
-                desc->physical_start, 
-                BYTES_TO_KB(desc->pages*HEAP_BLOCK_SIZE)
-                );
-        KDEBUG("attributes 0x%x", desc->attributes);
-        KDEBUG("%s", 
-                desc->type < efi_memory_types_count ? 
-                    efi_memory_types[desc->type] : "TYPE_NOT_FOUND"
-                );
+        kprintf("mmap[%d]\n0x%x (%d KB)\nattributes 0x%x\n%s",
+            i,
+            desc->physical_start, 
+            BYTES_TO_KB(desc->pages*HEAP_BLOCK_SIZE),
+            desc->attributes,
+            desc->type < efi_memory_types_count ? efi_memory_types[desc->type] : "TYPE_NOT_FOUND"
+            );
     } 
 }
 

@@ -18,7 +18,6 @@ void __stack_chk_fail(void){
     KPANIC("0x%x", __stack_chk_guard);
     while(1){}
 }
-
 int strlen(const char *str){
 	  if(!str){
         KERROR("str == NULL");
@@ -71,6 +70,7 @@ void kputc(uint8_t c){
                         framebuffer_text_current_y,
                         c
                     );
+                    framebuffer_update_device(&fb);
                     framebuffer_text_current_x = framebuffer_text_current_x+8 < fb.width ? framebuffer_text_current_x+8 : 0;
                     break;
             }

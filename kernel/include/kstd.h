@@ -39,7 +39,11 @@
     BREAKPOINT();\
 }
 #ifdef KERNEL_DEBUG
-#define KDEBUG(...) KMSG("debug", __VA_ARGS__)
+//#define KDEBUG(...) KMSG("debug", __VA_ARGS__)
+#define VIRGOLA ","
+#define KDEBUG(fmt, ...) {\
+    kprintf("[kernel][debug] : %s() : "fmt"\n", __func__, __VA_ARGS__);\
+}
 #endif
 #ifndef KERNEL_DEBUG
 #define KDEBUG(...)
