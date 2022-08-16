@@ -64,10 +64,9 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
             break;
         default:
             if(vt100_console_escaping){
-                char tmp[2] = {c, 0};
-                int tmp_result = atoi(tmp);
+                int tmp_result = isdigit(c);
                 switch(tmp_result){
-                    case -1:
+                    case 0:
                         vt100_console_escaping_stop(fb, c);
                         break;
                     default:
