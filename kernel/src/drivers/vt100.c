@@ -2,30 +2,60 @@
 
 uint64_t vt100_console_current_x = 0;
 uint64_t vt100_console_current_y = 0;
-uint8_t vt100_console_previous_char = 0;
 uint64_t vt100_console_escaping_value = 0;
-uint8_t vt100_console_escaping_char = 0;
 bool vt100_console_escaping = false;
+
 void vt100_console_increase_x(framebuffer_device *fb){
-    vt100_console_current_x = vt100_console_current_x+8 < fb->width ? vt100_console_current_x+8 : 0;
+    vt100_console_set_x(fb, vt100_console_current_x+8);
+
 }
 void vt100_console_increase_y(framebuffer_device *fb){
-    vt100_console_current_y = vt100_console_current_y+8+2 < fb->height ? vt100_console_current_y+8+2 : 2;
-
+    vt100_console_set_y(fb, vt100_console_current_y+8+2);
 }
 void vt100_console_reset_x(framebuffer_device *fb){
     vt100_console_current_x = 0;
 }
 void vt100_console_reset_y(framebuffer_device *fb){
-    vt100_console_current_y = 0;
+    vt100_console_current_y = 2;
 }
-void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c){
-    vt100_console_escaping = !vt100_console_escaping;
+void vt100_console_set_x(framebuffer_device *fb, uint64_t x){
+    if(vt100_console_current_x+x >= fb->width){
+        vt100_console_current_x = 0;
+        vt100_console_increase_y(fb);
+    }
+    else{
+        vt100_console_current_x = x;
+    }
+}
+void vt100_console_set_y(framebuffer_device *fb, uint64_t y){
+    if(vt100_console_current_y+y >= fb->height){
+        vt100_console_current_y = 0;
+    }
+    else{
+        vt100_console_current_y = y;
+    }
+
+}
+void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c){ 
     switch(c){
+        case '[':
+            return;
+            break;
         case 'D':
-            vt100_console_current_x -= vt100_console_escaping_value;
+            vt100_console_set_x(fb, vt100_console_current_x-vt100_console_escaping_value);
+            break;
+        case 'C':
+            vt100_console_set_x(fb, vt100_console_current_x+vt100_console_escaping_value);
+            break;
+        case 'H':
+            vt100_console_reset_x(fb);
+            vt100_console_reset_y(fb);
+            break;
+        case 'J':
+            framebuffer_clear(fb ,&(graphics_pixel){.Red = 0x0, .Green = 0x0, .Blue = 0x0, .Alpha = 0xff});
             break;
     }
+    vt100_console_escaping = !vt100_console_escaping;
     vt100_console_escaping_value = 0;
 }
 void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
@@ -34,25 +64,18 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
             break;
         default:
             if(vt100_console_escaping){
-                    switch(c){
-                        case '\33':
-                            vt100_console_escaping_stop(fb, c);
-                            break;
-                        case 'C':
-                            vt100_console_escaping_stop(fb, c);
-                            break;
-                        case 'D':
-                            vt100_console_escaping_stop(fb, c);
-                            break;
-                        default:{
-                            char tmp_char[2] = {c, 0};
-                            int tmp_result = atoi(tmp_char);
-                            vt100_console_escaping_value += tmp_result == -1 ? 0 : tmp_result;
-                            vt100_console_escaping_value *= 10;
-                            break;
-                        }
-                    }
-                    break;
+                char tmp[2] = {c, 0};
+                int tmp_result = atoi(tmp);
+                switch(tmp_result){
+                    case -1:
+                        vt100_console_escaping_stop(fb, c);
+                        break;
+                    default:
+                        vt100_console_escaping_value *= 10;
+                        vt100_console_escaping_value += tmp_result;
+                        break;
+                }
+                break;
             }
             else{
                 switch (c){
@@ -64,7 +87,7 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         vt100_console_reset_x(fb);
                         break;
                     //VT100 escape code
-                    case '\33':
+                    case '\033':
                         vt100_console_escaping = !vt100_console_escaping;
                         break;
                     default:
@@ -80,6 +103,4 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                 break;
             }
     }
-    vt100_console_previous_char = c;
-
 }

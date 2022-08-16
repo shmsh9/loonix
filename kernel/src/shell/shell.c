@@ -124,7 +124,7 @@ void rmchar(char cmdline[CMDLINE_MAX], int pos){
 }
 
 void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos){
-    kprintf("\033[%dD%s \033[1D\033 \033[%dD\033[%dC",
+    kprintf("\033[%dD%s \033[1D\033[%dD\033[%dC",
         (cmdlinepos+1), 
         cmdline,
         strlen(cmdline), 

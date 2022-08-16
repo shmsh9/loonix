@@ -79,6 +79,7 @@ void stacktrace();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 int atoi(const char *str);
+int isdigit(uint8_t c);
 char *strdup(const char *str);
 void memset(void *ptr, uint8_t b, uint64_t sz);
 void kprintf(const char *fmt, ...);

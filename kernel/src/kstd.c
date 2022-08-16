@@ -31,12 +31,21 @@ int strlen(const char *str){
 int atoi(const char *str){
     int ret = 0;
     while(*str++){
-        if(*str - '0' < 9 || *str - '0' < 0)
+        int c = isdigit(*str);
+        if(c == 0){
             return -1;
-        ret += *str - '0';
+        }
         ret *= 10;
+        ret += c;
     }
     return ret;
+}
+int isdigit(uint8_t c){
+    int r = c - '0';
+    if(r > 9 || r < 0){
+        return 0;
+    }
+    return r;
 }
 int strcmp(const char *str1, const char *str2){
     int l1 = strlen(str1);
