@@ -27,6 +27,7 @@ typedef struct _kheap {
     uint8_t *header;
     uint8_t  *memory;
     uint64_t n_block;
+    uint64_t free_memory;
 } kheap;
 
 typedef struct _kheap_allocated_block{

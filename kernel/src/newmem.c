@@ -4,6 +4,7 @@ void kheap_init(kheap *heap){
     heap->memory = 0x0;
     heap->header = 0x0;
     heap->n_block = 0;
+    heap->free_memory = 0;
 }
 void kheap_add_blocks(kheap *heap, uintptr_t mem, uint64_t nblock){
     heap->n_block = nblock - ((HEAP_HEADER_SIZE*nblock)/HEAP_BLOCK_SIZE);
@@ -15,6 +16,7 @@ void kheap_add_blocks(kheap *heap, uintptr_t mem, uint64_t nblock){
     heap->memory = (uint8_t *)heap_memory_address;
     memset(heap->header, 0, HEAP_HEADER_SIZE*nblock);
     KDEBUG("heap->header : 0x%x heap->memory : 0x%x, heap->n_block : %d", heap->header, heap->memory, heap->n_block);
+    heap->free_memory = heap->n_block * HEAP_BLOCK_SIZE;
 }
 bool get_bit(uint8_t field, uint8_t bit){
     return field >> bit & 0x1;
@@ -74,6 +76,7 @@ void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start
 }
 void kheap_free_mem2(kheap *heap, kheap_allocated_block *k){
     kheap_unset_used_bytes2(heap, k->bitfield, k->bit, k->size);
+    heap->free_memory += k->size;
 }
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
     if(!heap->header || !heap->memory){
@@ -83,6 +86,10 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
     uint64_t available_mem = heap->n_block * HEAP_BLOCK_SIZE;
     if(size > available_mem){
         KERROR("%d bytes exceeds total memory available (%d bytes)", size, available_mem);
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+    if(size > heap->free_memory){
+        KERROR("%d bytes exceeds free memory available (%d bytes)", size, heap->free_memory);
         return  (kheap_allocated_block){0, 0, 0 ,0, 0};
     }
     uint64_t aligned_bytes = 0;
@@ -118,6 +125,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
             start_bit);
             */
             kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
+            heap->free_memory -= size;
             return (kheap_allocated_block){
                 .block = 0x0,
                 .bitfield = start_bitfield,

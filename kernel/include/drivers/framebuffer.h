@@ -23,4 +23,5 @@ void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_
 void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_free_device(framebuffer_device *framebuffer);
 void framebuffer_update_device(framebuffer_device *framebuffer);
+void framebuffer_scroll_down(framebuffer_device *framebuffer, uint64_t y);
 #endif

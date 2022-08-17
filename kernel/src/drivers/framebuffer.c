@@ -139,3 +139,42 @@ void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64
        current_y++;
     }
 }
+
+void framebuffer_scroll_down(framebuffer_device *framebuffer, uint64_t y){
+    switch ((uintptr_t)framebuffer){
+    case 0x0:
+        KDEBUG("framebuffer == 0x%x", framebuffer);
+        return;
+    
+    default:
+        switch ((uintptr_t)framebuffer->buffer){
+        case 0x0:
+            KDEBUG("framebuffer->buffer == 0x%x", framebuffer->buffer);
+            return;
+            break;
+        default:
+            switch ((uintptr_t)framebuffer->double_buffer){
+            case 0x0:
+                for(uint8_t j = 0; j < y; j++){
+                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
+                        void *previous_line = (void *)((uintptr_t)framebuffer->buffer+(i*sizeof(graphics_pixel)));
+                        void *next_line = (void *)((uintptr_t)framebuffer->buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
+                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
+                    }
+                }
+                break;
+            
+            default:
+                for(uint8_t j = 0; j < y; j++){
+                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
+                        void *previous_line = (void *)((uintptr_t)framebuffer->double_buffer+(i*sizeof(graphics_pixel)));
+                        void *next_line = (void *)((uintptr_t)framebuffer->double_buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
+                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
+                    }
+                }
+                break;
+            }
+            break;
+        }
+    }
+}
