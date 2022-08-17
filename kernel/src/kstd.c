@@ -66,14 +66,14 @@ void kprint(const char *str){
 		    kputc(*str++);
 }
 void kputc(uint8_t c){
-    SERIAL_PUTCHAR(c);
+    serial_device_putchar(&serial, c);
     vt100_console_putchar(&fb,c);
 }
 char kgetchar(){
     if(ps2.data_port){
         return ps2_device_getchar(&ps2);
     }
-    return SERIAL_READCHAR();
+    return serial_device_readchar(&serial);
 }
 void kprintf(const char *fmt, ...){
     if(!fmt){
