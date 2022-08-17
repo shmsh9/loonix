@@ -75,7 +75,8 @@ void kputc(uint8_t c){
     vt100_console_putchar(&fb,c);
 }
 char kgetchar(){
-    return SERIAL_READCHAR();
+    //return SERIAL_READCHAR();
+    return ps2_device_getchar(&ps2);
 }
 void kprintf(const char *fmt, ...){
     if(!fmt){

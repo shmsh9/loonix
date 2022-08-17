@@ -1,4 +1,5 @@
 #include <shell/builtins.h>
+#include <drivers/ps2.h>
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
@@ -10,8 +11,10 @@ framebuffer_device fb = {0};
 uint32_t kalloc_list_last = 0;
 efi_runtime_services *runtime_services = 0;
 char ** font8x8 = {0};
+ps2_device ps2 = {0};
 
 __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
+    ps2 = ps2_device_new(0x60);
     runtime_services = bootinfo->RuntimeServices;
     SERIAL_INIT();
     if(bootinfo->uefi_exit_code)

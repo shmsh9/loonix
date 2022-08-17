@@ -2,8 +2,9 @@
 #define KSTD_H_
 #include <drivers/serial.h>
 #include <drivers/framebuffer.h>
-#include <graphics/font8x8.h>
+#include <drivers/ps2.h>
 #include <drivers/vt100.h>
+#include <graphics/font8x8.h>
 #include <newmem.h>
 #include <bootloader.h>
 #define KERNEL_DEBUG
@@ -61,6 +62,7 @@ extern framebuffer_device fb;
 extern uint64_t framebuffer_text_current_x;
 extern uint64_t framebuffer_text_current_y;
 extern char ** font8x8;
+extern ps2_device ps2;
 
 typedef struct {
     uint8_t elementsz;

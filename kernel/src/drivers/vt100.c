@@ -45,7 +45,6 @@ void vt100_console_set_y(framebuffer_device *fb, uint64_t y){
         framebuffer_scroll_down(fb, 
         1*(vt100_console_font_height+vt100_conole_font_y_spacing)
         );
-        //vt100_console_current_y = 0;
     }
     else{
         vt100_console_current_y = y;
