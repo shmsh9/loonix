@@ -69,7 +69,7 @@ int shell(){
                         //left arrow
                         case 0x44:
                             if( cmdlinepos - 1 >= 0){
-                                kputc('\b');
+                                kprint("\033[1D");
                                 cmdlinepos--;
                             }
                             break;
@@ -124,6 +124,10 @@ void rmchar(char cmdline[CMDLINE_MAX], int pos){
 }
 
 void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos){
+    if(cmdlinepos == 0){
+        kprint("\033[1D \033[1D");
+        return;
+    }
     kprintf("\033[%dD%s \033[1D\033[%dD\033[%dC",
         (cmdlinepos+1), 
         cmdline,
