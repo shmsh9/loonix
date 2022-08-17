@@ -1,12 +1,7 @@
 #include <kstd.h>
 void stacktrace(){
     struct stackframe *stk = {0};
-    #ifdef __x86_64__
-        __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk));
-    #endif
-    #ifdef __aarch64__
-        __asm__ __volatile__("mov %0, x29" : "=r"(stk));
-    #endif
+    GET_STACKFRAME(stk);
     kprint("stacktrace : \n");
     for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){
         kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);
@@ -75,8 +70,10 @@ void kputc(uint8_t c){
     vt100_console_putchar(&fb,c);
 }
 char kgetchar(){
-    //return SERIAL_READCHAR();
-    return ps2_device_getchar(&ps2);
+    if(ps2.data_port){
+        return ps2_device_getchar(&ps2);
+    }
+    return SERIAL_READCHAR();
 }
 void kprintf(const char *fmt, ...){
     if(!fmt){

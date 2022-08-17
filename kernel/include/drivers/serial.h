@@ -3,16 +3,10 @@
 #include <stdint.h>
 #include <io.h>
 #include <drivers/pl011uart.h>
+#include <arch/aarch64.h>
+#include <arch/x86_64.h>
 uint8_t SERIAL_READCHAR();
 void SERIAL_PUTCHAR(uint8_t c);
-void SERIAL_INIT();
 void SERIAL_WAITTX();
 void SERIAL_WAITRX();
-#ifdef __x86_64__
-	#define SERIAL_ADDRESS (uint16_t)0x3f8
-#endif
-#ifdef __aarch64__
-	#define SERIAL_ADDRESS (uint64_t)0x9000000
-#endif
-
 #endif

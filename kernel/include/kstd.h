@@ -7,17 +7,12 @@
 #include <graphics/font8x8.h>
 #include <newmem.h>
 #include <bootloader.h>
+#include <arch/aarch64.h>
+#include <arch/x86_64.h>
+
 #define KERNEL_DEBUG
-#ifdef __x86_64__
-    #define JMPNOARCH "jmp"
-    #define INTNOARCH "int3"
-#endif
-#ifdef __aarch64__
-    #define JMPNOARCH "b"
-    #define INTNOARCH "svc #0"
-#endif
-#define BREAKPOINT() __asm__ __volatile__ ("1: "JMPNOARCH" 1b")
-#define INTERRUPT()  __asm__ __volatile__ (INTNOARCH)
+#define BREAKPOINT() __asm__ __volatile__ ("1: "JUMP_INSTRUCTION" 1b")
+#define INTERRUPT()  __asm__ __volatile__ (INTERRUPT_INSTRUCTION)
 #define BYTES_TO_MB(b) ((b) >> 20)
 #define BYTES_TO_KB(b) ((b) >> 10)
 #define MB_TO_BYTES(mb) ((mb) << 20) 

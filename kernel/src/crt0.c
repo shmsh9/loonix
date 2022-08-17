@@ -3,6 +3,8 @@
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
+#include <arch/aarch64.h>
+#include <arch/x86_64.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
@@ -14,7 +16,6 @@ char ** font8x8 = {0};
 ps2_device ps2 = {0};
 
 __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
-    ps2 = ps2_device_new(0x60);
     runtime_services = bootinfo->RuntimeServices;
     SERIAL_INIT();
     if(bootinfo->uefi_exit_code)
@@ -52,6 +53,7 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
         FRAMEBUFFER_DOUBLE_BUFFERING);
 	framebuffer_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
+    ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     builtins.length = 0;
     SHELL_INIT_BUILTIN(clear, "clear");
     SHELL_INIT_BUILTIN(help, "help");
