@@ -28,19 +28,21 @@ void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, ui
         return;
     }
     if(c == ' '){
-        for(uint8_t i = 0; i < 8*8; i++){
-            uint8_t k = y;
-            for(uint8_t j = x; j < 8; j++){
-               framebuffer_draw_pixel(fb,
-                       j,
-                       k,
-                       &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff}
-                       );
-            
+        uint64_t curr_y = y;
+        uint64_t curr_x = x;
+        for(uint8_t current_bitfield = 0; current_bitfield < 8; current_bitfield++){
+            curr_x = x;
+            for(uint8_t current_bit = 0; current_bit < 8; current_bit++){
+                framebuffer_draw_pixel(fb,
+                           curr_x,
+                           curr_y,
+                           &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff}
+                           );
+               curr_x++;
             }
-            k++;
+            curr_y++;
         }
-        return;
+            return;
     }
     uint64_t curr_y = y;
     uint64_t curr_x = x;
