@@ -2,8 +2,8 @@
 #define SERIAL_DRIVER_H_
 #include <stdint.h>
 typedef struct{
-	uint64_t address;
-	uint8_t  rx_tx_offset;
+	uint64_t data;
+	uint64_t rx_tx;
 	uint8_t  rx_mask;
 	uint8_t  tx_mask;
 	uint8_t  arch;
@@ -13,6 +13,7 @@ typedef struct{
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
 serial_device serial_device_new();
+void serial_device_init(serial_device *serial);
 uint8_t serial_device_readchar(serial_device *serial);
 void serial_device_waittx(serial_device *serial);
 void serial_device_waitrx(serial_device *serial);

@@ -6,6 +6,7 @@
 #include <bootloader.h>
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
+#include <acpi.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
@@ -26,7 +27,8 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
         KPANIC("cannot retrieve memory map at 0x%x !", bootinfo->mmap);
     
     mmap mmap = mmap_new(bootinfo);
-    //mmap_debug_print(&mmap);
+    acpi_table acpi_table = acpi_table_new(&mmap);
+    KDEBUG("acpi_table 0x%x", acpi_table.acpi_memory);
     struct efi_memory_descriptor *largest_mem_block = mmap_find_largest_block(&mmap);
     if(!largest_mem_block)
         KPANIC("no available memory found !");

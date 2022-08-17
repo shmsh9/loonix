@@ -120,7 +120,7 @@ typedef struct {
 ///
 struct _EFI_GRAPHICS_OUTPUT_PROTOCOL {
   void *QueryMode;
-  void (*SetMode)(uint32_t, void *);
+  void (*SetMode)(void *, uint32_t);
   void *Blt;
   ///
   /// Pointer to EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE data.

@@ -37,6 +37,7 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 		DEBUG(L"can not open gop protocol : 0x%x !", s);
 	}
 	else{
+		gop->SetMode(gop, 0);
     	bootinfo.framebuffer.address =  gop->Mode->FrameBufferBase;
     	bootinfo.framebuffer.size = gop->Mode->FrameBufferSize;
     	bootinfo.framebuffer.width = gop->Mode->Info->HorizontalResolution;
