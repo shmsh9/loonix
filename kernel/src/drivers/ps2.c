@@ -1,5 +1,95 @@
 #include <drivers/ps2.h>
-char ps2_scancode_pressed_set_1[0x58] = {0};
+//https://wiki.osdev.org/PS/2_Keyboard
+char ps2_scancode_pressed_set_1[0x58] = {
+    0x0, //(0x0)null
+    0x1b,//(0x1)esc
+    '1',
+    '2',
+    '3',
+    '4',
+    '5',
+    '6',
+    '7',
+    '8',
+    '9',
+    '0',
+    '-',
+    '=',
+    0x8,//(0x0E)backspace
+    0xb,//(0x0E)tab
+    'q',
+    'w',
+    'e',
+    'r',
+    't',
+    'y',
+    'u',
+    'i',
+    'o',
+    'p',
+    '[',
+    ']',
+    '\n', //enter
+    '\033',//left-ctrl
+    'a',
+    's',
+    'd',
+    'f',
+    'g',
+    'h',
+    'j',
+    'k',
+    'l',
+    ';',
+    '\'',
+    '`',
+    0x0, //LSHIFT
+    '\\',
+    'z',
+    'x',
+    'c',
+    'v',
+    'b',
+    'n',
+    'm',
+    ',',
+    '.',
+    '/',
+    0x0, //RSHIFT
+    '*',
+    0x0, //left-alt
+    ' ', //space
+    0x0, //capslock
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+};
 char ps2_scancode_released_set_1[0x6d] = {0};
 
 ps2_device ps2_device_new(uintptr_t base_port){
@@ -55,16 +145,8 @@ uint8_t ps2_device_getchar(ps2_device *ps2){
     return ps2_scancode_set_1_to_char(ps2_device_get_scancode(ps2));
 }
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
-    ps2_scancode_pressed_set_1[0x1] = 0x27;
-    ps2_scancode_pressed_set_1[0x2] = '1';
-    ps2_scancode_pressed_set_1[0x3] = '2';
-    ps2_scancode_pressed_set_1[0x4] = '3';
-    ps2_scancode_pressed_set_1[0x5] = '4';
-    ps2_scancode_pressed_set_1[0x6] = '5';
-    ps2_scancode_pressed_set_1[0x7] = '6';
-    ps2_scancode_pressed_set_1[0x8] = '7';
-    ps2_scancode_pressed_set_1[0x9] = '8';
-    ps2_scancode_pressed_set_1[0xA] = '9';
-    ps2_scancode_pressed_set_1[0xB] = '9';
+    //key release event
+    if(scancode >= 0x58)
+        return 0x0;
     return ps2_scancode_pressed_set_1[scancode];
 }
