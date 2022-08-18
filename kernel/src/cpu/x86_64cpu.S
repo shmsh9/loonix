@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_time
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
     movq %rax, (%rdi)   
@@ -37,8 +37,8 @@ cpu_registers_load:
     movq %r14, 112(%rdi)
     movq %r15, 128(%rdi)
     ret
-//uint64_t cpu_get_time()
-cpu_get_time:
+//uint64_t cpu_get_tick()
+cpu_get_tick:
     xor     %rax, %rax
     xor     %rdx, %rdx
     rdtsc

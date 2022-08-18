@@ -120,9 +120,9 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             vt100_console_current_y,
                             c
                         );
-                        if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_time()){
+                        if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
                             framebuffer_update_device(fb);
-                            vt100_console_last_draw_timer = cpu_get_time();
+                            vt100_console_last_draw_timer = cpu_get_tick();
                         }
                         vt100_console_increase_x(fb);
                         break;

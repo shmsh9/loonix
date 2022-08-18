@@ -58,6 +58,6 @@
     }
     void cpu_registers_save(cpu_registers *regs);
     void cpu_registers_load(cpu_registers *regs);
-    uint64_t cpu_get_time();
+    uint64_t cpu_get_tick();
 #endif
 #endif

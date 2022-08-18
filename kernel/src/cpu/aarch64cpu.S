@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_time
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
     str x0,  [x0]
@@ -68,7 +68,7 @@ cpu_registers_load:
     ldr x30, [x0, #240 ]
     ret
 
-//uint64_t cpu_get_time()
-cpu_get_time:
+//uint64_t cpu_get_tick()
+cpu_get_tick:
     mrs x0, CNTVCT_EL0
     ret
