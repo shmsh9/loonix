@@ -1,4 +1,3 @@
-#include <shell/builtins.h>
 #include <drivers/ps2.h>
 #include <drivers/serial.h>
 #include <newmem.h>
@@ -58,8 +57,5 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
 	framebuffer_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
-    builtins.length = 0;
-    SHELL_INIT_BUILTIN(clear, "clear");
-    SHELL_INIT_BUILTIN(help, "help");
     kmain(bootinfo);
 }

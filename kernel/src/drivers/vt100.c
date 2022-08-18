@@ -3,11 +3,11 @@
 uint64_t vt100_console_escaping_value = 0;
 uint8_t  vt100_console_font_width = 8;
 uint8_t  vt100_console_font_height = 8;
-uint8_t  vt100_conole_font_y_spacing = 4;
+uint8_t  vt100_console_font_y_spacing = 4;
 uint8_t  vt100_console_font_x_spacing = 0;
 uint64_t vt100_console_current_x = 0;
 uint64_t vt100_console_current_y = 2;
-
+uint64_t vt100_console_tab_size = 9;
 bool vt100_console_escaping = false;
 
 void vt100_console_increase_x(framebuffer_device *fb){
@@ -17,7 +17,7 @@ void vt100_console_increase_x(framebuffer_device *fb){
 }
 void vt100_console_increase_y(framebuffer_device *fb){
     vt100_console_set_y(fb, 
-    vt100_console_current_y+vt100_console_font_height+vt100_conole_font_y_spacing);
+    vt100_console_current_y+vt100_console_font_height+vt100_console_font_y_spacing);
 }
 void vt100_console_decrease_x(framebuffer_device *fb){
     vt100_console_set_x(fb,
@@ -28,7 +28,7 @@ void vt100_console_reset_x(framebuffer_device *fb){
     vt100_console_current_x = vt100_console_font_x_spacing;
 }
 void vt100_console_reset_y(framebuffer_device *fb){
-    vt100_console_current_y = vt100_conole_font_y_spacing;
+    vt100_console_current_y = vt100_console_font_y_spacing;
 }
 void vt100_console_set_x(framebuffer_device *fb, uint64_t x){
     if(x >= fb->width){
@@ -43,7 +43,7 @@ void vt100_console_set_y(framebuffer_device *fb, uint64_t y){
     if(y >= fb->height){
         //need to implement framebuffer scroll;
         framebuffer_scroll_down(fb, 
-        1*(vt100_console_font_height+vt100_conole_font_y_spacing)
+        1*(vt100_console_font_height+vt100_console_font_y_spacing)
         );
     }
     else{
@@ -104,6 +104,9 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         break;
                     case '\b':
                         vt100_console_decrease_x(fb);
+                        break;
+                    case '\t':
+                        kprintf("\033[%dC", vt100_console_tab_size);
                         break;
                     //VT100 escape code
                     case '\033':

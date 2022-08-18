@@ -1,6 +1,7 @@
 #include <shell/shell.h>
 
 int shell(){
+    builtins_init();
     /* Why compiler does not do this for me ??? */
     /*
     builtins[0].ptrfn = clear;
