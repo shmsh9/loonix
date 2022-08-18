@@ -28,7 +28,7 @@ CFLAGS="${!EVIL} $CFLAGS"
 for object in $TARGET/src/*.c
 do
 	echo "[CC] $object"
-	$CC $CFLAGS $IFLAGS -c $object -o "${object%.c}.o"
+	echo "$CC $CFLAGS $IFLAGS -c $object -o \"${object%.c}.o\""
 done
 $LD $LDFLAGS $TARGET/src/*.o -out:$TARGET/$OBJ
 rm -rf $target/src/*.o
