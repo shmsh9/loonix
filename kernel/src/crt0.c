@@ -6,6 +6,7 @@
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
 #include <acpi.h>
+#include <irq/irq.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
@@ -17,7 +18,8 @@ char ** font8x8 = {0};
 ps2_device ps2 = {0};
 serial_device serial;
 
-__attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
+void crt0(struct bootinfo *bootinfo){
+    irq_disable();
     serial = serial_device_new();
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
@@ -41,7 +43,7 @@ __attribute__ ((constructor)) void crt0(struct bootinfo *bootinfo){
     uint64_t ram_pages_n = largest_mem_block->pages;
     if(ram_addr == (uintptr_t)bootinfo->kernelbase || ram_addr <= (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize){
         KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
-        ram_addr += bootinfo->kernelsize+HACK_UGLY_OFFSET;
+        ram_addr += bootinfo->kernelsize+NEWMEM_HACK_UGLY_OFFSET;
         //ram_pages_n -= (bootinfo->kernelsize+HACK_UGLY_OFFSET / HEAP_BLOCK_SIZE)+1;
     }
     kheap_init(&heap);

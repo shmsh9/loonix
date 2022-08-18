@@ -3,7 +3,7 @@
 #include <arch/arch.h>
 #ifdef __x86_64__
 	#define ARCH_STRING "x64"
-    #define ARCH_UINT 0x0
+    #define ARCH_UINT ARCH_X64
 	#define SERIAL_ADDRESS (uint16_t)0x3f8
     #define SERIAL_RX_TX_OFFSET 0x5
     #define SERIAL_TX_MASK 0x20
@@ -18,5 +18,7 @@
         ret = tmp;\
     }
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
+    #define NEWMEM_HACK_UGLY_OFFSET 0x0
+    #define NEWMEM_ALIGN 0x10
 #endif
 #endif

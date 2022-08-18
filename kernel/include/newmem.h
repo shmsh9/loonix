@@ -3,14 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <bootloader.h>
-#ifdef __x86_64__
-	#define ALIGN 0x10
-  #define HACK_UGLY_OFFSET 0
-#endif
-#ifdef __aarch64__
-	#define ALIGN 0x10
-  #define HACK_UGLY_OFFSET 0x100000
-#endif
+
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
 #define MMAP_ELEMENT_SIZE 48
