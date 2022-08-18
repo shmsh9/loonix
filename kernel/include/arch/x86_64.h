@@ -12,5 +12,11 @@
     #define JUMP_INSTRUCTION "jmp"
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
+    #define _INB(address, ret){\
+        volatile uint8_t tmp = 0;\
+        __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
+        ret = tmp;\
+    }
+    #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
 #endif
 #endif
