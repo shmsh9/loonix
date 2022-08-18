@@ -64,7 +64,7 @@ void kprint(const char *str){
         return;
     }
     while(*str)
-		    kputc(*str++);
+		kputc(*str++);
 }
 void kputc(uint8_t c){
     serial_device_putchar(&serial, c);
@@ -276,19 +276,32 @@ void *kmalloc(uint64_t b){
         }
     }
     //If no more alloc list
-    kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc*2);
+    uint64_t kalloc_list_alloc_new = kalloc_list_alloc*2;
+    kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
     if(!tmp.ptr)
         KPANIC("not enough memory to realloc kalloc_list !");
-    KDEBUG("reallocating kalloc_list to %d", kalloc_list_alloc*2);
+    KDEBUG("reallocating kalloc_list to %d", kalloc_list_alloc_new);
     memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc*sizeof(kheap_allocated_block));
-    memset((uint8_t *)tmp.ptr+(kalloc_list_alloc*sizeof(kheap_allocated_block)), 0, kalloc_list_alloc*sizeof(kheap_allocated_block));
+    memset((kheap_allocated_block *)tmp.ptr+kalloc_list_alloc, 0, kalloc_list_alloc*sizeof(kheap_allocated_block));
     //need to free previous kalloc_list
     kheap_free_mem2(&heap, &kalloc_list_block);
-    kalloc_list_alloc *= 2;
+    kalloc_list_alloc = kalloc_list_alloc_new;
     kalloc_list_block = tmp;
     kalloc_list = (kheap_allocated_block *)tmp.ptr;
-    return kmalloc(b);
-    KERROR("KALLOC_LIST_MAX !");
+    for(int i = kalloc_list_alloc/2; i < kalloc_list_alloc; i++){
+        if(kalloc_list[i].ptr == 0){
+            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
+            kalloc_list[i] = block;
+            if(block.ptr){
+                return (void *)block.ptr;
+            }
+            else{
+                KERROR("allocation failed !");
+                return 0x0;
+            }
+        }
+    }
+    KERROR("kmalloc failed even after resizing");
     return 0x0;
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
@@ -479,18 +492,12 @@ void karray_debug_print(karray *array){
 	  kprint("}\n");
 }
 
-klist *klist_new(uintptr_t data, void(*klist_data_free_fn)(void *)){
-    klist_element *elem = kmalloc(sizeof(klist_element));
+klist *klist_new(void(*klist_data_free_fn)(void *)){
     klist *ret = kmalloc(sizeof(klist));
     *ret = (klist){
-        .first = elem,
-        .last = elem,
+        .first = 0x0,
+        .last = 0x0,
         .klist_data_free_fn = klist_data_free_fn
-    };
-    *elem = (klist_element){
-        .data = data,
-        .next = 0x0,
-        .prev = 0x0
     };
     return ret;
 }
@@ -501,21 +508,26 @@ void klist_push(klist *k, uintptr_t data){
         return;
     }
     if(!k->first){
-        KERROR("k->first == NULL");
-        return;
-    }
-    if(!k->last){
-        KERROR("k->last == NULL");
+        klist_element *to_push = kmalloc(sizeof(klist_element));
+        *to_push = (klist_element){
+            .data = data,
+            .next = 0x0,
+            .prev = 0x0
+        };
+        *k = (klist){
+            .first = to_push,
+            .last = to_push,
+        };
         return;
     }
     klist_element *to_push = kmalloc(sizeof(klist_element));
     *to_push = (klist_element){
         .data = data,
-        .next = 0x0,
-        .prev = k->last
+        .next = k->first,
+        .prev = 0x0
     };
-    k->last->next = to_push;
-    k->last = to_push;
+    k->first->prev = to_push;
+    k->first = to_push;
 }
 
 void klist_free(klist *k){
@@ -541,9 +553,12 @@ void klist_free(klist *k){
     }
     while(curr->next){
         klist_element *tmp = curr->next;
+        if(k->klist_data_free_fn)
+            k->klist_data_free_fn((void *)curr->data);
         kfree(curr);
         curr = tmp;
     }
+    kfree(curr);
     kfree(k);
 }
 
@@ -567,7 +582,7 @@ void klist_debug_print(klist *k){
     }
     kprint("{");
     while (curr->next){
-        kprintf(" 0x%x,", curr->data);
+        kprintf(" 0x%x ->", curr->data);
         curr = curr->next;
     }
     kprintf(" 0x%x }\n", curr->data);

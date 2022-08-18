@@ -30,11 +30,11 @@
     stacktrace();\
 }
 #define KPANIC(...){\
+	cpu_registers r__func__ = {0};\
+	cpu_registers_dump(&r__func__);\
     KMSG("panic !", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
-	cpu_registers r__func__ = {0};\
-	cpu_registers_dump(&r__func__);\
     kprint("registers  :\n");\
 	CPU_REGISTERS_PRINT(&r__func__);\
     BREAKPOINT();\
@@ -113,7 +113,7 @@ karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
 void karray_free(karray *array);
 void karray_push(karray *array, uint64_t elem);
 void karray_debug_print(karray *array);
-klist *klist_new(uintptr_t data, void(*klist_data_free_fn)(void *));
+klist *klist_new(void(*klist_data_free_fn)(void *));
 void klist_push(klist *k, uintptr_t data);
 void klist_free(klist *k);
 void klist_debug_print(klist *k);
