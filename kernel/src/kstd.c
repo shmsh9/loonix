@@ -1,4 +1,5 @@
 #include <kstd.h>
+uint64_t kalloc_list_alloc = KALLOC_LIST_START_ALLOC;
 void stacktrace(){
     struct stackframe *stk = {0};
     GET_STACKFRAME(stk);
@@ -261,7 +262,7 @@ void *kmalloc(uint64_t b){
         KERROR("b == 0");
         return 0x0;
     }
-    for(int i = 0; i < KALLOC_LIST_MAX; i++){
+    for(int i = 0; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
@@ -274,6 +275,17 @@ void *kmalloc(uint64_t b){
             }
         }
     }
+    //If no more alloc list
+    kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc*2);
+    if(!tmp.ptr)
+        KPANIC("not enough memory to realloc kalloc_list !");
+    KDEBUG("reallocating kalloc_list to %d", kalloc_list_alloc*2);
+    memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc*sizeof(kheap_allocated_block));
+    memset((uint8_t *)tmp.ptr+(kalloc_list_alloc*sizeof(kheap_allocated_block)), 0, kalloc_list_alloc*sizeof(kheap_allocated_block));
+    //need to free previous kalloc_list
+    kalloc_list_alloc *= 2;
+    kalloc_list = (kheap_allocated_block *)tmp.ptr;
+    return kmalloc(b);
     KERROR("KALLOC_LIST_MAX !");
     return 0x0;
 }
@@ -282,7 +294,7 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
         KERROR("0x%x not in allocation table !", ptr);
         return -1;
     }
-    for(int i = 0; i < KALLOC_LIST_MAX; i++){
+    for(int i = 0; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == (uintptr_t)ptr)
             return i;
     }

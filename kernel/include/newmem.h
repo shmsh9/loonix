@@ -29,7 +29,6 @@ typedef struct _kheap_allocated_block{
     uint8_t          bit;
     uint64_t         size;
     uintptr_t        ptr;
-
 }kheap_allocated_block;
 
 typedef struct {

@@ -30,7 +30,7 @@
     stacktrace();\
 }
 #define KPANIC(...){\
-    KMSG("kernel panic !", __VA_ARGS__);\
+    KMSG("panic !", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
 	cpu_registers r__func__ = {0};\
@@ -48,12 +48,12 @@
 #ifndef KERNEL_DEBUG
 #define KDEBUG(...)
 #endif
-#define KALLOC_LIST_MAX 1024
+#define KALLOC_LIST_START_ALLOC 1024
 #define STACK_TRACE_NMAX 8
 
 extern uintptr_t __stack_chk_guard;
 extern uint32_t kalloc_list_last;
-extern kheap_allocated_block kalloc_list[KALLOC_LIST_MAX];
+extern kheap_allocated_block *kalloc_list;
 extern kheap heap;
 extern efi_runtime_services *runtime_services;
 extern struct efi_time global_efi_time;

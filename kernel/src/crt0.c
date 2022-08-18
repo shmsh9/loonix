@@ -9,7 +9,7 @@
 #include <irq/irq.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
-kheap_allocated_block kalloc_list[KALLOC_LIST_MAX] = {0};
+kheap_allocated_block *kalloc_list = 0;
 kheap heap;
 framebuffer_device fb = {0};
 uint32_t kalloc_list_last = 0;
@@ -19,6 +19,7 @@ ps2_device ps2 = {0};
 serial_device serial;
 
 void crt0(struct bootinfo *bootinfo){
+    //Heap allocation not allowed until said otherwise
     irq_disable();
     serial = serial_device_new();
     runtime_services = bootinfo->RuntimeServices;
@@ -38,7 +39,7 @@ void crt0(struct bootinfo *bootinfo){
             largest_mem_block->physical_start, 
             BYTES_TO_MB(largest_mem_block->pages*HEAP_BLOCK_SIZE),
             largest_mem_block->pages
-            );
+    );
     uintptr_t ram_addr = largest_mem_block->physical_start;
     uint64_t ram_pages_n = largest_mem_block->pages;
     if(ram_addr == (uintptr_t)bootinfo->kernelbase || ram_addr <= (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize){
@@ -48,7 +49,8 @@ void crt0(struct bootinfo *bootinfo){
     }
     kheap_init(&heap);
     kheap_add_blocks(&heap, ram_addr, ram_pages_n);
-   
+    kalloc_list = (kheap_allocated_block *)kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC).ptr;
+    //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
     fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 
