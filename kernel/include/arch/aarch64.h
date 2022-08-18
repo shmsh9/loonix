@@ -17,7 +17,7 @@
     #define _OUTB(address, data) *(volatile uint32_t *)address = data;
     #define NEWMEM_HACK_UGLY_OFFSET 0x100000
     #define NEWMEM_ALIGN 0x10
-
+    #define VT100_REFRESH_TICK 0xfff
     typedef struct{
         uint64_t x0;
         uint64_t x1;
@@ -56,6 +56,8 @@
             kprintf("\t[x%d%s] : 0x%x\n", i, i < 10 ? " " : "" ,((uint64_t *)regs)[i]);\
         }\
     }
-    void cpu_registers_dump(cpu_registers *regs);
+    void cpu_registers_save(cpu_registers *regs);
+    void cpu_registers_load(cpu_registers *regs);
+    uint64_t cpu_get_time();
 #endif
 #endif

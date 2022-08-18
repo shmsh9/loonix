@@ -14,12 +14,21 @@ int builtins_help(int argc, char **argv){
     return 0;
 }
 
+int builtins_testkarray(int argc, char **argv){
+    karray *k = karray_new(sizeof(uint64_t),NULL);
+    for(uint64_t i = 0; i < 0xffff; i++)
+        karray_push(k, i);
+    karray_debug_print(k);
+    karray_free(k);
+    return 0;
+}
+
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
-
+    BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
 }
 
 int builtins_free(int argc, char **argv){

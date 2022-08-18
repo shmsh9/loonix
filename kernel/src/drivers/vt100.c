@@ -8,6 +8,8 @@ uint8_t  vt100_console_font_x_spacing = 0;
 uint64_t vt100_console_current_x = 0;
 uint64_t vt100_console_current_y = 2;
 uint64_t vt100_console_tab_size = 9;
+uint64_t vt100_console_last_draw_timer = 0;
+uint32_t vt100_console_time_between_draw = VT100_REFRESH_TICK;
 bool vt100_console_escaping = false;
 
 void vt100_console_increase_x(framebuffer_device *fb){
@@ -118,7 +120,10 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             vt100_console_current_y,
                             c
                         );
-                        framebuffer_update_device(fb);
+                        if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_time()){
+                            framebuffer_update_device(fb);
+                            vt100_console_last_draw_timer = cpu_get_time();
+                        }
                         vt100_console_increase_x(fb);
                         break;
                 }
