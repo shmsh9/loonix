@@ -54,6 +54,7 @@
 extern uintptr_t __stack_chk_guard;
 extern uint32_t kalloc_list_last;
 extern kheap_allocated_block *kalloc_list;
+extern kheap_allocated_block kalloc_list_block;
 extern kheap heap;
 extern efi_runtime_services *runtime_services;
 extern struct efi_time global_efi_time;

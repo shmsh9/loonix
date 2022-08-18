@@ -10,6 +10,7 @@
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
+kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
 framebuffer_device fb = {0};
 uint32_t kalloc_list_last = 0;
@@ -49,7 +50,8 @@ void crt0(struct bootinfo *bootinfo){
     }
     kheap_init(&heap);
     kheap_add_blocks(&heap, ram_addr, ram_pages_n);
-    kalloc_list = (kheap_allocated_block *)kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC).ptr;
+    kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
+    kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
     fb = framebuffer_new_device(

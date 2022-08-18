@@ -283,7 +283,9 @@ void *kmalloc(uint64_t b){
     memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc*sizeof(kheap_allocated_block));
     memset((uint8_t *)tmp.ptr+(kalloc_list_alloc*sizeof(kheap_allocated_block)), 0, kalloc_list_alloc*sizeof(kheap_allocated_block));
     //need to free previous kalloc_list
+    kheap_free_mem2(&heap, &kalloc_list_block);
     kalloc_list_alloc *= 2;
+    kalloc_list_block = tmp;
     kalloc_list = (kheap_allocated_block *)tmp.ptr;
     return kmalloc(b);
     KERROR("KALLOC_LIST_MAX !");
