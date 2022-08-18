@@ -8,7 +8,6 @@
 *.suo
 *.opensdf
 *.opendb
-*.fd
 *.db*
 *.bin
 .vscode
