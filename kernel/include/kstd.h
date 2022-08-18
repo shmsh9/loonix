@@ -33,6 +33,10 @@
     KMSG("kernel panic !", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
+	cpu_registers r__func__ = {0};\
+	cpu_registers_dump(&r__func__);\
+    kprint("registers  :\n");\
+	CPU_REGISTERS_PRINT(&r__func__);\
     BREAKPOINT();\
 }
 #ifdef KERNEL_DEBUG
