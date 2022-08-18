@@ -1,6 +1,7 @@
 import os
 import platform
 import glob
+from pathlib import Path
 
 def get_params():
     CC = "clang"
@@ -17,20 +18,28 @@ def get_params():
 
 def get_c_files(path):
     pass
-def get_files_glob(path):
-    return glob.glob(path, recursive=True)
+def get_files_glob(path, glob):
+    return Path(path).rglob(glob)
 
 def compile_c_files(params, c_flags, c_files):
     for file in c_files:
-        print(f"{params['CC']} {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
+        print(f"[CC] {file}")
+        r = os.system(f"{params['CC']} {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
+        if(r != 0):
+            exit(r)
+def compile_s_files(params, c_flags, s_files):
+    for file in s_files:
+        print(f"[CC] {file}")
         r = os.system(f"{params['CC']} {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
         if(r != 0):
             exit(r)
 
-def clean_files_glob(path):
-    f = get_files_glob(path)
+def clean_files_glob(path, glob):
+    f = get_files_glob(path, glob)
     for file in f:
         os.remove(file)
 def link_o_files(params, ld_flags, o_files, output):
-    f = " ".join(o_files)
-    r = os.system(f"{params['LD']} {ld_flags} {f} -out:{output}")
+    f = " ".join([str(x) for x in o_files])
+    r = os.system(f"{params['LD']} {ld_flags} {f} {output}")
+    if r != 0:
+        exit(r)
