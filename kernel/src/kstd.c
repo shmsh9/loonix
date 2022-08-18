@@ -365,7 +365,7 @@ void karray_push(karray *array, uint64_t elem){
     }
 }
 
-karray *karray_new(uint8_t elementsz){
+karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
     switch(elementsz){
         case 1:
             break;
@@ -381,13 +381,48 @@ karray *karray_new(uint8_t elementsz){
             break;
     }
     karray *ret = kmalloc(sizeof(karray));
-    ret->elementsz = elementsz; 
-    ret->length = 0;
-    ret->alloc = 16;
-    ret->array = kmalloc(ret->elementsz*ret->alloc);
+    *ret = (karray){
+        .elementsz = elementsz,
+        .length = 0,
+        .alloc = 16,
+        .karray_data_free_fn = karray_data_free_fn
+    };
+    ret->array = kmalloc(ret->alloc*ret->elementsz);
     return ret;
 }
 void karray_free(karray *array){
+    if(array->karray_data_free_fn){
+        switch (array->elementsz){
+            case 1:{
+                uint8_t *casted_array = (uint8_t *)array->array;
+                for(int i = 0; i < array->length; i++){
+                    array->karray_data_free_fn((void*)(uintptr_t)casted_array[i]);
+                }
+                break;
+            }
+            case 2:{
+                uint16_t *casted_array = (uint16_t *)array->array;
+                for(int i = 0; i < array->length; i++){
+                    array->karray_data_free_fn((void*)(uintptr_t)casted_array[i]);
+                }
+                break;
+            }
+            case 4:{
+                uint32_t *casted_array = (uint32_t *)array->array;
+                for(int i = 0; i < array->length; i++){
+                    array->karray_data_free_fn((void*)(uintptr_t)casted_array[i]);
+                }
+                break;
+            }
+            case 8:{
+                uint64_t *casted_array = (uint64_t *)array->array;
+                for(int i = 0; i < array->length; i++){
+                    array->karray_data_free_fn((void*)casted_array[i]);
+                }
+                break;
+            }
+        }
+    }
     kfree(array->array);
     array->array = 0x0;
     array->length = 0x0;
@@ -395,7 +430,7 @@ void karray_free(karray *array){
     array->elementsz = 0x0;
     kfree(array);
 }
-void karray_print(karray *array){
+void karray_debug_print(karray *array){
     kprint("{ ");
     switch(array->elementsz){
         case 1:
@@ -428,4 +463,98 @@ void karray_print(karray *array){
             break;
     }
 	  kprint("}\n");
+}
+
+klist *klist_new(uintptr_t data, void(*klist_data_free_fn)(void *)){
+    klist_element *elem = kmalloc(sizeof(klist_element));
+    klist *ret = kmalloc(sizeof(klist));
+    *ret = (klist){
+        .first = elem,
+        .last = elem,
+        .klist_data_free_fn = klist_data_free_fn
+    };
+    *elem = (klist_element){
+        .data = data,
+        .next = 0x0,
+        .prev = 0x0
+    };
+    return ret;
+}
+
+void klist_push(klist *k, uintptr_t data){
+    if(!k){
+        KERROR("k == NULL");
+        return;
+    }
+    if(!k->first){
+        KERROR("k->first == NULL");
+        return;
+    }
+    if(!k->last){
+        KERROR("k->last == NULL");
+        return;
+    }
+    klist_element *to_push = kmalloc(sizeof(klist_element));
+    *to_push = (klist_element){
+        .data = data,
+        .next = 0x0,
+        .prev = k->last
+    };
+    k->last->next = to_push;
+    k->last = to_push;
+}
+
+void klist_free(klist *k){
+    if(!k){
+        KERROR("k == NULL");
+        return;
+    }
+    if(!k->first){
+        KERROR("k->first == NULL");
+        return;
+    }
+    if(!k->last){
+        KERROR("k->last == NULL");
+        return;
+    }
+    klist_element *curr = k->first;
+    if(!curr->next){
+        if(k->klist_data_free_fn)
+            k->klist_data_free_fn((void *)curr->data);
+        kfree(curr);
+        kfree(k);
+        return;
+    }
+    while(curr->next){
+        klist_element *tmp = curr->next;
+        kfree(curr);
+        curr = tmp;
+    }
+    kfree(k);
+}
+
+void klist_debug_print(klist *k){
+    if(!k){
+        KERROR("k == NULL");
+        return;
+    }
+    if(!k->first){
+        KERROR("k->first == NULL");
+        return;
+    }
+    if(!k->last){
+        KERROR("k->last == NULL");
+        return;
+    }
+    klist_element *curr = k->first;
+    if(!curr->next){
+        kprintf("{ 0x%x }\n", curr->data);
+        return;
+    }
+    kprint("{");
+    while (curr->next){
+        kprintf(" 0x%x,", curr->data);
+        curr = curr->next;
+    }
+    kprintf(" 0x%x }\n", curr->data);
 }

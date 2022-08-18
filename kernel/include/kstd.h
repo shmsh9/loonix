@@ -64,8 +64,21 @@ typedef struct {
     uint8_t elementsz;
     uint32_t length;
     uint32_t alloc;
-    void *array;  
+    void(*karray_data_free_fn)(void *);
+    void *array;
 } karray;
+
+typedef struct _klist{
+    struct _klist_element *first;
+    struct _klist_element *last;
+    void(*klist_data_free_fn)(void *);
+} klist;
+
+typedef struct _klist_element{
+    struct _klist_element *next;
+    struct _klist_element *prev;
+    uintptr_t data;
+}klist_element;
 
 struct stackframe{
     struct stackframe *frame;
@@ -91,9 +104,13 @@ void *kmalloc(uint64_t b);
 void *kcalloc(uint64_t n, uint64_t sz);
 void *krealloc(const void *ptr, uint64_t newsz);
 void kfree(void *p);
-karray *karray_new(uint8_t elementsz);
+karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
 void karray_free(karray *array);
 void karray_push(karray *array, uint64_t elem);
-void karray_print(karray *array);
+void karray_debug_print(karray *array);
+klist *klist_new(uintptr_t data, void(*klist_data_free_fn)(void *));
+void klist_push(klist *k, uintptr_t data);
+void klist_free(klist *k);
+void klist_debug_print(klist *k);
 #endif
 
