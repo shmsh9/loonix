@@ -277,18 +277,22 @@ void *kmalloc(uint64_t b){
     }
     //If no more alloc list
     uint64_t kalloc_list_alloc_new = kalloc_list_alloc*2;
+    uint64_t kalloc_list_alloc_old = kalloc_list_alloc;
     kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
-    if(!tmp.ptr)
-        KPANIC("not enough memory to realloc kalloc_list !");
+    if(!tmp.ptr){
+        KERROR("not enough memory to realloc kalloc_list !");
+        return 0x0;
+    }
+    //LEAKS
     KDEBUG("reallocating kalloc_list to %d", kalloc_list_alloc_new);
-    memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc*sizeof(kheap_allocated_block));
-    memset((kheap_allocated_block *)tmp.ptr+kalloc_list_alloc, 0, kalloc_list_alloc*sizeof(kheap_allocated_block));
+    memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc_old*sizeof(kheap_allocated_block));
+    memset((kheap_allocated_block *)tmp.ptr+kalloc_list_alloc_old, 0, kalloc_list_alloc_old*sizeof(kheap_allocated_block));
     //need to free previous kalloc_list
     kheap_free_mem2(&heap, &kalloc_list_block);
     kalloc_list_alloc = kalloc_list_alloc_new;
     kalloc_list_block = tmp;
     kalloc_list = (kheap_allocated_block *)tmp.ptr;
-    for(int i = kalloc_list_alloc/2; i < kalloc_list_alloc; i++){
+    for(int i = kalloc_list_alloc_old; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
@@ -544,13 +548,6 @@ void klist_free(klist *k){
         return;
     }
     klist_element *curr = k->first;
-    if(!curr->next){
-        if(k->klist_data_free_fn)
-            k->klist_data_free_fn((void *)curr->data);
-        kfree(curr);
-        kfree(k);
-        return;
-    }
     while(curr->next){
         klist_element *tmp = curr->next;
         if(k->klist_data_free_fn)
@@ -558,6 +555,8 @@ void klist_free(klist *k){
         kfree(curr);
         curr = tmp;
     }
+    if(k->klist_data_free_fn)
+        k->klist_data_free_fn((void *)curr->data);
     kfree(curr);
     kfree(k);
 }
