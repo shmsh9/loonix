@@ -585,6 +585,9 @@ void klist_free(klist *k){
         kfree(curr);
         curr = tmp;
     }
+    if(k->klist_data_free_fn)
+        k->klist_data_free_fn((void *)curr->data);
+    kfree(curr);
     kfree(k);
 }
 

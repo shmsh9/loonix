@@ -15,27 +15,22 @@ int builtins_help(int argc, char **argv){
 }
 
 int builtins_testkarray(int argc, char **argv){
-    uint64_t mem = MEMORY_LEAK_TEST_START();
-    karray *k = karray_new(sizeof(uint64_t),kfree);
-    for(uint64_t i = 0; i < 0xff; i++)
-        karray_push(k, (uint64_t)strdup("foobar"));
-    karray_debug_print(k);
+    karray *k = karray_new(sizeof(uint64_t),NULL);
+    for(uint64_t i = 0; i < 0xfffff; i++)
+        karray_push(k, i);
+    //karray_debug_print(k);
     karray_free(k);
-    MEMORY_LEAK_TEST_STOP(mem);
     return 0;
 }
 int builtins_testklist(int argc, char **argv){
-    uint64_t mem = MEMORY_LEAK_TEST_START();
-    klist *k = klist_new(kfree);
-    for(uint64_t i = 0; i < 10; i++){
-        klist_push(k, (uint64_t)strdup("123567"));
+    klist *k = klist_new(NULL);
+    for(uint64_t i = 0; i < 0xfffff; i++){
+        klist_push(k,i);
     }
     klist_free(k);
-    MEMORY_LEAK_TEST_STOP(mem);
     return 0;
 }
 int builtins_testkcalloc(int argc, char **argv){
-    uint64_t mem = MEMORY_LEAK_TEST_START();
     #define TEST_KCALLOC_SZ 512
     void *arr[TEST_KCALLOC_SZ] = {0};
     for(int i = 0; i < TEST_KCALLOC_SZ; i++){
@@ -44,14 +39,12 @@ int builtins_testkcalloc(int argc, char **argv){
     for(int i = 0; i < TEST_KCALLOC_SZ; i++){
         kfree(arr[i]);
     }
-    MEMORY_LEAK_TEST_STOP(mem);
     return 0;
 }
 
 int builtins_teststrdup(int argc, char **argv){
-    uint64_t mem = MEMORY_LEAK_TEST_START();
     #define TEST_STRDUP_SZ 0xff
-    char **arr = kmalloc(sizeof(char *)*TEST_STRDUP_SZ);
+    char **arr = kcalloc(sizeof(char *),TEST_STRDUP_SZ*2);
     for(int i = 0; i < TEST_STRDUP_SZ; i++){
         arr[i] = strdup("12345");
     }
@@ -59,7 +52,6 @@ int builtins_teststrdup(int argc, char **argv){
         kfree(arr[i]);
     }
     kfree(arr);
-    MEMORY_LEAK_TEST_STOP(mem);
     return 0;
 }
 
