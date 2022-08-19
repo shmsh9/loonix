@@ -1,0 +1,7 @@
+[binaries]
+c = 'clang'
+ld = 'ld.lld'
+
+[built-in options]
+c_args = ['--target=aarch64-none-elf']
+c_link_args = []
