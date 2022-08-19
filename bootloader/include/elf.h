@@ -68,6 +68,6 @@ void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
-uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo);
-struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo);
+uint64_t loadelf(CHAR16 *filename, bootinfo *bi);
+struct efi_memory_descriptor *get_mmap(bootinfo *bi);
 #endif

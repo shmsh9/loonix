@@ -8,7 +8,7 @@ struct framebuffer{
 	uintptr_t	address;
 	uint64_t	size;
 };
-struct bootinfo{
+typedef struct{
 	efi_handle_t     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
 	efi_runtime_services *RuntimeServices;
@@ -20,6 +20,6 @@ struct bootinfo{
 	uint64_t mmap_key;
 	uint64_t uefi_exit_code;
 	struct framebuffer framebuffer;
-};
+}bootinfo;
 #endif
 

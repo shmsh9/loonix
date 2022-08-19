@@ -1,4 +1,22 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, gdt_entries_load
+.extern kprint
+//void gdt_entries_load(gdt_ptr *ptr)
+gdt_entries_load:
+    lgdt (%rdi)
+    movq 2(%rdi), %rdi   // rdi = ptr->offset
+    movq 8*3(%rdi), %rdi // rdi == ptr->offset[3]
+    push %rdi
+    lea  gdt_reload_segments, %rax
+    push %rax
+    lretq
+gdt_reload_segments:
+    mov  $0x10, %ax
+    mov  %ax, %ds
+    mov  %ax, %es
+    mov  %ax, %fs
+    mov  %ax, %gs
+    mov  %ax, %ss
+    ret
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
     movq %rax, (%rdi)   

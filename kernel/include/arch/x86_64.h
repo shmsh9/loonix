@@ -1,8 +1,11 @@
 #ifndef X86_64_H_
 #define X86_64_H_
+#ifdef __x86_64__
 #include <arch/arch.h>
 #include <stdint.h>
-#ifdef __x86_64__
+#include <newmem.h>
+#include <bootloader.h>
+
 	#define ARCH_STRING "x64"
     #define ARCH_UINT ARCH_X64
 	#define SERIAL_ADDRESS (uint16_t)0x3f8
@@ -19,11 +22,15 @@
         ret = tmp;\
     }
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
+    #define INIT_VECTOR_TABLES(){\
+            gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
+            gdt_entries_load(gdt);\
+    }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0xfffff
 
-    typedef struct{
+    typedef struct __attribute__((__packed__)){
         uint64_t rax;
         uint64_t rbx;
         uint64_t rcx;
@@ -41,6 +48,21 @@
         uint64_t r14;
         uint64_t r15;
     }cpu_registers;
+    //https://wiki.osdev.org/GDT
+    typedef struct __attribute__((packed)){
+        uint16_t limit_low;
+        uint16_t base_low;
+        uint8_t  base_middle;
+        uint8_t  access_byte;
+        uint8_t  limit_high_and_flags; 
+        uint8_t  base_high;       
+    } gdt_entry;
+    
+    typedef struct __attribute__((packed)){
+        uint16_t size; //sizeof(gdt_table)-1
+        uint64_t offset;
+    } gdt_ptr;
+
     #define CPU_REGISTERS_PRINT(regs){\
         char *cpu_registers_names__func__ [sizeof(cpu_registers)/sizeof(uint64_t)] = {0};\
         cpu_registers_names__func__[0] = "rax";\
@@ -66,5 +88,8 @@
     void cpu_registers_save(cpu_registers *regs);
     void cpu_registers_load(cpu_registers *regs);
     uint64_t cpu_get_tick();
+    void gdt_entries_load(gdt_ptr *ptr);
+    gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap);
+    gdt_entry gdt_entry_new(uint32_t limit, uint32_t base, uint8_t access_byte, uint8_t flags);
 #endif
 #endif

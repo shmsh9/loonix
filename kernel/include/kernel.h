@@ -12,7 +12,7 @@
 #include <arch/x86_64.h>
 
 #define STACK_CHK_GUARD 0xcafe1337deadbeef
-uint64_t kmain(struct bootinfo *bootinfo);
+uint64_t kmain(bootinfo *bootinfo);
 
 #endif
 

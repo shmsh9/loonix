@@ -18,7 +18,7 @@ char ** font8x8 = {0};
 ps2_device ps2 = {0};
 serial_device serial;
 
-void crt0(struct bootinfo *bootinfo){
+void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
     irq_disable();
     serial = serial_device_new();
@@ -52,6 +52,7 @@ void crt0(struct bootinfo *bootinfo){
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
+    INIT_VECTOR_TABLES();
     //!\ contiguous memory is needed
     fb = framebuffer_new_device(
         bootinfo->framebuffer.address, 

@@ -24,7 +24,7 @@ int builtins_testkarray(int argc, char **argv){
 }
 int builtins_testklist(int argc, char **argv){
     klist *k = klist_new(NULL);
-    for(uint64_t i = 0; i < 0xfffff; i++){
+    for(uint64_t i = 0; i < 0xffff; i++){
         klist_push(k,i);
     }
     klist_free(k);

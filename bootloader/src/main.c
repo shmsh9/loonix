@@ -17,7 +17,7 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
 	SystemTable->boot->set_watch_dog_timer(0, 0, 0, NULL);
-	struct bootinfo bootinfo = {
+	bootinfo bootinfo = {
 		ImageHandle, 
 		SystemTable, 
 		SystemTable->RuntimeServices, 

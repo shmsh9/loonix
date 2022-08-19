@@ -1,4 +1,6 @@
 #include <elf.h>
+#include <bootloader.h>
+
 void parseheader(struct elf *elf, uint8_t *buff){
 	CopyMem(&elf->header, buff, sizeof(struct elf_header));
 }
@@ -133,9 +135,9 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 	}
 	return ret;
 }
-uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
+uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
 
-	FILE *f = kfopen(filename, L"r", bootinfo->ImageHandle);
+	FILE *f = kfopen(filename, L"r", bi->ImageHandle);
 	if(!f){
 		DEBUG(L"cannot open %s", filename);
 		return -1;
@@ -173,8 +175,8 @@ uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 		kaddr = (void *)0x1000000;
 	#endif
 	void *prog = kallocaddress(alloc, kaddr);
-	bootinfo->kernelsize = alloc;
-	bootinfo->kernelbase = prog;
+	bi->kernelsize = alloc;
+	bi->kernelbase = prog;
 	//loading program into memory	
 	for(int i = 0; i < elf.header.entry_program_number; i++){
 		//LOAD == 0x01 entry PHDR == 0x06
@@ -186,16 +188,16 @@ uint64_t loadelf(CHAR16 *filename, struct bootinfo *bootinfo){
 	}
 	kfree(buff);
 	kfclose(f);
-	uint64_t SYSVABI (*fnptr)(struct bootinfo *) = (uint64_t SYSVABI(*)(struct bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
-	bootinfo->kernelentry = (void *)fnptr;
+	uint64_t SYSVABI (*fnptr)(bootinfo *) = (uint64_t SYSVABI(*)(bootinfo *))((uintptr_t)prog + elf.header.program_entry_position);
+	bi->kernelentry = (void *)fnptr;
 	DEBUG(L"loading %s (0x%x Bytes && Entry 0x%x && Base 0x%x)", 
-			filename, alloc , bootinfo->kernelentry, 
-			bootinfo->kernelbase);
-	get_mmap(bootinfo);
-	bootinfo->uefi_exit_code = SystemTable->boot->exit_boot_services(ImageHandle, bootinfo->mmap_key);
-	return fnptr(bootinfo);
+			filename, alloc , bi->kernelentry, 
+			bi->kernelbase);
+	get_mmap(bi);
+	bi->uefi_exit_code = SystemTable->boot->exit_boot_services(ImageHandle, bi->mmap_key);
+	return fnptr(bi);
 }
-struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
+struct efi_memory_descriptor *get_mmap(bootinfo *bi){
     efi_status_t result = -1;
     struct efi_memory_descriptor *memoryMap = NULL;
     uint32_t descriptorVersion = 0;
@@ -210,14 +212,14 @@ struct efi_memory_descriptor *get_mmap(struct bootinfo *bootinfo){
 						SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
         }
         else{
-					bootinfo->mmap = memoryMap;
-					bootinfo->mmap_size = mmap_size;
-					bootinfo->mmap_key = mmap_key;
+					bi->mmap = memoryMap;
+					bi->mmap_size = mmap_size;
+					bi->mmap_key = mmap_key;
 					return memoryMap;
 				}
   	}
-	bootinfo->mmap = memoryMap;
-	bootinfo->mmap_size = mmap_size;
-	bootinfo->mmap_key = mmap_key;
+	bi->mmap = memoryMap;
+	bi->mmap_size = mmap_size;
+	bi->mmap_key = mmap_key;
 	return memoryMap;
 }

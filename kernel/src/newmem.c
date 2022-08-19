@@ -249,7 +249,7 @@ void mmap_debug_print(mmap *mmap){
     } 
 }
 
-mmap mmap_new(struct bootinfo *bootinfo){
+mmap mmap_new(bootinfo *bootinfo){
     mmap ret = (mmap){0};
     if(!bootinfo->mmap){
         KERROR("mmap == 0x0");
