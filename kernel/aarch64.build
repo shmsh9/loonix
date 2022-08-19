@@ -1,7 +1,18 @@
 [binaries]
-c = 'clang'
-ld = 'ld.lld'
+c = ['clang', '--target=aarch64-none-elf', '-nostdlib', '-ffreestanding']
+c_ld = ['lld']
 
 [built-in options]
-c_args = ['--target=aarch64-none-elf']
-c_link_args = []
+c_link_args = [ '-T linkaarch64.ld' ]
+
+[host_machine]
+system = 'linux'
+cpu_family = 'x86_64'
+endian = 'little'
+cpu = 'amd64'
+
+[target_machine]
+system = 'loonix'
+cpu_family = 'aarch64'
+endian = 'little'
+cpu = 'cortex-a57'
