@@ -6,12 +6,17 @@ from pathlib import Path
 def get_params():
     CC = "clang"
     LD = "lld"
+    ARCH_TABLE = {
+        "x86_64" : "x86_64",
+        "AMD64"  : "x86_64",
+        "aarch64": "aarch64"
+    }
     try:
         ARCH = os.environ["ARCH"]
     except:
         ARCH = platform.uname()[-2]
     return {
-        "ARCH" : ARCH,
+        "ARCH" : ARCH_TABLE[ARCH],
         "CC"   : CC,
         "LD"   : LD
     }

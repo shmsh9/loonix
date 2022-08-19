@@ -9,7 +9,7 @@ def main():
         out_file = f"{target}/bootaa64.efi"
     inc_flags = f"-I{target}/include -Iefi"
     c_files = config.get_files_glob(f"{target}/src/","*.c")
-    c_flags = f"-c {inc_flags} -target {param['ARCH']}-unknown-windows -ffreestanding -mno-red-zone -std=c11 -Wall -Werror -pedantic -fshort-wchar"
+    c_flags = f"-c {inc_flags} -target {param['ARCH']}-unknown-windows -ffreestanding -std=c11 -Wall -Werror -pedantic -fshort-wchar"
     ld_flags = "-flavor link -subsystem:efi_application -entry:efi_main -out:{out_file}"
     config.clean_files_glob(f"{target}/src/","*.o")
     config.clean_files_glob(f"{target}/src/","*.efi")
