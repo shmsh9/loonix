@@ -54,7 +54,7 @@ int strcmp(const char *str1, const char *str2){
 }
 char *strdup(const char *str){
     int l = strlen(str);
-    if(!l)
+    if(l == -1)
         return 0x0;
     char *ret = kmalloc(l+1);
     memcpy(ret, str, l+1);

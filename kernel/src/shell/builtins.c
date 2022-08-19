@@ -44,7 +44,7 @@ int builtins_testkcalloc(int argc, char **argv){
 
 int builtins_teststrdup(int argc, char **argv){
     #define TEST_STRDUP_SZ 0xff
-    char **arr = kcalloc(sizeof(char *),TEST_STRDUP_SZ*2);
+    char **arr = kcalloc(sizeof(char *),TEST_STRDUP_SZ);
     for(int i = 0; i < TEST_STRDUP_SZ; i++){
         arr[i] = strdup("12345");
     }
