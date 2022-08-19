@@ -1,5 +1,7 @@
 #include <kstd.h>
 uint64_t kalloc_list_alloc = KALLOC_LIST_START_ALLOC;
+uint64_t kalloc_list_last = 0;
+
 void stacktrace(){
     struct stackframe *stk = {0};
     GET_STACKFRAME(stk);
@@ -262,11 +264,12 @@ void *kmalloc(uint64_t b){
         KERROR("b == 0");
         return 0x0;
     }
-    for(int i = 0; i < kalloc_list_alloc; i++){
+    for(int i = kalloc_list_last; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
+                kalloc_list_last = i;
                 return (void *)block.ptr;
             }
             else{
@@ -275,6 +278,21 @@ void *kmalloc(uint64_t b){
             }
         }
     }
+    for(int i = 0; i < kalloc_list_last; i++){
+        if(kalloc_list[i].ptr == 0){
+            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
+            kalloc_list[i] = block;
+            if(block.ptr){
+                kalloc_list_last = i;
+                return (void *)block.ptr;
+            }
+            else{
+                KERROR("allocation failed !");
+                return 0x0;
+            }
+        }
+    }
+
     //If no more alloc list
     uint64_t kalloc_list_alloc_new = kalloc_list_alloc*2;
     uint64_t kalloc_list_alloc_old = kalloc_list_alloc;
@@ -313,7 +331,11 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
         KERROR("0x%x not in allocation table !", ptr);
         return -1;
     }
-    for(int i = 0; i < kalloc_list_alloc; i++){
+    for(uint64_t i = kalloc_list_last; i < kalloc_list_alloc; i++){
+        if(kalloc_list[i].ptr == (uintptr_t)ptr)
+            return i;
+    }
+    for(uint64_t i = 0; i < kalloc_list_last; i++){
         if(kalloc_list[i].ptr == (uintptr_t)ptr)
             return i;
     }
@@ -521,6 +543,7 @@ void klist_push(klist *k, uintptr_t data){
         *k = (klist){
             .first = to_push,
             .last = to_push,
+            .klist_data_free_fn = k->klist_data_free_fn,
         };
         return;
     }
@@ -548,6 +571,13 @@ void klist_free(klist *k){
         return;
     }
     klist_element *curr = k->first;
+    if(!curr->next){
+        if(k->klist_data_free_fn)
+            k->klist_data_free_fn((void *)k->first->data);
+        kfree(curr);
+        kfree(k);
+        return;
+    }
     while(curr->next){
         klist_element *tmp = curr->next;
         if(k->klist_data_free_fn)
@@ -555,9 +585,6 @@ void klist_free(klist *k){
         kfree(curr);
         curr = tmp;
     }
-    if(k->klist_data_free_fn)
-        k->klist_data_free_fn((void *)curr->data);
-    kfree(curr);
     kfree(k);
 }
 

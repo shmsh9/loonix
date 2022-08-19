@@ -44,6 +44,16 @@
 #define KDEBUG(fmt, ...) {\
     kprintf("[kernel][debug] : %s() : "fmt"\n", __func__, __VA_ARGS__);\
 }
+#define MEMORY_LEAK_TEST_START() heap.free_memory
+#define MEMORY_LEAK_TEST_STOP(mem){\
+    uint64_t newmem = heap.free_memory;\
+    if(mem < newmem){\
+        KERROR("memory leaked ;( start : %d stop : %d", mem, newmem)\
+    }\
+    else{\
+      KMESSAGE("no memory leak =)")\
+    }\
+}
 #endif
 #ifndef KERNEL_DEBUG
 #define KDEBUG(...)
@@ -52,7 +62,6 @@
 #define STACK_TRACE_NMAX 8
 
 extern uintptr_t __stack_chk_guard;
-extern uint32_t kalloc_list_last;
 extern kheap_allocated_block *kalloc_list;
 extern kheap_allocated_block kalloc_list_block;
 extern kheap heap;

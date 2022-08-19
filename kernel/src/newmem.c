@@ -1,5 +1,5 @@
 #include <newmem.h>
-
+uint64_t kheap_last_free_mem_bitfield = 0;
 void kheap_init(kheap *heap){
     heap->memory = 0x0;
     heap->header = 0x0;
@@ -96,7 +96,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
     uint64_t start_bitfield = 0;
     uint64_t start_bit = 0;
     uint64_t header_size = HEAP_HEADER_SIZE*heap->n_block;
-    for(uint64_t bitfield = 0; bitfield < header_size; bitfield++){
+    for(uint64_t bitfield = kheap_last_free_mem_bitfield; bitfield < header_size; bitfield++){
         if(!kheap_free_uint8(heap->header[bitfield])){
             aligned_bytes = 0;
             start_bit = 0;
@@ -126,6 +126,50 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
             */
             kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
             heap->free_memory -= size;
+            kheap_last_free_mem_bitfield = start_bitfield;
+            return (kheap_allocated_block){
+                .block = 0x0,
+                .bitfield = start_bitfield,
+                .bit = start_bit,
+                .size = aligned_bytes,
+                .ptr = (uintptr_t)heap->memory+(start_bitfield*8)+start_bit
+            };
+        }
+    }
+    aligned_bytes = 0;
+    start_bitfield = 0;
+    start_bit = 0;
+    for(uint64_t bitfield = 0; bitfield < kheap_last_free_mem_bitfield; bitfield++){
+        if(!kheap_free_uint8(heap->header[bitfield])){
+            aligned_bytes = 0;
+            start_bit = 0;
+            start_bitfield = bitfield+1;
+            continue;
+        }
+        for(uint8_t bitfield_byte = 0; bitfield_byte < 8; bitfield_byte++){
+            //KDEBUG("testing heap->header[%d][%d]", bitfield, bitfield_byte);
+            if(get_bit(heap->header[bitfield], bitfield_byte)){
+                aligned_bytes = 0;
+                start_bitfield = bitfield;
+                start_bit = bitfield_byte + 1 < 8 ? bitfield_byte+1 : 0;
+            }
+            else{
+                aligned_bytes++;
+            }
+            if(aligned_bytes == size){
+                break;
+            }
+        }
+        if(aligned_bytes == size){
+            /*
+            KDEBUG("found %d bytes free at block : 0x%x bitfield : %d bit : %d", 
+            aligned_bytes, heap->memory+(start_bitfield*8)+start_bit,
+            start_bitfield,
+            start_bit);
+            */
+            kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
+            heap->free_memory -= size;
+            kheap_last_free_mem_bitfield = start_bitfield;
             return (kheap_allocated_block){
                 .block = 0x0,
                 .bitfield = start_bitfield,

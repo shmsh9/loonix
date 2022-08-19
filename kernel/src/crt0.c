@@ -13,7 +13,6 @@ kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
 framebuffer_device fb = {0};
-uint32_t kalloc_list_last = 0;
 efi_runtime_services *runtime_services = 0;
 char ** font8x8 = {0};
 ps2_device ps2 = {0};
