@@ -111,6 +111,22 @@ void kprintf(const char *fmt, ...){
                 kprint(strn);
                 i += 2;
             }
+            if(fmt[i+1] == 'b'){
+                uint64_t b = __builtin_va_arg(arg, uint64_t);
+                char b_str[65] = {0};
+                int i = 0;
+                while(b){
+                    b_str[i++] = b & 1 ? '1' : '0';
+                    b >>= 1;
+                }
+                for(int j = 0; j < i; j++, i--){
+                    char tmp = b_str[j];
+                    b_str[j] = b_str[i-1];
+                    b_str[i-1] = tmp;
+                }
+                kprint(b_str);
+                i += 2;
+            }
             if(fmt[i+1] == 's'){
                 char *tmps = __builtin_va_arg(arg, char*);
                 kprint(tmps);

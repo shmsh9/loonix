@@ -98,6 +98,21 @@ ps2_device ps2_device_new(uintptr_t base_port){
         .status_register = base_port+4,
         .command_register = base_port+4
     };
+    //disable 2 devices
+    ps2_device_send_command(&ret, 0xad);
+    ps2_device_send_command(&ret, 0xa7);
+    //flush buffer
+    inb(ret.data_port);
+    uint8_t config_byte = ps2_device_send_command(&ret, 0x20);
+    KDEBUG("config_byte : 0b%b", (uint64_t)config_byte);
+    uint8_t result = ps2_device_send_command(&ret, 0xaa);
+    if(result != 0x55){
+        KDEBUG("ps/2 device responded 0x%x still trying", result);
+        //return (ps2_device){0};
+    }
+    //enable first port
+    ps2_device_send_command(&ret, 0xae);
+
     return ret;
 }
 void ps2_device_set_bit(ps2_device *ps2, uint8_t bit){
@@ -116,12 +131,11 @@ void ps2_device_unset_bit(ps2_device *ps2, uint8_t bit){
 }
 uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd){
     ps2_device_wait_tx(ps2);
-
     ps2_device_set_bit(ps2, PS2_DEVICE_COMMAND);
     outb(ps2->command_register, cmd);
-    ps2_device_unset_bit(ps2, PS2_DEVICE_COMMAND);
-
-    ps2_device_wait_rx(ps2);
+    //ps2_device_unset_bit(ps2, PS2_DEVICE_COMMAND);
+    //ps2_device_wait_rx(ps2);
+//    KDEBUG("passed wait_rx()","");
     uint8_t ret = inb(ps2->data_port);
     ps2_device_end_tx_rx(ps2);
     return ret;
