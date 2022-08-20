@@ -96,6 +96,15 @@ int builtins_testmemcpy(int argc, char **argv){
     kprintf("foo = %s\n", foo);
     return 0;
 }
+int builtins_logo(int argc, char **argv){
+	#include "../../crack.png.h"
+	graphics_sprite *crack = graphics_sprite_static_new(339, 393, CRACK_PIXELS);
+	framebuffer_draw_sprite(&fb, 0, 0, crack);
+    graphics_sprite_static_free(crack);
+    return 0;
+}
+
+
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
@@ -108,8 +117,9 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testscroll, "testscroll");
     BUILTINS_INIT_FN(builtins_testmemset, "testmemset");
     BUILTINS_INIT_FN(builtins_testmemcpy, "testmemcpy");
-
+    BUILTINS_INIT_FN(builtins_logo, "logo");
 }
+
 
 int builtins_free(int argc, char **argv){
     uint64_t total_mem = heap.n_block*HEAP_BLOCK_SIZE;

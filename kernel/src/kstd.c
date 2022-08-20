@@ -89,10 +89,21 @@ void kprintf(const char *fmt, ...){
     const char hextable[] = "0123456789abcdef";
     for(int i = 0; i < lfmt; i++){
         if(fmt[i] == '%' && i+1 < lfmt){
-            if(fmt[i+1] == 'd' || fmt[i+1] == 'x'){
+            if(fmt[i+1] == 'd' || fmt[i+1] == 'x' || fmt[i+1] == 'b'){
                 uint64_t n = __builtin_va_arg(arg, uint64_t);
-                uint8_t base = fmt[i+1] == 'd' ? 10 : 16;
-                char strn[32] = {0};
+                uint8_t base = 1;
+                switch(fmt[i+1]){
+                    case 'd':
+                        base = 10;
+                        break;
+                    case 'x':
+                        base = 16;
+                        break;
+                    case 'b':
+                        base = 2;
+                        break;
+                }
+                char strn[65] = {0};
                 char *ptr = strn;
                 int digits = 0;
                 if(n == 0)
@@ -109,22 +120,6 @@ void kprintf(const char *fmt, ...){
                     strn[digits-1] = tmp;
                 }
                 kprint(strn);
-                i += 2;
-            }
-            if(fmt[i+1] == 'b'){
-                uint64_t b = __builtin_va_arg(arg, uint64_t);
-                char b_str[65] = {0};
-                int i = 0;
-                while(b){
-                    b_str[i++] = b & 1 ? '1' : '0';
-                    b >>= 1;
-                }
-                for(int j = 0; j < i; j++, i--){
-                    char tmp = b_str[j];
-                    b_str[j] = b_str[i-1];
-                    b_str[i-1] = tmp;
-                }
-                kprint(b_str);
                 i += 2;
             }
             if(fmt[i+1] == 's'){

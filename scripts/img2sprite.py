@@ -12,7 +12,7 @@ with open(f"{argv[1]}.h", "w") as f:
     width,height = image.size
     #f.write(f"#define {(os.path.splitext(argv[1])[0]).upper()}_SPRITE_NEW() graphics_sprite_new({width},{height})\n")
     #f.write(f"#define {(os.path.splitext(argv[1])[0]).upper()}_SPRITE_INIT(sprite) {{\\\n")
-    f.write(f"uint8_t {(os.path.splitext(argv[1])[0]).upper()}_PIXELS[{(width*height)*4}] = {{\n")
+    f.write(f"static uint8_t {(os.path.splitext(argv[1])[0]).upper()}_PIXELS[{(width*height)*4}] = {{\n")
     pxpos = 0
     for p in pixels:
         try:
