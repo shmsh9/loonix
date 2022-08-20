@@ -83,13 +83,13 @@ int builtins_testmemset(int argc, char **argv){
 }
 int builtins_testmemcpy(int argc, char **argv){
     char foo[17] = {0};
-    char foo2[] = {'0', '1', '2', '3', '4', '5', '6', '7', '0', '1', '2', '3', '4', '5', '6', '7'};
+    char foo2[] = {'0', '1', '2', '3', '4', '5', '6', '7', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     kprintf("foo = %s\n", foo);
     //cpu_registers r = {0};
     //cpu_registers_save(&r);
     //kprintf("regs before :\n");
     //CPU_REGISTERS_PRINT(&r);
-    __memcpy_64b(foo, foo2, 16);
+    __memcpy_128b(foo, foo2, 16);
     //cpu_registers_save(&r);
     //kprintf("regs after :\n");
     //CPU_REGISTERS_PRINT(&r);

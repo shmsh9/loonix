@@ -12,7 +12,7 @@ __memset_64b:
 __memcpy_64b:
     mov %rdx, %rcx
     shr $3, %rcx
-    rep  movsq
+    rep movsq
     ret
 //void gdt_entries_load(gdt_ptr *ptr)
 gdt_entries_load:
