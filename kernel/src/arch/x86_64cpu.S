@@ -10,13 +10,9 @@ __memset_64b:
     ret
 //void __memcpy_64b(void *dst = %rdi, void *src = %rsi, uint64_t sz = %rdx)
 __memcpy_64b:
-    __memcpy_64b_loop:
-    mov  (%rsi), %rcx
-    mov  %rcx, (%rdi)
-    add  $8, %rsi 
-    add  $8, %rdi
-    sub  $8, %rdx
-    jnz  __memcpy_64b_loop
+    mov %rdx, %rcx
+    shr $3, %rcx
+    rep  movsq
     ret
 //void gdt_entries_load(gdt_ptr *ptr)
 gdt_entries_load:
