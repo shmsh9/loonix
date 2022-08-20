@@ -12,6 +12,7 @@ typedef struct{
 #include <drivers/pl011uart.h>
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
+#include <kstd.h>
 serial_device serial_device_new();
 void serial_device_init(serial_device *serial);
 uint8_t serial_device_readchar(serial_device *serial);

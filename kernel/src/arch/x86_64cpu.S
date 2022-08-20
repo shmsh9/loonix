@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, gdt_entries_load, __memcpy_64b, __memset_64b
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, gdt_entries_load, __memcpy_64b, __memset_64b, __memcpy_128b
 
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
@@ -14,6 +14,17 @@ __memcpy_64b:
     shr $3, %rcx
     rep movsq
     ret
+//void __memcpy_128b(void *dst = %rdi, void *src = %rsi, uint64_t sz = %rdx)
+__memcpy_128b:
+    __memcpy_128b_loop:
+    movdqu  (%rsi), %xmm0
+    movdqu  %xmm0, (%rdi)
+    add     $16, %rsi
+    add     $16, %rdi
+    sub     $16, %rdx
+    jnz     __memcpy_128b_loop
+    ret
+
 //void gdt_entries_load(gdt_ptr *ptr)
 gdt_entries_load:
     /*

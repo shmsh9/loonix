@@ -98,31 +98,55 @@ ps2_device ps2_device_new(uintptr_t base_port){
         .status_register = base_port+4,
         .command_register = base_port+4
     };
-    //disable both PS2 ports
-    ps2_device_send_command(&ret, 0xAD);
-    ps2_device_send_command(&ret, 0xA7);
-    //flush buffer
-    inb(ret.data_port);
-    //self test
-    uint8_t response = ps2_device_send_command(&ret, 0xAA);
-    if(response != 0x55){
-        KERROR("error initializing ps2 device !");
-        return (ps2_device){0};
-    }
-    //enable both PS2 ports again
-    ps2_device_send_command(&ret, 0xAE);
-    //do not reenable mouse
-    //ps2_device_send_command(&ret, 0xA8);
-    //flush buffer
-    outb(ret.data_port, 0);
     return ret;
 }
-
-uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd){
-    outb(ps2->command_register, cmd);
-    return inb(ps2->data_port);
+void ps2_device_set_bit(ps2_device *ps2, uint8_t bit){
+    uint8_t reg = inb(ps2->status_register);
+    set_bit(&reg, bit);
+    outb(ps2->status_register, reg);
 }
+uint8_t ps2_device_get_bit(ps2_device *ps2, uint8_t bit){
+    uint8_t reg = inb(ps2->status_register);
+    return get_bit(reg, bit);
+}
+void ps2_device_unset_bit(ps2_device *ps2, uint8_t bit){
+    uint8_t reg = inb(ps2->status_register);
+    unset_bit(&reg, bit);
+    outb(ps2->status_register, reg);
+}
+uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd){
+    ps2_device_wait_tx(ps2);
 
+    ps2_device_set_bit(ps2, PS2_DEVICE_COMMAND);
+    outb(ps2->command_register, cmd);
+    ps2_device_unset_bit(ps2, PS2_DEVICE_COMMAND);
+
+    ps2_device_wait_rx(ps2);
+    uint8_t ret = inb(ps2->data_port);
+    ps2_device_end_tx_rx(ps2);
+    return ret;
+}
+uint8_t ps2_device_send_subcommand(ps2_device *ps2, uint8_t cmd){
+    ps2_device_wait_tx(ps2);
+
+    ps2_device_set_bit(ps2, PS2_DEVICE_COMMAND);
+    outb(ps2->data_port, cmd);
+    ps2_device_unset_bit(ps2, PS2_DEVICE_COMMAND);
+
+    ps2_device_wait_rx(ps2);
+    uint8_t ret = inb(ps2->data_port);
+    ps2_device_end_tx_rx(ps2);
+    return ret;
+}
+void ps2_device_wait_tx(ps2_device *ps2){
+    while(ps2_device_get_bit(ps2, PS2_DEVICE_INPUT)){}
+}
+void ps2_device_wait_rx(ps2_device *ps2){
+    while(!ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT)){}
+}
+void ps2_device_end_tx_rx(ps2_device *ps2){
+    //ps2_device_unset_bit(ps2, PS2_DEVICE_OUTPUT);
+}
 uint8_t ps2_device_get_scancode(ps2_device *ps2){
     switch (ps2->data_port)
     {
@@ -131,12 +155,11 @@ uint8_t ps2_device_get_scancode(ps2_device *ps2){
         break;
     
     default:
-        outb(ps2->command_register, 0x7); // send command 0x7 : first ps/2 port data
-        while(inb(ps2->data_port) == 0xfa){
-        }
+        //ps2_device_send_command(ps2, 0x7); // send command 0x7 : first ps/2 port data
+        ps2_device_wait_rx(ps2);
         uint8_t ret = (uint8_t)inb(ps2->data_port);
         //clear buffer
-        outb(ps2->data_port, 0);
+        ps2_device_end_tx_rx(ps2);
         return ret;
         break;
     }

@@ -40,10 +40,13 @@
     BREAKPOINT();\
 }
 #ifdef KERNEL_DEBUG
-//#define KDEBUG(...) KMSG("debug", __VA_ARGS__)
 #define KDEBUG(fmt, ...) {\
-    kprintf("[kernel][debug] : %s() : "fmt"\n", __func__, __VA_ARGS__);\
+    kprintf("[kernel][debug] : %s() %s:%d : "fmt"\n", __func__,__FILE__,__LINE__, __VA_ARGS__);\
 }
+#endif
+#ifndef KERNEL_DEBUG
+#define KDEBUG(...)
+#endif
 #define MEMORY_LEAK_TEST_START() heap.free_memory
 #define MEMORY_LEAK_TEST_STOP(mem){\
     uint64_t newmem = heap.free_memory;\
@@ -54,10 +57,6 @@
       KMESSAGE("no memory leak =)")\
     }\
 }
-#endif
-#ifndef KERNEL_DEBUG
-#define KDEBUG(...)
-#endif
 #define KALLOC_LIST_START_ALLOC 1024
 #define STACK_TRACE_NMAX 8
 

@@ -62,6 +62,8 @@ void crt0(bootinfo *bootinfo){
         FRAMEBUFFER_DOUBLE_BUFFERING);
 	framebuffer_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
+    //show serial init errors if serial cannot init
+    serial = serial_device_new();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
 }
