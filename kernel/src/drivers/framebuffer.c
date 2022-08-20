@@ -1,6 +1,6 @@
 #include <drivers/framebuffer.h>
 
-void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
+inline void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     switch((uintptr_t)framebuffer->buffer){
     case 0x0:
         return;

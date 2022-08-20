@@ -1,5 +1,23 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, gdt_entries_load
-.extern kprint
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, gdt_entries_load, __memcpy_64b, __memset_64b
+
+//void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
+__memset_64b:
+    __memset_64b_loop:
+    mov  %rax, (%rdi)
+    add  $8 ,%rdi
+    sub  $8, %rdx
+    jnz  __memset_64b_loop
+    ret
+//void __memcpy_64b(void *dst = %rdi, void *src = %rsi, uint64_t sz = %rdx)
+__memcpy_64b:
+    __memcpy_64b_loop:
+    mov  (%rsi), %rcx
+    mov  %rcx, (%rdi)
+    add  $8, %rsi 
+    add  $8, %rdi
+    sub  $8, %rdx
+    jnz  __memcpy_64b_loop
+    ret
 //void gdt_entries_load(gdt_ptr *ptr)
 gdt_entries_load:
     /*

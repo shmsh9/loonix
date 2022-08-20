@@ -1,4 +1,23 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memcpy_64b
+//void __memset_64b(void *ptr = x0, uint64_t b = x1, uint64_t sz = x2)
+__memset_64b:
+    __memset_64b_loop:
+    str  x1, [x0]
+    add  x0, x0 ,#8
+    sub  x2, x2, #8
+    cmp  x2, #0
+    cbnz x2, __memset_64b_loop
+    ret
+//void __memcpy_64b(void *dst = x0, void *src = x1, uint64_t sz = x2)
+__memcpy_64b:
+    __memcpy_64b_loop:
+    ldr  x3, [x1]
+    str  x3, [x0]
+    add  x0, x0, #8
+    add  x1, x1, #8
+    sub  x2, x2, #8
+    cbnz x2, __memcpy_64b_loop
+    ret 
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
     str x0,  [x0]

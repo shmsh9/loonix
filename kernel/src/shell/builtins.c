@@ -16,17 +16,18 @@ int builtins_help(int argc, char **argv){
 
 int builtins_testkarray(int argc, char **argv){
     karray *k = karray_new(sizeof(uint64_t),NULL);
-    for(uint64_t i = 0; i < 0xfffff; i++)
+    for(uint64_t i = 0; i < 0xff; i++)
         karray_push(k, i);
-    //karray_debug_print(k);
+    karray_debug_print(k);
     karray_free(k);
     return 0;
 }
 int builtins_testklist(int argc, char **argv){
     klist *k = klist_new(NULL);
-    for(uint64_t i = 0; i < 0xffff; i++){
+    for(uint64_t i = 0; i < 0xff; i++){
         klist_push(k,i);
     }
+    klist_debug_print(k);
     klist_free(k);
     return 0;
 }
@@ -65,7 +66,36 @@ int builtins_testscroll(int argc, char **argv){
     kprint("}\n");
     return 0;
 }
-
+int builtins_testmemset(int argc, char **argv){
+    char foo[17] = {0};
+    //char foo2 = {'0', '1', '2', '3', '4', '5', '6', '7'};
+    kprintf("foo = %s\n", foo);
+    //cpu_registers r = {0};
+    //cpu_registers_save(&r);
+    //kprintf("regs before :\n");
+    //CPU_REGISTERS_PRINT(&r);
+    __memset_64b(foo, B_to_8B('X'), 16);
+    //cpu_registers_save(&r);
+    //kprintf("regs after :\n");
+    //CPU_REGISTERS_PRINT(&r);
+    kprintf("foo = %s\n", foo);
+    return 0;
+}
+int builtins_testmemcpy(int argc, char **argv){
+    char foo[17] = {0};
+    char foo2[] = {'0', '1', '2', '3', '4', '5', '6', '7', '0', '1', '2', '3', '4', '5', '6', '7'};
+    kprintf("foo = %s\n", foo);
+    //cpu_registers r = {0};
+    //cpu_registers_save(&r);
+    //kprintf("regs before :\n");
+    //CPU_REGISTERS_PRINT(&r);
+    __memcpy_64b(foo, foo2, 16);
+    //cpu_registers_save(&r);
+    //kprintf("regs after :\n");
+    //CPU_REGISTERS_PRINT(&r);
+    kprintf("foo = %s\n", foo);
+    return 0;
+}
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
@@ -76,6 +106,8 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");
     BUILTINS_INIT_FN(builtins_teststrdup, "teststrdup");
     BUILTINS_INIT_FN(builtins_testscroll, "testscroll");
+    BUILTINS_INIT_FN(builtins_testmemset, "testmemset");
+    BUILTINS_INIT_FN(builtins_testmemcpy, "testmemcpy");
 
 }
 

@@ -28,7 +28,7 @@
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
-    #define VT100_REFRESH_TICK 0x1000
+    #define VT100_REFRESH_TICK 0x10000
 
     typedef struct __attribute__((__packed__)){
         uint64_t rax;
@@ -91,5 +91,10 @@
     void gdt_entries_load(gdt_ptr *ptr);
     gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap);
     gdt_entry gdt_entry_new(uint32_t limit, uint32_t base, uint8_t access_byte, uint8_t flags);
+    void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
+    void __memcpy_64b(void *dst, void *src, uint64_t sz);
+    #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_64b(dst, src, sz)
+    #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
+
 #endif
 #endif

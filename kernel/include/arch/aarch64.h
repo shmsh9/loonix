@@ -18,7 +18,7 @@
     #define INIT_VECTOR_TABLES()
     #define NEWMEM_HACK_UGLY_OFFSET 0x100000
     #define NEWMEM_ALIGN 0x10
-    #define VT100_REFRESH_TICK 0x300
+    #define VT100_REFRESH_TICK 0x1000
     typedef struct __attribute__((__packed__)){
         uint64_t x0;
         uint64_t x1;
@@ -60,5 +60,9 @@
     void cpu_registers_save(cpu_registers *regs);
     void cpu_registers_load(cpu_registers *regs);
     uint64_t cpu_get_tick();
+    void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
+    void __memcpy_64b(void *dst, void *src, uint64_t sz);
+    #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_64b(dst, src, sz)
+    #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
 #endif
 #endif

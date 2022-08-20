@@ -131,52 +131,21 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
         KERROR("ptr == NULL");
         return;
     }
-    int mod = sz % 16;
-    switch(mod){
-        case 0:
-        {
-            __uint128_t newb = (__uint128_t)b;
-            uint64_t sz_octword = sz >> 4;
-            for(uint64_t i = 0; i < sz_octword; i++){
-                ((__uint128_t *)ptr)[i] = newb;
-            }
-            return;
-            break;
-
-        }
-        case 8:
-        {
-            uint64_t sz_qword = (sz >> 3);
-            uint64_t newb = (uint64_t)b;
-            for(uint64_t i = 0; i < sz_qword; i ++){
-                ((uint64_t *)ptr)[i] = newb;
-            }
-            return;
-            break;
-        }
-        case 2:
-        {
-            uint64_t sz_word = (sz >> 1);
-            uint16_t newb = (uint16_t)b;
-            for(uint64_t i = 0; i < sz_word; i++)
-                ((uint16_t *)ptr)[i] = newb;
-            return;
-            break;
-        }
-        case 4:{
-            uint64_t sz_dword = (sz >> 2);
-            uint32_t newb = (uint32_t)b;
-            for(uint64_t i = 0; i < sz_dword; i++)
-                ((uint32_t *)ptr)[i] = newb;
-            return;
-            break;
-        }
-        default:
-            for(uint64_t i = 0; i < sz; i++)
-                ((uint8_t *)ptr)[i] = b;
-            return;
-            break;
+    uint8_t *cp_ptr = (uint8_t *)ptr;
+    while (sz % 16){
+        *cp_ptr++ = b;
+        sz--;
     }
+    if(!sz)
+        return;
+    __FASTEST_MEMSET(cp_ptr, b, sz);
+}
+uint64_t B_to_8B(uint8_t b){
+    uint64_t b64 = (uint64_t)b;
+    return (uint64_t)(  
+        b64 << 56 | b64 << 48 | b64 << 40 | b64 << 32|
+        b64 << 24 | b64 << 16 | b64 << 8  | b64 
+    );
 }
 void memcpy(void *dst, const void *src, uint64_t sz){
     if(!dst){
@@ -187,38 +156,16 @@ void memcpy(void *dst, const void *src, uint64_t sz){
         KERROR("src == NULL");
         return;
     }
-    int mod = sz % 16;
-    switch(mod){
-        case 0:{
-            uint64_t sz_octword = sz >> 4;
-            for(uint64_t i = 0; i < sz_octword; i++){
-                ((__uint128_t *)dst)[i] = ((__uint128_t *)src)[i];
-            }
-            return;
-            break;
-        }
+    uint8_t *cp_dst = (uint8_t *)dst;
+    uint8_t *cp_src = (uint8_t *)src;
 
-        case 8:
-            for(uint64_t i = 0; i < sz; i += 8)
-                ((uint64_t *)dst)[i >> 3] = ((uint64_t *)src)[ i >> 3];
-            return;
-            break;
-        case 2: 
-            for(uint64_t i = 0; i < sz; i+=2)
-                ((uint16_t *)dst)[i >> 1] = ((uint16_t *)src)[i >> 1];
-            return;
-            break;
-        case 4:
-            for(uint64_t i = 0; i < sz; i+=4)
-                ((uint32_t *)dst)[i >> 2] = ((uint32_t *)src)[i >> 2];
-            return;
-            break;
-        default:
-            for(uint64_t i = 0; i < sz; i++)
-                ((uint8_t *)dst)[i] = ((uint8_t *)src)[i];
-            return;
-            break;
+    while (sz % 16){
+        *cp_dst++ = *cp_src++;
+        sz--;
     }
+    if(!sz)
+        return;
+    __FASTEST_MEMCPY(cp_dst, cp_src, sz);
 }
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     if(!ptr1){
