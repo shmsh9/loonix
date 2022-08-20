@@ -20,7 +20,7 @@ typedef struct _framebuffer_device {
 framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uint64_t height, uint64_t size, uint16_t flags);
 void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel);
 void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
-void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
+void framebuffer_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_free_device(framebuffer_device *framebuffer);
 void framebuffer_update_device(framebuffer_device *framebuffer);

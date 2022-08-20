@@ -111,6 +111,7 @@ void kprintf(const char *fmt, ...);
 void kprint(const char *str);
 void memcpy(void *dst, const void *src, uint64_t sz);
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);
+void *memmove(void *ptr1, const void *ptr2, uint64_t n);
 char kgetchar();
 void kputc(uint8_t c);
 int32_t kalloc_find_ptr_alloc(const void *ptr);

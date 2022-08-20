@@ -3,6 +3,7 @@
 inline void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     switch((uintptr_t)framebuffer->buffer){
     case 0x0:
+        KERROR("framebuffer_device has buffer at 0x0 !");
         return;
     default:
         break;
@@ -17,13 +18,6 @@ inline void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, 
                 case 0x00:
                     return;
                 default:
-                    switch((uintptr_t)framebuffer->buffer){
-                        case 0x0:
-                            KERROR("framebuffer_device has buffer at 0x0 !");
-                            return;
-                        default:
-                            break;
-                    }
                     break;
             }
             break;
@@ -33,36 +27,23 @@ inline void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, 
         KPANIC("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
         return;
     }
-    switch((uintptr_t)framebuffer->double_buffer){
-        case 0x0:
-            //KDEBUG("drawing pixel at framebuffer->buffer[%d]\n", pos);
-            framebuffer->buffer[pos] = *pixel;
-            break;
-        default:
-            //KDEBUG("drawing pixel at framebuffer->double_buffer[%d]\n", pos);
-            framebuffer->double_buffer[pos] = *pixel;
-            break;
-    }
+    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
+    dst[pos] = *pixel;
 }
 
 void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
-    uint64_t pixel_casted = (uint64_t)(*(uint32_t *)pixel) << 32 | (*(uint32_t *)pixel);
-    uint64_t size_64bits = framebuffer->size >> 3;
-    switch((uintptr_t)framebuffer->double_buffer){
-        case 0x0:
-            for(uint64_t i = 0; i < size_64bits; i++){
-                ((uint64_t *)framebuffer->buffer)[i] = pixel_casted;
-            }
-            break;
-        default:
-            for(uint64_t i = 0; i < size_64bits; i++){
-                ((uint64_t *)framebuffer->double_buffer)[i] = pixel_casted;
-            }
-            framebuffer_update_device(framebuffer);
-            break;
-
+    if(!framebuffer->buffer)
+        return;
+    uint32_t px = *(uint32_t *)pixel;
+    __uint128_t pixel_casted = (uint64_t)(
+        (__uint128_t)px << 96 | (__uint128_t)px << 64 |
+        (uint64_t)px << 32 | px
+    );
+    uint64_t size_128bits = framebuffer->size >> 4;
+    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
+    for(__uint128_t i = 0; i < size_128bits; i++){
+        ((__uint128_t *)dst)[i] = pixel_casted;
     }
-
 }
 
 framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uint64_t height, uint64_t size, uint16_t flags){
@@ -97,7 +78,8 @@ framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uin
 }
 
 void framebuffer_free_device(framebuffer_device *framebuffer){
-    kfree(framebuffer->double_buffer);
+    if(framebuffer->double_buffer)
+        kfree(framebuffer->double_buffer);
     memset(framebuffer, 0, sizeof(framebuffer_device));
 }
 
@@ -114,14 +96,7 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
         default:
             break;
     }
-    switch((uintptr_t)framebuffer->double_buffer){
-        case 0x0:
-            KERROR("double buffering is not enabled for framebuffer at 0x%x", framebuffer->buffer);
-            break;
-        default:
-            memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
-            break;
-    }    
+    memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
 }
 void framebuffer_update_device_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
     if(offset+size > framebuffer->size){
@@ -140,22 +115,11 @@ void framebuffer_update_device_partial(framebuffer_device *framebuffer, uint64_t
         default:
             break;
     }
-    switch((uintptr_t)framebuffer->double_buffer){
-        case 0x0:
-            KERROR("double buffering is not enabled for framebuffer at 0x%x", framebuffer->buffer);
-            break;
-        default:
-            memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
-            break;
-    }    
+    memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
 }
 
-void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+void framebuffer_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
     uint64_t sprite_size = sprite->height * sprite->width;
-    //KDEBUG("sprite_size == %d", sprite_size);
-   //KDEBUG("drawing sprite x : %d y : %d", x, y);
-    //KDEBUG("sprite->height == %d", sprite->height);
-    //KDEBUG("sprite->width == %d", sprite->width);
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
        for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){
@@ -166,6 +130,16 @@ void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64
     }
 }
 void framebuffer_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+    if(sprite->width+x > framebuffer->width){
+        KERROR("too large using slow function");
+        framebuffer_draw_sprite_slow(framebuffer, x, y, sprite);
+        return;
+    }
+    if(sprite->height+y > framebuffer->height){
+        KERROR("too tall using slow function");
+        framebuffer_draw_sprite_slow(framebuffer, x, y, sprite);
+        return;
+    }
     graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
     for(uint64_t sprite_line = 0; sprite_line < sprite->height; sprite_line++){
         memcpy(
@@ -181,36 +155,24 @@ void framebuffer_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     case 0x0:
         KDEBUG("framebuffer == 0x%x", framebuffer);
         return;
-    
     default:
         switch ((uintptr_t)framebuffer->buffer){
-        case 0x0:
-            KDEBUG("framebuffer->buffer == 0x%x", framebuffer->buffer);
-            return;
-            break;
-        default:
-            switch ((uintptr_t)framebuffer->double_buffer){
             case 0x0:
-                for(uint8_t j = 0; j < y; j++){
-                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
-                        void *previous_line = (void *)((uintptr_t)framebuffer->buffer+(i*sizeof(graphics_pixel)));
-                        void *next_line = (void *)((uintptr_t)framebuffer->buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
-                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
-                    }
-                }
+                KDEBUG("framebuffer->buffer == 0x%x", framebuffer->buffer);
+                return;
                 break;
-            
-            default:
-                for(uint8_t j = 0; j < y; j++){
-                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
-                        void *previous_line = (void *)((uintptr_t)framebuffer->double_buffer+(i*sizeof(graphics_pixel)));
-                        void *next_line = (void *)((uintptr_t)framebuffer->double_buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
-                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
-                    }
+            default:{
+                graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
+                //uint64_t pixels_to_scroll = framebuffer->width * y;
+                for(uint64_t i = 0; i < y; i++){
+                    memcpy(
+                        dst, 
+                        dst+framebuffer->width,
+                        framebuffer->size*sizeof(graphics_pixel) - framebuffer->width*(sizeof(graphics_pixel))
+                    );
                 }
                 break;
             }
-            break;
         }
     }
 }
