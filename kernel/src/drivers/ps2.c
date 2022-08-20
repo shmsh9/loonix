@@ -93,6 +93,8 @@ char ps2_scancode_pressed_set_1[0x58] = {
 char ps2_scancode_released_set_1[0x6d] = {0};
 
 ps2_device ps2_device_new(uintptr_t base_port){
+    if(!base_port)
+        return (ps2_device){0};
     ps2_device ret =  (ps2_device){
         .data_port = base_port,
         .status_register = base_port+4,
