@@ -96,11 +96,26 @@ int builtins_testmemcpy(int argc, char **argv){
     kprintf("foo = %s\n", foo);
     return 0;
 }
-int builtins_logo(int argc, char **argv){
+int builtins_graphics(int argc, char **argv){
 	#include <graphics/tux.png.h>
-	graphics_sprite *crack = graphics_sprite_static_new(216, 256, TUX_PIXELS);
-	framebuffer_draw_sprite_fast(&fb, fb.width - crack->width, 0, crack);
-    graphics_sprite_static_free(crack);
+	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
+    for(uint64_t i = 0; i < 0x300; i++){
+	    framebuffer_clear(&fb, 
+            &(graphics_pixel){
+                .Red = i/2,
+                .Green = i/2,
+                .Blue = i/2
+            }
+        );
+	    framebuffer_draw_sprite_fast(
+            &fb, 
+            (fb.width/2 - tux->width/2)+i, 
+            fb.height/2 - tux->height/2, 
+            tux
+        );
+        framebuffer_update_device(&fb);
+    }
+    graphics_sprite_static_free(tux);
     return 0;
 }
 
@@ -117,7 +132,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testscroll, "testscroll");
     BUILTINS_INIT_FN(builtins_testmemset, "testmemset");
     BUILTINS_INIT_FN(builtins_testmemcpy, "testmemcpy");
-    BUILTINS_INIT_FN(builtins_logo, "logo");
+    BUILTINS_INIT_FN(builtins_graphics, "graphics");
 }
 
 

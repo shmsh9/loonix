@@ -34,16 +34,19 @@ inline void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, 
 void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
     if(!framebuffer->buffer)
         return;
+    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     uint32_t px = *(uint32_t *)pixel;
-    __uint128_t pixel_casted = (uint64_t)(
-        (__uint128_t)px << 96 | (__uint128_t)px << 64 |
+    uint64_t pixel_casted = (uint64_t)(
         (uint64_t)px << 32 | px
     );
-    uint64_t size_128bits = framebuffer->size >> 4;
-    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
-    for(__uint128_t i = 0; i < size_128bits; i++){
-        ((__uint128_t *)dst)[i] = pixel_casted;
+    uint64_t size_64bits = framebuffer->size >> 3;
+    for(uint64_t i = 0; i < size_64bits; i++){
+        ((uint64_t *)dst)[i] = pixel_casted;
     }
+   /*
+   for(uint64_t i = 0; i < framebuffer->size; i++)
+        dst[i] = *pixel;
+    */
 }
 
 framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uint64_t height, uint64_t size, uint16_t flags){
@@ -129,22 +132,23 @@ void framebuffer_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, u
        current_y++;
     }
 }
+//can not handle transparency
 void framebuffer_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+    /*
     if(sprite->width+x > framebuffer->width){
-        KERROR("too large using slow function");
         framebuffer_draw_sprite_slow(framebuffer, x, y, sprite);
         return;
     }
     if(sprite->height+y > framebuffer->height){
-        KERROR("too tall using slow function");
         framebuffer_draw_sprite_slow(framebuffer, x, y, sprite);
         return;
     }
+    */
     graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
     for(uint64_t sprite_line = 0; sprite_line < sprite->height; sprite_line++){
         memcpy(
             dst+(framebuffer->width*y+x),
-            sprite->pixels+(sprite->width*y),
+            sprite->pixels+(sprite->width*sprite_line),
             sprite->width*sizeof(graphics_pixel)
         );
         y++;

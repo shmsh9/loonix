@@ -59,7 +59,7 @@ void crt0(bootinfo *bootinfo){
         bootinfo->framebuffer.width, 
         bootinfo->framebuffer.height, 
         bootinfo->framebuffer.size, 
-        FRAMEBUFFER_DOUBLE_BUFFERING
+        FRAMEBUFFER_DIRECT_WRITE
     );
 	framebuffer_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
