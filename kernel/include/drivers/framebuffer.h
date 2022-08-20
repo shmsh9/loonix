@@ -21,6 +21,7 @@ framebuffer_device framebuffer_new_device(uintptr_t address, uint64_t width, uin
 void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel);
 void framebuffer_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
 void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
+void framebuffer_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_free_device(framebuffer_device *framebuffer);
 void framebuffer_update_device(framebuffer_device *framebuffer);
 void framebuffer_update_device_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size);

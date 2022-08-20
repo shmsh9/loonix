@@ -121,13 +121,13 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             vt100_console_current_y,
                             c
                         );
+                        vt100_console_increase_x(fb);
                         if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
+                            vt100_console_last_draw_timer = cpu_get_tick();
                             //framebuffer_update_device(fb);
                             framebuffer_update_device_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
                             vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
-                            vt100_console_last_draw_timer = cpu_get_tick();
                         }
-                        vt100_console_increase_x(fb);
                         break;
                 }
                 break;

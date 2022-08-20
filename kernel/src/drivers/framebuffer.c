@@ -165,7 +165,17 @@ void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64
        current_y++;
     }
 }
-
+void framebuffer_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+    graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
+    for(uint64_t sprite_line = 0; sprite_line < sprite->height; sprite_line++){
+        memcpy(
+            dst+(framebuffer->width*y+x),
+            sprite->pixels+(sprite->width*y),
+            sprite->width*sizeof(graphics_pixel)
+        );
+        y++;
+    }
+}
 void framebuffer_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     switch ((uintptr_t)framebuffer){
     case 0x0:

@@ -18,7 +18,7 @@ with open(f"{argv[1]}.h", "w") as f:
         try:
             b, g, r, a = p
         except:
-            r,g,b = p
+            b,g,r = p
             a = 0xff
         f.write(f"\t{r}, {g}, {b}, {a},\n")
             #f.write(f"sprite->pixels[{pxpos}] = (graphics_pixel){{ .Red = {r}, .Blue = {b}, .Green = {g}, .Alpha = {a} }};\\\n");
