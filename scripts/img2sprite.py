@@ -16,7 +16,7 @@ with open(f"{argv[1]}.h", "w") as f:
     pxpos = 0
     for p in pixels:
         try:
-            r, g, b, a = p
+            b, g, r, a = p
         except:
             r,g,b = p
             a = 0xff

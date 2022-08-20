@@ -97,9 +97,9 @@ int builtins_testmemcpy(int argc, char **argv){
     return 0;
 }
 int builtins_logo(int argc, char **argv){
-	#include "../../crack.png.h"
-	graphics_sprite *crack = graphics_sprite_static_new(339, 393, CRACK_PIXELS);
-	framebuffer_draw_sprite(&fb, 0, 0, crack);
+	#include <graphics/tux.png.h>
+	graphics_sprite *crack = graphics_sprite_static_new(216, 256, TUX_PIXELS);
+	framebuffer_draw_sprite(&fb, fb.width - crack->width, 0, crack);
     graphics_sprite_static_free(crack);
     return 0;
 }
