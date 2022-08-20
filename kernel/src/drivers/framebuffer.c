@@ -123,6 +123,32 @@ void framebuffer_update_device(framebuffer_device *framebuffer){
             break;
     }    
 }
+void framebuffer_update_device_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
+    if(offset+size > framebuffer->size){
+        KERROR("offset+size > framebuffer->size");
+        return;
+    }
+    switch((uintptr_t)framebuffer->buffer){
+    case 0x0:
+        return;
+    default:
+        break;
+    }
+    switch(framebuffer->flags & FRAMEBUFFER_DIRECT_WRITE){
+        case FRAMEBUFFER_DIRECT_WRITE:
+            return;
+        default:
+            break;
+    }
+    switch((uintptr_t)framebuffer->double_buffer){
+        case 0x0:
+            KERROR("double buffering is not enabled for framebuffer at 0x%x", framebuffer->buffer);
+            break;
+        default:
+            memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
+            break;
+    }    
+}
 
 void framebuffer_draw_sprite(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
     uint64_t sprite_size = sprite->height * sprite->width;

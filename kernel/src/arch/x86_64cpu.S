@@ -2,6 +2,7 @@
 .extern kprint
 //void gdt_entries_load(gdt_ptr *ptr)
 gdt_entries_load:
+    /*
     lgdt (%rdi)
     movq 2(%rdi), %rdi   // rdi = ptr->offset
     movq 8*3(%rdi), %rdi // rdi == ptr->offset[3]
@@ -16,6 +17,7 @@ gdt_reload_segments:
     mov  %ax, %fs
     mov  %ax, %gs
     mov  %ax, %ss
+    */
     ret
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:

@@ -28,7 +28,7 @@
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
-    #define VT100_REFRESH_TICK 0xfffff
+    #define VT100_REFRESH_TICK 0x1000
 
     typedef struct __attribute__((__packed__)){
         uint64_t rax;

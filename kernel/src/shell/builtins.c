@@ -55,6 +55,17 @@ int builtins_teststrdup(int argc, char **argv){
     return 0;
 }
 
+int builtins_testscroll(int argc, char **argv){
+    kprint("{ ");
+    for(int i = 0; i < 0xffff; i++){
+        kprintf("0x%x", i);
+        if(i+1 < 0xffff)
+            kprint(", ");
+    }
+    kprint("}\n");
+    return 0;
+}
+
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
@@ -64,6 +75,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");
     BUILTINS_INIT_FN(builtins_teststrdup, "teststrdup");
+    BUILTINS_INIT_FN(builtins_testscroll, "testscroll");
 
 }
 
