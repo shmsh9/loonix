@@ -107,7 +107,7 @@ int builtins_graphics(int argc, char **argv){
                 .Blue = i/2
             }
         );
-	    framebuffer_device_draw_sprite_fast(
+	    framebuffer_device_draw_sprite_slow(
             fb, 
             (fb->width/2 - tux->width/2)+i, 
             fb->height/2 - tux->height/2, 

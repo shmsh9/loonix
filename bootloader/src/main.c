@@ -41,7 +41,13 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
   			EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = 0;
   			uint32_t SizeOfInfo = 0;
 			gop->QueryMode(gop, i, &SizeOfInfo, &info);
-			Print(L"mode %d : %dx%d\n", i, info->HorizontalResolution, info->VerticalResolution);
+			Print(L"mode %d : %dx%d pixel_format : %d pixel_per_line : %d\n", 
+				i, 
+				info->HorizontalResolution, 
+				info->VerticalResolution,
+				info->PixelFormat,
+				info->PixelsPerScanLine
+			);
 		}
 		EFI_INPUT_KEY k = {0};
 		UINTN KeyEvent = 0;
@@ -62,8 +68,10 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 			gop->SetMode(gop, mode);
     	bootinfo.framebuffer.address =  gop->Mode->FrameBufferBase;
     	bootinfo.framebuffer.size = gop->Mode->FrameBufferSize;
-    	bootinfo.framebuffer.width = gop->Mode->Info->HorizontalResolution;
     	bootinfo.framebuffer.height = gop->Mode->Info->VerticalResolution;
+		//fix huawei buggy mode resolutions
+		bootinfo.framebuffer.width = gop->Mode->Info->PixelsPerScanLine;
+    	//bootinfo.framebuffer.width = gop->Mode->Info->HorizontalResolution;
 	}
 	uint64_t ret = loadelf(L"kernel.elf", &bootinfo);
 	DEBUG(L"rip kernel x_x : 0x%x\n", ret);
