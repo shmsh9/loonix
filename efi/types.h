@@ -5,17 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void *efi_handle_t;
-typedef uint64_t efi_status_t;
-typedef uint64_t efi_uint_t;
-typedef uint16_t CHAR16;
-
-static const efi_status_t EFI_SUCCESS = 0;
-static const efi_status_t EFI_LOAD_ERROR = 1;
-static const efi_status_t EFI_INVALID_PARAMETER = 2;
-static const efi_status_t EFI_UNSUPPORTED = 3;
-static const efi_status_t EFI_BUFFER_TOO_SMALL = 5;
-
 struct efi_time {
 	uint16_t year;
 	uint8_t month;
@@ -98,4 +87,24 @@ typedef enum {
   ///
   MaxAllocateType
 } EFI_ALLOCATE_TYPE;
+
+typedef void *efi_handle_t;
+typedef uint64_t efi_status_t;
+typedef uint64_t efi_uint_t;
+typedef uint16_t CHAR16;
+typedef uint32_t UINT32;
+typedef uint16_t UINT16;
+typedef uintptr_t UINTN;
+typedef struct efi_guid EFI_GUID;
+typedef bool	 BOOLEAN;
+typedef efi_status_t EFI_STATUS;
+typedef const void * EFI_EVENT;
+
+static const efi_status_t EFI_SUCCESS = 0;
+static const efi_status_t EFI_LOAD_ERROR = 1;
+static const efi_status_t EFI_INVALID_PARAMETER = 2;
+static const efi_status_t EFI_UNSUPPORTED = 3;
+static const efi_status_t EFI_BUFFER_TOO_SMALL = 5;
+
+
 #endif // __EFI_TYPES_H__

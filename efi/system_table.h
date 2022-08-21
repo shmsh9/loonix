@@ -5,6 +5,7 @@
 #include "efi_runtime_services.h"
 #include "simple_text_output_protocol.h"
 #include "types.h"
+#include "efi_simple_text_input_protocol.h"
 
 struct efi_system_table
 {
@@ -12,7 +13,7 @@ struct efi_system_table
 	uint16_t *FirmwareVendor;
 	uint32_t FirmwareRevision;
 	void *unused3;
-	void *unused4;
+	EFI_SIMPLE_TEXT_INPUT_PROTOCOL  *in;
 	void *unused5;
 	struct efi_simple_text_output_protocol *out;
 	void *unused6;

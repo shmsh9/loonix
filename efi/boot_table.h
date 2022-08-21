@@ -31,12 +31,12 @@ struct efi_boot_table
 	efi_status_t (*free_pool)(void *);
 
 	// Event & Timer Services
-	void (*unused7)();
-	void (*unused8)();
-	void (*unused9)();
-	void (*unused10)();
-	void (*unused11)();
-	void (*unused12)();
+    void *CreateEvent; // EFI 1.0+
+    void *SetTimer; // EFI 1.0+
+    void (*WaitForEvent)(UINTN NumberOfEvents,EFI_EVENT *Event, UINTN *Index); // EFI 1.0+
+    void *SignalEvent; // EFI 1.0+
+    void *CloseEvent; // EFI 1.0+
+    void *CheckEvent; // EFI 1.0+
 
 	// Protocol Handler Services
 	void (*unused13)();
