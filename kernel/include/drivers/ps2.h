@@ -23,6 +23,7 @@ uint8_t ps2_device_get_scancode(ps2_device *ps2);
 uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd);
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode);
 uint8_t ps2_device_getchar(ps2_device *ps2);
+uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2);
 uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd);
 uint8_t ps2_device_send_subcommand(ps2_device *ps2, uint8_t cmd);
 void ps2_device_set_bit(ps2_device *ps2, uint8_t bit);

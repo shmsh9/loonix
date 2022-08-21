@@ -2,7 +2,7 @@
 #define SHELL_H_
 #include <kstd.h>
 #include <shell/builtins.h>
-
+#include <drivers/vt100.h>
 #define SHELL_NAME   "sh3w4x"
 #define SHELL_PROMPT SHELL_NAME" $> "
 #define CMDLINE_MAX  1024

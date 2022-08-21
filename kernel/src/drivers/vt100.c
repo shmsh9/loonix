@@ -13,10 +13,16 @@ uint64_t vt100_console_last_draw_offset = 0;
 uint32_t vt100_console_time_between_draw = VT100_REFRESH_TICK;
 bool vt100_console_escaping = false;
 
+void vt100_console_update_draw_screen(framebuffer_device *fb){
+    if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
+        vt100_console_last_draw_timer = cpu_get_tick();
+        framebuffer_update_device_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
+        vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
+    }
+}
 void vt100_console_increase_x(framebuffer_device *fb){
     vt100_console_set_x(fb, 
     vt100_console_current_x+vt100_console_font_width+vt100_console_font_x_spacing);
-
 }
 void vt100_console_increase_y(framebuffer_device *fb){
     vt100_console_set_y(fb, 
@@ -94,7 +100,6 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         vt100_console_escaping_value += tmp_result;
                         break;
                 }
-                break;
             }
             else{
                 switch (c){
@@ -122,14 +127,9 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             c
                         );
                         vt100_console_increase_x(fb);
-                        if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
-                            vt100_console_last_draw_timer = cpu_get_tick();
-                            //framebuffer_update_device(fb);
-                            framebuffer_update_device_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
-                            vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
-                        }
                         break;
                 }
+                vt100_console_update_draw_screen(fb);
                 break;
             }
     }

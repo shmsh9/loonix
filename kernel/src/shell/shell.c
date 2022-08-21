@@ -15,8 +15,12 @@ int shell(){
     char cmdline[CMDLINE_MAX+1] = {0};
     int cmdlinepos = 0;
     while(1){
-        c = kgetchar();
+        c = kgetchar_non_blocking();
         switch(c){
+            //no input at the time
+            case 0x0:
+                vt100_console_update_draw_screen(&fb);
+                break;
             case '\r':
                 kputc('\n');
                 shell_exec(cmdline);

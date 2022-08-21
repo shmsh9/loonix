@@ -98,7 +98,6 @@ struct stackframe{
     uint64_t instruction_pointer;         
 };
 void __stack_chk_fail(void);
-void __fast_zeromem(void *ptr, uint64_t sz);
 void stacktrace();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
@@ -111,8 +110,8 @@ void kprintf(const char *fmt, ...);
 void kprint(const char *str);
 void memcpy(void *dst, const void *src, uint64_t sz);
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);
-void *memmove(void *ptr1, const void *ptr2, uint64_t n);
 char kgetchar();
+char kgetchar_non_blocking();
 void kputc(uint8_t c);
 int32_t kalloc_find_ptr_alloc(const void *ptr);
 void *kmalloc(uint64_t b);

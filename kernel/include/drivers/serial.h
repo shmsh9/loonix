@@ -19,4 +19,5 @@ uint8_t serial_device_readchar(serial_device *serial);
 void serial_device_waittx(serial_device *serial);
 void serial_device_waitrx(serial_device *serial);
 void serial_device_putchar(serial_device *serial, uint8_t c);
+uint8_t serial_device_readchar_non_blocking(serial_device *serial);
 #endif

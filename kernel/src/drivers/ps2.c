@@ -182,6 +182,17 @@ uint8_t ps2_device_get_scancode(ps2_device *ps2){
 uint8_t ps2_device_getchar(ps2_device *ps2){
     return ps2_scancode_set_1_to_char(ps2_device_get_scancode(ps2));
 }
+uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
+    switch (ps2->data_port){
+        case 0x0:
+            return 0x0;
+            break;
+
+        default:
+            return ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT) == 0 ? 0 : ps2_scancode_set_1_to_char((uint8_t)inb(ps2->data_port));
+            break;
+    }
+}
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     //key release event
     if(scancode >= 0x58)

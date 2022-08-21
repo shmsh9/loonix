@@ -36,6 +36,24 @@ uint8_t serial_device_readchar(serial_device *serial){
     uint8_t ret = (uint8_t)inb(serial->data);
     return ret;
 }
+uint8_t serial_device_readchar_non_blocking(serial_device *serial){
+    switch(serial->data){
+        case 0:
+            return 0;
+        default:
+            break;
+    }
+    switch(serial->arch){
+        case ARCH_X64:
+            return (inb(serial->rx_tx) & serial->tx_mask) == 0 ? 0 : (uint8_t)inb(serial->data);
+            break;
+        case ARCH_AARCH64:
+            return (inb(serial->rx_tx) & serial->rx_mask) == 0 ? (uint8_t)inb(serial->data) : 0;
+            break;
+    }
+    return 0;
+
+}
 void serial_device_waittx(serial_device *serial){
     switch(serial->data){
         case 0:

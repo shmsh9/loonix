@@ -78,6 +78,13 @@ char kgetchar(){
     }
     return serial_device_readchar(&serial);
 }
+char kgetchar_non_blocking(){
+    if(ps2.data_port)
+        return ps2_device_getchar_non_blocking(&ps2);
+    if(serial.data)
+        return serial_device_readchar_non_blocking(&serial);
+    return 0;
+}
 void kprintf(const char *fmt, ...){
     if(!fmt){
         KERROR("fmt == NULL");
