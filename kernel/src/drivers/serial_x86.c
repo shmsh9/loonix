@@ -11,7 +11,10 @@ serial_device *serial_x86_device_new(){
         .wait_rx = serial_x86_device_wait_rx,
         .wait_tx = serial_x86_device_wait_tx,
     };
-    serial_device_init(ret);
+    if(serial_device_init(ret) != 0){
+        kfree(ret);
+        ret = 0x0;
+    }
     return ret;
 }
 uint8_t serial_x86_device_getchar_non_blocking(serial_device *serial){

@@ -17,7 +17,7 @@ typedef struct _serial_device{
 #include <kstd.h>
 #include <drivers/serial_pl011.h>
 #include <drivers/serial_x86.h>
-void serial_device_init(serial_device *serial);
+int serial_device_init(serial_device *serial);
 uint8_t serial_device_readchar(serial_device *serial);
 void serial_device_waittx(serial_device *serial);
 void serial_device_waitrx(serial_device *serial);

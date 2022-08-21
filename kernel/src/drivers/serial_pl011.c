@@ -12,7 +12,10 @@ serial_device *serial_pl011_device_new(){
         .tx_mask = SERIAL_PL011_TX_MASK
 
     };
-    serial_device_init(ret);
+    if(serial_device_init(ret) != 0){
+        kfree(ret);
+        ret = 0x0;
+    }
     return ret;
 
 }

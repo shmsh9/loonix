@@ -1,4 +1,5 @@
 - Bootloader menu to choose resolution
 - Fix the scrolling code
 - 128bits memset
+- Load symbols somewhere for stacktrace
 (done) - fix serial mess

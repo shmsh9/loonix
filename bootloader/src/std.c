@@ -166,6 +166,9 @@ void Print(CHAR16 *fmt, ...){
 			}
 		}
 		CHAR16 endchar[2] = {fmt[i], 0};
+		if(fmt[i] == L'\n')
+			SystemTable->out->output_string(SystemTable->out,L"\r");
+
 		SystemTable->out->output_string(SystemTable->out,endchar);
 	}
 	__builtin_va_end(args);

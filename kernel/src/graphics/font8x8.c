@@ -16,13 +16,8 @@ void font8x8_free(char **font){
     kfree(font);
 }
 void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
-    switch((uintptr_t)font8x8){
-        case 0x0:
-            //font not initialized
-            return;
-        default:
-            break;
-    }
+    if(!font8x8)
+        return;
     if(c >= 128){
         KERROR("c is out of ascii range");
         return;

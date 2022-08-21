@@ -1,13 +1,14 @@
 #include <drivers/serial.h>
 
-void serial_device_init(serial_device *serial){
+int serial_device_init(serial_device *serial){
     if(!serial)
-        return;
+        return -1;
     outb(serial->data, 0x00);
     if(inb(serial->data) >= 0xff){
-        KERROR("serial is sending garbage disabling it");
-        memset(serial, 0, sizeof(serial_device));
+        KERROR("serial replied garbage, disabling it");
+        return -1;
     }
+    return 0;
 }
 uint8_t serial_device_readchar(serial_device *serial){
     if(!serial)

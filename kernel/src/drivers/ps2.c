@@ -108,11 +108,13 @@ ps2_device *ps2_device_new(uintptr_t base_port){
     ps2_device_send_command(ret, 0xa7);
     //flush buffer
     inb(ret->data_port);
-    uint64_t config_byte = ps2_device_send_command(ret, 0x20);
-    KDEBUG("config_byte : 0b%b", config_byte);
+    //uint64_t config_byte = ps2_device_send_command(ret, 0x20);
+    //KDEBUG("config_byte : 0b%b", config_byte);
     uint8_t result = ps2_device_send_command(ret, 0xaa);
     if(result != 0x55){
-        KDEBUG("ps/2 device responded 0x%x still trying", result);
+        //KDEBUG("ps/2 device responded 0x%x still trying", result);
+        //kfree(ret);
+        //return 0x0;
         //return (ps2_device){0};
     }
     //enable first port
