@@ -1,7 +1,8 @@
 - Load symbols from Bootloader
     (done) -> fix efi headers mess
+- Add vt100 cursor
 - Fix the scrolling code
 - 128bits memset
-- vt100 font scaling
+(done) - vt100 font scaling
 (done) - fix serial mess
 (done) - Bootloader menu to choose resolution

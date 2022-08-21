@@ -7,6 +7,7 @@
 #include <extern.h>
 typedef uintptr_t size_t;
 typedef EFI_FILE_PROTOCOL FILE;
+#define EFI_TIMER_PERIOD_SECONDS(Seconds) MultU64x32((UINT64)(Seconds), 10000000)
 #define DEBUG(...) {\
 	Print(L"[bootloader][debug] : ");\
 	for(int DEBUGfunciterator = 0; __func__[DEBUGfunciterator]; DEBUGfunciterator++){\

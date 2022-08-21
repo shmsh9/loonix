@@ -14,6 +14,10 @@
 EFI_HANDLE      ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 
+VOID bootloader_timeout(IN EFI_EVENT  Event, IN VOID *Context){
+	loadelf(L"kernel.elf", (bootinfo *)Context);
+}
+
 EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
@@ -34,10 +38,30 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
 	EFI_STATUS s = SystemTable->BootServices->LocateProtocol(&gopGuid, NULL, (void **)&gop);
-	if(s){
+	if(EFI_ERROR(s)){
 		DEBUG(L"can not open gop protocol : 0x%x !", s);
 	}
 	else{
+    	bootinfo.framebuffer.address =  gop->Mode->FrameBufferBase;
+    	bootinfo.framebuffer.size = gop->Mode->FrameBufferSize;
+    	bootinfo.framebuffer.height = gop->Mode->Info->VerticalResolution;
+		//fix huawei buggy mode resolutions
+		bootinfo.framebuffer.width = gop->Mode->Info->PixelsPerScanLine;
+    	//bootinfo.framebuffer.width = gop->Mode->Info->HorizontalResolution;
+		EFI_EVENT ev = 0;
+		UINTN to = 10;
+		SystemTable->BootServices->CreateEvent(
+			EVT_TIMER | EVT_NOTIFY_SIGNAL,
+			TPL_CALLBACK,
+			bootloader_timeout,
+			&bootinfo,
+			&ev
+		);
+		SystemTable->BootServices->SetTimer(
+			ev,
+			TimerRelative,
+			to*10000000
+		);
 		CHAR16 *padding = L"        ";
 		Print(L"L00n1x bootloader :\n");
 		for(uint8_t i = 0; i < gop->Mode->MaxMode; i++){
@@ -63,30 +87,29 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 				space_res = L"   ";
 			if(t != EFI_SUCCESS)
 				continue;
-			Print(L"%smode %d %s: %dx%d %s pixel_format : %d pixel_per_line : %d\n",
+			Print(L"%smode %d %s: %dx%d %s",
 				padding,
 				i,
 				space_mode,
 				info->HorizontalResolution, 
 				info->VerticalResolution,
-				space_res,
-				info->PixelFormat,
-				info->PixelsPerScanLine
+				space_res
 			);
+			if((i & 1))
+				Print(L"\n");
 		}
 		EFI_INPUT_KEY k = {0};
 		UINTN KeyEvent = 0;
 		uint8_t mode = 0;
-		Print(L"Select GOP mode : ");
+		Print(L"\rSelect GOP mode (%d sec timeout) : %d",to, mode);
 		while(k.UnicodeChar != 0xd){
 			SystemTable->BootServices->WaitForEvent(1, &SystemTable->ConIn->WaitForKey, &KeyEvent);
 			SystemTable->ConIn->ReadKeyStroke(SystemTable->ConIn, &k);
 			if(k.UnicodeChar - L'0' >= 0 && k.UnicodeChar - L'0' < 10){
 				mode *= 10;
 				mode += k.UnicodeChar - L'0';
-				CHAR16 tmp[2] = {k.UnicodeChar, 0};
-				Print(tmp);
 			}
+			Print(L"\rSelect GOP mode (%d sec timeout) : %d",to, mode);
 		}
 		Print(L"\n");
 		if(mode < gop->Mode->MaxMode)
