@@ -3,20 +3,20 @@
  * Copyright ©️ 2014-2021 Pete Batard <pete@akeo.ie> - Public Domain
  * See COPYING for the full licensing terms.
  */
-#include <efi.h>
-#include <shell.h>
+#include <Uefi.h>
+#include <Protocol/GraphicsOutput.h>
 #include <elf.h>
 #include <std.h>
 /*
  Put all the ugly globals here
  */
-efi_handle_t      ImageHandle;
+EFI_HANDLE      ImageHandle;
 EFI_SYSTEM_TABLE *SystemTable;
 
-efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
+EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
-	SystemTable->boot->set_watch_dog_timer(0, 0, 0, NULL);
+	SystemTable->BootServices->SetWatchdogTimer(0, 0, 0, NULL);
 	bootinfo bootinfo = {
 		ImageHandle, 
 		SystemTable, 
@@ -30,16 +30,16 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 		0,
 		{0}
 	};
-	struct efi_guid gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
-	efi_graphics_output_protocol *gop;
-	efi_status_t s = SystemTable->boot->locate_protocol(&gopGuid, NULL, (void **)&gop);
+	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
+	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;
+	EFI_STATUS s = SystemTable->BootServices->LocateProtocol(&gopGuid, NULL, (void **)&gop);
 	if(s){
 		DEBUG(L"can not open gop protocol : 0x%x !", s);
 	}
 	else{
 		for(uint8_t i = 0; i < gop->Mode->MaxMode; i++){
   			EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = 0;
-  			uint32_t SizeOfInfo = 0;
+  			UINTN SizeOfInfo = 0;
 			EFI_STATUS t = gop->QueryMode(gop, i, &SizeOfInfo, &info);
 			if(t != EFI_SUCCESS)
 				continue;
@@ -56,8 +56,8 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 		uint8_t mode = 0;
 		Print(L"Select GOP mode : ");
 		while(k.UnicodeChar != 0xd){
-			SystemTable->boot->WaitForEvent(1, &SystemTable->in->WaitForKey, &KeyEvent);
-			SystemTable->in->ReadKeyStroke(SystemTable->in, &k);
+			SystemTable->BootServices->WaitForEvent(1, &SystemTable->ConIn->WaitForKey, &KeyEvent);
+			SystemTable->ConIn->ReadKeyStroke(SystemTable->ConIn, &k);
 			if(k.UnicodeChar - L'0' >= 0 && k.UnicodeChar - L'0' < 10){
 				mode *= 10;
 				mode += k.UnicodeChar - L'0';

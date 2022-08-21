@@ -1,8 +1,7 @@
 #ifndef ELF_PARSER_H
 #define ELF_PARSER_H
-#include <efi.h>
+#include <Uefi.h>
 #include <std.h>
-#include <shell.h>
 #include <bootloader.h>
 #define ARCH_64 2
 #define ARCH_32 1
@@ -63,11 +62,11 @@ struct elf {
 void parseheader(struct elf *elf, uint8_t *buff);
 void parseprog(struct elf *elf, uint8_t *buff);
 void parself(struct elf *elf, uint8_t *buff);
-bool magichck(const uint8_t *buff);
+BOOLEAN magichck(const uint8_t *buff);
 void printheader(const struct elf *elf);
 void printseg(const struct elf *elf);
 uintptr_t baseaddr(struct elf *elf);
 uintptr_t basealloc(struct elf *elf, uintptr_t base);
 uint64_t loadelf(CHAR16 *filename, bootinfo *bi);
-struct efi_memory_descriptor *get_mmap(bootinfo *bi);
+EFI_MEMORY_DESCRIPTOR *get_mmap(bootinfo *bi);
 #endif

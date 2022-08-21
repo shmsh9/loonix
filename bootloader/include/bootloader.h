@@ -1,6 +1,6 @@
 #ifndef BOOTLOADER_H_
 #define BOOTLOADER_H_
-#include <efi.h>
+#include <Uefi.h>
 
 struct framebuffer{
 	uint16_t	height;
@@ -9,13 +9,13 @@ struct framebuffer{
 	uint64_t	size;
 };
 typedef struct{
-	efi_handle_t     ImageHandle;
+	EFI_HANDLE     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
-	efi_runtime_services *RuntimeServices;
+	EFI_RUNTIME_SERVICES *RuntimeServices;
 	void             *kernelbase;
 	void			 *kernelentry;
 	uint64_t         kernelsize;
-	struct efi_memory_descriptor *mmap;
+	EFI_MEMORY_DESCRIPTOR *mmap;
 	uint64_t mmap_size;
 	uint64_t mmap_key;
 	uint64_t uefi_exit_code;

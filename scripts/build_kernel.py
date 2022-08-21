@@ -9,7 +9,7 @@ def main():
     s_files = config.get_files_glob(f"{target}/src/", f"{param['ARCH']}*.S")
     c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=c11 \
     		-Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable\
-            -target {param['ARCH']}-none-elf -g -O0"
+            -target {param['ARCH']}-none-elf -g -O0 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
     ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
     config.clean_files_glob(f"{target}/src/","*.o")
     config.clean_files_glob(f"{target}/src/","*.elf")

@@ -1,6 +1,6 @@
 #ifndef KERNEL_H_
 #define KERNEL_H_
-#include <efi.h>
+#include <Uefi.h>
 #include <kstd.h>
 #include <newmem.h>
 #include <bootloader.h>

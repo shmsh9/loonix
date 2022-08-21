@@ -1,9 +1,12 @@
 #ifndef STD_H_
 #define STD_H_
-#include <efi.h>
+#include <Uefi.h>
+#include <Protocol/LoadedImage.h>
+#include <Protocol/SimpleFileSystem.h>
+#include <Guid/FileInfo.h>
 #include <extern.h>
 typedef uintptr_t size_t;
-typedef struct efi_file_protocol FILE;
+typedef EFI_FILE_PROTOCOL FILE;
 #define DEBUG(...) {\
 	Print(L"[bootloader][debug] : ");\
 	for(int DEBUGfunciterator = 0; __func__[DEBUGfunciterator]; DEBUGfunciterator++){\
@@ -15,9 +18,10 @@ typedef struct efi_file_protocol FILE;
 	Print(__VA_ARGS__);\
 	Print(L"\r\n");\
 }
+
 void *kmalloc(size_t sz);
 void *kcalloc(size_t elementCount, size_t elementSize);
-FILE *kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image);
+FILE *kfopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image);
 void kfclose(FILE *f);
 size_t kfsize(FILE *f);
 size_t kfread(void *buff, size_t szelement, size_t nbelement, FILE *f);

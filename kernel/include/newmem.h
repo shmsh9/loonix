@@ -32,7 +32,7 @@ typedef struct _kheap_allocated_block{
 }kheap_allocated_block;
 
 typedef struct {
-    struct efi_memory_descriptor *mmap;
+    EFI_MEMORY_DESCRIPTOR *mmap;
     uint64_t length;
 }mmap;
 #include <kstd.h>
@@ -48,7 +48,7 @@ void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start
 void kheap_free_mem2(kheap *heap, kheap_allocated_block *k);
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
 void kheap_debug_print2(kheap *heap);
-struct efi_memory_descriptor * mmap_find_largest_block(mmap *mmap);
+EFI_MEMORY_DESCRIPTOR * mmap_find_largest_block(mmap *mmap);
 void mmap_debug_print(mmap *mmap);
 mmap mmap_new(bootinfo *bootinfo);
 #endif

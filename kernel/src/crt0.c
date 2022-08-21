@@ -13,7 +13,7 @@ kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
 framebuffer_device *fb = 0x0;
-efi_runtime_services *runtime_services = 0;
+EFI_RUNTIME_SERVICES *runtime_services = 0;
 char **font8x8 = {0};
 ps2_device *ps2 = 0x0;
 serial_device *serial = 0x0;
@@ -30,17 +30,17 @@ void crt0(bootinfo *bootinfo){
     mmap mmap = mmap_new(bootinfo);
     acpi_table acpi_table = acpi_table_new(&mmap);
     KDEBUG("acpi_table 0x%x", acpi_table.acpi_memory);
-    struct efi_memory_descriptor *largest_mem_block = mmap_find_largest_block(&mmap);
+    EFI_MEMORY_DESCRIPTOR *largest_mem_block = mmap_find_largest_block(&mmap);
     if(!largest_mem_block)
         KPANIC("no available memory found !");
 
     KDEBUG("largest mem block : 0x%x %dMB (%d pages)", 
-            largest_mem_block->physical_start, 
-            BYTES_TO_MB(largest_mem_block->pages*HEAP_BLOCK_SIZE),
-            largest_mem_block->pages
+            largest_mem_block->PhysicalStart,
+            BYTES_TO_MB(largest_mem_block->NumberOfPages*HEAP_BLOCK_SIZE),
+            largest_mem_block->NumberOfPages
     );
-    uintptr_t ram_addr = largest_mem_block->physical_start;
-    uint64_t ram_pages_n = largest_mem_block->pages;
+    uintptr_t ram_addr = largest_mem_block->PhysicalStart;
+    uint64_t ram_pages_n = largest_mem_block->NumberOfPages;
     if(ram_addr == (uintptr_t)bootinfo->kernelbase || ram_addr <= (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize){
         KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
         ram_addr += bootinfo->kernelsize+NEWMEM_HACK_UGLY_OFFSET;

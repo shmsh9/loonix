@@ -2,7 +2,7 @@
 
 void *kmalloc(size_t sz){
 	void *r = NULL;
-	efi_status_t s = SystemTable->boot->allocate_pool(EFI_LOADER_DATA, sz, &r);
+	EFI_STATUS s = SystemTable->BootServices->AllocatePool(EfiLoaderData, sz, &r);
 	if(EFI_ERROR(s)){
 		Print(L"error : kmalloc() : 0x%x\n", s);
 		return NULL;
@@ -15,15 +15,15 @@ void *kcalloc(size_t elementCount, size_t elementSize){
 	return r;
 }
 void *kallocaddress(size_t sz, void *address){
-		efi_status_t s = SystemTable->boot->allocate_pages(EFI_ALLOCATE_ADDRESS, EFI_BOOT_SERVICES_DATA, EFI_SIZE_TO_PAGES(sz), address);
+		EFI_STATUS s = SystemTable->BootServices->AllocatePages(AllocateAddress, EfiBootServicesData, EFI_SIZE_TO_PAGES(sz), address);
 		if(EFI_ERROR(s))
 			Print(L"error : kallocaddress : 0x%x\n", s);
 		return address;
 }
 void kfree(void *ptr){
-	SystemTable->boot->free_pool(ptr);
+	SystemTable->BootServices->FreePool(ptr);
 }
-FILE * kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image){
+FILE * kfopen(CHAR16 *path, CHAR16 *mode, EFI_HANDLE *image){
 	CHAR16 *pathcopy = StrDuplicate(path);
 	CHAR16 *ptrpath = pathcopy;
 	while(*ptrpath){
@@ -31,17 +31,18 @@ FILE * kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image){
 			*ptrpath = L'\\';
 		ptrpath++;
 	}
-	struct efi_file_protocol *ret = NULL;
-  	struct efi_loaded_image_protocol *loaded_image = NULL;
-	struct efi_guid lipGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
-	struct efi_simple_file_system_protocol *IOVolume;                       
-	struct efi_guid fsGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
-	struct efi_file_protocol *vol;
-	SystemTable->boot->open_protocol(image, &lipGuid, (void **)&loaded_image, image, NULL,EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-	SystemTable->boot->open_protocol(loaded_image->device,  &fsGuid, (void **)&IOVolume, loaded_image->device, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
-	IOVolume->open_volume(IOVolume, &vol);
+	
+	EFI_FILE_PROTOCOL *ret = NULL;
+  	EFI_LOADED_IMAGE_PROTOCOL *loaded_image = NULL;
+	EFI_GUID lipGuid = EFI_LOADED_IMAGE_PROTOCOL_GUID;
+	EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *IOVolume = NULL;                       
+	EFI_GUID fsGuid = EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_GUID;
+	EFI_FILE_PROTOCOL *vol;
+	SystemTable->BootServices->OpenProtocol(image, &lipGuid, (void **)&loaded_image, image, NULL,EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+	SystemTable->BootServices->OpenProtocol(loaded_image->DeviceHandle,  &fsGuid, (void **)&IOVolume, loaded_image->DeviceHandle, NULL, EFI_OPEN_PROTOCOL_BY_HANDLE_PROTOCOL);
+	IOVolume->OpenVolume(IOVolume, &vol);
 	if(StrCmp(mode, L"r") == 0)
-		vol->open(vol, &ret, pathcopy, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
+		vol->Open(vol, &ret, pathcopy, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 		//uefi_call_wrapper(vol->Open,5,vol, &ret, pathcopy, EFI_FILE_MODE_READ, EFI_FILE_READ_ONLY | EFI_FILE_HIDDEN | EFI_FILE_SYSTEM);
 	/*
 	if(StrCmp(mode, L"w") == 0)
@@ -54,23 +55,23 @@ FILE * kfopen(CHAR16 *path, CHAR16 *mode, efi_handle_t *image){
 	return ret;
 }
 void kfclose(FILE *f){
-	f->close(f);
+	f->Close(f);
 }
 size_t kfsize(FILE *f){
 	uint64_t ret = 0;
-	struct efi_file_info *FileInfo = NULL;
-	efi_uint_t size = 0;
-	struct efi_guid guid = EFI_FILE_INFO_GUID;
-	f->get_info(f, &guid, &size, NULL);
+	EFI_FILE_INFO *FileInfo = NULL;
+	UINTN size = 0;
+	EFI_GUID guid = EFI_FILE_INFO_ID;
+	f->GetInfo(f, &guid, &size, NULL);
 	FileInfo = kcalloc(size,1);
-	f->get_info(f, &guid, &size, FileInfo);
-	ret = FileInfo->file_size;
+	f->GetInfo(f, &guid, &size, FileInfo);
+	ret = FileInfo->FileSize;
 	kfree(FileInfo);
 	return ret;
 }
 size_t kfread(void *buff, size_t szelement, size_t nbelement, FILE *f){
 	size_t ret = szelement*nbelement;
-	f->read(f, &ret,buff);
+	f->Read(f, &ret,buff);
 	return ret;
 }
 
@@ -110,7 +111,7 @@ void Print(CHAR16 *fmt, ...){
 		if(fmt[i] == L'%' && i+1 < l){
 			if(fmt[i+1] == L's'){
 				CHAR16 *ptrstr = __builtin_va_arg(args, CHAR16*);
-				SystemTable->out->output_string(SystemTable->out,ptrstr);
+				SystemTable->ConOut->OutputString(SystemTable->ConOut,ptrstr);
 				i += 2;
 			}
 			if(fmt[i+1] == L'd'){
@@ -136,7 +137,7 @@ void Print(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				SystemTable->out->output_string(SystemTable->out,tmpnum);
+				SystemTable->ConOut->OutputString(SystemTable->ConOut,tmpnum);
 				i += 2;
 			}
 			if(fmt[i+1] == L'x' || fmt[i+1] == L'X'){
@@ -161,15 +162,15 @@ void Print(CHAR16 *fmt, ...){
 					left++;
 					right--;
 				}
-				SystemTable->out->output_string(SystemTable->out,tmpnum);
+				SystemTable->ConOut->OutputString(SystemTable->ConOut,tmpnum);
 				i += 2;
 			}
 		}
 		CHAR16 endchar[2] = {fmt[i], 0};
 		if(fmt[i] == L'\n')
-			SystemTable->out->output_string(SystemTable->out,L"\r");
+			SystemTable->ConOut->OutputString(SystemTable->ConOut,L"\r");
 
-		SystemTable->out->output_string(SystemTable->out,endchar);
+		SystemTable->ConOut->OutputString(SystemTable->ConOut,endchar);
 	}
 	__builtin_va_end(args);
 }

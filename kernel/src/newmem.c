@@ -220,9 +220,9 @@ void mmap_debug_print(mmap *mmap){
     char *efi_memory_types[16] = {0};
     efi_memory_types[0]  = "EFI_RESERVED_MEMORY_TYPE";
     efi_memory_types[1]  = "EFI_LOADER_CODE";
-    efi_memory_types[2]  = "EFI_LOADER_DATA";
+    efi_memory_types[2]  = "EfiLoaderData";
     efi_memory_types[3]  = "EFI_BOOT_SERVICES_CODE";
-    efi_memory_types[4]  = "EFI_BOOT_SERVICES_DATA";
+    efi_memory_types[4]  = "EfiBootServicesData";
     efi_memory_types[5]  = "EFI_RUNTIME_SERVICES_CODE";
     efi_memory_types[6]  = "EFI_RUNTIME_SERVICES_DATA";
     efi_memory_types[7]  = "EFI_CONVENTIONAL_MEMORY";
@@ -238,13 +238,13 @@ void mmap_debug_print(mmap *mmap){
     KDEBUG("mmap at 0x%x", mmap->mmap);
     KDEBUG("mmap length %d", mmap->length);
     for(int i = 0; i < mmap->length; i++){
-        struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
+        EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
         kprintf("mmap[%d]\n0x%x (%d KB)\nattributes 0x%x\n%s",
             i,
-            desc->physical_start, 
-            BYTES_TO_KB(desc->pages*HEAP_BLOCK_SIZE),
-            desc->attributes,
-            desc->type < efi_memory_types_count ? efi_memory_types[desc->type] : "TYPE_NOT_FOUND"
+            desc->PhysicalStart, 
+            BYTES_TO_KB(desc->NumberOfPages*HEAP_BLOCK_SIZE),
+            desc->Attribute,
+            desc->Type < efi_memory_types_count ? efi_memory_types[desc->Type] : "TYPE_NOT_FOUND"
             );
     } 
 }
@@ -264,18 +264,18 @@ mmap mmap_new(bootinfo *bootinfo){
     return ret;
 }
 
-struct efi_memory_descriptor * mmap_find_largest_block(mmap *mmap){
+EFI_MEMORY_DESCRIPTOR * mmap_find_largest_block(mmap *mmap){
     if(!mmap){
         KERROR("mmap == NULL");
         return 0x0;
     }
     uint64_t largest_mem = 0;
-    struct efi_memory_descriptor *ret = 0;
+    EFI_MEMORY_DESCRIPTOR *ret = 0;
     for(int i = 0; i < mmap->length; i++){
-        struct efi_memory_descriptor *desc = (struct efi_memory_descriptor *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
-        if(desc->type == EFI_CONVENTIAL_MEMORY && desc->pages > largest_mem){
+        EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
+        if(desc->Type == EfiConventionalMemory && desc->NumberOfPages > largest_mem){
             ret = desc;
-            largest_mem = desc->pages;
+            largest_mem = desc->NumberOfPages;
         }
     } 
    return ret; 

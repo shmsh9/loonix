@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <kstd.h>
 #include <newmem.h>
-#include <efi.h>
+#include <Uefi.h>
 
 typedef struct{
     uintptr_t acpi_memory;

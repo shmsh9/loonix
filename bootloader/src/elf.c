@@ -27,7 +27,7 @@ void parself(struct elf *elf, uint8_t *buff){
 	parseheader(elf, buff);
 	parseprog(elf, buff);
 }
-bool magichck(const uint8_t *buff){
+BOOLEAN magichck(const uint8_t *buff){
 	return *(uint32_t *)buff == 0x464c457f;
 }
 void printheader(const struct elf *elf){
@@ -136,12 +136,13 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 	return ret;
 }
 uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
-
+	Print(L"before fopen()\n");
 	FILE *f = kfopen(filename, L"r", bi->ImageHandle);
 	if(!f){
 		DEBUG(L"cannot open %s", filename);
 		return -1;
 	}
+	Print(L"after fopen()\n");
 	size_t fs = kfsize(f);
 	uint8_t *buff = kcalloc( 1, fs);
 	if(!buff){
@@ -194,22 +195,22 @@ uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
 			filename, alloc , bi->kernelentry, 
 			bi->kernelbase);
 	get_mmap(bi);
-	bi->uefi_exit_code = SystemTable->boot->exit_boot_services(ImageHandle, bi->mmap_key);
+	bi->uefi_exit_code = SystemTable->BootServices->ExitBootServices(ImageHandle, bi->mmap_key);
 	return fnptr(bi);
 }
-struct efi_memory_descriptor *get_mmap(bootinfo *bi){
-    efi_status_t result = -1;
-    struct efi_memory_descriptor *memoryMap = NULL;
+EFI_MEMORY_DESCRIPTOR *get_mmap(bootinfo *bi){
+    EFI_STATUS result = -1;
+    EFI_MEMORY_DESCRIPTOR *memoryMap = NULL;
     uint32_t descriptorVersion = 0;
 		uint64_t mmap_size = 0;
 		uint64_t mmap_key = 0;
 		uint64_t mmap_entry_size = 0;
-    while(0 != (result = SystemTable->boot->get_memory_map(&(mmap_size),
+    while(0 != (result = SystemTable->BootServices->GetMemoryMap(&(mmap_size),
                                                    memoryMap, &(mmap_key), &mmap_entry_size, &descriptorVersion)))
     {
         if(result){
             mmap_size += 2 * mmap_entry_size;
-						SystemTable->boot->allocate_pool(EFI_LOADER_DATA, mmap_size, (void **)&memoryMap);
+						SystemTable->BootServices->AllocatePool(EfiLoaderData, mmap_size, (void **)&memoryMap);
         }
         else{
 					bi->mmap = memoryMap;
