@@ -33,7 +33,7 @@ void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, ui
         for(uint8_t current_bitfield = 0; current_bitfield < 8; current_bitfield++){
             curr_x = x;
             for(uint8_t current_bit = 0; current_bit < 8; current_bit++){
-                framebuffer_draw_pixel(fb,
+                framebuffer_device_draw_pixel(fb,
                            curr_x,
                            curr_y,
                            &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff}
@@ -50,7 +50,7 @@ void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, ui
         curr_x = x;
         for(uint8_t current_bit = 0; current_bit < 8; current_bit++){
            if((font8x8[c][current_bitfield] >> current_bit) & 1){
-               framebuffer_draw_pixel(fb,
+               framebuffer_device_draw_pixel(fb,
                        curr_x,
                        curr_y,
                        &(graphics_pixel){.Red = 0xff, .Green = 0xff, .Blue = 0xff, .Alpha = 0xff}

@@ -54,14 +54,13 @@ void crt0(bootinfo *bootinfo){
     //It is allowed to do heap allocations after this line
     INIT_VECTOR_TABLES();
     //!\ contiguous memory is needed
-    fb = framebuffer_new_device(
+    fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 
         bootinfo->framebuffer.height, 
-        bootinfo->framebuffer.size, 
         FRAMEBUFFER_DOUBLE_BUFFERING
     );
-	framebuffer_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
+	framebuffer_device_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
     //show serial init errors if serial cannot init
     serial = serial_device_new();

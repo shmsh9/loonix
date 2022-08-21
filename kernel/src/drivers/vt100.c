@@ -16,7 +16,7 @@ bool vt100_console_escaping = false;
 void vt100_console_update_draw_screen(framebuffer_device *fb){
     if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
         vt100_console_last_draw_timer = cpu_get_tick();
-        framebuffer_update_device_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
+        framebuffer_device_update_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
         vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
     }
 }
@@ -51,7 +51,7 @@ void vt100_console_set_x(framebuffer_device *fb, uint64_t x){
 void vt100_console_set_y(framebuffer_device *fb, uint64_t y){
     if(y >= fb->height){
         //need to implement framebuffer scroll;
-        framebuffer_scroll_down(fb, 
+        framebuffer_device_scroll_down(fb, 
         1*(vt100_console_font_height+vt100_console_font_y_spacing)
         );
     }
@@ -78,7 +78,7 @@ void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c){
             vt100_console_reset_y(fb);
             break;
         case 'J':
-            framebuffer_clear(fb ,&(graphics_pixel){.Red = 0x0, .Green = 0x0, .Blue = 0x0, .Alpha = 0xff});
+            framebuffer_device_clear(fb ,&(graphics_pixel){.Red = 0x0, .Green = 0x0, .Blue = 0x0, .Alpha = 0xff});
             break;
     }
     vt100_console_escaping = !vt100_console_escaping;

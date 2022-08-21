@@ -100,20 +100,20 @@ int builtins_graphics(int argc, char **argv){
 	#include <graphics/tux.png.h>
 	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
     for(uint64_t i = 0; i < 0x300; i++){
-	    framebuffer_clear(&fb, 
+	    framebuffer_device_clear(&fb, 
             &(graphics_pixel){
                 .Red = i/2,
                 .Green = i/2,
                 .Blue = i/2
             }
         );
-	    framebuffer_draw_sprite_fast(
+	    framebuffer_device_draw_sprite_fast(
             &fb, 
             (fb.width/2 - tux->width/2)+i, 
             fb.height/2 - tux->height/2, 
             tux
         );
-        framebuffer_update_device(&fb);
+        framebuffer_device_update(&fb);
     }
     graphics_sprite_static_free(tux);
     return 0;
