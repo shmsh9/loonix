@@ -36,7 +36,7 @@ typedef struct s_efi_runtime_service_handle {
 	void *      GetNextVariableName;
 	void *                SetVariable;
 	void *    GetNextHighMonotonicCount;
-	void *                ResetSystem;
+	void (*ResetSystem)(Efi_Reset_Type, UINTN, UINTN, void *);
 	void *              UpdateCapsule;
 	void *  QueryCapsuleCapabilities;
 	void *         QueryVariableInfo;

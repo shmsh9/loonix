@@ -119,7 +119,25 @@ int builtins_graphics(int argc, char **argv){
     return 0;
 }
 
+int builtins_free(int argc, char **argv){
+    uint64_t total_mem = heap.n_block*HEAP_BLOCK_SIZE;
+    uint64_t free_mem = heap.free_memory;
+    uint64_t used_mem = total_mem - free_mem;
+    kprintf("\ttotal\tused\tfree\nMem:\t%d\t%d\t%d\n", 
+        total_mem, used_mem, free_mem
+    );
+    return 0;
+}
 
+int builtins_reboot(int argc, char **argv){
+    runtime_services->ResetSystem(EfiResetCold, 0, 0, 0x0);
+    return 0;
+}
+
+int builtins_poweroff(int argc, char **argv){
+    runtime_services->ResetSystem(EfiResetShutdown, 0, 0, 0x0);
+    return 0;
+}
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
@@ -133,15 +151,8 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testmemset, "testmemset");
     BUILTINS_INIT_FN(builtins_testmemcpy, "testmemcpy");
     BUILTINS_INIT_FN(builtins_graphics, "graphics");
+    BUILTINS_INIT_FN(builtins_reboot, "reboot");
+    BUILTINS_INIT_FN(builtins_poweroff, "poweroff");
+
 }
 
-
-int builtins_free(int argc, char **argv){
-    uint64_t total_mem = heap.n_block*HEAP_BLOCK_SIZE;
-    uint64_t free_mem = heap.free_memory;
-    uint64_t used_mem = total_mem - free_mem;
-    kprintf("\ttotal\tused\tfree\nMem:\t%d\t%d\t%d\n", 
-        total_mem, used_mem, free_mem
-    );
-    return 0;
-}
