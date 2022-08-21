@@ -7,6 +7,7 @@
 #include <Protocol/GraphicsOutput.h>
 #include <elf.h>
 #include <std.h>
+#include <bootloader.h>
 /*
  Put all the ugly globals here
  */
@@ -37,16 +38,38 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 		DEBUG(L"can not open gop protocol : 0x%x !", s);
 	}
 	else{
+		CHAR16 *padding = L"        ";
+		Print(L"L00n1x bootloader :\n");
 		for(uint8_t i = 0; i < gop->Mode->MaxMode; i++){
   			EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = 0;
   			UINTN SizeOfInfo = 0;
 			EFI_STATUS t = gop->QueryMode(gop, i, &SizeOfInfo, &info);
+			CHAR16 *space_mode = i < 10 ? L"  ": L" ";
+			UINTN res_len = 0;
+			if(info->HorizontalResolution < 1000){
+				res_len += 3;
+			}
+			else{
+				res_len += 4;
+			}
+			if(info->VerticalResolution < 1000){
+				res_len += 3;
+			}
+			else{
+				res_len += 4;
+			}
+			CHAR16 *space_res = res_len == 8 ? L" ": L"  ";
+			if(res_len == 6)
+				space_res = L"   ";
 			if(t != EFI_SUCCESS)
 				continue;
-			Print(L"mode %d : %dx%d pixel_format : %d pixel_per_line : %d\n", 
-				i, 
+			Print(L"%smode %d %s: %dx%d %s pixel_format : %d pixel_per_line : %d\n",
+				padding,
+				i,
+				space_mode,
 				info->HorizontalResolution, 
 				info->VerticalResolution,
+				space_res,
 				info->PixelFormat,
 				info->PixelsPerScanLine
 			);
