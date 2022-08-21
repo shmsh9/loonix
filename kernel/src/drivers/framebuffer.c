@@ -166,14 +166,14 @@ void framebuffer_scroll_down(framebuffer_device *framebuffer, uint64_t y){
                 return;
                 break;
             default:{
-                graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
+                //graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
                 //uint64_t pixels_to_scroll = framebuffer->width * y;
-                for(uint64_t i = 0; i < y; i++){
-                    memcpy(
-                        dst, 
-                        dst+framebuffer->width,
-                        framebuffer->size*sizeof(graphics_pixel) - framebuffer->width*(sizeof(graphics_pixel))
-                    );
+                for(uint8_t j = 0; j < y; j++){
+                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
+                        void *previous_line = (void *)((uintptr_t)framebuffer->double_buffer+(i*sizeof(graphics_pixel)));
+                        void *next_line = (void *)((uintptr_t)framebuffer->double_buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
+                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
+                    }
                 }
                 break;
             }

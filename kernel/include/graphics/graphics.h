@@ -11,7 +11,7 @@
 
 #define GRAPHICS_CENTER_WIDTH(fb, sprite) ((fb.width/2) - (sprite.width/2))
 #define GRAPHICS_CENTER_HEIGHT(fb, sprite) ((fb.height/2) - (sprite.height/2))
-typedef struct {
+typedef struct __attribute__((__packed__)){
     uint8_t    Blue;
     uint8_t    Green;
     uint8_t    Red;

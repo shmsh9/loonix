@@ -1,1 +1,2 @@
 - Bootloader menu to choose resolution
+- Fix the scrolling code
