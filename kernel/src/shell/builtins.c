@@ -116,6 +116,15 @@ int builtins_graphics(int argc, char **argv){
         framebuffer_device_update(fb);
     }
     graphics_sprite_static_free(tux);
+    framebuffer_device_clear(
+        fb,
+        &(graphics_pixel){
+            .Red = 0x00,
+            .Green = 0x00,
+            .Blue = 0x00,
+            .Alpha = 0xff
+        }
+    );
     return 0;
 }
 

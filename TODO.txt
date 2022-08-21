@@ -1,5 +1,6 @@
-- Bootloader menu to choose resolution
+- Load symbols from Bootloader
+    -> fix efi headers mess
 - Fix the scrolling code
 - 128bits memset
-- Load symbols somewhere for stacktrace
 (done) - fix serial mess
+(done) - Bootloader menu to choose resolution

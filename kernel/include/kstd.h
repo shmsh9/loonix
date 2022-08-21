@@ -19,7 +19,7 @@
 #define KB_TO_BYTES(kb) ((kb) << 10)
 
 #define KMSG(type, ...) {\
-    kprintf("[kernel][%s] : %s() : ", type, __func__);\
+    kprintf("[%d][kernel][%s] : %s() : ",cpu_get_tick(),type, __func__);\
     kprintf(__VA_ARGS__);\
     kputc('\n');\
 }
@@ -41,7 +41,7 @@
 }
 #ifdef KERNEL_DEBUG
 #define KDEBUG(fmt, ...) {\
-    kprintf("[kernel][debug] : %s() %s:%d : "fmt"\n", __func__,__FILE__,__LINE__, __VA_ARGS__);\
+    kprintf("[%d][kernel][debug] : %s() %s:%d : "fmt"\n",cpu_get_tick(),__func__,__FILE__,__LINE__, __VA_ARGS__);\
 }
 #endif
 #ifndef KERNEL_DEBUG

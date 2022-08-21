@@ -119,7 +119,7 @@ typedef struct {
 /// frame buffer is also exposed so software can write directly to the video hardware.
 ///
 struct _EFI_GRAPHICS_OUTPUT_PROTOCOL {
-  void (*QueryMode)(void *, uint32_t, uint32_t *, EFI_GRAPHICS_OUTPUT_MODE_INFORMATION **);
+  EFI_STATUS (*QueryMode)(void *, uint32_t, uint32_t *, EFI_GRAPHICS_OUTPUT_MODE_INFORMATION **);
   void (*SetMode)(void *, uint32_t);
   void *Blt;
   ///

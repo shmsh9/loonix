@@ -40,7 +40,9 @@ efi_status_t efi_main(efi_handle_t aImageHandle, EFI_SYSTEM_TABLE *aSystemTable)
 		for(uint8_t i = 0; i < gop->Mode->MaxMode; i++){
   			EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = 0;
   			uint32_t SizeOfInfo = 0;
-			gop->QueryMode(gop, i, &SizeOfInfo, &info);
+			EFI_STATUS t = gop->QueryMode(gop, i, &SizeOfInfo, &info);
+			if(t != EFI_SUCCESS)
+				continue;
 			Print(L"mode %d : %dx%d pixel_format : %d pixel_per_line : %d\n", 
 				i, 
 				info->HorizontalResolution, 
