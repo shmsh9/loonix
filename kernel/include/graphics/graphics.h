@@ -9,8 +9,8 @@
 #define GRAPHICS_PIXEL_BLACK (graphics_pixel){.Blue = 0x00, .Green = 0x00, .Red = 0x00, .Alpha = 0xff}
 #define GRAPHICS_PIXEL_TRANSPARENT (graphics_pixel){.Blue = 0x00, .Green = 0x00, .Red = 0x00, .Alpha = 0x00}
 
-#define GRAPHICS_CENTER_WIDTH(fb, sprite) ((fb.width/2) - (sprite.width/2))
-#define GRAPHICS_CENTER_HEIGHT(fb, sprite) ((fb.height/2) - (sprite.height/2))
+#define GRAPHICS_CENTER_WIDTH(fb, sprite) ((fb->width/2) - (sprite.width/2))
+#define GRAPHICS_CENTER_HEIGHT(fb, sprite) ((fb->height/2) - (sprite.height/2))
 typedef struct __attribute__((__packed__)){
     uint8_t    Blue;
     uint8_t    Green;

@@ -70,7 +70,7 @@ void kprint(const char *str){
 }
 void kputc(uint8_t c){
     serial_device_putchar(serial, c);
-    vt100_console_putchar(&fb,c);
+    vt100_console_putchar(fb,c);
 }
 char kgetchar(){
     if(ps2){

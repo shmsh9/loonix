@@ -19,7 +19,7 @@ int shell(){
         switch(c){
             //no input at the time
             case 0x0:
-                vt100_console_update_draw_screen(&fb);
+                vt100_console_update_draw_screen(fb);
                 break;
             case '\r':
                 kputc('\n');

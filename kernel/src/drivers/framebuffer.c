@@ -50,23 +50,24 @@ void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel
     }
 }
 
-framebuffer_device framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags){
+framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags){
     uintptr_t bad_addresses[] = {0, 0xffffffffffffffff};
     for(int i = 0; i < sizeof(bad_addresses)/sizeof(bad_addresses[0]); i++){
         if(address == bad_addresses[i]){
             KERROR("0x%x is not a valid framebuffer address !", address);
-            return (framebuffer_device){0};
+            return 0x0;
         }
     }
+    framebuffer_device *ret = kcalloc(sizeof(framebuffer_device), 1);
     uint64_t size = width*height*sizeof(graphics_pixel);
-    framebuffer_device ret = (framebuffer_device){
+    *ret = (framebuffer_device){
         .buffer = (framebuffer_pixel *)address,
         .double_buffer = 0x0,
         .width = width,
         .height = height,
         .size = size,
         .flags = flags
-        };
+    };
     if( (flags & FRAMEBUFFER_DOUBLE_BUFFERING) == FRAMEBUFFER_DOUBLE_BUFFERING){
         void *double_buffer = kmalloc(size);
         if(!double_buffer){
@@ -74,7 +75,7 @@ framebuffer_device framebuffer_device_new(uintptr_t address, uint64_t width, uin
         }
         else{
             KDEBUG("double buffer at 0x%x", double_buffer);
-            ret.double_buffer = double_buffer;
+            ret->double_buffer = double_buffer;
         }
     }
 
@@ -84,22 +85,14 @@ framebuffer_device framebuffer_device_new(uintptr_t address, uint64_t width, uin
 void framebuffer_device_free(framebuffer_device *framebuffer){
     if(framebuffer->double_buffer)
         kfree(framebuffer->double_buffer);
-    memset(framebuffer, 0, sizeof(framebuffer_device));
+    kfree(framebuffer);
 }
 
 void framebuffer_device_update(framebuffer_device *framebuffer){
-    switch((uintptr_t)framebuffer->buffer){
-    case 0x0:
+    if(!framebuffer)
         return;
-    default:
-        break;
-    }
-    switch(framebuffer->flags & FRAMEBUFFER_DIRECT_WRITE){
-        case FRAMEBUFFER_DIRECT_WRITE:
-            return;
-        default:
-            break;
-    }
+    if(!framebuffer->double_buffer)
+        return;
     memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
 }
 void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
@@ -107,18 +100,10 @@ void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t
         KERROR("offset+size > framebuffer->size");
         return;
     }
-    switch((uintptr_t)framebuffer->buffer){
-    case 0x0:
+    if(!framebuffer)
         return;
-    default:
-        break;
-    }
-    switch(framebuffer->flags & FRAMEBUFFER_DIRECT_WRITE){
-        case FRAMEBUFFER_DIRECT_WRITE:
-            return;
-        default:
-            break;
-    }
+    if(!framebuffer->double_buffer)
+        return;
     memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
 }
 
@@ -156,28 +141,15 @@ void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64
     }
 }
 void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
-    switch ((uintptr_t)framebuffer){
-    case 0x0:
-        KDEBUG("framebuffer == 0x%x", framebuffer);
+    if(!framebuffer)
         return;
-    default:
-        switch ((uintptr_t)framebuffer->buffer){
-            case 0x0:
-                KDEBUG("framebuffer->buffer == 0x%x", framebuffer->buffer);
-                return;
-                break;
-            default:{
-                //graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
-                //uint64_t pixels_to_scroll = framebuffer->width * y;
-                for(uint8_t j = 0; j < y; j++){
-                    for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
-                        void *previous_line = (void *)((uintptr_t)framebuffer->double_buffer+(i*sizeof(graphics_pixel)));
-                        void *next_line = (void *)((uintptr_t)framebuffer->double_buffer+((i+framebuffer->width)*sizeof(graphics_pixel)));
-                        memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
-                    }
-                }
-                break;
-            }
+    graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
+    //uint64_t pixels_to_scroll = framebuffer->width * y;
+    for(uint8_t j = 0; j < y; j++){
+        for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
+            void *previous_line = (void *)((uintptr_t)dst+(i*sizeof(graphics_pixel)));
+            void *next_line = (void *)((uintptr_t)dst+((i+framebuffer->width)*sizeof(graphics_pixel)));
+            memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
         }
     }
 }

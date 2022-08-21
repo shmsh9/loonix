@@ -12,7 +12,7 @@ uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
-framebuffer_device fb = {0};
+framebuffer_device *fb = 0x0;
 efi_runtime_services *runtime_services = 0;
 char **font8x8 = {0};
 ps2_device *ps2 = 0x0;
@@ -60,7 +60,7 @@ void crt0(bootinfo *bootinfo){
         bootinfo->framebuffer.height, 
         FRAMEBUFFER_DOUBLE_BUFFERING
     );
-	framebuffer_device_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
+	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
     serial = SERIAL_DEVICE_NEW();
     //show serial init errors if serial cannot init
