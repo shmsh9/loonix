@@ -1,8 +1,7 @@
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
 #include <kstd.h>
-#include <graphics/font8x8.h>
-#include <graphics/font16x16.h>
+#include <graphics/bitmap_font.h>
 #include <drivers/framebuffer.h>
 void vt100_console_init(framebuffer_device *fb);
 void vt100_console_update_draw_screen(framebuffer_device *fb);

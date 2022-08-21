@@ -12,21 +12,20 @@ uint64_t vt100_console_last_draw_timer = 0;
 uint64_t vt100_console_last_draw_offset = 0;
 uint32_t vt100_console_time_between_draw = VT100_REFRESH_TICK;
 bool vt100_console_escaping = false;
-char **vt100_console_font_bitmap = {0};
+bitmap_font vt100_console_bitmap_font = {0};
 void (*vt100_console_font_drawing_function)(char **, framebuffer_device *,uint64_t, uint64_t, uint8_t);
 
 void vt100_console_init(framebuffer_device *fb){
+    vt100_console_bitmap_font = bitmap_font_new();
     if(fb->width >= 1920){
-        vt100_console_font_bitmap = font16x16_new();
-        vt100_console_font_drawing_function = font16x16_draw_framebuffer;
+        vt100_console_font_drawing_function = bitmap_font_16x16_draw_framebuffer;
         vt100_console_font_width = 16;
         vt100_console_font_height = 16;
         vt100_console_font_y_spacing = 4;
         vt100_console_font_x_spacing = 0;
     }
     else{
-        vt100_console_font_bitmap = font8x8_new();
-        vt100_console_font_drawing_function = font8x8_draw_framebuffer;
+        vt100_console_font_drawing_function = bitmap_font_8x8_draw_framebuffer;
         vt100_console_font_width = 8;
         vt100_console_font_height = 8;
         vt100_console_font_y_spacing = 4;
@@ -141,9 +140,9 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         vt100_console_escaping = !vt100_console_escaping;
                         break;
                     default:
-                        if(vt100_console_font_drawing_function){
+                        if(vt100_console_font_drawing_function && vt100_console_bitmap_font){
                             vt100_console_font_drawing_function(
-                                vt100_console_font_bitmap,
+                                vt100_console_bitmap_font,
                                 fb,
                                 vt100_console_current_x,
                                 vt100_console_current_y,

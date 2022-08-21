@@ -4,7 +4,6 @@
 #include <drivers/framebuffer.h>
 #include <drivers/ps2.h>
 #include <drivers/vt100.h>
-#include <graphics/font8x8.h>
 #include <newmem.h>
 #include <bootloader.h>
 #include <arch/aarch64.h>
@@ -69,7 +68,6 @@ extern struct efi_time global_efi_time;
 extern framebuffer_device *fb;
 extern uint64_t framebuffer_text_current_x;
 extern uint64_t framebuffer_text_current_y;
-extern char ** font8x8;
 extern ps2_device *ps2;
 extern serial_device *serial;
 
