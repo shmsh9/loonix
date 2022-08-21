@@ -14,8 +14,9 @@ void font8x8_free(char **font){
         kfree(font[i]);
     }
     kfree(font);
+    font = NULL;
 }
-void font8x8_draw_framebuffer(framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
+void font8x8_draw_framebuffer(char **font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
     if(!font8x8)
         return;
     if(c >= 128){

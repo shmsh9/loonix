@@ -14,7 +14,6 @@ kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
 framebuffer_device *fb = 0x0;
 EFI_RUNTIME_SERVICES *runtime_services = 0;
-char **font8x8 = {0};
 ps2_device *ps2 = 0x0;
 serial_device *serial = 0x0;
 
@@ -61,7 +60,7 @@ void crt0(bootinfo *bootinfo){
         FRAMEBUFFER_DOUBLE_BUFFERING
     );
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
-    font8x8 = font8x8_new();
+    vt100_console_init(fb);
     //show serial init errors if serial cannot init
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
