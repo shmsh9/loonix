@@ -39,11 +39,12 @@ void framebuffer_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel
     uint64_t pixel_casted = (uint64_t)(
         (uint64_t)px << 32 | px
     );
+    __memset_64b(dst, pixel_casted, framebuffer->size);
+    /*
     uint64_t size_64bits = framebuffer->size >> 3;
     for(uint64_t i = 0; i < size_64bits; i++){
         ((uint64_t *)dst)[i] = pixel_casted;
     }
-   /*
    for(uint64_t i = 0; i < framebuffer->size; i++)
         dst[i] = *pixel;
     */

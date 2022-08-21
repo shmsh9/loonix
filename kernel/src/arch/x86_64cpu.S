@@ -3,7 +3,7 @@
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
     __memset_64b_loop:
-    mov  %rax, (%rdi)
+    mov  %rsi, (%rdi)
     add  $8 ,%rdi
     sub  $8, %rdx
     jnz  __memset_64b_loop

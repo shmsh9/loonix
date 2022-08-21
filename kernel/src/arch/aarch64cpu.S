@@ -5,7 +5,6 @@ __memset_64b:
     str  x1, [x0]
     add  x0, x0 ,#8
     sub  x2, x2, #8
-    cmp  x2, #0
     cbnz x2, __memset_64b_loop
     ret
 //void __memcpy_64b(void *dst = x0, void *src = x1, uint64_t sz = x2)
