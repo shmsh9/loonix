@@ -1,19 +1,22 @@
 #ifndef SERIAL_DRIVER_H_
 #define SERIAL_DRIVER_H_
 #include <stdint.h>
-typedef struct{
+typedef struct _serial_device{
 	uint64_t data;
+	void (*wait_tx)(struct _serial_device *serial);
+	void (*wait_rx)(struct _serial_device *serial);
+	uint8_t (*getchar_non_blocking)(struct _serial_device *serial);
 	uint64_t rx_tx;
 	uint8_t  rx_mask;
 	uint8_t  tx_mask;
-	uint8_t  arch;
 }serial_device;
 #include <io.h>
 #include <drivers/pl011uart.h>
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
 #include <kstd.h>
-serial_device serial_device_new();
+#include <drivers/serial_pl011.h>
+#include <drivers/serial_x86.h>
 void serial_device_init(serial_device *serial);
 uint8_t serial_device_readchar(serial_device *serial);
 void serial_device_waittx(serial_device *serial);

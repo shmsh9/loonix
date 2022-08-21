@@ -14,14 +14,13 @@ kheap_allocated_block kalloc_list_block = {0};
 kheap heap;
 framebuffer_device fb = {0};
 efi_runtime_services *runtime_services = 0;
-char ** font8x8 = {0};
-ps2_device ps2 = {0};
-serial_device serial;
+char **font8x8 = {0};
+ps2_device *ps2 = 0x0;
+serial_device *serial = 0x0;
 
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
     irq_disable();
-    serial = serial_device_new();
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
@@ -52,6 +51,7 @@ void crt0(bootinfo *bootinfo){
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
+    serial = SERIAL_DEVICE_NEW();
     INIT_VECTOR_TABLES();
     //!\ contiguous memory is needed
     fb = framebuffer_device_new(
@@ -62,8 +62,8 @@ void crt0(bootinfo *bootinfo){
     );
 	framebuffer_device_clear(&fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     font8x8 = font8x8_new();
+    serial = SERIAL_DEVICE_NEW();
     //show serial init errors if serial cannot init
-    serial = serial_device_new();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
 }

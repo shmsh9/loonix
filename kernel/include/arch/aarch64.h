@@ -5,10 +5,7 @@
 #ifdef __aarch64__
 	#define ARCH_STRING "aarch64"
     #define ARCH_UINT ARCH_AARCH64
-	#define SERIAL_ADDRESS (uint64_t)0x9000000
-    #define SERIAL_RX_TX_OFFSET 0x18
-    #define SERIAL_TX_MASK  (1 << 5)
-    #define SERIAL_RX_MASK (1 << 4)
+    #define SERIAL_DEVICE_NEW() serial_pl011_device_new()
     #define PS2_DEVICE_ADDRESS 0x0 //no ps/2 port for Virt
     #define JUMP_INSTRUCTION "b"
     #define INTERRUPT_INSTRUCTION "svc #0"

@@ -70,8 +70,8 @@ extern framebuffer_device fb;
 extern uint64_t framebuffer_text_current_x;
 extern uint64_t framebuffer_text_current_y;
 extern char ** font8x8;
-extern ps2_device ps2;
-extern serial_device serial;
+extern ps2_device *ps2;
+extern serial_device *serial;
 
 typedef struct {
     uint8_t elementsz;

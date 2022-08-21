@@ -18,7 +18,7 @@ typedef struct {
 #define PS2_DEVICE_TIMEOUT    6
 #define PS2_DEVICE_PARITY_ERR 7
 
-ps2_device ps2_device_new(uintptr_t base_port);
+ps2_device *ps2_device_new(uintptr_t base_port);
 uint8_t ps2_device_get_scancode(ps2_device *ps2);
 uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd);
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode);

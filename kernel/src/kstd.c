@@ -69,20 +69,20 @@ void kprint(const char *str){
 		kputc(*str++);
 }
 void kputc(uint8_t c){
-    serial_device_putchar(&serial, c);
+    serial_device_putchar(serial, c);
     vt100_console_putchar(&fb,c);
 }
 char kgetchar(){
-    if(ps2.data_port){
-        return ps2_device_getchar(&ps2);
+    if(ps2){
+        return ps2_device_getchar(ps2);
     }
-    return serial_device_readchar(&serial);
+    return serial_device_readchar(serial);
 }
 char kgetchar_non_blocking(){
-    if(ps2.data_port)
-        return ps2_device_getchar_non_blocking(&ps2);
-    if(serial.data)
-        return serial_device_readchar_non_blocking(&serial);
+    if(ps2)
+        return ps2_device_getchar_non_blocking(ps2);
+    if(serial)
+        return serial_device_readchar_non_blocking(serial);
     return 0;
 }
 void kprintf(const char *fmt, ...){

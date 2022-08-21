@@ -92,28 +92,31 @@ char ps2_scancode_pressed_set_1[0x58] = {
 };
 char ps2_scancode_released_set_1[0x6d] = {0};
 
-ps2_device ps2_device_new(uintptr_t base_port){
-    if(!base_port)
-        return (ps2_device){0};
-    ps2_device ret =  (ps2_device){
+ps2_device *ps2_device_new(uintptr_t base_port){
+    if(!base_port){
+        KERROR("base_port 0x0");
+        return 0x0;
+    }
+    ps2_device *ret = kcalloc(sizeof(ps2_device), 1);
+    *ret =  (ps2_device){
         .data_port = base_port,
         .status_register = base_port+4,
         .command_register = base_port+4
     };
     //disable 2 devices
-    ps2_device_send_command(&ret, 0xad);
-    ps2_device_send_command(&ret, 0xa7);
+    ps2_device_send_command(ret, 0xad);
+    ps2_device_send_command(ret, 0xa7);
     //flush buffer
-    inb(ret.data_port);
-    uint64_t config_byte = ps2_device_send_command(&ret, 0x20);
+    inb(ret->data_port);
+    uint64_t config_byte = ps2_device_send_command(ret, 0x20);
     KDEBUG("config_byte : 0b%b", config_byte);
-    uint8_t result = ps2_device_send_command(&ret, 0xaa);
+    uint8_t result = ps2_device_send_command(ret, 0xaa);
     if(result != 0x55){
         KDEBUG("ps/2 device responded 0x%x still trying", result);
         //return (ps2_device){0};
     }
     //enable first port
-    ps2_device_send_command(&ret, 0xae);
+    ps2_device_send_command(ret, 0xae);
 
     return ret;
 }
@@ -164,7 +167,7 @@ void ps2_device_end_tx_rx(ps2_device *ps2){
     //ps2_device_unset_bit(ps2, PS2_DEVICE_OUTPUT);
 }
 uint8_t ps2_device_get_scancode(ps2_device *ps2){
-    switch (ps2->data_port){
+    switch ((uintptr_t)ps2){
         case 0x0:
             return 0x0;
             break;
@@ -183,7 +186,7 @@ uint8_t ps2_device_getchar(ps2_device *ps2){
     return ps2_scancode_set_1_to_char(ps2_device_get_scancode(ps2));
 }
 uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
-    switch (ps2->data_port){
+    switch ((uintptr_t)ps2){
         case 0x0:
             return 0x0;
             break;
