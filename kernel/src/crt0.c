@@ -1,5 +1,6 @@
 #include <drivers/ps2.h>
 #include <drivers/serial.h>
+#include <drivers/pci.h>
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
@@ -61,6 +62,7 @@ void crt0(bootinfo *bootinfo){
     );
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     vt100_console_init(fb);
+    pci_bus_enum();
     //show serial init errors if serial cannot init
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);

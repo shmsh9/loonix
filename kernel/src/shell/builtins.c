@@ -158,14 +158,22 @@ int builtins_ahci(int argc, char **argv){
 
 }
 int builtins_lspci(int argc, char **argv){
-    pci_bus_enum();
-   return 0;
+    for(int i = 0; i < pci_devices->length; i++){
+        kprintf("%d:%d.%d 0x%x & 0x%x\n", 
+            ((pci_device **)(pci_devices->array))[i]->bus,
+            ((pci_device **)(pci_devices->array))[i]->slot,
+            ((pci_device **)(pci_devices->array))[i]->function,
+            ((pci_device **)(pci_devices->array))[i]->vendor,
+            ((pci_device **)(pci_devices->array))[i]->product
+        );
+    }
+    return 0;
 }
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
     BUILTINS_INIT_FN(builtins_ahci, "ahci");
-    BUILTINS_INIT_FN(builtins_ahci, "lspci");
+    BUILTINS_INIT_FN(builtins_lspci, "lspci");
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
