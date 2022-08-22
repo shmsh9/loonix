@@ -61,10 +61,8 @@ char *strdup(const char *str){
     return ret;
 }
 void kprint(const char *str){
-	  if(!str){
-        KERROR("str == NULL");
+	  if(!str)
         return;
-    }
     while(*str)
 		kputc(*str++);
 }
@@ -127,17 +125,20 @@ void kprintf(const char *fmt, ...){
                     strn[digits-1] = tmp;
                 }
                 kprint(strn);
-                i += 2;
+                i += 1;
+                continue;
             }
             if(fmt[i+1] == 's'){
                 char *tmps = __builtin_va_arg(arg, char*);
                 kprint(tmps);
-                i += 2;
+                i += 1;
+                continue;
             }
             if(fmt[i+1] == 'c'){
                 //                                  Hum....
                 kputc((char)__builtin_va_arg(arg, uint32_t));
-                i += 2;
+                i += 1;
+                continue;
             }
         }
         kputc(fmt[i]);

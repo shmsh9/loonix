@@ -159,13 +159,25 @@ int builtins_ahci(int argc, char **argv){
 }
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
-        kprintf("%d:%d.%d 0x%x & 0x%x\n", 
-            ((pci_device **)(pci_devices->array))[i]->bus,
-            ((pci_device **)(pci_devices->array))[i]->slot,
-            ((pci_device **)(pci_devices->array))[i]->function,
-            ((pci_device **)(pci_devices->array))[i]->vendor,
-            ((pci_device **)(pci_devices->array))[i]->product
-        );
+        char *padding_bus, *padding_slot;
+        uint8_t bus = ((pci_device **)(pci_devices->array))[i]->bus;
+        uint8_t slot = ((pci_device **)(pci_devices->array))[i]->slot;
+        uint8_t function = ((pci_device **)(pci_devices->array))[i]->function;
+        uint16_t vendor = ((pci_device **)(pci_devices->array))[i]->vendor;
+        uint16_t product = ((pci_device **)(pci_devices->array))[i]->product;
+        padding_bus = "";
+        if(bus < 10)
+            padding_bus = "00";
+        if(bus >= 10 && bus < 100)
+            padding_bus = "0";
+        
+        padding_slot = slot > 10 ? "": "0";
+        kprintf("%s%d:", padding_bus, bus);
+        kprintf("%s%d.", padding_slot, slot);
+        kprintf("%d", function);
+        kprintf(" 0x%x & 0x%x ", vendor, product);
+        kprintf(pci_class_strings[((pci_device **)(pci_devices->array))[i]->class]);
+        kputc('\n');
     }
     return 0;
 }

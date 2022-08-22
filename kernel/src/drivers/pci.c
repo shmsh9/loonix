@@ -1,6 +1,23 @@
 #include <drivers/pci.h>
 //https://github.com/levex/osdev/blob/master/drivers/pci/pci.c
 karray *pci_devices = 0x0;
+char *pci_class_strings[0x100] = {0};
+
+void pci_class_strings_init(){
+    pci_class_strings[PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller";
+    pci_class_strings[PCI_CLASS_DISPLAY_CONTROLLER] = "Display Controller";
+    pci_class_strings[PCI_CLASS_MULTIMEDIA_DEVICE] = "Multimedia Device";
+    pci_class_strings[PCI_CLASS_MEMORY_CONTROLLER] = "Memory Controller";
+    pci_class_strings[PCI_CLASS_BRIDGE_DEVICE] = "Bridge Device";
+    pci_class_strings[PCI_CLASS_SIMPLE_COMMUNICATION_CONTROLLER] = "Simple Communication Controller";
+    pci_class_strings[PCI_CLASS_BASE_SYSTEM_PERIPHERAL] = "Base System Peripheral";
+    pci_class_strings[PCI_CLASS_INPUT_DEVICE] = "Input Device";
+    pci_class_strings[PCI_CLASS_DOCKING_STATION] = "Docking Station";
+    pci_class_strings[PCI_CLASS_PROCESSOR] = "Processor";
+    pci_class_strings[PCI_CLASS_SERIAL_BUS_CONTROLLER] = "Serial Bus Controller";
+    pci_class_strings[PCI_CLASS_UNASSIGNED] = "Unassigned class";
+
+}
 
 void pci_bus_enum(){
     if(!PCI_BUS_ADDRESS){
@@ -18,6 +35,7 @@ void pci_bus_enum(){
         KERROR("error allocating mem for pci_devices");
         return;
     }
+    pci_class_strings_init();
 	for(uint32_t bus = 0; bus < 256; bus++){
         for(uint32_t slot = 0; slot < 32; slot++){
             for(uint32_t function = 0; function < 8; function++){
