@@ -135,13 +135,11 @@ uintptr_t basealloc(struct elf *elf, uintptr_t base){
 	return ret;
 }
 uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
-	Print(L"before fopen()\n");
 	FILE *f = kfopen(filename, L"r", bi->ImageHandle);
 	if(!f){
 		DEBUG(L"cannot open %s", filename);
 		return -1;
 	}
-	Print(L"after fopen()\n");
 	size_t fs = kfsize(f);
 	uint8_t *buff = kcalloc( 1, fs);
 	if(!buff){

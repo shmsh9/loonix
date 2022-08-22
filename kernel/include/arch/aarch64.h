@@ -10,7 +10,7 @@
     #define JUMP_INSTRUCTION "b"
     #define INTERRUPT_INSTRUCTION "svc #0"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %0, x29" : "=r"(stk))
-    #define PCI_BUS_ADDRESS 0x10000000 
+    #define PCI_BUS_ADDRESS 0x10000000
     #define _INB(address, ret) ret = *(volatile uint32_t *)address
     #define _INL(addess, ret) _INB(address, ret)
     #define _OUTB(address, data) *(volatile uint32_t *)address = data;

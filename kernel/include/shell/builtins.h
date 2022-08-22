@@ -2,6 +2,7 @@
 #define SHELL_BUILTINS_H_
 #include <kstd.h>
 #include <drivers/ahci.h>
+#include <drivers/pci.h>
 
 #define BUILTIN_SIZE 16
 #define BUILTINS_INIT_FN(fn, n){\

@@ -1,47 +1,37 @@
 #include <drivers/pci.h>
 //https://github.com/levex/osdev/blob/master/drivers/pci/pci.c
+
 void pci_bus_enum(){
-	for(uint32_t bus = 0; bus < 256; bus++)
-    {
-        for(uint32_t slot = 0; slot < 32; slot++)
-        {
-            for(uint32_t function = 0; function < 8; function++)
-            {
-                    /*
-                    uint16_t vendor = getVendorID(bus, slot, function);
-                    if(vendor == 0xffff) continue;
-                    uint16_t device = getDeviceID(bus, slot, function);
-                    mprint("vendor: 0x%x device: 0x%x\n", vendor, device);
-                    pci_device *pdev = (pci_device *)malloc(sizeof(pci_device));
-                    pdev->vendor = vendor;
-                    pdev->device = device;
-                    pdev->func = function;
-                    pdev->driver = 0;
-                    add_pci_device(pdev);
-                    */
-                   uint16_t vendor = pci_get_vendor_id(bus, slot, function);
-                   if(vendor != 0xffff)
-                        KDEBUG("found %d/%d/%d : 0x%x", bus, slot, function, vendor);
+	for(uint32_t bus = 0; bus < 256; bus++){
+        for(uint32_t slot = 0; slot < 32; slot++){
+            for(uint32_t function = 0; function < 8; function++){
+                uint16_t vendor = pci_get_vendor_id(bus, slot, function);
+                if(vendor == 0xffff)
+                    continue;
+                uint16_t device = pci_get_device_id(bus, slot, function);
+                kprintf("%d:%d:%d : %x&%x\n", bus, slot, function, vendor, device);
             }
         }
     }
 }
 
 uint16_t pci_get_vendor_id(uint16_t bus, uint16_t device, uint16_t function){
-        uint32_t r0 = pci_get_word(bus,device,function,0);
-        return r0;
+        return pci_get_word(bus,device,function,0);
 }
-
-
+uint16_t pci_get_device_id(uint16_t bus, uint16_t device, uint16_t function){
+        return pci_get_word(bus,device,function,1);
+}
+uint16_t pci_get_class_id(uint16_t bus, uint16_t device, uint16_t function){
+        uint32_t r0 = pci_get_word(bus,device,function,0xA);
+        return (r0 & ~0x00FF) >> 8;
+}
+uint16_t pci_get_subclass_id(uint16_t bus, uint16_t device, uint16_t function){
+        uint32_t r0 = pci_get_word(bus,device,function,0xA);
+        return (r0 & ~0xFF00);
+}
 uint16_t pci_get_word(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset){
-	uint64_t address;
-    uint64_t lbus = (uint64_t)bus;
-    uint64_t lslot = (uint64_t)slot;
-    uint64_t lfunc = (uint64_t)func;
-    uint16_t tmp = 0;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(PCI_CONFIG_ADDRESS, address);
-    tmp = (uint16_t)((inl(PCI_CONFIG_DATA) >> ((offset & 2) * 8)) & 0xffff);
-    return (tmp);
+	uint32_t addr = PCI_CONFIG_ENABLE | PCI_CONFIG_BUSID(bus) | PCI_CONFIG_DEVID(slot) |
+		PCI_CONFIG_FUNC(func) | offset;
+	outl(addr, PCI_BUS_ADDRESS);
+	return inl(PCI_BUS_CONFIG);
 }

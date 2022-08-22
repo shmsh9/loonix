@@ -11,7 +11,7 @@
     #define PS2_DEVICE_ADDRESS 0x60
     #define SERIAL_DEVICE_NEW() serial_x86_device_new()
     #define PCI_BUS_ADDRESS 0xCF8
-
+    #define PCI_BUS_CONFIG  0xCFC
     #define JUMP_INSTRUCTION "jmp"
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))

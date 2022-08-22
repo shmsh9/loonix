@@ -157,10 +157,15 @@ int builtins_ahci(int argc, char **argv){
     return 0;
 
 }
+int builtins_lspci(int argc, char **argv){
+    pci_bus_enum();
+   return 0;
+}
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
     BUILTINS_INIT_FN(builtins_ahci, "ahci");
+    BUILTINS_INIT_FN(builtins_ahci, "lspci");
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
