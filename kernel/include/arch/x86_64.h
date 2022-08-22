@@ -20,6 +20,11 @@
         __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
         ret = tmp;\
     }
+    #define _INW(address, ret){\
+        volatile uint16_t tmp = 0;\
+        __asm__ __volatile__("inw %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
+        ret = tmp;\
+    }
     #define _INL(address, ret){\
         volatile uint32_t tmp = 0;\
         __asm__ __volatile__("inl %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\

@@ -15,23 +15,7 @@ void pci_bus_enum(){
     }
 }
 
-uint16_t pci_get_vendor_id(uint16_t bus, uint16_t device, uint16_t function){
-        return pci_get_word(bus,device,function,0);
-}
-uint16_t pci_get_device_id(uint16_t bus, uint16_t device, uint16_t function){
-        return pci_get_word(bus,device,function,1);
-}
-uint16_t pci_get_class_id(uint16_t bus, uint16_t device, uint16_t function){
-        uint32_t r0 = pci_get_word(bus,device,function,0xA);
-        return (r0 & ~0x00FF) >> 8;
-}
-uint16_t pci_get_subclass_id(uint16_t bus, uint16_t device, uint16_t function){
-        uint32_t r0 = pci_get_word(bus,device,function,0xA);
-        return (r0 & ~0xFF00);
-}
 uint16_t pci_get_word(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset){
-	uint32_t addr = PCI_CONFIG_ENABLE | PCI_CONFIG_BUSID(bus) | PCI_CONFIG_DEVID(slot) |
-		PCI_CONFIG_FUNC(func) | offset;
-	outl(addr, PCI_BUS_ADDRESS);
-	return inl(PCI_BUS_CONFIG);
+    outl(0xCF8, (0x80000000 | (bus<<16) | (slot<<11) | (func<<8) | (offset & 0xFC)) );
+    return inl(0xCFC);
 }

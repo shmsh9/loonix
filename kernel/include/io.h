@@ -6,5 +6,6 @@
 uint32_t inb(uint64_t address);
 void outb(uint64_t address, uint32_t data);
 uint32_t inl(uint64_t address);
+uint16_t inw(uint64_t address);
 void outl(uint64_t address, uint32_t data);
 #endif
