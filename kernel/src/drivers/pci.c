@@ -17,5 +17,5 @@ void pci_bus_enum(){
 
 uint16_t pci_get_word(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset){
     outl(0xCF8, (0x80000000 | (bus<<16) | (slot<<11) | (func<<8) | (offset & 0xFC)) );
-    return inl(0xCFC);
+    return inw(0xCFC);
 }

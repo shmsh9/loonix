@@ -31,7 +31,7 @@
         ret = tmp;\
     }
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
-    #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint32_t)address))
+    #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
 
     #define INIT_VECTOR_TABLES(){\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\

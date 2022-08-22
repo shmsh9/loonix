@@ -19,5 +19,5 @@ uint32_t inl(uint64_t address){
     return r;
 }
 void outl(uint64_t address, uint32_t data){
-    _OUTB(address, data);
+    _OUTL(address, data);
 }
