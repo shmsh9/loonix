@@ -1,5 +1,6 @@
 - Load symbols from Bootloader
     (done) -> fix efi headers mess
+- Filesystem
 - Add vt100 cursor
 - Fix the scrolling code
 - 128bits memset
