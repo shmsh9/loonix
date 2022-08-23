@@ -19,6 +19,7 @@ typedef struct{
 	uint64_t mmap_size;
 	uint64_t mmap_key;
 	uint64_t uefi_exit_code;
+	EFI_CONFIGURATION_TABLE *acpi_table;
 	struct framebuffer framebuffer;
 }bootinfo;
 #endif

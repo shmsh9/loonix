@@ -20,10 +20,12 @@ void pci_class_strings_init(){
 }
 
 void pci_bus_enum(){
+    /*
     if(!PCI_BUS_ADDRESS){
         KERROR("PCI_BUS_ADDRESS == 0x0");
         return;
     }
+    */
     if(!pci_devices){
         pci_devices = karray_new(sizeof(pci_device *), kfree);
     }
@@ -48,18 +50,57 @@ void pci_bus_enum(){
     }
     KDEBUG("found %d pci devices", pci_devices->length);
 }
+void pci_device_write_data_32(pci_device *dev, uint16_t offset,uint32_t data){
+    uint64_t address;
+    uint64_t lbus = (uint64_t)dev->bus;
+    uint64_t lslot = (uint64_t)dev->slot;
+    uint64_t lfunc = (uint64_t)dev->function;
+    address = (uint64_t)((lbus << 16) | (lslot << 11) |
+            (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+    outl(PCI_BUS_ADDRESS, address);
+    outl(PCI_CONFIG_DATA, data);
+}
+void pci_device_write_data_16(pci_device *dev, uint16_t offset, uint16_t data){
+    uint64_t address;
+    uint64_t lbus = (uint64_t)dev->bus;
+    uint64_t lslot = (uint64_t)dev->slot;
+    uint64_t lfunc = (uint64_t)dev->function;
+    address = (uint64_t)((lbus << 16) | (lslot << 11) |
+            (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+    outl(PCI_BUS_ADDRESS, address);
+    outw(PCI_CONFIG_DATA, data);
 
+}
+uint32_t pci_device_read_data_32(pci_device *dev, uint16_t offset){
+    uint64_t address;
+    uint64_t lbus = (uint64_t)dev->bus;
+    uint64_t lslot = (uint64_t)dev->slot;
+    uint64_t lfunc = (uint64_t)dev->function;
+    address = (uint64_t)((lbus << 16) | (lslot << 11) |
+              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+    outl(PCI_BUS_ADDRESS, address);
+    return (uint32_t)((inl(PCI_CONFIG_DATA) >> ((offset & 2) * 8)) & 0xffff);
+}
+uint16_t pci_device_read_data_16(pci_device *dev, uint16_t offset){
+    uint64_t address;
+    uint64_t lbus = (uint64_t)dev->bus;
+    uint64_t lslot = (uint64_t)dev->slot;
+    uint64_t lfunc = (uint64_t)dev->function;
+    address = (uint64_t)((lbus << 16) | (lslot << 11) |
+              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
+    outl(PCI_BUS_ADDRESS, address);
+    return (uint16_t)((inw(PCI_CONFIG_DATA) >> ((offset & 2) * 8)) & 0xffff);
+
+}
 uint16_t pci_read_16(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset){
 	uint64_t address;
     uint64_t lbus = (uint64_t)bus;
     uint64_t lslot = (uint64_t)slot;
     uint64_t lfunc = (uint64_t)func;
-    uint16_t tmp = 0;
     address = (uint64_t)((lbus << 16) | (lslot << 11) |
               (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
     outl(PCI_BUS_ADDRESS, address);
-    tmp = (uint16_t)((inl(PCI_BUS_CONFIG) >> ((offset & 2) * 8)) & 0xffff);
-    return (tmp);
+    return (uint16_t)((inl(PCI_CONFIG_DATA) >> ((offset & 2) * 8)) & 0xffff);
 }
 
 pci_device *pci_device_new(uint16_t bus, uint16_t slot, uint16_t function){

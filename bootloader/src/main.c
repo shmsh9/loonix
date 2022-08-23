@@ -23,17 +23,18 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	SystemTable = aSystemTable;
 	SystemTable->BootServices->SetWatchdogTimer(0, 0, 0, NULL);
 	bootinfo bootinfo = {
-		ImageHandle, 
-		SystemTable, 
-		SystemTable->RuntimeServices, 
-		0, 
-		0, 
-		0, 
-		0, 
-		0,
-		0,
-		0,
-		{0}
+		.ImageHandle = ImageHandle, 
+		.SystemTable = SystemTable, 
+		.RuntimeServices = SystemTable->RuntimeServices, 
+		.kernelbase = 0, 
+		.kernelentry = 0, 
+		.kernelsize = 0, 
+		.mmap = 0, 
+		.mmap_size = 0,
+		.mmap_key = 0,
+		.uefi_exit_code = 0,
+		.acpi_table = SystemTable->ConfigurationTable,
+		.framebuffer = {0}
 	};
 	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL *gop;

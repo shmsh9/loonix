@@ -148,14 +148,18 @@ int builtins_poweroff(int argc, char **argv){
     return 0;
 }
 int builtins_ahci(int argc, char **argv){
-    ahci_controller *ahci_c = ahci_controller_new();
-    ahci_device *ahci = ahci_device_new(ahci_c, 0);
-    // 0 == master device
-    ahci_device_free(ahci);
-    ahci_controller_free(ahci_c);
-    ahci = 0x0;
+    ahci_controller *cont = ahci_controller_new();
+    ahci_device *dev0 = ahci_device_new(cont, 0);
+    kprintf("reg0 : 0x%x\n", 
+        pci_get_bar0(
+            dev0->controller->dev->bus, 
+            dev0->controller->dev->slot, 
+            dev0->controller->dev->function
+            )
+    );
+    ahci_device_free(dev0);
+    ahci_controller_free(cont);
     return 0;
-
 }
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
@@ -165,6 +169,8 @@ int builtins_lspci(int argc, char **argv){
         uint8_t function = ((pci_device **)(pci_devices->array))[i]->function;
         uint16_t vendor = ((pci_device **)(pci_devices->array))[i]->vendor;
         uint16_t product = ((pci_device **)(pci_devices->array))[i]->product;
+        uint16_t subclass = ((pci_device **)(pci_devices->array))[i]->subclass;
+
         padding_bus = "";
         if(bus < 10)
             padding_bus = "00";
@@ -176,7 +182,10 @@ int builtins_lspci(int argc, char **argv){
         kprintf("%s%d.", padding_slot, slot);
         kprintf("%d", function);
         kprintf(" 0x%x & 0x%x ", vendor, product);
-        kprintf(pci_class_strings[((pci_device **)(pci_devices->array))[i]->class]);
+        kprintf("%s (0x%x)",
+        pci_class_strings[((pci_device **)(pci_devices->array))[i]->class],
+        subclass
+        );
         kputc('\n');
     }
     return 0;

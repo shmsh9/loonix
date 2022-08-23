@@ -26,10 +26,8 @@ void crt0(bootinfo *bootinfo){
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
     if(!bootinfo->mmap)
         KPANIC("cannot retrieve memory map at 0x%x !", bootinfo->mmap);
-    
     mmap mmap = mmap_new(bootinfo);
-    acpi_table acpi_table = acpi_table_new(&mmap);
-    KDEBUG("acpi_table 0x%x", acpi_table.acpi_memory);
+    acpi_table *acpi_table = acpi_table_new(bootinfo);
     EFI_MEMORY_DESCRIPTOR *largest_mem_block = mmap_find_largest_block(&mmap);
     if(!largest_mem_block)
         KPANIC("no available memory found !");
@@ -62,7 +60,9 @@ void crt0(bootinfo *bootinfo){
     );
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     vt100_console_init(fb);
-    pci_bus_enum();
+    //pci_bus_enum();
+    acpi_table_debug_print(acpi_table);
+    KDEBUG("acpi_table 0x%x", acpi_table);
     //show serial init errors if serial cannot init
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);

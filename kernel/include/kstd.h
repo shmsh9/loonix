@@ -105,6 +105,7 @@ char *strdup(const char *str);
 void memset(void *ptr, uint8_t b, uint64_t sz);
 uint64_t B_to_8B(uint8_t b);
 void kprintf(const char *fmt, ...);
+void kprinthex(void *ptr, uint64_t n);
 void kprint(const char *str);
 void memcpy(void *dst, const void *src, uint64_t sz);
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);

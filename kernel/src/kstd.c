@@ -145,6 +145,27 @@ void kprintf(const char *fmt, ...){
     }
     __builtin_va_end(arg);
 }
+void kprinthex(void *ptr, uint64_t n){
+    #define KPRINTHEX_PADDING(n) (n < 0x10 ? "0":"")
+    if(!ptr)
+        return;
+    uint64_t counter = (uint64_t)ptr;
+    uint8_t *ptr_casted = (uint8_t *)ptr;
+    for(uint64_t j = 0; j < n; j+= 8, counter+= 8){
+        kprintf("0x%x : ", counter);
+        for(uint64_t i = 0; i < 8 && i+j < n; i++){
+            kprintf("0x%s%x ", KPRINTHEX_PADDING(ptr_casted[j+i]), ptr_casted[j+i]);
+        }
+        for(uint64_t i = 0; i < 8 && i+j < n; i++){
+            if(ptr_casted[j+i] < 128 && ptr_casted[j+i] > 27)
+                kprintf("%c ", ptr_casted[j+i]);
+            else
+                kprint(". ");
+        }
+        kputc('\n');
+    }
+    kprint("\n");
+}
 void memset(void *ptr, uint8_t b, uint64_t sz){
     if(!ptr){
         KERROR("ptr == NULL");

@@ -4,7 +4,8 @@
 #include <kstd.h>
 #include <drivers/pci.h>
 
-#define ATA_CMD_IDENTIFY 0xEC
+#define AHCI_PCI_SUBCLASS 0x06
+#define ATA_CMD_IDENTIFY  0xEC
 
 typedef enum{
     AHCI_CONTROLLER_IDE,
@@ -13,13 +14,12 @@ typedef enum{
 
 
 typedef struct _ahci_controller{
-    uint64_t address;
+    pci_device *dev;
     AHCI_CONTROLLER_MODE mode;
 }ahci_controller;
 
 typedef struct _ahci_device{
-    uint8_t  device;
-    uint64_t dma;
+	uint8_t device;
     ahci_controller *controller;
 }ahci_device;
 
@@ -177,8 +177,8 @@ typedef struct __attribute__((packed)) _FIS_DMA_SETUP{
 } FIS_DMA_SETUP;
 
 ahci_device *ahci_device_new(ahci_controller *controller, uint8_t port);
+void ahci_controller_free(ahci_controller *controller);
 ahci_controller *ahci_controller_new();
 void ahci_device_free(ahci_device *ahci);
-void ahci_controller_free(ahci_controller *ahci_c);
 void ahci_device_send_command(ahci_device *ahci, uint8_t cmd);
 #endif

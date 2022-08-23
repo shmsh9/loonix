@@ -11,7 +11,6 @@
     #define PS2_DEVICE_ADDRESS 0x60
     #define SERIAL_DEVICE_NEW() serial_x86_device_new()
     #define PCI_BUS_ADDRESS 0xCF8
-    #define PCI_BUS_CONFIG  0xCFC
     #define JUMP_INSTRUCTION "jmp"
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
@@ -32,7 +31,7 @@
     }
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
     #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
-
+    #define _OUTW(address, data) __asm__ __volatile__("outw %0, %1" : : "a"((uint16_t)data), "Nd"((uint16_t)address))
     #define INIT_VECTOR_TABLES(){\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\

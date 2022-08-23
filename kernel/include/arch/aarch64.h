@@ -7,18 +7,18 @@
     #define ARCH_UINT ARCH_AARCH64
     #define SERIAL_DEVICE_NEW() serial_pl011_device_new()
     #define PS2_DEVICE_ADDRESS 0x0 //no ps/2 port for Virt
-    #define PCI_BUS_CONFIG 0x0
-    #define PCI_BUS_ADDRESS 0x0
+    #define PCI_BUS_ADDRESS 0xa000000
     #define JUMP_INSTRUCTION "b"
     #define INTERRUPT_INSTRUCTION "svc #0"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %0, x29" : "=r"(stk))
-    #define _INB(address, ret) ret = *(volatile uint32_t *)address
-    #define _INW(addess, ret) _INB(address, ret)
-    #define _INL(addess, ret) _INB(address, ret)
-    #define _OUTB(address, data) *(volatile uint32_t *)address = data;
-    #define _OUTL(address, data) _OUTB(address, data)
+    #define _INB(address, ret) ret = *(volatile uint8_t *)address
+    #define _INW(addess, ret) ret = *(volatile uint16_t *)address
+    #define _INL(addess, ret) ret = *(volatile uint32_t *)address
+    #define _OUTB(address, data) *(volatile uint8_t *)address = data
+    #define _OUTL(address, data) *(volatile uint32_t *)address = data
+    #define _OUTW(address, data) *(volatile uint16_t *)address = data
     #define INIT_VECTOR_TABLES()
-    #define NEWMEM_HACK_UGLY_OFFSET 0x100000
+    #define NEWMEM_HACK_UGLY_OFFSET 0
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x200000
     typedef struct __attribute__((__packed__)){
