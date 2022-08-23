@@ -20,12 +20,10 @@ void pci_class_strings_init(){
 }
 
 void pci_bus_enum(){
-    /*
     if(!PCI_BUS_ADDRESS){
         KERROR("PCI_BUS_ADDRESS == 0x0");
         return;
     }
-    */
     if(!pci_devices){
         pci_devices = karray_new(sizeof(pci_device *), kfree);
     }

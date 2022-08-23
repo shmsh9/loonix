@@ -12,7 +12,7 @@ typedef struct{
 	EFI_HANDLE     ImageHandle;
 	EFI_SYSTEM_TABLE *SystemTable;
 	EFI_RUNTIME_SERVICES *RuntimeServices;
-	void             *kernelbase;
+	void			 *kernelbase;
 	void			 *kernelentry;
 	uint64_t         kernelsize;
 	EFI_MEMORY_DESCRIPTOR *mmap;
@@ -20,6 +20,7 @@ typedef struct{
 	uint64_t mmap_key;
 	uint64_t uefi_exit_code;
 	EFI_CONFIGURATION_TABLE *acpi_table;
+	uint64_t acpi_table_length;
 	struct framebuffer framebuffer;
 }bootinfo;
 #endif

@@ -34,6 +34,7 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 		.mmap_key = 0,
 		.uefi_exit_code = 0,
 		.acpi_table = SystemTable->ConfigurationTable,
+		.acpi_table_length = SystemTable->NumberOfTableEntries,
 		.framebuffer = {0}
 	};
 	EFI_GUID gopGuid = EFI_GRAPHICS_OUTPUT_PROTOCOL_GUID;

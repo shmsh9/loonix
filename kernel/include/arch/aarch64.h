@@ -7,7 +7,7 @@
     #define ARCH_UINT ARCH_AARCH64
     #define SERIAL_DEVICE_NEW() serial_pl011_device_new()
     #define PS2_DEVICE_ADDRESS 0x0 //no ps/2 port for Virt
-    #define PCI_BUS_ADDRESS 0xa000000
+    #define PCI_BUS_ADDRESS 0x0
     #define JUMP_INSTRUCTION "b"
     #define INTERRUPT_INSTRUCTION "svc #0"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %0, x29" : "=r"(stk))
