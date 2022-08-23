@@ -1,31 +1,40 @@
 #include <acpi.h>
-acpi_xsdt * acpi_table_new(bootinfo *bi){
-    acpi_rsd_ptr *p = acpi_find_rsd_ptr(bi->acpi_table, bi->acpi_table_length);
-    KDEBUG("xsdt_address 0x%x", p->XsdtAddress);
-    acpi_sdt_header *xsdt = (acpi_sdt_header *)p->XsdtAddress;
-    if(*(uint32_t *)xsdt->signature != *(uint32_t *)"XSDT"){
-        KERROR("XSDT structure is invalid");
+acpi_table *acpi_table_new(bootinfo *bi){
+    acpi_rsd_ptr *rsd_ptr = acpi_find_rsd_ptr(bi->acpi_table, bi->acpi_table_length);
+    acpi_xsdt *xsdt = acpi_find_xsdt(rsd_ptr);
+    if(!xsdt){
+        KERROR("xsdt not found");
         return 0x0;
     }
-    uint64_t checksum = 0;
-    uint8_t *xsdt_casted = (uint8_t *)xsdt;
-    for(uint16_t i = 0; i < xsdt->length; i++)
-        checksum += xsdt_casted[i];
-    if(checksum & 0xff){
-        KERROR("xsdt checksum failed last byte != 0x00 0b%b", checksum);
+    acpi_fadt *fadt = acpi_find_fadt(xsdt);
+    if(!fadt){
+        KERROR("fadt not found");
         return 0x0;
     }
-    return (acpi_xsdt *)xsdt_casted;
+    acpi_table *ret = kcalloc(sizeof(acpi_table), 1);
+    *ret = (acpi_table){
+        .fadt = fadt,
+        .xsdt = xsdt
+    };
+    return ret;
 }
-acpi_sdt_header *acpi_find_fadt(acpi_xsdt *xsdt){
+acpi_fadt *acpi_find_fadt(acpi_xsdt *xsdt){
     uint16_t entries = xsdt->header.length - sizeof(acpi_sdt_header);
     for(uint16_t i = 0; i < entries; i++){
         if(*(uint32_t *)xsdt->tables[i].signature == *(uint32_t *)"FACP"){
-            return acpi_sdt_valid_checksum(xsdt->tables+i) ? xsdt->tables+i : 0x0;
+            return acpi_sdt_valid_checksum(xsdt->tables+i) ? (acpi_fadt *)xsdt->tables+i : 0x0;
         }
     }
     KERROR("FADT table not found");
     return 0x0;
+}
+acpi_xsdt *acpi_find_xsdt(acpi_rsd_ptr *rsd_ptr){
+    acpi_sdt_header *xsdt = (acpi_sdt_header *)rsd_ptr->XsdtAddress;
+    if(*(uint32_t *)xsdt->signature != *(uint32_t *)"XSDT"){
+        KERROR("XSDT structure is invalid");
+        return 0x0;
+    }
+    return acpi_sdt_valid_checksum(xsdt) ? (acpi_xsdt *)xsdt : 0x0;
 }
 bool acpi_sdt_valid_checksum(acpi_sdt_header *h){
     uint64_t checksum = 0;
@@ -45,12 +54,11 @@ void acpi_table_debug_print(acpi_xsdt *table){
         kprinthex((void *)(table->tables+i), sizeof(acpi_rsd_ptr));
     }
 }
-void * acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable){
+acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable){
     if(!table)
         return 0x0;
     for(int i = 0; i < ntable; i++){
         if(*(uint64_t *)table[i].VendorTable == *(uint64_t *)"RSD PTR "){
-            KDEBUG("found RSD PTR 0x%x", table[i].VendorTable);
             uint8_t *casted_table = (uint8_t *)table[i].VendorTable;
             uint64_t checksum = 0;
             //acpi_rsd_ptr *tmp = table[i].VendorTable;
@@ -70,7 +78,7 @@ void * acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable){
                 KERROR("RSD PTR checksum failed last byte != 0x00 0b%b", checksum);
                 continue;
             }
-            return table[i].VendorTable;
+            return (acpi_rsd_ptr *)table[i].VendorTable;
         }
     }
     return 0x0;

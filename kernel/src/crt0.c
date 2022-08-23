@@ -17,7 +17,7 @@ framebuffer_device *fb = 0x0;
 EFI_RUNTIME_SERVICES *runtime_services = 0;
 ps2_device *ps2 = 0x0;
 serial_device *serial = 0x0;
-
+acpi_table *acpi_tables = 0x0;
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
     irq_disable();
@@ -60,11 +60,9 @@ void crt0(bootinfo *bootinfo){
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     vt100_console_init(fb);
     pci_bus_enum();
-    acpi_xsdt *xsdt = acpi_table_new(bootinfo);
-    if(!xsdt){
-        KPANIC("Error getting ACPI tables");
-    }
-    acpi_find_fadt(xsdt);
+    acpi_tables = acpi_table_new(bootinfo);
+    if(!acpi_tables)
+        KERROR("Error getting ACPI tables");
     //show serial init errors if serial cannot init
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
