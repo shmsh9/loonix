@@ -3,18 +3,24 @@ acpi_table *acpi_table_new(bootinfo *bi){
     acpi_rsd_ptr *rsd_ptr = acpi_find_rsd_ptr(bi->acpi_table, bi->acpi_table_length);
     acpi_xsdt *xsdt = acpi_find_xsdt(rsd_ptr);
     if(!xsdt){
-        KERROR("xsdt not found");
+        KERROR("XSDT not found");
         return 0x0;
     }
     acpi_fadt *fadt = (acpi_fadt *)acpi_find_table(xsdt, "FACP");
     if(!fadt){
-        KERROR("fadt not found");
+        KERROR("FADT not found");
+        return 0x0;
+    }
+    acpi_mcfg *mcfg = (acpi_mcfg *)acpi_find_table(xsdt, "MCFG");
+    if(!mcfg){
+        KERROR("MCFG not found");
         return 0x0;
     }
     acpi_table *ret = kcalloc(sizeof(acpi_table), 1);
     *ret = (acpi_table){
         .fadt = fadt,
-        .xsdt = xsdt
+        .xsdt = xsdt,
+        .mcfg = mcfg
     };
     return ret;
 }
@@ -23,7 +29,10 @@ acpi_sdt_header *acpi_find_table(acpi_xsdt *xsdt,char signature[4]){
     for(uint16_t i = 0; i < entries; i++){
         acpi_sdt_header *tmp_h = (acpi_sdt_header *)(xsdt->tables[i]);
         if(memcmp(tmp_h->signature,signature, 4) == 0){
-            return acpi_sdt_valid_checksum(tmp_h) ? tmp_h : 0x0;
+            if(acpi_sdt_valid_checksum(tmp_h))
+                return tmp_h;
+            continue;
+
         }
     }
     char signature_str[5] = {signature[0],signature[1],signature[2],signature[3], 0 };

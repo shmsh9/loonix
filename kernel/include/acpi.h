@@ -35,6 +35,7 @@ typedef struct __attribute__((packed)) _acpi_xsdt {
   acpi_sdt_header header;
   uint64_t tables[];
 }acpi_xsdt;
+
 typedef struct __attribute__((packed)) _acpi_generic_address{
   uint8_t AddressSpace;
   uint8_t BitWidth;
@@ -42,6 +43,12 @@ typedef struct __attribute__((packed)) _acpi_generic_address{
   uint8_t AccessSize;
   uint64_t Address;
 }acpi_generic_address;
+
+typedef struct __attribute__((packed)) _acpi_mcfg{
+  acpi_sdt_header header;
+  uint64_t reserved;
+  uint16_t configuration_space[];
+}acpi_mcfg;
 
 typedef struct __attribute__((packed)) _acpi_fadt{
     acpi_sdt_header h;
@@ -113,6 +120,7 @@ typedef struct __attribute__((packed)) _acpi_fadt{
 typedef struct _acpi_table{
   acpi_xsdt *xsdt;
   acpi_fadt *fadt;
+  acpi_mcfg *mcfg;
 }acpi_table;
 
 acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable);
