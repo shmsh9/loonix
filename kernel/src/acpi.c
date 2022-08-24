@@ -6,7 +6,7 @@ acpi_table *acpi_table_new(bootinfo *bi){
         KERROR("xsdt not found");
         return 0x0;
     }
-    acpi_fadt *fadt = acpi_find_fadt(xsdt);
+    acpi_fadt *fadt = (acpi_fadt *)acpi_find_table(xsdt, "FACP");
     if(!fadt){
         KERROR("fadt not found");
         return 0x0;
@@ -18,15 +18,18 @@ acpi_table *acpi_table_new(bootinfo *bi){
     };
     return ret;
 }
-acpi_fadt *acpi_find_fadt(acpi_xsdt *xsdt){
-    uint16_t entries = xsdt->header.length - sizeof(acpi_sdt_header);
+acpi_sdt_header *acpi_find_table(acpi_xsdt *xsdt,char signature[4]){
+    uint16_t entries = (xsdt->header.length - sizeof(xsdt->header)) / 8;
     for(uint16_t i = 0; i < entries; i++){
-        if(*(uint32_t *)xsdt->tables[i].signature == *(uint32_t *)"FACP"){
-            return acpi_sdt_valid_checksum(xsdt->tables+i) ? (acpi_fadt *)xsdt->tables+i : 0x0;
+        acpi_sdt_header *tmp_h = (acpi_sdt_header *)(xsdt->tables[i]);
+        if(memcmp(tmp_h->signature,signature, 4) == 0){
+            return acpi_sdt_valid_checksum(tmp_h) ? tmp_h : 0x0;
         }
     }
-    KERROR("FADT table not found");
+    char signature_str[5] = {signature[0],signature[1],signature[2],signature[3], 0 };
+    KERROR("%s table not found", signature_str);
     return 0x0;
+
 }
 acpi_xsdt *acpi_find_xsdt(acpi_rsd_ptr *rsd_ptr){
     acpi_sdt_header *xsdt = (acpi_sdt_header *)rsd_ptr->XsdtAddress;
@@ -49,9 +52,22 @@ bool acpi_sdt_valid_checksum(acpi_sdt_header *h){
 
 }
 void acpi_table_debug_print(acpi_xsdt *table){
-    uint16_t entries = table->header.length - sizeof(acpi_sdt_header);
+    uint16_t entries = (table->header.length - sizeof(table->header)) / 8;
+    KDEBUG("entries : %d", entries);
     for(uint16_t i = 0; i < entries; i++){
-        kprinthex((void *)(table->tables+i), sizeof(acpi_rsd_ptr));
+        kprinthex((void *)(table->tables[i]), sizeof(acpi_sdt_header));
+
+        if(!acpi_sdt_valid_checksum((acpi_sdt_header *)table->tables[i]))
+            continue;
+        /*
+        char sign[] = {
+           (acpi_sdt_header *)table->tables[i]).signature[0],
+            table->tables[i].signature[1], 
+            table->tables[i].signature[2],
+            table->tables[i].signature[3],
+            0
+        };
+        */
     }
 }
 acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable){

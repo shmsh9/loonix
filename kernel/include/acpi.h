@@ -6,6 +6,7 @@
 #include <bootloader.h>
 #include <Uefi.h>
 #include <Guid/Acpi.h>
+
 typedef struct __attribute__((packed)) _acpi_sdt_header {
   char signature[4];
   uint32_t length;
@@ -32,7 +33,7 @@ typedef struct __attribute__ ((packed)) _acpi_rsd_ptr {
 
 typedef struct __attribute__((packed)) _acpi_xsdt {
   acpi_sdt_header header;
-  acpi_sdt_header *tables;
+  uint64_t tables[];
 }acpi_xsdt;
 typedef struct __attribute__((packed)) _acpi_generic_address{
   uint8_t AddressSpace;
@@ -116,7 +117,7 @@ typedef struct _acpi_table{
 
 acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable);
 acpi_xsdt *acpi_find_xsdt(acpi_rsd_ptr *rsd_ptr);
-acpi_fadt *acpi_find_fadt(acpi_xsdt *xsdt);
+acpi_sdt_header *acpi_find_table(acpi_xsdt *xsdt,char signature[4]);
 acpi_table *acpi_table_new(bootinfo *bi);
 void acpi_table_debug_print(acpi_xsdt *table);
 bool acpi_sdt_valid_checksum(acpi_sdt_header *h);

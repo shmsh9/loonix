@@ -12,7 +12,7 @@ if param['ARCH'] == "x86_64":
     bootloader = "bootx64.efi"
 
 if param['ARCH'] == "aarch64":
-    qemu_flags = "-M virt -cpu cortex-a57 -device VGA"
+    qemu_flags = "-M virt-2.12 -cpu cortex-a57 -device VGA"
     qemu = "qemu-system-aarch64"
     bios = "QEMU_EFI_AA64.fd"
     bootloader = "bootaa64.efi"

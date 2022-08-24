@@ -61,9 +61,10 @@ void crt0(bootinfo *bootinfo){
     vt100_console_init(fb);
     pci_bus_enum();
     acpi_tables = acpi_table_new(bootinfo);
+    KDEBUG("table[0] : 0x%x", acpi_tables->xsdt->tables[0]);
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
-    //show serial init errors if serial cannot init
+    acpi_table_debug_print(acpi_tables->xsdt);
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
 }
