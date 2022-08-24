@@ -10,9 +10,6 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
         KERROR("MCFG == NULL");
         return;
     }
-    KDEBUG("ecam_base_address 0x%x", mcfg->ecam_base_address);
-    KDEBUG("pci_start %d", mcfg->pci_bus_start);
-    KDEBUG("pci_end %d", mcfg->pci_bus_end);
     if(!pci_devices){
         pci_devices = karray_new(sizeof(pci_device *), kfree);
     }
@@ -38,10 +35,7 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
             }
         }
     }
-}
-uint64_t pci_ecam_dev_get_config_address(uint64_t ecam_base_address, uint16_t bus, uint8_t slot, uint8_t function){
-    return (((bus * 256) + (slot * 8) + function) * 4096) + ecam_base_address;
-
+    KDEBUG("enumerated %d devices", pci_devices->length);
 }
 void pci_class_strings_init(){
     pci_class_strings[PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller";

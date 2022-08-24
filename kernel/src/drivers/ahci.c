@@ -2,6 +2,10 @@
 //https://wiki.osdev.org/AHCI
 
 ahci_device *ahci_device_new(ahci_controller *controller, uint8_t device){
+    if(!controller){
+        KERROR("controller == NULL");
+        return 0x0;
+    }
     ahci_device *ret = kcalloc(sizeof(ahci_device), 1);
     *ret = (ahci_device){
         .device = device,
@@ -47,12 +51,17 @@ ahci_controller *ahci_controller_new(){
             return ret;
         }
     }
+    KERROR("no controller found in pci devices");
     return 0x0;
 }
 void ahci_controller_free(ahci_controller *controller){
     kfree(controller);
 }
 void ahci_device_send_command(ahci_device *ahci, uint8_t cmd){
+    if(!ahci){
+        KERROR("ahci_device == NULL");
+        return;
+    }
     FIS_REG_H2D fis;
     memset(&fis, 0, sizeof(FIS_REG_H2D));
     fis.fis_type = FIS_TYPE_REG_H2D;

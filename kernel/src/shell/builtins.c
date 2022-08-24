@@ -149,7 +149,13 @@ int builtins_poweroff(int argc, char **argv){
 }
 int builtins_ahci(int argc, char **argv){
     ahci_controller *cont = ahci_controller_new();
+    if(!cont)
+        return -1;
     ahci_device *dev0 = ahci_device_new(cont, 0);
+    if(!dev0){
+        kfree(cont);
+        return -1;
+    }
     kprintf("reg0 : 0x%x\n", 
         pci_get_bar0(
             dev0->controller->dev->bus, 

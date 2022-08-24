@@ -23,7 +23,7 @@
 #define PCI_CLASS_UNASSIGNED 0xFF
 
 
-
+#define pci_ecam_dev_get_config_address(ecam_base_address, bus, slot, function) ((((bus * 256) + (slot * 8) + function) * 4096) + ecam_base_address)
 #define pci_get_vendor_id( bus, device, function)   (pci_read_16(bus, device, function, 0x00))
 #define pci_get_product_id( bus, device, function)  (pci_read_16(bus, device, function, 0x2))
 #define pci_get_class_id( bus, device, function)    ((pci_read_16(bus,device, function, 0xA) & ~0x00FF) >> 8)
@@ -74,7 +74,6 @@ typedef struct __attribute__((packed)) _pci_device_config{
 }pci_device_config;
 
 void pci_bus_enum(uint64_t base);
-uint64_t pci_ecam_dev_get_config_address(uint64_t ecam_base_address, uint16_t bus, uint8_t slot, uint8_t function);
 void pci_class_strings_init();
 uint16_t pci_read_16(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset);
 uint32_t pci_device_read_data_32(pci_device *dev, uint16_t offset);
