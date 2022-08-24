@@ -47,7 +47,11 @@ typedef struct __attribute__((packed)) _acpi_generic_address{
 typedef struct __attribute__((packed)) _acpi_mcfg{
   acpi_sdt_header header;
   uint64_t reserved;
-  uint16_t configuration_space[];
+  uint64_t ecam_base_address;
+  uint16_t pci_segment_group;
+  uint8_t  pci_bus_start;
+  uint8_t  pci_bus_end;
+  uint32_t reserved_2;
 }acpi_mcfg;
 
 typedef struct __attribute__((packed)) _acpi_fadt{

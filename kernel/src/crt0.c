@@ -60,11 +60,14 @@ void crt0(bootinfo *bootinfo){
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     vt100_console_init(fb);
     acpi_tables = acpi_table_new(bootinfo);
-    KDEBUG("mcfg->length : %d", acpi_tables->mcfg->header.length);
-    kprinthex(acpi_tables->mcfg, 256);
+    //acpi_table_debug_print(acpi_tables->xsdt);
+    //kprinthex((void *)0x3f000000, 256);
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
-    pci_bus_enum();
+    pci_enum_ecam(acpi_tables->mcfg);
+    //pci_bus_enum(PCI_BUS_ADDRESS);
+    //uint64_t t = pci_ecam_dev_get_config_address(acpi_tables->mcfg->ecam_base_address, 0, 0, 0);
+    //kprinthex((void *)t, 32);
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
 }

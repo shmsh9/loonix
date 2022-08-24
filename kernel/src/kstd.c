@@ -152,12 +152,13 @@ void kprinthex(void *ptr, uint64_t n){
     uint64_t counter = (uint64_t)ptr;
     uint8_t *ptr_casted = (uint8_t *)ptr;
     for(uint64_t j = 0; j < n; j+= 8, counter+= 8){
-        kprintf("0x%x : ", counter);
+        kprintf("0x%x: ", counter);
         for(uint64_t i = 0; i < 8 && i+j < n; i++){
             kprintf("0x%s%x ", KPRINTHEX_PADDING(ptr_casted[j+i]), ptr_casted[j+i]);
         }
+        kputc(' ');
         for(uint64_t i = 0; i < 8 && i+j < n; i++){
-            if(ptr_casted[j+i] < 128 && ptr_casted[j+i] > 27)
+            if(ptr_casted[j+i] < 128 && ptr_casted[j+i] > 31)
                 kprintf("%c ", ptr_casted[j+i]);
             else
                 kprint(". ");
