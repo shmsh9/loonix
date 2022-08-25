@@ -1,5 +1,4 @@
 #include <drivers/pci.h>
-//https://github.com/levex/osdev/blob/master/drivers/pci/pci.c
 karray *pci_devices = 0x0;
 char *pci_class_strings[0x100] = {0};
 uint64_t pci_config_space = 0x0;
@@ -35,7 +34,7 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
             }
         }
     }
-    KDEBUG("enumerated %d devices", pci_devices->length);
+    KMESSAGE("enumerated %d devices", pci_devices->length);
 }
 void pci_class_strings_init(){
     pci_class_strings[PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller";
@@ -55,6 +54,10 @@ void pci_class_strings_init(){
 
 pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, uint8_t function){
     pci_device *ret = kcalloc(sizeof(pci_device), 1);
+    if(!ret){
+        KERROR("not enough memory to allocate dev");
+        return 0x0;
+    }
     pci_config_header *dev_h = (pci_config_header *)address;
     *ret = (pci_device){
         .bus = bus,
@@ -65,6 +68,17 @@ pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, ui
         .dev1 = 0x0,
         .dev2 = 0x0
     };
+    switch(pci_device_get_header_type(ret)){
+        case 0:
+            ret->dev0 = (pci_device_0 *)ret->header;
+            break;
+        case 1:
+            ret->dev1 = (pci_device_1 *)ret->header;
+            break;
+        case 2:
+            ret->dev2 = (pci_device_2 *)ret->header;
+            break;
+    }
     return ret;
 
 }

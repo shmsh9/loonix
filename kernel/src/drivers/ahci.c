@@ -34,11 +34,16 @@ ahci_controller *ahci_controller_new(){
         if(array[i]->header->class != PCI_CLASS_MASS_STORAGE_CONTROLLER)
             continue;
         if(array[i]->header->subclass == AHCI_PCI_SUBCLASS){
-            KDEBUG("found AHCI controller %d:%d.%d",
+            KMESSAGE("found AHCI controller %d:%d.%d",
                 (uint64_t)array[i]->bus, 
                 (uint64_t)array[i]->slot, 
                 (uint64_t)array[i]->function
             );
+            //AHCI controller must have pci type 0
+            if(!array[i]->dev0){
+                KDEBUG("controller pci type == %d ignoring it", array[i]->header->header_type);
+                continue;
+            }
             ahci_controller *ret = kcalloc(sizeof(ahci_controller), 1);
             if(!ret){
                 KERROR("error allocating ahci_controller");
@@ -47,7 +52,7 @@ ahci_controller *ahci_controller_new(){
             *ret = (ahci_controller){
                 .dev = array[i],
                 .mode = AHCI_CONTROLLER_SATA, //please change this
-                .abar = ((pci_device_0 *)array[i]->header)->BAR5
+                .abar = array[i]->dev0->BAR5
             };
             return ret;
         }
