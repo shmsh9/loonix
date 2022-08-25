@@ -16,6 +16,7 @@ typedef enum{
 typedef struct _ahci_controller{
     pci_device *dev;
     AHCI_CONTROLLER_MODE mode;
+	uint64_t abar;
 }ahci_controller;
 
 typedef struct _ahci_device{

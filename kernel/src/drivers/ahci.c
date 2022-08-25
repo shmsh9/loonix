@@ -31,10 +31,10 @@ ahci_controller *ahci_controller_new(){
     }
     pci_device **array = (pci_device **)pci_devices->array;
     for(int i = 0; i < pci_devices->length; i++){
-        if(array[i]->class != PCI_CLASS_MASS_STORAGE_CONTROLLER)
+        if(array[i]->header->class != PCI_CLASS_MASS_STORAGE_CONTROLLER)
             continue;
-        if(array[i]->subclass == AHCI_PCI_SUBCLASS){
-            KDEBUG("found AHCI controller %d:%d.%d\n",
+        if(array[i]->header->subclass == AHCI_PCI_SUBCLASS){
+            KDEBUG("found AHCI controller %d:%d.%d",
                 (uint64_t)array[i]->bus, 
                 (uint64_t)array[i]->slot, 
                 (uint64_t)array[i]->function
@@ -46,7 +46,8 @@ ahci_controller *ahci_controller_new(){
             }
             *ret = (ahci_controller){
                 .dev = array[i],
-                .mode = AHCI_CONTROLLER_SATA //please change this
+                .mode = AHCI_CONTROLLER_SATA, //please change this
+                .abar = ((pci_device_0 *)array[i]->header)->BAR5
             };
             return ret;
         }

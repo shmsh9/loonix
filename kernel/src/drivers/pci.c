@@ -27,7 +27,7 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
         for(uint8_t slot = 0; slot < 32; slot++){
             for(uint8_t function = 0; function < 8; function++){
                 uint64_t dev_config_address = pci_ecam_dev_get_config_address(mcfg->ecam_base_address, bus, slot, function);
-                pci_device_config *dev = (pci_device_config *)dev_config_address;
+                pci_config_header *dev = (pci_config_header *)dev_config_address;
                 if(dev->vendor_id == 0xffff)
                     continue;
                 karray_push(pci_devices, (uint64_t)pci_device_ecam_new(dev_config_address, bus, slot, function));                
@@ -53,116 +53,24 @@ void pci_class_strings_init(){
 
 }
 
-void pci_bus_enum(uint64_t base){
-    if(!base){
-        KERROR("pci_config_space == 0x0");
-        return;
-    }
-    pci_config_space = base;
-    pci_config_data = pci_config_space+4;
-    if(!pci_devices){
-        pci_devices = karray_new(sizeof(pci_device *), kfree);
-    }
-    else{
-        karray_free(pci_devices);
-        pci_devices = karray_new(sizeof(pci_device *), kfree);
-    }
-    if(!pci_devices){
-        KERROR("error allocating mem for pci_devices");
-        return;
-    }
-    pci_class_strings_init();
-	for(uint32_t bus = 0; bus < 256; bus++){
-        for(uint32_t slot = 0; slot < 32; slot++){
-            for(uint32_t function = 0; function < 8; function++){
-                uint16_t vendor = pci_get_vendor_id(bus, slot, function);
-                if(vendor == 0xffff)
-                    continue;
-                karray_push(pci_devices, (uint64_t)pci_device_new(bus, slot, function));                
-            }
-        }
-    }
-    KDEBUG("found %d pci devices", pci_devices->length);
-}
-void pci_device_write_data_32(pci_device *dev, uint16_t offset,uint32_t data){
-    uint64_t address;
-    uint64_t lbus = (uint64_t)dev->bus;
-    uint64_t lslot = (uint64_t)dev->slot;
-    uint64_t lfunc = (uint64_t)dev->function;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-            (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(pci_config_space, address);
-    outl(pci_config_data, data);
-}
-void pci_device_write_data_16(pci_device *dev, uint16_t offset, uint16_t data){
-    uint64_t address;
-    uint64_t lbus = (uint64_t)dev->bus;
-    uint64_t lslot = (uint64_t)dev->slot;
-    uint64_t lfunc = (uint64_t)dev->function;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-            (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(pci_config_space, address);
-    outw(pci_config_data, data);
-
-}
-uint32_t pci_device_read_data_32(pci_device *dev, uint16_t offset){
-    uint64_t address;
-    uint64_t lbus = (uint64_t)dev->bus;
-    uint64_t lslot = (uint64_t)dev->slot;
-    uint64_t lfunc = (uint64_t)dev->function;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(pci_config_space, address);
-    return (uint32_t)((inl(pci_config_data) >> ((offset & 2) * 8)) & 0xffff);
-}
-uint16_t pci_device_read_data_16(pci_device *dev, uint16_t offset){
-    uint64_t address;
-    uint64_t lbus = (uint64_t)dev->bus;
-    uint64_t lslot = (uint64_t)dev->slot;
-    uint64_t lfunc = (uint64_t)dev->function;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(pci_config_space, address);
-    return (uint16_t)((inw(pci_config_data) >> ((offset & 2) * 8)) & 0xffff);
-
-}
-uint16_t pci_read_16(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset){
-	uint64_t address;
-    uint64_t lbus = (uint64_t)bus;
-    uint64_t lslot = (uint64_t)slot;
-    uint64_t lfunc = (uint64_t)func;
-    address = (uint64_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xfc) | ((uint32_t)0x80000000));
-    outl(pci_config_space, address);
-    return (uint16_t)((inl(pci_config_data) >> ((offset & 2) * 8)) & 0xffff);
-}
-
-pci_device *pci_device_new(uint16_t bus, uint16_t slot, uint16_t function){
-    pci_device *ret = kcalloc(sizeof(pci_device), 1);
-    *ret = (pci_device){
-        .bus = bus,
-        .slot = slot,
-        .function = function,
-        .vendor = pci_get_vendor_id(bus, slot, function),
-        .product = pci_get_product_id(bus,slot, function),
-        .class = pci_get_class_id(bus, slot, function),
-        .subclass = pci_get_subclass_id(bus, slot, function)
-    };
-    return ret;
-}
-
 pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, uint8_t function){
     pci_device *ret = kcalloc(sizeof(pci_device), 1);
-    pci_device_config *dev = (pci_device_config *)address;
+    pci_config_header *dev_h = (pci_config_header *)address;
     *ret = (pci_device){
         .bus = bus,
         .slot = slot,
         .function = function,
-        .vendor = dev->vendor_id,
-        .product = dev->product_id,
-        .class = dev->class,
-        .subclass = dev->subclass
+        .header = dev_h,
+        .dev0 = 0x0,
+        .dev1 = 0x0,
+        .dev2 = 0x0
     };
     return ret;
 
+}
+
+uint8_t pci_device_get_header_type(pci_device *dev){
+    uint8_t ret = dev->header->header_type;
+    unset_bit(&ret, 7);
+    return ret;
 }

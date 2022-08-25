@@ -24,27 +24,13 @@
 
 
 #define pci_ecam_dev_get_config_address(ecam_base_address, bus, slot, function) ((((bus * 256) + (slot * 8) + function) * 4096) + ecam_base_address)
-#define pci_get_vendor_id( bus, device, function)   (pci_read_16(bus, device, function, 0x00))
-#define pci_get_product_id( bus, device, function)  (pci_read_16(bus, device, function, 0x2))
-#define pci_get_class_id( bus, device, function)    ((pci_read_16(bus,device, function, 0xA) & ~0x00FF) >> 8)
-#define pci_get_subclass_id( bus, device, function) (pci_read_16(bus, device, function, 0xA) & ~0xFF00)
-#define pci_get_bar0(bus, device, function)         (pci_read_16(bus, device, function, 0x10) | pci_read_16(bus, device, function, 0x11) << 16)
 extern karray *pci_devices;
 extern char *pci_class_strings[0x100];
 
-typedef struct _pci_device{
-    uint8_t bus;
-    uint8_t slot;
-    uint8_t function;
-    uint16_t vendor;
-    uint16_t product;
-    uint8_t class;
-    uint8_t subclass;
-}pci_device;
 
-typedef struct __attribute__((packed)) _pci_device_config{
+typedef struct __attribute__((packed)) _pci_config_header{
     uint16_t vendor_id;
-    uint16_t product_id;
+    uint16_t device_id;
     uint16_t command;
     uint16_t status;
     uint8_t revision_id;
@@ -53,9 +39,12 @@ typedef struct __attribute__((packed)) _pci_device_config{
     uint8_t class;
     uint8_t cache_line_size;
     uint8_t latency_timer;
-    uint8_t header_type;
-    //maybe wrong after this line (see header_type) : https://wiki.osdev.org/PCI
-    uint8_t BIST;
+    uint8_t header_type; //shl 1 to get actual type bit 7 set == multifunction
+    uint8_t bist;
+}pci_config_header;
+
+typedef struct __attribute__((packed)) _pci_device_0{
+    pci_config_header header;
     uint32_t BAR0;
     uint32_t BAR1;
     uint32_t BAR2;
@@ -71,16 +60,59 @@ typedef struct __attribute__((packed)) _pci_device_config{
     uint32_t not_used_for_now2;
     uint32_t not_used_for_now3;
 
-}pci_device_config;
+}pci_device_0;
 
-void pci_bus_enum(uint64_t base);
+typedef struct __attribute__((packed)) _pci_device_1{
+    pci_config_header header;
+    uint32_t BAR0;
+    uint32_t BAR1;
+    uint32_t BAR2;
+    uint32_t BAR3;
+    uint32_t BAR4;
+    uint32_t BAR5;
+    uint32_t cardbus_cis_pointer;
+    uint16_t subsystem_vendor_id;
+    uint16_t subsystem_id;
+    uint32_t expansion_rom_base_address;
+    uint32_t not_used_for_now;
+    uint32_t not_used_for_now1;
+    uint32_t not_used_for_now2;
+    uint32_t not_used_for_now3;
+
+}pci_device_1;
+
+typedef struct __attribute__((packed)) _pci_device_2{
+    pci_config_header header;
+    uint32_t BAR0;
+    uint32_t BAR1;
+    uint32_t BAR2;
+    uint32_t BAR3;
+    uint32_t BAR4;
+    uint32_t BAR5;
+    uint32_t cardbus_cis_pointer;
+    uint16_t subsystem_vendor_id;
+    uint16_t subsystem_id;
+    uint32_t expansion_rom_base_address;
+    uint32_t not_used_for_now;
+    uint32_t not_used_for_now1;
+    uint32_t not_used_for_now2;
+    uint32_t not_used_for_now3;
+
+}pci_device_2;
+
+typedef struct _pci_device{
+    uint16_t slot;
+    uint8_t bus;
+    uint8_t function;
+    pci_config_header *header;
+    pci_device_0 *dev0;
+    pci_device_1 *dev1;
+    pci_device_2 *dev2;
+
+}pci_device;
+
 void pci_class_strings_init();
-uint16_t pci_read_16(uint16_t bus, uint16_t slot, uint16_t func, uint16_t offset);
-uint32_t pci_device_read_data_32(pci_device *dev, uint16_t offset);
-uint16_t pci_device_read_data_16(pci_device *dev, uint16_t offset);
-void pci_device_write_data_32(pci_device *dev, uint16_t offset,uint32_t data);
-void pci_device_write_data_16(pci_device *dev, uint16_t offset, uint16_t data);
-pci_device *pci_device_new(uint16_t bus, uint16_t slot, uint16_t function);
+uint8_t pci_device_get_header_type(pci_device *dev);
 pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, uint8_t function);
 void pci_enum_ecam(acpi_mcfg *mcfg);
 #endif
