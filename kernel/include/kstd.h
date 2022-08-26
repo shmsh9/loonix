@@ -29,7 +29,7 @@
     stacktrace();\
 }
 #define KPANIC(...){\
-	cpu_registers r__func__ = {0};\
+	volatile cpu_registers r__func__;\
 	cpu_registers_save(&r__func__);\
     KMSG("panic !", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\

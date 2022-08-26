@@ -10,12 +10,12 @@
 typedef enum{
     AHCI_CONTROLLER_IDE,
     AHCI_CONTROLLER_SATA
-}AHCI_CONTROLLER_MODE;
+} ahci_controller_mode;
 
 
 typedef struct _ahci_controller{
     pci_device *dev;
-    AHCI_CONTROLLER_MODE mode;
+    ahci_controller_mode mode;
 	uint64_t abar;
 }ahci_controller;
 
@@ -33,8 +33,8 @@ typedef enum{
 	FIS_TYPE_BIST		= 0x58,	// BIST activate FIS - bidirectional
 	FIS_TYPE_PIO_SETUP	= 0x5F,	// PIO setup FIS - device to host
 	FIS_TYPE_DEV_BITS	= 0xA1,	// Set device bits FIS - device to host
-} FIS_TYPE;
-typedef struct __attribute__((packed)) _FIS_DATA{
+} ahci_fis_type;
+typedef struct __attribute__((packed)) _ahci_fis_data{
 	// DWORD 0
 	uint8_t  fis_type;	// FIS_TYPE_DATA
  
@@ -45,8 +45,8 @@ typedef struct __attribute__((packed)) _FIS_DATA{
  
 	// DWORD 1 ~ N
 	uint32_t data[1];	// Payload
-} FIS_DATA;
-typedef struct __attribute__((packed)) _FIS_REG_H2D{
+} ahci_fis_data;
+typedef struct __attribute__((packed)) _ahci_fis_reg_h2d{
 	// DWORD 0
 	uint8_t  fis_type;	// FIS_TYPE_REG_H2D
  
@@ -77,9 +77,9 @@ typedef struct __attribute__((packed)) _FIS_REG_H2D{
  
 	// DWORD 4
 	uint8_t  rsv1[4];	// Reserved
-} FIS_REG_H2D;
+} ahci_fis_reg_h2d;
 
-typedef struct __attribute__((packed)) _FIS_REG_D2H{
+typedef struct __attribute__((packed)) _ahci_fis_reg_d2h{
 	// DWORD 0
 	uint8_t  fis_type;   // FIS_TYPE_REG_D2H
 
@@ -110,8 +110,8 @@ typedef struct __attribute__((packed)) _FIS_REG_D2H{
 
 	// DWORD 4
 	uint8_t  rsv4[4];     // Reserved
-} FIS_REG_D2H;
-typedef struct __attribute__((packed)) _IS_PIO_SETUP{
+} ahci_fis_reg_d2h;
+typedef struct __attribute__((packed)) _ahci_is_pio_setup{
 	// DWORD 0
 	uint8_t  fis_type;	// FIS_TYPE_PIO_SETUP
  
@@ -145,8 +145,8 @@ typedef struct __attribute__((packed)) _IS_PIO_SETUP{
 	// DWORD 4
 	uint16_t tc;		// Transfer count
 	uint8_t  rsv4[2];	// Reserved
-} FIS_PIO_SETUP;
-typedef struct __attribute__((packed)) _FIS_DMA_SETUP{
+} ahci_is_pio_setup;
+typedef struct __attribute__((packed)) _ahci_fis_dma_setup{
 	// DWORD 0
 	uint8_t  fis_type;	// FIS_TYPE_DMA_SETUP
  
@@ -175,8 +175,53 @@ typedef struct __attribute__((packed)) _FIS_DMA_SETUP{
     //DWORD 6
     uint32_t resvd;          //Reserved
  
-} FIS_DMA_SETUP;
+} ahci_fis_dma_setup;
+typedef struct __attribute((packed)) _ahci_hba_port{
+	uint32_t clb;		// 0x00, command list base address, 1K-byte aligned
+	uint32_t clbu;		// 0x04, command list base address upper 32 bits
+	uint32_t fb;		// 0x08, FIS base address, 256-byte aligned
+	uint32_t fbu;		// 0x0C, FIS base address upper 32 bits
+	uint32_t is;		// 0x10, interrupt status
+	uint32_t ie;		// 0x14, interrupt enable
+	uint32_t cmd;		// 0x18, command and status
+	uint32_t rsv0;		// 0x1C, Reserved
+	uint32_t tfd;		// 0x20, task file data
+	uint32_t sig;		// 0x24, signature
+	uint32_t ssts;		// 0x28, SATA status (SCR0:SStatus)
+	uint32_t sctl;		// 0x2C, SATA control (SCR2:SControl)
+	uint32_t serr;		// 0x30, SATA error (SCR1:SError)
+	uint32_t sact;		// 0x34, SATA active (SCR3:SActive)
+	uint32_t ci;		// 0x38, command issue
+	uint32_t sntf;		// 0x3C, SATA notification (SCR4:SNotification)
+	uint32_t fbs;		// 0x40, FIS-based switch control
+	uint32_t rsv1[11];	// 0x44 ~ 0x6F, Reserved
+	uint32_t vendor[4];	// 0x70 ~ 0x7F, vendor specific
+} ahci_hba_port;
 
+typedef struct __attribute((packed)) ahci_hba_mem{
+	// 0x00 - 0x2B, Generic Host Control
+	uint32_t cap;		// 0x00, Host capability
+	uint32_t ghc;		// 0x04, Global host control
+	uint32_t is;		// 0x08, Interrupt status
+	uint32_t pi;		// 0x0C, Port implemented
+	uint32_t vs;		// 0x10, Version
+	uint32_t ccc_ctl;	// 0x14, Command completion coalescing control
+	uint32_t ccc_pts;	// 0x18, Command completion coalescing ports
+	uint32_t em_loc;		// 0x1C, Enclosure management location
+	uint32_t em_ctl;		// 0x20, Enclosure management control
+	uint32_t cap2;		// 0x24, Host capabilities extended
+	uint32_t bohc;		// 0x28, BIOS/OS handoff control and status
+ 
+	// 0x2C - 0x9F, Reserved
+	uint8_t  rsv[0xA0-0x2C];
+ 
+	// 0xA0 - 0xFF, Vendor specific registers
+	uint8_t  vendor[0x100-0xA0];
+ 
+	// 0x100 - 0x10FF, Port control registers
+	ahci_hba_port	ports[1];	// 1 ~ 32
+} ahci_hba_mem;
+ 
 ahci_device *ahci_device_new(ahci_controller *controller, uint8_t port);
 void ahci_controller_free(ahci_controller *controller);
 ahci_controller *ahci_controller_new();

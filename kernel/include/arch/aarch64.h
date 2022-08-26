@@ -59,8 +59,8 @@
             kprintf("\t[x%d%s] : 0x%x\n", i, i < 10 ? " " : "" ,((uint64_t *)regs)[i]);\
         }\
     }
-    void cpu_registers_save(cpu_registers *regs);
-    void cpu_registers_load(cpu_registers *regs);
+    void cpu_registers_save(volatile cpu_registers *regs);
+    void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
     void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
     void __memset_128b(void *ptr, __uint128_t b, uint64_t sz);

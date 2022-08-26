@@ -147,6 +147,12 @@ int builtins_poweroff(int argc, char **argv){
     runtime_services->ResetSystem(EfiResetShutdown, 0, 0, 0x0);
     return 0;
 }
+
+int builtins_int(int argc, char **argv){
+    INTERRUPT();
+    return 0;
+} 
+
 int builtins_ahci(int argc, char **argv){
     ahci_controller *cont = ahci_controller_new();
     if(!cont)
@@ -156,7 +162,8 @@ int builtins_ahci(int argc, char **argv){
         kfree(cont);
         return -1;
     }
-    KDEBUG("ABAR at 0x%x", cont->abar);
+    KDEBUG("ABAR at 0x%x", cont->abar >> 4);
+    ahci_device_send_command(dev0, 0);
     ahci_device_free(dev0);
     ahci_controller_free(cont);
     return 0;
@@ -197,6 +204,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_lspci, "lspci");
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
+    BUILTINS_INIT_FN(builtins_int, "int");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");

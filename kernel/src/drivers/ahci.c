@@ -68,12 +68,15 @@ void ahci_device_send_command(ahci_device *ahci, uint8_t cmd){
         KERROR("ahci_device == NULL");
         return;
     }
-    FIS_REG_H2D fis;
-    memset(&fis, 0, sizeof(FIS_REG_H2D));
+    ahci_fis_reg_h2d fis;
+    memset(&fis, 0, sizeof(ahci_fis_reg_h2d));
     fis.fis_type = FIS_TYPE_REG_H2D;
     fis.command = cmd;
     fis.device = ahci->device;
     fis.c = 1;				// Write command register
+
+    uint32_t test = ((ahci_hba_mem *)ahci->controller->abar)->ports[0].cmd;
+    KDEBUG("test 0x%x", test);
 }
 void ahci_device_free(ahci_device *ahci){
     kfree(ahci);

@@ -35,7 +35,7 @@ def compile_c_files(params, c_flags, c_files):
 def compile_s_files(params, c_flags, s_files):
     for file in s_files:
         print(f"[CC] {file}")
-        r = os.system(f"{params['CC']} {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
+        r = os.system(f"{params['CC']} -masm=intel {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
         if(r != 0):
             exit(r)
 

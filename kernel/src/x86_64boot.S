@@ -3,7 +3,7 @@
 
 .section .text
 _start:
-	mov	 $__STACK_TOP, %rsp
-	xor  %rbp, %rbp
+	lea	rsp, __STACK_TOP
+	xor rbp, rbp
 	call crt0
 	ret 

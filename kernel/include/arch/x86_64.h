@@ -35,6 +35,7 @@
     #define INIT_VECTOR_TABLES(){\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
+            idt_init();\
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
@@ -63,15 +64,32 @@
         uint16_t limit_low;
         uint16_t base_low;
         uint8_t  base_middle;
-        uint8_t  access_byte;
-        uint8_t  limit_high_and_flags; 
-        uint8_t  base_high;       
+        uint8_t access_byte;
+        uint8_t limit_high_and_flags;
+        uint8_t base_middle2;
+        uint32_t base_high;
+        uint32_t reserved;
     } gdt_entry;
     
     typedef struct __attribute__((packed)){
-        uint16_t size; //sizeof(gdt_table)-1
+        uint16_t size; //sizeof(gdt_table)-1B
         uint64_t offset;
     } gdt_ptr;
+
+    typedef struct __attribute__((packed)){
+    	uint16_t    isr_low;      // The lower 16 bits of the ISR's address
+    	uint16_t    kernel_cs;    // The GDT segment selector that the CPU will load into CS before calling the ISR
+    	uint8_t	    ist;          // The IST in the TSS that the CPU will load into RSP; set to zero for now
+    	uint8_t     attributes;   // Type and attributes; see the IDT page
+    	uint16_t    isr_mid;      // The higher 16 bits of the lower 32 bits of the ISR's address
+    	uint32_t    isr_high;     // The higher 32 bits of the ISR's address
+    	uint32_t    reserved;     // Set to zero
+    }idt_entry_t;
+
+    typedef struct __attribute__((packed)){
+    	uint16_t	limit;
+    	uint64_t	base;
+    } idtr_t;
 
     #define CPU_REGISTERS_PRINT(regs){\
         char *cpu_registers_names__func__ [sizeof(cpu_registers)/sizeof(uint64_t)] = {0};\
@@ -95,15 +113,19 @@
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\
     }
-    void cpu_registers_save(cpu_registers *regs);
-    void cpu_registers_load(cpu_registers *regs);
+    void cpu_registers_save(volatile cpu_registers *regs);
+    void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
     void gdt_entries_load(gdt_ptr *ptr);
     gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap);
-    gdt_entry gdt_entry_new(uint32_t limit, uint32_t base, uint8_t access_byte, uint8_t flags);
+    gdt_entry gdt_entry_new(uint32_t limit, uint64_t base, uint8_t access_byte, uint8_t flags);
     void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
     void __memcpy_64b(void *dst, void *src, uint64_t sz);
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
+    void exception_handler(void);
+    void exception_handler();
+    void idt_init();
+
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
 
