@@ -25,19 +25,16 @@ asm_interrupt_handler:
 
 //void gdt_entries_load(gdt_ptr *rdi)
 gdt_entries_load:
-    lgdt    [rdi]
-    push    0x10  //kernel segment
-    lea     rax, .gdt_reload_segments
-    push    rax
+    lgdt [rdi]
+    sub  rsp, 8
+    mov  qword ptr [rsp], 0x8
+    lea  rax, [gdt_entries_end+rip]
+    push rax
     retfq
-    //somehow switch to 32 bits ??
-.gdt_reload_segments:
-    //0x20 == data segment
-    mov  ax, 0x20
+    //jump in 32bits mod should check flags
+    gdt_entries_end:
+    mov  ax, 0x10 //kernel data section
+    mov  ss, ax
     mov  ds, ax
     mov  es, ax
-    mov  fs, ax
-    mov  gs, ax
-    mov  ss, ax
     ret
-

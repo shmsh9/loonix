@@ -37,19 +37,19 @@ void idt_init(){
     __asm__ volatile ("sti"); // set the interrupt flag
 }
 gdt_entry gdt_entry_new(uint32_t limit, uint64_t base, uint8_t access_byte, uint8_t flags){
+    /*
     if(limit > 0xfffff){
         KERROR("limit cannot exceed 20bits");
         return (gdt_entry){0};
     }
-    uint8_t limit_high_and_flags = limit >> 16 & 0x0f;
-    limit_high_and_flags |= (flags << 4);
+    */
+    uint8_t limit_high_and_flags = (limit >> 16) & 0x0f;
     return (gdt_entry){
         .base_low = base & 0xffff,
         .base_middle = (base >> 16) & 0xff,
-        .base_middle2 = (base >> 24) & 0xff,
-        .base_high = (base >> 32) & 0xffffffff,
+        .base_high = (base >> 24) & 0xff,
         .limit_low = limit & 0xffff,
-        .limit_high_and_flags = limit_high_and_flags,
+        .limit_high_and_flags = limit_high_and_flags | (flags & 0xf0),
         .access_byte = access_byte
     };
 }
@@ -68,17 +68,17 @@ gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap){
     entries[0] = zero_entry;
     //Kernel mode code
     entries[1] = gdt_entry_new(
-        bi->kernelsize, 
-        ((uint64_t)bi->kernelbase),
+        0xfffff, 
+        0,
         0x9a,
-        0xc
-        );
+        0xaf
+    );
     //Kernel mode data
     entries[2] = gdt_entry_new(
-        0xeffff,
-        ((uint64_t)bi->kernelbase+bi->kernelsize),
+        0xfffff,
+        0,
         0x92,
-        0xc
+        0xaf
     );
     /*
     //Task state segment
@@ -86,17 +86,6 @@ gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap){
 
     );
     */
-    for(uint8_t i = 0; i < gdt_n_entries; i++){
-        KDEBUG("gdt[%d] : { base : 0x%x limit : 0x%x | 0x%x }",
-            i,
-            (uint64_t)(entries[i].base_high) << 32  |
-            (uint64_t)entries[i].base_middle2 << 24 |
-            (uint64_t)entries[i].base_middle << 16  |
-            (uint64_t)entries[i].base_low,
-            (uint64_t)entries[i].limit_high_and_flags,
-            (uint64_t)entries[i].limit_low
-        );
-    }
     return ret;
 }
 #endif

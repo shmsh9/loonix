@@ -60,15 +60,13 @@
         uint64_t r15;
     }cpu_registers;
     //https://wiki.osdev.org/GDT
-    typedef struct __attribute__((packed)){
-        uint16_t limit_low;
-        uint16_t base_low;
-        uint8_t  base_middle;
-        uint8_t access_byte;
-        uint8_t limit_high_and_flags;
-        uint8_t base_middle2;
-        uint32_t base_high;
-        uint32_t reserved;
+    typedef struct __attribute__((packed)) {
+	    uint16_t limit_low;           // The lower 16 bits of the limit.
+	    uint16_t base_low;            // Bits 0-15 of the base.
+	    uint8_t  base_middle;         // The next 8 bits of the base.
+	    uint8_t  access_byte;             // Access flags, determine what ring this segment can be used in.
+	    uint8_t  limit_high_and_flags;
+	    uint8_t  base_high;           // The next 8 bits of the base.
     } gdt_entry;
     
     typedef struct __attribute__((packed)){

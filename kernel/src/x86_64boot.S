@@ -1,5 +1,5 @@
 .global _start
-.extern crt0, __STACK_TOP
+.extern crt0, __STACK_TOP, gdt_entries_load, gdt_entries_new
 
 .section .text
 _start:
