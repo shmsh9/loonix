@@ -120,10 +120,8 @@
     void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
     void __memcpy_64b(void *dst, void *src, uint64_t sz);
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
-    void exception_handler(void);
-    void exception_handler();
     void idt_init();
-
+    void asm_interrupt_handler();
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
 

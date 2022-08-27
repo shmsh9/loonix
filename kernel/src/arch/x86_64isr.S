@@ -1,8 +1,7 @@
-.extern exception_handler
+.extern exception_handler, idt_stub_table
 .global asm_interrupt_handler, gdt_entries_load
 
 .section .text
-
 asm_interrupt_handler:
     push rax
     push rcx
