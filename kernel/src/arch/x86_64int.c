@@ -41,13 +41,13 @@ gdt_entry gdt_entry_new(uint32_t limit, uint64_t base, uint8_t access_byte, uint
         KERROR("limit cannot exceed 20bits");
         return (gdt_entry){0};
     }
-    uint8_t limit_high_and_flags = (limit >> 16) & 0x0f;
+    uint8_t limit_high_and_flags = limit >> 16 & 0x0f;
     limit_high_and_flags |= (flags << 4);
     return (gdt_entry){
-        .base_low = base & 0xff,
-        .base_middle = (base >> 8) & 0xff,
-        .base_middle2 = (base >> 16) & 0xff,
-        .base_high = (base >> 24) & 0xffffffff,
+        .base_low = base & 0xffff,
+        .base_middle = (base >> 16) & 0xff,
+        .base_middle2 = (base >> 24) & 0xff,
+        .base_high = (base >> 32) & 0xffffffff,
         .limit_low = limit & 0xffff,
         .limit_high_and_flags = limit_high_and_flags,
         .access_byte = access_byte
@@ -86,6 +86,17 @@ gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap){
 
     );
     */
+    for(uint8_t i = 0; i < gdt_n_entries; i++){
+        KDEBUG("gdt[%d] : { base : 0x%x limit : 0x%x | 0x%x }",
+            i,
+            (uint64_t)(entries[i].base_high) << 32  |
+            (uint64_t)entries[i].base_middle2 << 24 |
+            (uint64_t)entries[i].base_middle << 16  |
+            (uint64_t)entries[i].base_low,
+            (uint64_t)entries[i].limit_high_and_flags,
+            (uint64_t)entries[i].limit_low
+        );
+    }
     return ret;
 }
 #endif

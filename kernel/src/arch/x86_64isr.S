@@ -26,9 +26,8 @@ asm_interrupt_handler:
 //void gdt_entries_load(gdt_ptr *rdi)
 gdt_entries_load:
     lgdt    [rdi]
-    mov     rax, 0x10
-    push    rax
-    lea     rax, .gdt_reload_segments
+    push    0x10  //kernel segment
+    lea     rax, [.gdt_reload_segments]
     push    rax
     retfq
     //somehow switch to 32 bits ??
