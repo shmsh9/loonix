@@ -3,24 +3,14 @@
 
 .section .text
 asm_interrupt_handler:
+    pop  rax //store return address
+    sub  rsp, 8
+    mov  qword ptr [rsp], 0x8 //return to kernel mode
     push rax
-    push rcx
-    push rdx
-    push rbx
-    push rsp
-    push rbp
-    push rsi
-    push rdi
+    cli  //disable interrupts
     call exception_handler
-    pop  rdi
-    pop  rsi
-    pop  rbp
-    pop  rsp
-    pop  rbx
-    pop  rdx
-    pop  rcx
-    pop  rax
-    iretq
+    sti //enable interrupts
+    retfq
 
 //void gdt_entries_load(gdt_ptr *rdi)
 gdt_entries_load:

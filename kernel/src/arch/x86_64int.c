@@ -9,7 +9,7 @@ static idtr_t idtr;
 extern uint64_t isr_stub_table[];
 
 void exception_handler(){
-    KPANIC("EXCEPTION HANDLER!!!!!!!");
+    KERROR("EXCEPTION HANDLER!!!!!!!");
 }
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     idt_entry_t* descriptor = &idt[vector];
