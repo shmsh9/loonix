@@ -3,7 +3,7 @@
 
 .section .text
 _start:
-	lea	rsp, __STACK_TOP
+	lea	rsp, [rip+__STACK_TOP]
 	xor rbp, rbp
 	call crt0
 	ret 

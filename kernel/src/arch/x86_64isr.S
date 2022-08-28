@@ -3,14 +3,13 @@
 
 .section .text
 asm_interrupt_handler:
-    pop  rax //store return address
-    sub  rsp, 8
-    mov  qword ptr [rsp], 0x8 //return to kernel mode
-    push rax
+    pop  rbx //store original rip
+    push rbx //somehow rebalance the stack do not remove for now
     cli  //disable interrupts
+    cld  //needed for sysV abi
     call exception_handler
     sti //enable interrupts
-    retfq
+    iretq
 
 //void gdt_entries_load(gdt_ptr *rdi)
 gdt_entries_load:

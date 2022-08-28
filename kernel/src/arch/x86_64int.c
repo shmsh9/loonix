@@ -8,8 +8,14 @@ __attribute__((aligned(0x10))) uint64_t idt_stub_table[256] = {0};
 static idtr_t idtr;
 extern uint64_t isr_stub_table[];
 
-void exception_handler(){
-    KERROR("EXCEPTION HANDLER!!!!!!!");
+void exception_handler(x86_64_interrupt_frame frame){
+    KDEBUG("\nexception : \n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n\t[ss]     : 0x%x", 
+        frame.rip,
+        frame.rsp,
+        (uint64_t)frame.flags,
+        frame.cs,
+        (uint64_t)frame.ss
+    );
 }
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     idt_entry_t* descriptor = &idt[vector];

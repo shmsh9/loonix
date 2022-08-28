@@ -89,6 +89,13 @@
     	uint64_t	base;
     } idtr_t;
 
+    typedef struct __attribute__((packed)) _x86_64_interrupt_frame {
+        uint64_t  rip;
+        uint64_t  cs;
+        uint64_t  flags;
+        uint64_t  rsp;
+        uint64_t  ss;
+    }x86_64_interrupt_frame;
     #define CPU_REGISTERS_PRINT(regs){\
         char *cpu_registers_names__func__ [sizeof(cpu_registers)/sizeof(uint64_t)] = {0};\
         cpu_registers_names__func__[0] = "rax";\
