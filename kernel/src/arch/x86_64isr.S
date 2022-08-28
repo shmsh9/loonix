@@ -1,48 +1,41 @@
+.altmacro
 .extern exception_handler
 .global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0
 
+.macro gen_interrupt_table index
+    .quad asm_interrupt_handler_\index
+.endm
+.macro gen_interrupt_handler index
+    asm_interrupt_handler_\index :
+    pop  rbx                         //store original rip
+    push rbx                         //somehow rebalance the stack do not remove for now
+    cli                              //disable interrupts
+    //cld                              //needed for sysV abi
+    mov  rdi, \index                 //interrupt number
+    call exception_handler           //calls the C code
+    sti                              //enable interrupts
+    iretq
+.endm
+.macro gen_interrupt_handler_loop
+    i=0
+    .rept 256
+        gen_interrupt_handler %i
+    i=i+1
+    .endr
+.endm
+.macro gen_interrupt_table_loop
+    i=0
+    .rept 256
+        gen_interrupt_table %i
+    i=i+1
+    .endr
+.endm
+
 .section .text
+
+gen_interrupt_handler_loop
 asm_interrupt_table:
-    .quad asm_interrupt_handler_0
-    .quad asm_interrupt_handler_1
-    .quad asm_interrupt_handler_2
-    .quad asm_interrupt_handler_3
-asm_interrupt_handler_0:
-    pop  rbx //store original rip
-    push rbx //somehow rebalance the stack do not remove for now
-    cli  //disable interrupts
-    cld  //needed for sysV abi
-    mov  rdi, 0 //interrupt number
-    call exception_handler
-    sti //enable interrupts
-    iretq
-asm_interrupt_handler_1:
-    pop  rbx //store original rip
-    push rbx //somehow rebalance the stack do not remove for now
-    cli  //disable interrupts
-    cld  //needed for sysV abi
-    mov  rdi, 1 //interrupt number
-    call exception_handler
-    sti //enable interrupts
-    iretq
-asm_interrupt_handler_2:
-    pop  rbx //store original rip
-    push rbx //somehow rebalance the stack do not remove for now
-    cli  //disable interrupts
-    cld  //needed for sysV abi
-    mov  rdi, 2//interrupt number
-    call exception_handler
-    sti //enable interrupts
-    iretq
-asm_interrupt_handler_3:
-    pop  rbx //store original rip
-    push rbx //somehow rebalance the stack do not remove for now
-    cli  //disable interrupts
-    cld  //needed for sysV abi
-    mov  rdi, 3 //interrupt number
-    call exception_handler
-    sti //enable interrupts
-    iretq
+gen_interrupt_table_loop
 
 //void gdt_entries_load(gdt_ptr *rdi)
 gdt_entries_load:
