@@ -9,6 +9,7 @@ typedef struct _serial_device{
 	uint64_t rx_tx;
 	uint8_t  rx_mask;
 	uint8_t  tx_mask;
+	uint8_t  char_in;
 }serial_device;
 #include <io.h>
 #include <drivers/pl011uart.h>

@@ -7,8 +7,8 @@
 .endm
 .macro gen_interrupt_handler index
     asm_interrupt_handler_\index :
-    pop  rbx                         //store original rip
-    push rbx                         //somehow rebalance the stack do not remove for now
+    //pop  rbx                         //store original rip
+    //push rbx                         //somehow rebalance the stack do not remove for now
     cli                              //disable interrupts
     //cld                              //needed for sysV abi
     mov  rdi, \index                 //interrupt number

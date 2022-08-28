@@ -36,6 +36,7 @@
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
             idt_init(bootinfo);\
+            __asm__ __volatile__("sti");\
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
@@ -129,6 +130,7 @@
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     void idt_init(bootinfo *bi);
     void asm_interrupt_handler_0();
+    void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
 

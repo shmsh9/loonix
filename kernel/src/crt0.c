@@ -48,7 +48,7 @@ void crt0(bootinfo *bootinfo){
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
-    serial = SERIAL_DEVICE_NEW();
+    INIT_VECTOR_TABLES();
     //!\ contiguous memory is needed
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
@@ -58,11 +58,11 @@ void crt0(bootinfo *bootinfo){
     );
 	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
     vt100_console_init(fb);
-    INIT_VECTOR_TABLES();
     acpi_tables = acpi_table_new(bootinfo);
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
+    serial = SERIAL_DEVICE_NEW();
     kmain(bootinfo);
 }

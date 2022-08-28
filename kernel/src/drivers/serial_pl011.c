@@ -9,8 +9,8 @@ serial_device *serial_pl011_device_new(){
         .wait_tx = serial_pl011_device_wait_tx,
         .getchar_non_blocking = serial_pl011_device_getchar_non_blocking,
         .rx_mask = SERIAL_PL011_RX_MASK,
-        .tx_mask = SERIAL_PL011_TX_MASK
-
+        .tx_mask = SERIAL_PL011_TX_MASK,
+        .char_in = 0
     };
     if(serial_device_init(ret) != 0){
         kfree(ret);

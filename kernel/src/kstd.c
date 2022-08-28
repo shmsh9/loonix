@@ -77,10 +77,15 @@ char kgetchar(){
     return serial_device_readchar(serial);
 }
 char kgetchar_non_blocking(){
+    char ret = 0;
     if(ps2)
-        return ps2_device_getchar_non_blocking(ps2);
+        ret = ps2_device_getchar_non_blocking(ps2);
+    if(ret)
+        return ret;
     if(serial)
-        return serial_device_readchar_non_blocking(serial);
+        ret = serial_device_readchar_non_blocking(serial);
+    if(ret)
+        return ret;
     return 0;
 }
 void kprintf(const char *fmt, ...){
