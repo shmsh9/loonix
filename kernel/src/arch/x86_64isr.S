@@ -1,12 +1,45 @@
-.extern exception_handler, idt_stub_table
-.global asm_interrupt_handler, gdt_entries_load
+.extern exception_handler
+.global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0
 
 .section .text
-asm_interrupt_handler:
+asm_interrupt_table:
+    .quad asm_interrupt_handler_0
+    .quad asm_interrupt_handler_1
+    .quad asm_interrupt_handler_2
+    .quad asm_interrupt_handler_3
+asm_interrupt_handler_0:
     pop  rbx //store original rip
     push rbx //somehow rebalance the stack do not remove for now
     cli  //disable interrupts
     cld  //needed for sysV abi
+    mov  rdi, 0 //interrupt number
+    call exception_handler
+    sti //enable interrupts
+    iretq
+asm_interrupt_handler_1:
+    pop  rbx //store original rip
+    push rbx //somehow rebalance the stack do not remove for now
+    cli  //disable interrupts
+    cld  //needed for sysV abi
+    mov  rdi, 1 //interrupt number
+    call exception_handler
+    sti //enable interrupts
+    iretq
+asm_interrupt_handler_2:
+    pop  rbx //store original rip
+    push rbx //somehow rebalance the stack do not remove for now
+    cli  //disable interrupts
+    cld  //needed for sysV abi
+    mov  rdi, 2//interrupt number
+    call exception_handler
+    sti //enable interrupts
+    iretq
+asm_interrupt_handler_3:
+    pop  rbx //store original rip
+    push rbx //somehow rebalance the stack do not remove for now
+    cli  //disable interrupts
+    cld  //needed for sysV abi
+    mov  rdi, 3 //interrupt number
     call exception_handler
     sti //enable interrupts
     iretq
