@@ -81,7 +81,7 @@
 
     }interrupt_vector_table_entry;
     void init_interrupt_vector_table();
-    void interrupt_handler();
+    void interrupt_handler(uint64_t far_el1, uint64_t esr_el1);
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
