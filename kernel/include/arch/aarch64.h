@@ -17,11 +17,13 @@
     #define _OUTB(address, data) *(volatile uint8_t *)address = data
     #define _OUTL(address, data) *(volatile uint32_t *)address = data
     #define _OUTW(address, data) *(volatile uint16_t *)address = data
-    #define INIT_VECTOR_TABLES()
     #define NEWMEM_HACK_UGLY_OFFSET 0
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x200000
-    typedef struct __attribute__((__packed__)){
+    #define INIT_VECTOR_TABLES(){\
+        init_interrupt_vector_table();\
+    }
+    typedef struct __attribute__((packed)){
         uint64_t x0;
         uint64_t x1;
         uint64_t x2;
@@ -59,6 +61,27 @@
             kprintf("\t[x%d%s] : 0x%x\n", i, i < 10 ? " " : "" ,((uint64_t *)regs)[i]);\
         }\
     }
+    typedef struct __attribute__((packed)) _interrupt_vector_table_entry{
+        uint64_t a;
+        uint64_t b;
+        uint64_t c;
+        uint64_t d;
+        uint64_t e;
+        uint64_t f;
+        uint64_t g;
+        uint64_t h;
+        uint64_t i;
+        uint64_t j;
+        uint64_t k;
+        uint64_t l;
+        uint64_t m;
+        uint64_t n;
+        uint64_t o;
+        uint64_t p;
+
+    }interrupt_vector_table_entry;
+    void init_interrupt_vector_table();
+    void interrupt_handler();
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();

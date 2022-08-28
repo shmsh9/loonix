@@ -157,7 +157,14 @@ int builtins_int(int argc, char **argv){
     kprint("INTERRUPT()\n");
     INTERRUPT();
     return 0;
-} 
+}
+
+int builtins_regdump(int argc, char **argv){
+    cpu_registers r;
+    cpu_registers_save(&r);
+    CPU_REGISTERS_PRINT(&r);
+    return 0;
+}
 
 int builtins_ahci(int argc, char **argv){
     ahci_controller *cont = ahci_controller_new();
@@ -211,6 +218,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_int, "int");
+    BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");
