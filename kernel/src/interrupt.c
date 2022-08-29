@@ -10,9 +10,7 @@ void interrupt_handler_int3(){
 }
 void interrupt_functions_table_init(){
     memset(interrupt_functions_table, 0, INTERRUPT_FUNCTIONS_TABLE_SIZE*sizeof(uint64_t));
-
-    interrupt_handler_install(interrupt_handler_zerodiv, 0);
-    interrupt_handler_install(interrupt_handler_int3, 3);
+    INTERRUPT_FUNCTIONS_INSTALL_DEFAULT_ARCH();
 }
 void interrupt_handler_install(void (*fn)(), uint16_t num){
     if(num >= INTERRUPT_FUNCTIONS_TABLE_SIZE){

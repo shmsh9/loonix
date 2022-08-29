@@ -21,6 +21,7 @@
     #define NEWMEM_HACK_UGLY_OFFSET 0
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x200000
+    #define INTERRUPT_FUNCTIONS_INSTALL_DEFAULT_ARCH()
     #define INTERRUPT_INIT(){\
         interrupt_functions_table_init();\
         init_interrupt_vector_table();\
@@ -98,7 +99,7 @@
     void interrupt_functions_table_init();
     void interrupt_handler_install(void (*fn)(), uint16_t num);
     void init_interrupt_vector_table();
-    void interrupt_handler(uint64_t far_el1, uint64_t esr_el1);
+    void interrupt_handler(uint64_t far_el1, uint64_t esr_el1, uint64_t interrupt_type);
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();

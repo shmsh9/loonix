@@ -4,7 +4,6 @@ uint64_t kmain(bootinfo *bootinfo){
 	KMESSAGE("Framebuffer %dx%d at 0x%x (%d MB)", fb->width, fb->height, fb->buffer, BYTES_TO_MB(fb->size));
 	KMESSAGE("Available system memory %d MB", BYTES_TO_MB(heap.free_memory));
 	kprint("Welcome to l00n1x !\n");
-	kprintf("0x1337 : 0b%b\n", 0x1337);
 	shell();
 	while(1){
 		/* we cannot return since we switched the stack */

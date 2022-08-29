@@ -32,6 +32,10 @@
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
     #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
     #define _OUTW(address, data) __asm__ __volatile__("outw %0, %1" : : "a"((uint16_t)data), "Nd"((uint16_t)address))
+    #define INTERRUPT_FUNCTIONS_INSTALL_DEFAULT_ARCH(){\
+            interrupt_handler_install(interrupt_handler_zerodiv, 0);\
+            interrupt_handler_install(interrupt_handler_int3, 3);\
+    }
     #define INTERRUPT_INIT(){\
             interrupt_functions_table_init();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
