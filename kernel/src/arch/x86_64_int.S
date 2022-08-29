@@ -10,7 +10,7 @@
     //pop  rbx                         //store original rip
     //push rbx                         //somehow rebalance the stack do not remove for now
     cli                              //disable interrupts
-    //cld                              //needed for sysV abi
+    cld                              //needed for sysV abi
     mov  rdi, \index                 //interrupt number
     call interrupt_handler           //calls the C code
     sti                              //enable interrupts

@@ -22,6 +22,7 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 	ImageHandle = aImageHandle;
 	SystemTable = aSystemTable;
 	SystemTable->BootServices->SetWatchdogTimer(0, 0, 0, NULL);
+	SystemTable->ConOut->ClearScreen(SystemTable->ConOut);
 	bootinfo bootinfo = {
 		.ImageHandle = ImageHandle, 
 		.SystemTable = SystemTable, 
@@ -64,8 +65,28 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 			TimerRelative,
 			to*10000000
 		);
-		CHAR16 *padding = L"        ";
-		Print(L"L00n1x bootloader :\n");
+		CHAR16 *padding = L" ";
+/*
+		CHAR16 *banner = L""         
+L"         _nnnn_ \n"
+L"        dGGGGMMb \n"
+L"       @p~qp~~qMb \n"   
+L"       M|@||@) M| \n"   
+L"       @,----.JM| \n"   
+L"      JS^\\__/  qKL \n"
+L"     dZP        qKRb \n" 
+L"    dZP          qKKb \n" 
+L"   fZP            SMMb \n"
+L"   HZM            MMMM \n"
+L"   FqM            MMMM \n"
+L" __| \".        |\\dS\"qML \n"
+L" |    `.       | `' \\Zq \n"
+L"_)      \\.___.,|     .' \n"
+L"\\____   )MMMMMP|   .' \n"
+L"     `-'       `--' \n";
+		Print(L"%s\n", banner);
+*/
+		Print(L"[L00n1x bootloader]\n\n");
 		for(uint8_t i = 0; i < gop->Mode->MaxMode; i++){
   			EFI_GRAPHICS_OUTPUT_MODE_INFORMATION *info = 0;
   			UINTN SizeOfInfo = 0;
@@ -89,7 +110,7 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 				space_res = L"   ";
 			if(t != EFI_SUCCESS)
 				continue;
-			Print(L"%smode %d %s: %dx%d %s",
+			Print(L"%s %d %s: %dx%d %s",
 				padding,
 				i,
 				space_mode,
@@ -97,9 +118,10 @@ EFI_STATUS efi_main(EFI_HANDLE aImageHandle, EFI_SYSTEM_TABLE *aSystemTable){
 				info->VerticalResolution,
 				space_res
 			);
-			if((i & 1))
+			if(!((i+1) % 4))
 				Print(L"\n");
 		}
+		Print(L"\n\n");
 		EFI_INPUT_KEY k = {0};
 		UINTN KeyEvent = 0;
 		uint8_t mode = 0;

@@ -33,13 +33,13 @@ serial_device *serial_x86_device_new(){
         ret = 0x0;
     }
     interrupt_handler_install(serial_x86_interrupt_32, 32);
-    serial_x86_device_remap_interrupts();
-    uint64_t interrupt_reg = serial->data+1;
+    //serial_x86_device_remap_interrupts();
+    //uint64_t interrupt_reg = serial->data+1;
     //https://wiki.osdev.org/Serial_Ports#Interrupt_enable_register
-    uint8_t interrupt_flags = 0;
+    //uint8_t interrupt_flags = 0;
     //set bit 0 to enable data available interrupt
-    set_bit(&interrupt_flags, 0);
-    outb(interrupt_reg, interrupt_flags);
+    //set_bit(&interrupt_flags, 0);
+    //outb(interrupt_reg, interrupt_flags);
     return ret;
 }
 uint8_t serial_x86_device_getchar_non_blocking(serial_device *serial){
