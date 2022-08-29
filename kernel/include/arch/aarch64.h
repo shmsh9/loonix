@@ -3,6 +3,7 @@
 #include <arch/arch.h>
 #include <stdint.h>
 #ifdef __aarch64__
+    #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
 	#define ARCH_STRING "aarch64"
     #define ARCH_UINT ARCH_AARCH64
     #define SERIAL_DEVICE_NEW() serial_pl011_device_new()
@@ -20,8 +21,10 @@
     #define NEWMEM_HACK_UGLY_OFFSET 0
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x200000
-    #define INIT_VECTOR_TABLES(){\
+    #define INTERRUPT_INIT(){\
+        interrupt_functions_table_init();\
         init_interrupt_vector_table();\
+        interrupt_enable();\
     }
     typedef struct __attribute__((packed)){
         uint64_t x0;
@@ -80,6 +83,20 @@
         uint64_t p;
 
     }interrupt_vector_table_entry;
+    typedef struct _esr_el1{
+        uint8_t direction_bit; //0
+        uint8_t CRm;  //4:1
+        uint8_t RT;   //9:5
+        uint8_t RT2;  //14:10
+        uint8_t OPC1; //19:16
+        uint8_t COND; //23:20
+        uint8_t CV;  //24
+        uint32_t ISS; //24:0
+    }esr_el1;
+    void interrupt_enable();
+    void interrupt_disable();
+    void interrupt_functions_table_init();
+    void interrupt_handler_install(void (*fn)(), uint16_t num);
     void init_interrupt_vector_table();
     void interrupt_handler(uint64_t far_el1, uint64_t esr_el1);
     void cpu_registers_save(volatile cpu_registers *regs);

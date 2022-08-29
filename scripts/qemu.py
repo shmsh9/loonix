@@ -24,4 +24,4 @@ shutil.copyfile("kernel/kernel.elf", "image/kernel.elf")
 shutil.copyfile(f"bootloader/{bootloader}", f"image/efi/boot/{bootloader}")
 
 print(f"[{qemu}]")
-os.system(f"{qemu} {qemu_flags} -no-reboot -d int,cpu_reset -m {qemu_memory} -bios {bios} -serial stdio -s -net none -drive format=raw,file=fat:rw:image")
+os.system(f"{qemu} {qemu_flags} -no-reboot -m {qemu_memory} -bios {bios} -serial stdio -s -net none -drive format=raw,file=fat:rw:image")

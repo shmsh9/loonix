@@ -4,10 +4,8 @@
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
-#include <arch/aarch64.h>
-#include <arch/x86_64.h>
-#include <acpi.h>
-#include <irq/irq.h>
+#include <arch/arch.h>
+#include <drivers/acpi.h>
 
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
@@ -20,7 +18,7 @@ serial_device *serial = 0x0;
 acpi_table *acpi_tables = 0x0;
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
-    irq_disable();
+    interrupt_disable();
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
@@ -48,7 +46,7 @@ void crt0(bootinfo *bootinfo){
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
-    INIT_VECTOR_TABLES();
+    INTERRUPT_INIT();
     //!\ contiguous memory is needed
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 

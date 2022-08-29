@@ -36,6 +36,7 @@
     stacktrace();\
     kprint("registers  :\n");\
 	CPU_REGISTERS_PRINT(&r__func__);\
+    framebuffer_device_update(fb);\
     BREAKPOINT();\
 }
 #ifdef KERNEL_DEBUG

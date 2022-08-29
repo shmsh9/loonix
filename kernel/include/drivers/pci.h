@@ -2,7 +2,7 @@
 #define PCI_H_
 #include <stdint.h>
 #include <kstd.h>
-#include <acpi.h>
+#include <drivers/acpi.h>
 
 #define PCI_REGISTER_BAR0   0x10
 #define PCI_REGISTER_BAR1   0x14   

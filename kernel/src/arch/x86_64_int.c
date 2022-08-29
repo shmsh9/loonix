@@ -7,24 +7,21 @@ __attribute__((aligned(0x10))) static idt_entry_t idt[256] = {0}; // Create an a
 static idtr_t idtr;
 extern uint64_t asm_interrupt_table[256];
 uint8_t serial_device_char_in = 0;
+extern uint64_t interrupt_functions_table[256];
 
-void exception_handler(x86_64_interrupt_frame frame, uint64_t rdi_interrupt_num){
-    switch (rdi_interrupt_num){
-    case 32:
-        if(serial)
-            serial->char_in = serial->getchar_non_blocking(serial);
-        break;
-    default:
-        KPANIC("unhandled exception (%d) :\n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n\t[ss]     : 0x%x", 
-            rdi_interrupt_num,
-            frame.rip,
-            frame.rsp,
-            (uint64_t)frame.flags,
-            frame.cs,
-            (uint64_t)frame.ss
-        );
-        break;
+void interrupt_handler(x86_64_interrupt_frame frame, uint64_t rdi_interrupt_num){
+    if(interrupt_functions_table[rdi_interrupt_num]){
+        ((void (*)())interrupt_functions_table[rdi_interrupt_num])();
+        return;
     }
+    KPANIC("unhandled exception (%d) :\n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n\t[ss]     : 0x%x", 
+        rdi_interrupt_num,
+        frame.rip,
+        frame.rsp,
+        (uint64_t)frame.flags,
+        frame.cs,
+        (uint64_t)frame.ss
+    );
 }
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     idt_entry_t* descriptor = &idt[vector];
@@ -38,7 +35,6 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     descriptor->reserved      = 0;
 }
 void idt_init(bootinfo *bi){
-
     idtr.base = (uintptr_t)&idt[0];
     idtr.limit = (uint16_t)sizeof(idt_entry_t) * 256 - 1;
     for(uint16_t vector = 0; vector < 256; vector++){

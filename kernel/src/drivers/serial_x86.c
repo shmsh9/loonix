@@ -12,6 +12,10 @@ void serial_x86_device_remap_interrupts(){
     outb(PIC1+1, 0x1);
     outb(PIC2+1, 0x01);
 }
+void serial_x86_interrupt_32(serial_device *serial){
+    KMESSAGE("interrupt fired");
+}
+
 serial_device *serial_x86_device_new(){
     serial_device *ret = kcalloc(sizeof(serial_device), 1);
     *ret = (serial_device){
@@ -28,6 +32,7 @@ serial_device *serial_x86_device_new(){
         kfree(ret);
         ret = 0x0;
     }
+    interrupt_handler_install(serial_x86_interrupt_32, 32);
     serial_x86_device_remap_interrupts();
     uint64_t interrupt_reg = serial->data+1;
     //https://wiki.osdev.org/Serial_Ports#Interrupt_enable_register

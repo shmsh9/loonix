@@ -2,8 +2,6 @@ import os
 import platform
 import glob
 from pathlib import Path
-from sys import flags
-from tty import CFLAG
 
 def get_params():
     CC = "clang"
@@ -41,7 +39,7 @@ def compile_s_files(params, c_flags, s_files):
         flags = " -fPIC"
         if cfg["ARCH"] == "x86_64":
             c_flags += " -masm=intel"
-        r = os.system(f"{params['CC']} {c_flags} {file} -o {os.path.splitext(file)[0]}.o")
+        r = os.system(f"{params['CC']} {c_flags} {file} -o {os.path.splitext(file)[0]}_s.o")
         if(r != 0):
             exit(r)
 

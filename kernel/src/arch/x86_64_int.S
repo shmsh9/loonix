@@ -1,6 +1,6 @@
 .altmacro
-.extern exception_handler
-.global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0
+.extern interrupt_handler
+.global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0, interrupt_enable, interrupt_disable
 
 .macro gen_interrupt_table index
     .quad asm_interrupt_handler_\index
@@ -12,7 +12,7 @@
     cli                              //disable interrupts
     //cld                              //needed for sysV abi
     mov  rdi, \index                 //interrupt number
-    call exception_handler           //calls the C code
+    call interrupt_handler           //calls the C code
     sti                              //enable interrupts
     iretq
 .endm
@@ -51,4 +51,11 @@ gdt_entries_load:
     mov  ss, ax
     mov  ds, ax
     mov  es, ax
+    ret
+
+interrupt_enable:
+    sti
+    ret
+interrupt_disable:
+    cli
     ret

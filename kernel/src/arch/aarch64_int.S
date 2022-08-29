@@ -1,6 +1,6 @@
 //https://krinkinmu.github.io/2021/01/10/aarch64-interrupt-handling.html
 .text
-.global interrupt_vector_table, init_interrupt_vector_table
+.global interrupt_vector_table, init_interrupt_vector_table, interrupt_enable, interrupt_disable
 .extern interrupt_handler
 .balign 2048
 interrupt_vector_table:
@@ -17,7 +17,7 @@ interrupt_vector_table_el1:
     stp x0, x1, [sp]
     mrs x0, FAR_EL1
     mrs x1, ESR_EL1
-    b interrupt_handler
+    bl interrupt_handler
     ldp x0, x1, [sp]
     add sp, sp, #16
     eret
@@ -26,7 +26,7 @@ interrupt_vector_table_el1:
     stp x0, x1, [sp]
     mrs x0, FAR_EL1
     mrs x1, ESR_EL1
-    b interrupt_handler
+    bl interrupt_handler
     ldp x0, x1, [sp]
     add sp, sp, #16
     eret
@@ -35,7 +35,7 @@ interrupt_vector_table_el1:
     stp x0, x1, [sp]
     mrs x0, FAR_EL1
     mrs x1, ESR_EL1
-    b interrupt_handler
+    bl interrupt_handler
     ldp x0, x1, [sp]
     add sp, sp, #16
     eret
@@ -44,7 +44,7 @@ interrupt_vector_table_el1:
     stp x0, x1, [sp]
     mrs x0, FAR_EL1
     mrs x1, ESR_EL1
-    b interrupt_handler
+    bl interrupt_handler
     ldp x0, x1, [sp]
     add sp, sp, #16
     eret
@@ -77,4 +77,10 @@ interrupt_vector_table_el4:
 init_interrupt_vector_table:
     adr  x0, interrupt_vector_table
     msr   VBAR_EL1, x0
+    ret
+interrupt_enable:
+    msr daifclr, #2
+    ret
+interrupt_disable:
+    msr daifset, #2
     ret

@@ -1,4 +1,4 @@
-#include <acpi.h>
+#include <drivers/acpi.h>
 acpi_table *acpi_table_new(bootinfo *bi){
     acpi_rsd_ptr *rsd_ptr = acpi_find_rsd_ptr(bi->acpi_table, bi->acpi_table_length);
     acpi_xsdt *xsdt = acpi_find_xsdt(rsd_ptr);

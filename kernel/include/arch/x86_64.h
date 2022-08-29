@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <newmem.h>
 #include <bootloader.h>
-
+    #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
 	#define ARCH_STRING "x64"
     #define ARCH_UINT ARCH_X64
     #define PS2_DEVICE_ADDRESS 0x60
@@ -32,11 +32,12 @@
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
     #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
     #define _OUTW(address, data) __asm__ __volatile__("outw %0, %1" : : "a"((uint16_t)data), "Nd"((uint16_t)address))
-    #define INIT_VECTOR_TABLES(){\
+    #define INTERRUPT_INIT(){\
+            interrupt_functions_table_init();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
             idt_init(bootinfo);\
-            __asm__ __volatile__("sti");\
+            interrupt_enable();\
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
@@ -119,6 +120,10 @@
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\
     }
+    void interrupt_enable();
+    void interrupt_disable();
+    void interrupt_handler_install(void (*fn)(), uint16_t num);
+    void interrupt_functions_table_init();
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
@@ -129,7 +134,6 @@
     void __memcpy_64b(void *dst, void *src, uint64_t sz);
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     void idt_init(bootinfo *bi);
-    void asm_interrupt_handler_0();
     void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
