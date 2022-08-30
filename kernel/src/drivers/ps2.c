@@ -3,7 +3,7 @@
 ps2_key_pressed *ps2_current_key_pressed= 0;
 
 //https://wiki.osdev.org/PS/2_Keyboard
-static char ps2_scancode_pressed_set_1[0x58] = {
+static char ps2_scancode_pressed_set_1[PS2_SET_1_SIZE] = {
     0x0, //(0x0)null
     0x1b,//(0x1)esc
     '1',
@@ -45,7 +45,7 @@ static char ps2_scancode_pressed_set_1[0x58] = {
     'l',
     ';',
     '\'',
-    '`',
+    '~',
     0x0, //LSHIFT
     '\\',
     'z',
@@ -93,14 +93,102 @@ static char ps2_scancode_pressed_set_1[0x58] = {
     0x0,
     0x0,
 };
-char ps2_scancode_released_set_1[0x6d] = {0};
-
+static char ps2_scancode_pressed_set_1_shift[PS2_SET_1_SIZE] = {
+    0x0, //(0x0)null
+    0x1b,//(0x1)esc
+    '!',
+    '@',
+    '#',
+    '$',
+    '%',
+    '^',
+    '&',
+    '*',
+    '(',
+    ')',
+    '_',
+    '+',
+    0x8,//(0x0E)backspace
+    0xb,//(0x0E)tab
+    'Q',
+    'W',
+    'E',
+    'R',
+    'T',
+    'Y',
+    'U',
+    'I',
+    'O',
+    'P',
+    '{',
+    '}',
+    '\n', //enter
+    '\033',//left-ctrl
+    'A',
+    'S',
+    'D',
+    'F',
+    'G',
+    'H',
+    'J',
+    'K',
+    'L',
+    ':',
+    '"',
+    '`',
+    0x0, //LSHIFT
+    '|',
+    'Z',
+    'X',
+    'C',
+    'V',
+    'B',
+    'N',
+    'M',
+    '<',
+    '>',
+    '?',
+    0x0, //RSHIFT
+    '*',
+    0x0, //left-alt
+    ' ', //space
+    0x0, //capslock
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+    0x0,
+};
 ps2_device *ps2_device_new(uintptr_t base_port){
-    ps2_current_key_pressed = kcalloc(0x58, sizeof(ps2_key_pressed));
     if(!base_port){
         KERROR("base_port 0x0");
         return 0x0;
     }
+    ps2_current_key_pressed = kcalloc(PS2_SET_1_SIZE, sizeof(ps2_key_pressed));
     ps2_device *ret = kcalloc(sizeof(ps2_device), 1);
     *ret =  (ps2_device){
         .data_port = base_port,
@@ -178,6 +266,7 @@ uint8_t ps2_device_get_scancode(ps2_device *ps2){
             //ps2_device_send_command(ps2, 0x7); // send command 0x7 : first ps/2 port data
             ps2_device_wait_rx(ps2);
             uint8_t ret = (uint8_t)inb(ps2->data_port);
+            ps2_keypress_update(ret);
             //clear buffer
             ps2_device_end_tx_rx(ps2);
             return ret;
@@ -196,35 +285,26 @@ uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
         default:
             if(ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT)){
                 uint8_t c = (uint8_t)inb(ps2->data_port);
-                ps2_current_key_pressed[c] = 1;
+                ps2_keypress_update(c);
                 return ps2_scancode_set_1_to_char(c);
-
             }
             break;
     }
     return 0x0;
 }
-uint8_t toupper(uint8_t c){
-    if(c > 96 && c < 123)
-        return c - 32;
-    return 0;
-}
-uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
-    /*
-    kprint("key pressed { ");
-    for(uint16_t i = 0; i < 0x58; i++){
-        if(ps2_current_key_pressed[i])
-            kprintf("0x%x ", i);
-    }
-    kprint("}\n");
-    */
-    //key release event
+void ps2_keypress_update(uint8_t scancode){
     if(scancode >= 0x81){
         ps2_current_key_pressed[scancode-0x80] = 0;
-        return 0x0;
     }
+    else{
+        ps2_current_key_pressed[scancode] = 1;
+    }
+}
+uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
+    if(scancode >= 0x81)
+        return 0x0;
     //LSHIFT && RSHIFT
-    if(ps2_current_key_pressed[0x2A] || ps2_current_key_pressed[0x36])
-        return toupper(ps2_scancode_pressed_set_1[scancode]);
+    if( ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] || ps2_current_key_pressed[PS2_KEY_SHIFT_RIGHT] || ps2_current_key_pressed[PS2_KEY_CAPS_LOCK])
+        return ps2_scancode_pressed_set_1_shift[scancode];
     return ps2_scancode_pressed_set_1[scancode];
 }

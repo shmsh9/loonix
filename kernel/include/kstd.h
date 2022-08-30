@@ -101,6 +101,7 @@ void stacktrace();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 int atoi(const char *str);
+uint8_t toupper(uint8_t c);
 int isdigit(uint8_t c);
 char *strdup(const char *str);
 void memset(void *ptr, uint8_t b, uint64_t sz);

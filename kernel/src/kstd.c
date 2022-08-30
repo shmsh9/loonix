@@ -26,6 +26,11 @@ int strlen(const char *str){
         r++;
     return r;
 }
+uint8_t toupper(uint8_t c){
+    if(c > 96 && c < 123)
+        return c - 32;
+    return 0;
+}
 int atoi(const char *str){
     int ret = 0;
     while(*str++){
