@@ -18,6 +18,11 @@ typedef struct {
 #define PS2_DEVICE_TIMEOUT    6
 #define PS2_DEVICE_PARITY_ERR 7
 
+typedef enum _ps2_key_pressed{
+    PS2_KEY_NULL,
+    PS2_KEY_ESCAPE,
+}ps2_key_pressed;
+
 ps2_device *ps2_device_new(uintptr_t base_port);
 uint8_t ps2_device_get_scancode(ps2_device *ps2);
 uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd);

@@ -1,6 +1,9 @@
 #include <drivers/ps2.h>
+//need to malloc this
+ps2_key_pressed *ps2_current_key_pressed= 0;
+
 //https://wiki.osdev.org/PS/2_Keyboard
-char ps2_scancode_pressed_set_1[0x58] = {
+static char ps2_scancode_pressed_set_1[0x58] = {
     0x0, //(0x0)null
     0x1b,//(0x1)esc
     '1',
@@ -93,6 +96,7 @@ char ps2_scancode_pressed_set_1[0x58] = {
 char ps2_scancode_released_set_1[0x6d] = {0};
 
 ps2_device *ps2_device_new(uintptr_t base_port){
+    ps2_current_key_pressed = kcalloc(0x58, sizeof(ps2_key_pressed));
     if(!base_port){
         KERROR("base_port 0x0");
         return 0x0;
@@ -119,7 +123,6 @@ ps2_device *ps2_device_new(uintptr_t base_port){
     }
     //enable first port
     ps2_device_send_command(ret, 0xae);
-
     return ret;
 }
 void ps2_device_set_bit(ps2_device *ps2, uint8_t bit){
@@ -140,9 +143,6 @@ uint8_t ps2_device_send_command(ps2_device *ps2, uint8_t cmd){
     ps2_device_wait_tx(ps2);
     ps2_device_set_bit(ps2, PS2_DEVICE_COMMAND);
     outb(ps2->command_register, cmd);
-    //ps2_device_unset_bit(ps2, PS2_DEVICE_COMMAND);
-    //ps2_device_wait_rx(ps2);
-//    KDEBUG("passed wait_rx()","");
     uint8_t ret = inb(ps2->data_port);
     ps2_device_end_tx_rx(ps2);
     return ret;
@@ -194,13 +194,37 @@ uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
             break;
 
         default:
-            return ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT) == 0 ? 0 : ps2_scancode_set_1_to_char((uint8_t)inb(ps2->data_port));
+            if(ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT)){
+                uint8_t c = (uint8_t)inb(ps2->data_port);
+                ps2_current_key_pressed[c] = 1;
+                return ps2_scancode_set_1_to_char(c);
+
+            }
             break;
     }
+    return 0x0;
+}
+uint8_t toupper(uint8_t c){
+    if(c > 96 && c < 123)
+        return c - 32;
+    return 0;
 }
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
+    /*
+    kprint("key pressed { ");
+    for(uint16_t i = 0; i < 0x58; i++){
+        if(ps2_current_key_pressed[i])
+            kprintf("0x%x ", i);
+    }
+    kprint("}\n");
+    */
     //key release event
-    if(scancode >= 0x58)
+    if(scancode >= 0x81){
+        ps2_current_key_pressed[scancode-0x80] = 0;
         return 0x0;
+    }
+    //LSHIFT && RSHIFT
+    if(ps2_current_key_pressed[0x2A] || ps2_current_key_pressed[0x36])
+        return toupper(ps2_scancode_pressed_set_1[scancode]);
     return ps2_scancode_pressed_set_1[scancode];
 }
