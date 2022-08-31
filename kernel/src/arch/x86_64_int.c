@@ -34,6 +34,26 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     descriptor->isr_high      = (((uint64_t)isr) >> 32) & 0xFFFFFFFF;
     descriptor->reserved      = 0;
 }
+void pic_remap(){
+    uint16_t PIC1_MASTER = 0x20;
+    uint16_t PIC2_MASTER = 0xA0;
+    uint16_t PIC1_DATA = PIC1_MASTER+1;
+    uint16_t PIC2_DATA = PIC2_MASTER+1;
+
+    //restart
+    outb(PIC1_MASTER,0x11);
+    outb(PIC2_MASTER,0x11);
+    //remap
+    outb(PIC1_DATA, 0x20);
+    outb(PIC2_DATA, 0x28);
+    //cascading
+    outb(PIC1_DATA, 0x04);
+    outb(PIC2_DATA, 0x02);
+    //end
+    outb(PIC1_DATA, 0x01);
+    outb(PIC2_DATA, 0x01);
+
+}
 void idt_init(bootinfo *bi){
     idtr.base = (uintptr_t)&idt[0];
     idtr.limit = (uint16_t)sizeof(idt_entry_t) * 256 - 1;
@@ -46,6 +66,7 @@ void idt_init(bootinfo *bi){
     }
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT
     __asm__ volatile ("sti"); // set the interrupt flag
+
 }
 gdt_entry gdt_entry_new(uint32_t limit, uint64_t base, uint8_t access_byte, uint8_t flags){
     /*

@@ -209,6 +209,9 @@ ps2_device *ps2_device_new(uintptr_t base_port){
         //return 0x0;
         //return (ps2_device){0};
     }
+    //enable irq on first port
+    uint8_t cf_byte = ps2_device_send_command(ret ,0x20);
+    KDEBUG("cf_byte 0b%b", (uint64_t)cf_byte);
     //enable first port
     ps2_device_send_command(ret, 0xae);
     return ret;
@@ -322,3 +325,9 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
 bool ps2_key_is_pressed(ps2_key_pressed k){
     return ps2_current_key_pressed[k];
 }
+
+void ps2_irq_handler(){
+    if(!ps2)
+        return;
+    KMESSAGE("fired");
+} 

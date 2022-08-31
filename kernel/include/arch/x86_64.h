@@ -38,6 +38,7 @@
             interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
     }
     #define INTERRUPT_INIT(){\
+            pic_remap();\
             interrupt_functions_table_init();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
@@ -127,6 +128,7 @@
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\
     }
+    void pic_remap();
     void interrupt_enable();
     void interrupt_disable();
     void interrupt_handler_install(void (*fn)(), uint16_t num);

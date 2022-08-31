@@ -46,7 +46,6 @@ void crt0(bootinfo *bootinfo){
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
-    INTERRUPT_INIT();
     //!\ contiguous memory is needed
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
@@ -62,5 +61,6 @@ void crt0(bootinfo *bootinfo){
     pci_enum_ecam(acpi_tables->mcfg);
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     serial = SERIAL_DEVICE_NEW();
+    INTERRUPT_INIT();
     kmain(bootinfo);
 }
