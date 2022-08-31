@@ -33,8 +33,9 @@
     #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
     #define _OUTW(address, data) __asm__ __volatile__("outw %0, %1" : : "a"((uint16_t)data), "Nd"((uint16_t)address))
     #define INTERRUPT_FUNCTIONS_INSTALL_DEFAULT_ARCH(){\
-            interrupt_handler_install(interrupt_handler_zerodiv, 0);\
-            interrupt_handler_install(interrupt_handler_int3, 3);\
+            interrupt_handler_install(interrupt_handler_zerodiv, 0x0);\
+            interrupt_handler_install(interrupt_handler_breakpoint, 0x3);\
+            interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
     }
     #define INTERRUPT_INIT(){\
             interrupt_functions_table_init();\
@@ -64,6 +65,7 @@
         uint64_t r13;
         uint64_t r14;
         uint64_t r15;
+        uint64_t rip;
     }cpu_registers;
     //https://wiki.osdev.org/GDT
     typedef struct __attribute__((packed)) {
@@ -120,6 +122,7 @@
         cpu_registers_names__func__[13] = "r13";\
         cpu_registers_names__func__[14] = "r14";\
         cpu_registers_names__func__[15] = "r15";\
+        cpu_registers_names__func__[16] = "rip";\
         for(uint8_t i = 0; i < sizeof(cpu_registers)/sizeof(uint64_t); i++){\
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\

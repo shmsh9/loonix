@@ -24,7 +24,7 @@ inline void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint6
     }
     uint64_t pos = framebuffer->width*y+x;
     if(pos > framebuffer->width*framebuffer->height){
-        KPANIC("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
+        KERROR("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
         return;
     }
     graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;

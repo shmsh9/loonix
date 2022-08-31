@@ -1,6 +1,6 @@
 #include <drivers/ps2.h>
 //need to malloc this
-ps2_key_pressed *ps2_current_key_pressed= 0;
+ps2_key_pressed *ps2_current_key_pressed = 0;
 
 //https://wiki.osdev.org/PS/2_Keyboard
 static char ps2_scancode_pressed_set_1[PS2_SET_1_SIZE] = {
@@ -293,6 +293,10 @@ uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
     return 0x0;
 }
 void ps2_keypress_update(uint8_t scancode){
+    if(scancode > 0xED){
+        KERROR("scancode 0x%x not implemented", scancode);
+        return;
+    }
     if(scancode >= 0x81){
         ps2_current_key_pressed[scancode-0x80] = 0;
     }
@@ -303,8 +307,18 @@ void ps2_keypress_update(uint8_t scancode){
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     if(scancode >= 0x81)
         return 0x0;
+    
+    //CTRL combinations
+    if(ps2_current_key_pressed[PS2_KEY_CTRL_LEFT]){
+        if(scancode == PS2_KEY_C)
+            return 0x3;
+    }
     //LSHIFT && RSHIFT
     if( ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] || ps2_current_key_pressed[PS2_KEY_SHIFT_RIGHT] || ps2_current_key_pressed[PS2_KEY_CAPS_LOCK])
         return ps2_scancode_pressed_set_1_shift[scancode];
     return ps2_scancode_pressed_set_1[scancode];
+}
+
+bool ps2_key_is_pressed(ps2_key_pressed k){
+    return ps2_current_key_pressed[k];
 }

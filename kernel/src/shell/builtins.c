@@ -99,18 +99,41 @@ int builtins_testmemcpy(int argc, char **argv){
 int builtins_graphics(int argc, char **argv){
 	#include <graphics/tux.png.h>
 	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
-    for(uint64_t i = 0; i < 0x300; i++){
+    uint32_t tux_x = fb->width/2 - tux->width/2;
+    uint32_t tux_y = fb->height/2 - tux->height/2;
+    while(1){
+        uint8_t k = ps2_device_getchar_non_blocking(ps2);
+        ps2_keypress_update(k);
+        if(ps2_key_is_pressed(PS2_KEY_ESCAPE)){
+            KMESSAGE("Exit");
+            break;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_W)){
+            if(tux_y - 1 > 0)
+                tux_y--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_A)){
+            tux_x--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_S)){
+            if(tux->height+tux_y+1 < fb->height)
+                tux_y++;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_D)){
+            tux_x++;
+        }
+
 	    framebuffer_device_clear(fb, 
             &(graphics_pixel){
-                .Red = i/2,
-                .Green = i/2,
-                .Blue = i/2
+                .Red = 0xaf,
+                .Green = 0xaf,
+                .Blue = 0xaf
             }
         );
 	    framebuffer_device_draw_sprite_slow(
             fb, 
-            (fb->width/2 - tux->width/2)+i, 
-            fb->height/2 - tux->height/2, 
+            tux_x, 
+            tux_y, 
             tux
         );
         framebuffer_device_update(fb);
@@ -125,6 +148,7 @@ int builtins_graphics(int argc, char **argv){
             .Alpha = 0xff
         }
     );
+    framebuffer_device_update(fb);
     return 0;
 }
 

@@ -123,4 +123,5 @@ void ps2_device_unset_bit(ps2_device *ps2, uint8_t bit);
 void ps2_device_wait_tx(ps2_device *ps2);
 void ps2_device_wait_rx(ps2_device *ps2);
 void ps2_device_end_tx_rx(ps2_device *ps2);
+bool ps2_key_is_pressed(ps2_key_pressed k);
 #endif

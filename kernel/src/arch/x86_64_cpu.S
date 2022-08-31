@@ -43,6 +43,8 @@ cpu_registers_save:
     mov [rdi+104],r13
     mov [rdi+112],r14
     mov [rdi+128],r15
+    lea rax, [rip]
+    mov [rdi+136],rax
     ret
 //void cpu_registers_load(cpu_registers *regs);
 cpu_registers_load:
