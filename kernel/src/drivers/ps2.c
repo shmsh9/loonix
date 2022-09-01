@@ -183,6 +183,12 @@ static char ps2_scancode_pressed_set_1_shift[PS2_SET_1_SIZE] = {
     0x0,
     0x0,
 };
+void ps2_irq_handler(){
+    if(!ps2)
+        return;
+    KMESSAGE("fired");
+} 
+
 ps2_device *ps2_device_new(uintptr_t base_port){
     if(!base_port){
         KERROR("base_port 0x0");
@@ -210,8 +216,7 @@ ps2_device *ps2_device_new(uintptr_t base_port){
         //return (ps2_device){0};
     }
     //enable irq on first port
-    uint8_t cf_byte = ps2_device_send_command(ret ,0x20);
-    KDEBUG("cf_byte 0b%b", (uint64_t)cf_byte);
+    interrupt_handler_install(ps2_irq_handler, 32);
     //enable first port
     ps2_device_send_command(ret, 0xae);
     return ret;
@@ -300,10 +305,17 @@ void ps2_keypress_update(uint8_t scancode){
         KERROR("scancode 0x%x not implemented", scancode);
         return;
     }
+    if(scancode == PS2_KEY_CAPS_LOCK)
+        ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] = 1;
+
+    if(scancode == PS2_KEY_CAPS_LOCK+0x80)
+        ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] = 0;
+        
     if(scancode >= 0x81){
         ps2_current_key_pressed[scancode-0x80] = 0;
     }
-    else{
+    //F12 pressed last supposed key of code 1
+    if(scancode <= 0x58){
         ps2_current_key_pressed[scancode] = 1;
     }
 }
@@ -313,11 +325,18 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     
     //CTRL combinations
     if(ps2_current_key_pressed[PS2_KEY_CTRL_LEFT]){
-        if(scancode == PS2_KEY_C)
-            return 0x3;
+        switch(scancode){
+            case PS2_KEY_C:
+                return 0x3;
+                break;
+            case PS2_KEY_M:
+                return '\n';
+            default:
+                break;
+        }
     }
     //LSHIFT && RSHIFT
-    if( ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] || ps2_current_key_pressed[PS2_KEY_SHIFT_RIGHT] || ps2_current_key_pressed[PS2_KEY_CAPS_LOCK])
+    if( ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] || ps2_current_key_pressed[PS2_KEY_SHIFT_RIGHT])
         return ps2_scancode_pressed_set_1_shift[scancode];
     return ps2_scancode_pressed_set_1[scancode];
 }
@@ -325,9 +344,3 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
 bool ps2_key_is_pressed(ps2_key_pressed k){
     return ps2_current_key_pressed[k];
 }
-
-void ps2_irq_handler(){
-    if(!ps2)
-        return;
-    KMESSAGE("fired");
-} 

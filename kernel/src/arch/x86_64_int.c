@@ -35,14 +35,17 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     descriptor->reserved      = 0;
 }
 void pic_remap(){
-    uint16_t PIC1_MASTER = 0x20;
-    uint16_t PIC2_MASTER = 0xA0;
-    uint16_t PIC1_DATA = PIC1_MASTER+1;
-    uint16_t PIC2_DATA = PIC2_MASTER+1;
-
+    uint16_t PIC1_COMMAND = 0x20;
+    uint16_t PIC2_COMMAND = 0xA0;
+    uint16_t PIC1_DATA = PIC1_COMMAND+1;
+    uint16_t PIC2_DATA = PIC2_COMMAND+1;
+    uint8_t mask1, mask2;
+    //save mask
+    mask1 = inb(PIC1_DATA);
+    mask2 = inb(PIC2_DATA);
     //restart
-    outb(PIC1_MASTER,0x11);
-    outb(PIC2_MASTER,0x11);
+    outb(PIC1_COMMAND,0x11);
+    outb(PIC2_COMMAND,0x11);
     //remap
     outb(PIC1_DATA, 0x20);
     outb(PIC2_DATA, 0x28);
@@ -52,6 +55,9 @@ void pic_remap(){
     //end
     outb(PIC1_DATA, 0x01);
     outb(PIC2_DATA, 0x01);
+    //restore mask
+    outb(PIC1_DATA, mask1);
+    outb(PIC2_DATA, mask2);
 
 }
 void idt_init(bootinfo *bi){

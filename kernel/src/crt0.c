@@ -59,8 +59,8 @@ void crt0(bootinfo *bootinfo){
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
+    INTERRUPT_INIT();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     serial = SERIAL_DEVICE_NEW();
-    INTERRUPT_INIT();
     kmain(bootinfo);
 }

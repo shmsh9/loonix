@@ -38,4 +38,3 @@ void serial_device_putchar(serial_device *serial, uint8_t c){
     serial->wait_tx(serial);
     outb(serial->data, (uint32_t)c);
 }
-
