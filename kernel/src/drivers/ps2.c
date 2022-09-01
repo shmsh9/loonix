@@ -301,23 +301,26 @@ uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
     return 0x0;
 }
 void ps2_keypress_update(uint8_t scancode){
-    if(scancode > 0xED){
-        KERROR("scancode 0x%x not implemented", scancode);
+    if(scancode == PS2_KEY_CAPS_LOCK){
+        ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] = 1;
         return;
     }
-    if(scancode == PS2_KEY_CAPS_LOCK)
-        ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] = 1;
-
-    if(scancode == PS2_KEY_CAPS_LOCK+0x80)
+    if(scancode == PS2_KEY_CAPS_LOCK+0x80){
         ps2_current_key_pressed[PS2_KEY_SHIFT_LEFT] = 0;
-        
-    if(scancode >= 0x81){
+        return;
+    }
+    //released key code
+    if(scancode >= 0x80){
         ps2_current_key_pressed[scancode-0x80] = 0;
+        return;
     }
     //F12 pressed last supposed key of code 1
     if(scancode <= 0x58){
         ps2_current_key_pressed[scancode] = 1;
+        return;
     }
+    KERROR("scancode 0x%x not implemented", scancode);
+
 }
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     if(scancode >= 0x81)

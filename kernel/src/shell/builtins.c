@@ -102,8 +102,8 @@ int builtins_graphics(int argc, char **argv){
     uint32_t tux_x = fb->width/2 - tux->width/2;
     uint32_t tux_y = fb->height/2 - tux->height/2;
     while(1){
-        uint8_t k = ps2_device_getchar_non_blocking(ps2);
-        ps2_keypress_update(k);
+        ps2_device_getchar_non_blocking(ps2);
+        //ps2_keypress_update(k);
         if(ps2_key_is_pressed(PS2_KEY_ESCAPE)){
             KMESSAGE("Exit");
             break;
