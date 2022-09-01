@@ -103,23 +103,24 @@ int builtins_graphics(int argc, char **argv){
     uint32_t tux_y = fb->height/2 - tux->height/2;
     while(1){
         ps2_device_getchar_non_blocking(ps2);
+        char serial_char = serial_device_readchar_non_blocking(serial);
         //ps2_keypress_update(k);
-        if(ps2_key_is_pressed(PS2_KEY_ESCAPE)){
+        if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){
             KMESSAGE("Exit");
             break;
         }
-        if(ps2_key_is_pressed(PS2_KEY_W)){
+        if(ps2_key_is_pressed(PS2_KEY_W) || tolower(serial_char) == 'w'){
             if(tux_y - 1 > 0)
                 tux_y--;
         }
-        if(ps2_key_is_pressed(PS2_KEY_A)){
+        if(ps2_key_is_pressed(PS2_KEY_A) ||  tolower(serial_char) == 'a'){
             tux_x--;
         }
-        if(ps2_key_is_pressed(PS2_KEY_S)){
+        if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
             if(tux->height+tux_y+1 < fb->height)
                 tux_y++;
         }
-        if(ps2_key_is_pressed(PS2_KEY_D)){
+        if(ps2_key_is_pressed(PS2_KEY_D) ||  tolower(serial_char) == 'd'){
             tux_x++;
         }
 

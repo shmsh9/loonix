@@ -345,5 +345,7 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
 }
 
 bool ps2_key_is_pressed(ps2_key_pressed k){
+    if(!ps2_current_key_pressed)
+        return false;
     return ps2_current_key_pressed[k];
 }
