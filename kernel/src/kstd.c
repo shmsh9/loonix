@@ -81,10 +81,11 @@ void kputc(uint8_t c){
     vt100_console_putchar(fb,c);
 }
 char kgetchar(){
-    if(ps2){
+    if(ps2)
         return ps2_device_getchar(ps2);
-    }
-    return serial_device_readchar(serial);
+    if(serial) 
+        return serial_device_readchar(serial);
+    return 0;
 }
 char kgetchar_non_blocking(){
     char ret = 0;

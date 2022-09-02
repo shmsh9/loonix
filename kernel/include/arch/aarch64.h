@@ -22,6 +22,8 @@
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x200000
     #define INTERRUPT_FUNCTIONS_INSTALL_DEFAULT_ARCH()
+    #define INTERRUPT_FRAME_PRINT(interrupt_frame){\
+    }
     #define INTERRUPT_INIT(){\
         interrupt_functions_table_init();\
         init_interrupt_vector_table();\

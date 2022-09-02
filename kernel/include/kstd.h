@@ -27,6 +27,7 @@
     KMSG("error", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
     stacktrace();\
+    framebuffer_device_update(fb);\
 }
 #define KPANIC(...){\
 	volatile cpu_registers r__func__;\

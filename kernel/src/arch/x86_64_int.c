@@ -9,18 +9,18 @@ extern uint64_t asm_interrupt_table[256];
 uint8_t serial_device_char_in = 0;
 extern uint64_t interrupt_functions_table[256];
 
-void interrupt_handler(x86_64_interrupt_frame frame, uint64_t rdi_interrupt_num){
+void interrupt_handler(uint64_t rdi_interrupt_num, x86_64_interrupt_frame *frame){
     if(interrupt_functions_table[rdi_interrupt_num]){
-        ((void (*)())interrupt_functions_table[rdi_interrupt_num])();
+        ((void (*)(x86_64_interrupt_frame *))interrupt_functions_table[rdi_interrupt_num])(frame);
         return;
     }
     KPANIC("unhandled exception (%d) :\n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n\t[ss]     : 0x%x", 
         rdi_interrupt_num,
-        frame.rip,
-        frame.rsp,
-        (uint64_t)frame.flags,
-        frame.cs,
-        (uint64_t)frame.ss
+        frame->rip,
+        frame->rsp,
+        (uint64_t)frame->flags,
+        frame->cs,
+        (uint64_t)frame->ss
     );
 }
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
@@ -55,9 +55,9 @@ void pic_remap(){
     //end
     outb(PIC1_DATA, 0x01);
     outb(PIC2_DATA, 0x01);
-    //restore mask
-    outb(PIC1_DATA, mask1);
-    outb(PIC2_DATA, mask2);
+    //reset mask
+    //outb(PIC1_DATA, 0xff);
+    //outb(PIC2_DATA, 0xff);
 
 }
 void idt_init(bootinfo *bi){

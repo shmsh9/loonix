@@ -12,6 +12,7 @@
     cli                              //disable interrupts
     cld                              //needed for sysV abi
     mov  rdi, \index                 //interrupt number
+    mov  rsi, rsp                    //stack pointer to get the frame
     call interrupt_handler           //calls the C code
     sti                              //enable interrupts
     iretq

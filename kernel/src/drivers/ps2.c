@@ -215,10 +215,9 @@ ps2_device *ps2_device_new(uintptr_t base_port){
         //return 0x0;
         //return (ps2_device){0};
     }
-    //enable irq on first port
-    interrupt_handler_install(ps2_irq_handler, 32);
     //enable first port
     ps2_device_send_command(ret, 0xae);
+    interrupt_handler_install(ps2_irq_handler, 33);
     return ret;
 }
 void ps2_device_set_bit(ps2_device *ps2, uint8_t bit){

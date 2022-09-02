@@ -174,13 +174,11 @@ int builtins_poweroff(int argc, char **argv){
 }
 
 int builtins_int(int argc, char **argv){
-    kprint("INTERRUPT()\n");
-    INTERRUPT();
     int f = 1;
     int z = 1;
     z--;
-    kprint("division by 0\n");
     f /= z;
+    INTERRUPT();
     return 0;
 }
 

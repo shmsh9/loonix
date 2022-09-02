@@ -36,6 +36,26 @@
             interrupt_handler_install(interrupt_handler_zerodiv, 0x0);\
             interrupt_handler_install(interrupt_handler_breakpoint, 0x3);\
             interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
+            interrupt_handler_install(interrupt_handler_timer, 0x20);\
+            interrupt_handler_install(interrupt_general_protection_fault, 0xD);\
+    }
+    /*
+    typedef struct __attribute__((packed)) _x86_64_interrupt_frame {
+        uint64_t  rip;
+        uint64_t  cs;
+        uint64_t  flags;
+        uint64_t  rsp;
+        uint64_t  ss;
+    }x86_64_interrupt_frame;
+    */
+    #define INTERRUPT_FRAME_PRINT(interrupt_frame){\
+        kprintf("\n\t[rip] : 0x%x\n\t[cs ] : 0x%x\n\t[fl ] : 0x%x\n\t[rsp] : 0x%x\n\t[ss ] : 0x%x\n\n",\
+            ((x86_64_interrupt_frame *)interrupt_frame)->rip,\
+            ((x86_64_interrupt_frame *)interrupt_frame)->cs,\
+            ((x86_64_interrupt_frame *)interrupt_frame)->flags,\
+            ((x86_64_interrupt_frame *)interrupt_frame)->rsp,\
+            ((x86_64_interrupt_frame *)interrupt_frame)->ss\
+        );\
     }
     #define INTERRUPT_INIT(){\
             pic_remap();\

@@ -53,14 +53,22 @@ void crt0(bootinfo *bootinfo){
         bootinfo->framebuffer.height, 
         FRAMEBUFFER_DOUBLE_BUFFERING
     );
-	framebuffer_device_clear(fb, &(graphics_pixel){.Red = 0x00, .Green = 0x00, .Blue = 0x00, .Alpha = 0xff});
+	framebuffer_device_clear(
+        fb, 
+        &(graphics_pixel){
+            .Red = 0x00, 
+            .Green = 0x00, 
+            .Blue = 0x00, 
+            .Alpha = 0xff
+    });
+
     vt100_console_init(fb);
+    serial = SERIAL_DEVICE_NEW();
     acpi_tables = acpi_table_new(bootinfo);
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
     INTERRUPT_INIT();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
-    serial = SERIAL_DEVICE_NEW();
     kmain(bootinfo);
 }
