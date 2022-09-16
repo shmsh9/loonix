@@ -110,14 +110,106 @@ int shell(){
     }
     return 0;
 }
+char shell_non_blocking_cmdline[CMDLINE_MAX+1] = {0};
+int shell_non_blocking_cmdlinepos = 0;
+bool shell_non_blocking_first_execution = true;
 void shell_non_blocking(){
-	uint8_t c = kgetchar_non_blocking();
-    if(c == 0x1b){
-        event_loop_remove_by_function(shell_non_blocking);
+    if(shell_non_blocking_first_execution){
+        builtins_init();
+        kprint(SHELL_PROMPT);
+        shell_non_blocking_first_execution = false;
     }
-	if(c){
-		kputc(c);
-	}
+    char c = kgetchar_non_blocking();
+    switch(c){
+        //no input at the time
+        case 0x0:
+            break;
+        case '\r':
+            kputc('\n');
+            shell_exec(shell_non_blocking_cmdline);
+            memset(shell_non_blocking_cmdline, 0, CMDLINE_MAX);
+            shell_non_blocking_cmdlinepos = 0;
+            kprint(SHELL_PROMPT);
+            break;
+        case '\n':
+            kputc('\n');
+            shell_exec(shell_non_blocking_cmdline);
+            memset(shell_non_blocking_cmdline, 0, CMDLINE_MAX);
+            shell_non_blocking_cmdlinepos = 0;
+            kprint(SHELL_PROMPT);
+            break;
+        //CTRL+C
+        case 0x3:
+            kprint("^C\n");
+            memset(shell_non_blocking_cmdline, 0, CMDLINE_MAX);
+            shell_non_blocking_cmdlinepos = 0;
+            kprint(SHELL_PROMPT);
+            break;
+        //Backspace
+        case 0x7f:
+            if( (shell_non_blocking_cmdlinepos - 1) >= 0){
+                shell_non_blocking_cmdlinepos--;
+                rmchar(shell_non_blocking_cmdline, shell_non_blocking_cmdlinepos);
+                refreshline(shell_non_blocking_cmdline, shell_non_blocking_cmdlinepos);
+            }
+            break;
+        //Also Backspace
+        case 0x8:
+            if( (shell_non_blocking_cmdlinepos - 1) >= 0){
+                shell_non_blocking_cmdlinepos--;
+                rmchar(shell_non_blocking_cmdline, shell_non_blocking_cmdlinepos);
+                refreshline(shell_non_blocking_cmdline, shell_non_blocking_cmdlinepos);
+            }
+            break;
+        //Escape sequence
+        case 0x1b:
+            // literral [
+            if(kgetchar() == 0x5b){
+                char esc = kgetchar();
+                switch(esc){
+                    //right arrow
+                    case 0x43:
+                        if( shell_non_blocking_cmdlinepos + 1 < CMDLINE_MAX && shell_non_blocking_cmdline[shell_non_blocking_cmdlinepos] != 0x0){
+                            kprint("\033[1C");
+                            shell_non_blocking_cmdlinepos++;
+                        }
+                        break;
+                    //left arrow
+                    case 0x44:
+                        if( shell_non_blocking_cmdlinepos - 1 >= 0){
+                            kprint("\033[1D");
+                            shell_non_blocking_cmdlinepos--;
+                        }
+                        break;
+                    //non handled char
+                    default:
+                        kprintf("0x%x\n", esc);
+                        memset(shell_non_blocking_cmdline, 0, CMDLINE_MAX);
+                        shell_non_blocking_cmdlinepos = 0;
+                        kprint(SHELL_PROMPT);
+                        break;
+                }
+            }
+            break;
+        default:
+            if( (shell_non_blocking_cmdlinepos < CMDLINE_MAX - 1)){
+                if(c != 0x0){
+                    shell_non_blocking_cmdline[shell_non_blocking_cmdlinepos] = c;
+                    shell_non_blocking_cmdlinepos++;
+                    if(c < 32)
+                        kprintf("0x%x", c);
+                    else
+                        kputc(c);
+                }
+            }
+            else{ 
+                kprintf("CMDLINE_MAX overflow : %d !\n", shell_non_blocking_cmdlinepos);
+                memset(shell_non_blocking_cmdline, 0, CMDLINE_MAX);
+                shell_non_blocking_cmdlinepos = 0;
+                kprint(SHELL_PROMPT);
+            }
+            break;
+    }
 }
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
