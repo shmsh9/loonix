@@ -7,11 +7,18 @@ uint64_t kmain(bootinfo *bootinfo){
 	kprint("Welcome to l00n1x !\n");
 	event_loop_init();
 	event_loop_add(
+		(void (*)(void *))framebuffer_device_update,
+		(void *)fb,
+		100000
+	);
+	event_loop_add(
 		shell_non_blocking,
 		0x0,
-		1000
+		10000
 	);
+	//shell();
 	event_loop_loop();
+	KMESSAGE("event_loop_loop() ended");
 	//shell();
 	while(1){
 		/* we cannot return since we switched the stack */

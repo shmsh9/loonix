@@ -1,6 +1,7 @@
 #ifndef SHELL_H_
 #define SHELL_H_
 #include <kstd.h>
+#include <event_loop.h>
 #include <shell/builtins.h>
 #include <drivers/vt100.h>
 #define SHELL_NAME   "sh3w4x"

@@ -206,10 +206,8 @@ int builtins_ahci(int argc, char **argv){
 }
 int builtins_karray_pop(int argc, char **argv){
     karray *k = karray_new(sizeof(uint64_t), NULL);
-    for(uint64_t i = 0; i < 0x10; i++)
-        karray_push(k, i);
+    karray_push(k, 1);
     karray_pop(k, 0);
-    karray_pop(k, 0xE);
     karray_debug_print(k);
     karray_free(k);
     return 0;

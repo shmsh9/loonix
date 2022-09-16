@@ -112,6 +112,9 @@ int shell(){
 }
 void shell_non_blocking(){
 	uint8_t c = kgetchar_non_blocking();
+    if(c == 0x1b){
+        event_loop_remove_by_function(shell_non_blocking);
+    }
 	if(c){
 		kputc(c);
 	}
