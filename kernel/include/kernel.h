@@ -4,6 +4,7 @@
 #include <kstd.h>
 #include <newmem.h>
 #include <bootloader.h>
+#include <event_loop.h>
 #include <shell/shell.h>
 #include <drivers/serial.h>
 #include <drivers/framebuffer.h>

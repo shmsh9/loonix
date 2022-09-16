@@ -7,6 +7,7 @@
 #define SHELL_PROMPT SHELL_NAME" $> "
 #define CMDLINE_MAX  1024
 int shell();
+void shell_non_blocking();
 int shell_exec(char cmdline[CMDLINE_MAX]);
 void rmchar(char cmdline[CMDLINE_MAX], int pos);
 void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos);

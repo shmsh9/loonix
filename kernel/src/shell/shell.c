@@ -110,6 +110,12 @@ int shell(){
     }
     return 0;
 }
+void shell_non_blocking(){
+	uint8_t c = kgetchar_non_blocking();
+	if(c){
+		kputc(c);
+	}
+}
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
