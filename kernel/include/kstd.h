@@ -124,6 +124,7 @@ void kfree(void *p);
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
 void karray_free(karray *array);
 void karray_push(karray *array, uint64_t elem);
+void karray_pop(karray *array ,uint64_t index);
 void karray_debug_print(karray *array);
 klist *klist_new(void(*klist_data_free_fn)(void *));
 void klist_push(klist *k, uintptr_t data);

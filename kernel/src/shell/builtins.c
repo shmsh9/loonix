@@ -204,6 +204,17 @@ int builtins_ahci(int argc, char **argv){
     ahci_controller_free(cont);
     return 0;
 }
+int builtins_karray_pop(int argc, char **argv){
+    karray *k = karray_new(sizeof(uint64_t), NULL);
+    for(uint64_t i = 0; i < 0x10; i++)
+        karray_push(k, i);
+    karray_pop(k, 0);
+    karray_pop(k, 0xE);
+    karray_debug_print(k);
+    karray_free(k);
+    return 0;
+
+}
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -243,6 +254,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_int, "int");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
+    BUILTINS_INIT_FN(builtins_karray_pop, "testkarraypop");
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");
     BUILTINS_INIT_FN(builtins_teststrdup, "teststrdup");

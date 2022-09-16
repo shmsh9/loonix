@@ -422,6 +422,62 @@ void karray_push(karray *array, uint64_t elem){
     }
 }
 
+void karray_pop(karray *array ,uint64_t index){
+    if(index >= array->length){
+        KMESSAGE("index >= array->length");
+        return;
+    }
+    if(array->karray_data_free_fn){
+        switch (array->elementsz){
+            case 1:{
+                uint8_t *casted_array = (uint8_t *)array->array;
+                array->karray_data_free_fn((void*)(uintptr_t)casted_array[index]);
+                break;
+            }
+            case 2:{
+                uint16_t *casted_array = (uint16_t *)array->array;
+                array->karray_data_free_fn((void*)(uintptr_t)casted_array[index]);
+                break;
+            }
+            case 4:{
+                uint32_t *casted_array = (uint32_t *)array->array;
+                array->karray_data_free_fn((void*)(uintptr_t)casted_array[index]);
+                break;
+            }
+            case 8:{
+                uint64_t *casted_array = (uint64_t *)array->array;
+                array->karray_data_free_fn((void*)casted_array[index]);
+                break;
+            }
+        }
+    }
+    for(uint64_t i = index; i < array->length - 1; i++){
+        switch (array->elementsz){
+            case 1:{
+                uint8_t *casted_array = (uint8_t *)array->array;
+                casted_array[i] = casted_array[i+1];
+                break;
+            }
+            case 2:{
+                uint16_t *casted_array = (uint16_t *)array->array;
+                casted_array[i] = casted_array[i+1];
+                break;
+            }
+            case 4:{
+                uint32_t *casted_array = (uint32_t *)array->array;
+                casted_array[i] = casted_array[i+1];
+                break;
+            }
+            case 8:{
+                uint64_t *casted_array = (uint64_t *)array->array;
+                casted_array[i] = casted_array[i+1];
+                break;
+            }
+        } 
+    }
+    array->length--;
+}
+
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
     switch(elementsz){
         case 1:
