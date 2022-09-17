@@ -24,30 +24,25 @@ inline void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint6
     }
     uint64_t pos = framebuffer->width*y+x;
     if(pos > framebuffer->width*framebuffer->height){
-        KERROR("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
+        //KERROR("cannot pos %d buffer is to small : %dx%d", pos, framebuffer->width, framebuffer->height);
         return;
     }
     graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     dst[pos] = *pixel;
 }
 
-void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
+inline void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
     if(!framebuffer->buffer)
         return;
     graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     uint32_t px = *(uint32_t *)pixel;
+    /*
     uint64_t pixel_casted64 = (uint64_t)(
         (uint64_t)px << 32 | px
     );
-    //__uint128_t pixel_casted128 = (__uint128_t)pixel_casted64 << 64 | pixel_casted64;
-    switch (framebuffer->size % 16){
-    case 0:
-        __memset_64b(dst, pixel_casted64, framebuffer->size);
-        break;
-    default:
-        memset(dst, (uint8_t)(px & 0xff), framebuffer->size);        
-        break;    
-    }
+    __uint128_t pixel_casted128 = (__uint128_t)pixel_casted64 << 64 | pixel_casted64;
+    */
+    memset(dst, (uint8_t)(px & 0xff), framebuffer->size);        
 }
 
 framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags){
@@ -88,14 +83,14 @@ void framebuffer_device_free(framebuffer_device *framebuffer){
     kfree(framebuffer);
 }
 
-void framebuffer_device_update(framebuffer_device *framebuffer){
+inline void framebuffer_device_update(framebuffer_device *framebuffer){
     if(!framebuffer)
         return;
     if(!framebuffer->double_buffer)
         return;
     memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
 }
-void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
+inline void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
     if(offset+size > framebuffer->size){
         KERROR("offset+size > framebuffer->size");
         return;
@@ -107,7 +102,7 @@ void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t
     memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
 }
 
-void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+inline void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
     uint64_t sprite_size = sprite->height * sprite->width;
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
@@ -119,7 +114,7 @@ void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64
     }
 }
 //can not handle transparency
-void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+inline void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
     /*
     if(sprite->width+x > framebuffer->width){
         framebuffer_device_draw_sprite_slow(framebuffer, x, y, sprite);
@@ -140,7 +135,7 @@ void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64
         y++;
     }
 }
-void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
+inline void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     if(!framebuffer)
         return;
     graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;

@@ -26,17 +26,17 @@ int strlen(const char *str){
         r++;
     return r;
 }
-uint8_t toupper(uint8_t c){
+inline uint8_t toupper(uint8_t c){
     if(c > 96 && c < 123)
         return c - 32;
     return c;
 }
-uint8_t tolower(uint8_t c){
+inline uint8_t tolower(uint8_t c){
     if(c > 64 && c < 91)
         return c + 32;
     return c;
 }
-int atoi(const char *str){
+inline int atoi(const char *str){
     int ret = 0;
     while(*str++){
         int c = isdigit(*str);
@@ -48,7 +48,7 @@ int atoi(const char *str){
     }
     return ret;
 }
-int isdigit(uint8_t c){
+inline int isdigit(uint8_t c){
     int r = c - '0';
     if(r > 9 || r < 0){
         return 0;
@@ -70,13 +70,13 @@ char *strdup(const char *str){
     memcpy(ret, str, l+1);
     return ret;
 }
-void kprint(const char *str){
+inline void kprint(const char *str){
 	  if(!str)
         return;
     while(*str)
 		kputc(*str++);
 }
-void kputc(uint8_t c){
+inline void kputc(uint8_t c){
     serial_device_putchar(serial, c);
     vt100_console_putchar(fb,c);
 }

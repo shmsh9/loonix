@@ -1,12 +1,4 @@
 .global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memset_128b, __memcpy_64b, __memcpy_128b
-//void __memset_128b(void *ptr = x0, uint64_t b = x1, uint64_t b2 = x2, uint64_t sz = x3)
-__memset_128b:
-    __memset_128b_loop:
-    stp  x1, x2, [x0]
-    add  x0, x0, #16
-    sub  x3, x3, #16
-    cbnz x3, __memcpy_128b_loop
-    ret
 //void __memset_64b(void *ptr = x0, uint64_t b = x1, uint64_t sz = x2)
 __memset_64b:
     __memset_64b_loop:
@@ -14,6 +6,15 @@ __memset_64b:
     add  x0, x0 ,#8
     sub  x2, x2, #8
     cbnz x2, __memset_64b_loop
+    ret
+//void __memset_128b(void *ptr = x0, uint64_t b[2] = x1, uint64_t sz = x2)
+__memset_128b:
+    ldp x3, x4, [x1]
+    __memset_128b_loop:
+    stp  x3, x4, [x0]
+    add  x0, x0 ,#16
+    sub  x2, x2, #16
+    cbnz x2, __memset_128b_loop
     ret
 //void __memcpy_64b(void *dst = x0, void *src = x1, uint64_t sz = x2)
 __memcpy_64b:

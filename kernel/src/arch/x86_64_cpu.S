@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memcpy_64b, __memset_64b, __memcpy_128b, exception_handler
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
@@ -7,6 +7,15 @@ __memset_64b:
     add  rdi, 8
     sub  rdx, 8
     jnz  __memset_64b_loop
+    ret
+//void __memset_128b(void *ptr = %rdi, uint64_t b[2] = %rsi, uint64_t sz = %rdx)
+__memset_128b:
+    movdqu xmm0, [rsi]
+    __memset_128b_loop:
+    movdqu [rdi], xmm0
+    add    rdi, 16
+    sub    rdx, 16
+    jnz   __memset_128b_loop
     ret
 //void __memcpy_64b(void *dst = %rdi, void *src = %rsi, uint64_t sz = %rdx)
 __memcpy_64b:

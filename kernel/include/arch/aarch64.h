@@ -106,10 +106,13 @@
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
     void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
-    void __memset_128b(void *ptr, __uint128_t b, uint64_t sz);
+    void __memset_128b(void *ptr, uint64_t b[2], uint64_t sz);
     void __memcpy_64b(void *dst, void *src, uint64_t sz);
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
-    #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz)
+    #define __FASTEST_MEMSET(ptr, b, sz) {\
+        uint64_t src[2] = {B_to_8B(b), B_to_8B(b)};\
+        __memset_128b(ptr, src, sz);\
+    }
 #endif
 #endif
