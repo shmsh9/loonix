@@ -12,6 +12,7 @@ uint64_t vt100_console_last_draw_timer = 0;
 uint64_t vt100_console_last_draw_offset = 0;
 uint32_t vt100_console_time_between_draw = VT100_REFRESH_TICK;
 bool vt100_console_escaping = false;
+bool vt100_console_initialized = false;
 bitmap_font vt100_console_bitmap_font = {0};
 void (*vt100_console_font_drawing_function)(char **, framebuffer_device *,uint64_t, uint64_t, uint8_t);
 
@@ -31,6 +32,7 @@ void vt100_console_init(framebuffer_device *fb){
         vt100_console_font_y_spacing = 4;
         vt100_console_font_x_spacing = 0;
     }
+    vt100_console_initialized = true;
 }
 void vt100_console_update_draw_screen(framebuffer_device *fb){
     if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
@@ -104,6 +106,8 @@ void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c){
     vt100_console_escaping_value = 0;
 }
 void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
+    if(!vt100_console_initialized)
+        return;
     switch((uintptr_t)fb->buffer){
         case 0x0:
             break;

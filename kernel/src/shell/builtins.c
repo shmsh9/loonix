@@ -44,12 +44,18 @@ int builtins_testkcalloc(int argc, char **argv){
 }
 
 int builtins_teststrdup(int argc, char **argv){
-    char *f = kcalloc(sizeof(char *), 0xfffff);
+    char **f = kcalloc(sizeof(char *), 0xfff);
+    kprintf("f == 0x%x\n", f);
     karray *k = karray_new(sizeof(uintptr_t), kfree);
-    for(int i = 0; i < 0xff; i++){
+    for(int i = 0; i < 0xfff; i++){
         karray_push(k, (uintptr_t)strdup("1234"));
+        f[i] = strdup("1234");
     }
     karray_free(k);
+    for(int i = 0; i < 0xfff; i++){
+        kfree(f[i]);
+    }
+
     kfree(f);
     return 0;
 }

@@ -2,7 +2,7 @@
 uint64_t kalloc_list_alloc = KALLOC_LIST_START_ALLOC;
 uint64_t kalloc_list_last = 0;
 
-void stacktrace(){
+void __attribute__((__always_inline__)) stacktrace(){
     struct stackframe *stk = {0};
     GET_STACKFRAME(stk);
     kprint("stacktrace : \n");
@@ -358,7 +358,7 @@ void *kcalloc(uint64_t n, uint64_t sz){
     void *ret = kmalloc(n*sz);
     if(!ret){
         KERROR("kmalloc() failed")
-        return ret;
+        return 0x0;
     }
     memset(ret, 0, n*sz);
     return ret;
