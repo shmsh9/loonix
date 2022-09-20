@@ -2,15 +2,6 @@
 uint64_t kalloc_list_alloc = KALLOC_LIST_START_ALLOC;
 uint64_t kalloc_list_last = 0;
 
-void __attribute__((__always_inline__)) stacktrace(){
-    struct stackframe *stk = {0};
-    GET_STACKFRAME(stk);
-    kprint("stacktrace : \n");
-    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){
-        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);
-        stk = stk->frame;
-    }
-}
 __attribute__((noreturn))
 void __stack_chk_fail(void){
     KPANIC("0x%x", __stack_chk_guard);
@@ -70,15 +61,17 @@ char *strdup(const char *str){
     memcpy(ret, str, l+1);
     return ret;
 }
-inline void kprint(const char *str){
+void kprint(const char *str){
 	  if(!str)
         return;
     while(*str)
 		kputc(*str++);
 }
-inline void kputc(uint8_t c){
-    serial_device_putchar(serial, c);
-    vt100_console_putchar(fb,c);
+void kputc(uint8_t c){
+    if(serial)
+        serial_device_putchar(serial, c);
+    if(vt100_console_initialized)
+        vt100_console_putchar(fb,c);
 }
 char kgetchar(){
     if(ps2)

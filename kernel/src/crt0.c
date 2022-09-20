@@ -61,14 +61,13 @@ void crt0(bootinfo *bootinfo){
             .Blue = 0x00, 
             .Alpha = 0xff
     });
-
     vt100_console_init(fb);
     serial = SERIAL_DEVICE_NEW();
     acpi_tables = acpi_table_new(bootinfo);
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
-    INTERRUPT_INIT();
     ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
+    INTERRUPT_INIT();
     kmain(bootinfo);
 }

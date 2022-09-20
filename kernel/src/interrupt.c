@@ -2,7 +2,7 @@
 #include <kstd.h>
 #define KERRORINTERRUPT(msg, interrupt_frame){\
     kprintf("[%d][kernel][interrupt] : %s\n", cpu_get_tick() ,msg);\
-    stacktrace();\
+    STACKTRACE();\
     INTERRUPT_FRAME_PRINT(interrupt_frame);\
     framebuffer_device_update(fb);\
 }

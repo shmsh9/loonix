@@ -37,7 +37,8 @@ void vt100_console_init(framebuffer_device *fb){
 void vt100_console_update_draw_screen(framebuffer_device *fb){
     if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
         vt100_console_last_draw_timer = cpu_get_tick();
-        framebuffer_device_update_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
+        //framebuffer_device_update_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
+        framebuffer_device_update(fb);
         vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
     }
 }

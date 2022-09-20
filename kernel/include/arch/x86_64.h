@@ -58,8 +58,9 @@
         );\
     }
     #define INTERRUPT_INIT(){\
-            pic_remap();\
             interrupt_functions_table_init();\
+            pic_remap();\
+            interrupt_disable();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
             idt_init(bootinfo);\

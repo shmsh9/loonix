@@ -16,7 +16,18 @@
 #define BYTES_TO_KB(b) ((b) >> 10)
 #define MB_TO_BYTES(mb) ((mb) << 20) 
 #define KB_TO_BYTES(kb) ((kb) << 10)
+#define KALLOC_LIST_START_ALLOC 1024
+#define STACK_TRACE_NMAX 10
 
+#define STACKTRACE() {\
+    struct stackframe *stk = {0};\
+    GET_STACKFRAME(stk);\
+    kprint("stacktrace : \n");\
+    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){\
+        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);\
+        stk = stk->frame;\
+    }\
+}
 #define KMSG(type, ...) {\
     kprintf("[%d][kernel][%s] : %s() : ",cpu_get_tick(),type, __func__);\
     kprintf(__VA_ARGS__);\
@@ -26,7 +37,7 @@
 #define KERROR(...) {\
     KMSG("error", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
-    stacktrace();\
+    STACKTRACE();\
     framebuffer_device_update(fb);\
 }
 #define KPANIC(...){\
@@ -34,7 +45,7 @@
 	cpu_registers_save(&r__func__);\
     KMSG("panic !", __VA_ARGS__);\
     kprintf("%s:%d\n", __FILE__, __LINE__);\
-    stacktrace();\
+    STACKTRACE();\
     kprint("registers  :\n");\
 	CPU_REGISTERS_PRINT(&r__func__);\
     framebuffer_device_update(fb);\
@@ -58,8 +69,6 @@
       KMESSAGE("no memory leak =)")\
     }\
 }
-#define KALLOC_LIST_START_ALLOC 1024
-#define STACK_TRACE_NMAX 8
 
 extern uintptr_t __stack_chk_guard;
 extern kheap_allocated_block *kalloc_list;

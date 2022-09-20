@@ -3,6 +3,7 @@
 #include <kstd.h>
 #include <graphics/bitmap_font.h>
 #include <drivers/framebuffer.h>
+extern bool vt100_console_initialized;
 void vt100_console_init(framebuffer_device *fb);
 void vt100_console_update_draw_screen(framebuffer_device *fb);
 void vt100_console_putchar(framebuffer_device *fb, uint8_t c);
