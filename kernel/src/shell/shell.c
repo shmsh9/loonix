@@ -211,15 +211,48 @@ void shell_non_blocking(){
             break;
     }
 }
+char **shell_parse_args(char cmdline[CMDLINE_MAX], int *argc){
+    char *tmp_cmdline = cmdline;
+    *argc = 0;
+    while(*tmp_cmdline == ' ')
+        tmp_cmdline++;
+    //empty string
+    if(!*tmp_cmdline)
+        return 0;
+    char *cmdline_trimmed = tmp_cmdline;
+    int tmp_argc = 1;
+    int lcmdline_trimmed = strlen(tmp_cmdline);
+    for(int i = 0; i < lcmdline_trimmed; i++){
+        if(cmdline_trimmed[i] == ' '){
+            while(cmdline_trimmed[i] == ' ')
+                i++;
+            if(cmdline_trimmed[i] == 0)
+                break;
+            tmp_argc++;
+        }
+    }
+    KDEBUG("cmdline_trimmed : %s\nargc == %d\n", cmdline_trimmed, (uint64_t)tmp_argc);
+    char **argv = kcalloc(tmp_argc, sizeof(char *));
+    return argv;
+}
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
+    int argc = 0;
+    char **argv = shell_parse_args(cmdline, &argc);
     for(int i = 0; i < builtins.length; i++){
         if(strcmp(cmdline, builtins.builtins[i].name) == 0){
-            return builtins.builtins[i].ptrfn(0, 0);
+            int ret = builtins.builtins[i].ptrfn(argc, argv);
+            for(int i = 0; i < argc; i++)
+                kfree(argv[i]);
+            kfree(argv);
+            return ret;
         }
     }
     kprintf("-"SHELL_NAME": %s: command not found\n", cmdline);
+    for(int i = 0; i < argc; i++)
+        kfree(argv[i]);
+    kfree(argv);
     return -1;
 }
 void rmchar(char cmdline[CMDLINE_MAX], int pos){

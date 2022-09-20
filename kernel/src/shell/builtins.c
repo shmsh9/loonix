@@ -8,12 +8,22 @@ int builtins_clear(int argc, char **argv){
 }
 int builtins_help(int argc, char **argv){
     for(int i = 0 ; i < builtins.length; i++){
-        kprint(builtins.builtins[i].name);
-        kputc('\n');
+        kprintf("%s\n", builtins.builtins[i].name);
     }
     return 0;
 }
-
+int builtins_testargs(int argc, char **argv){
+    kprintf("argc == %d\n", argc);
+    return argc;
+}
+int builtins_time(int argc, char **argv){
+    uint64_t t1  = cpu_get_tick();
+    if(argc >= 2)
+        shell_exec(argv[1]);
+    uint64_t t2 = cpu_get_tick();
+    kprintf("%d\n", t2-t1);
+    return 0;
+}
 int builtins_testkarray(int argc, char **argv){
     karray *k = karray_new(sizeof(uint64_t),NULL);
     for(uint64_t i = 0; i < 0xff; i++)
@@ -257,8 +267,10 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_int, "int");
+    BUILTINS_INIT_FN(builtins_time, "time");
     BUILTINS_INIT_FN(builtins_exit, "exit");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
+    BUILTINS_INIT_FN(builtins_testargs, "testargs");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_karray_pop, "testkarraypop");
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
