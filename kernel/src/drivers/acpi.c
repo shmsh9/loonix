@@ -92,7 +92,7 @@ acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable)
                 checksum += casted_table[i];
             }
             if(checksum & 0xff){
-                KERROR("RSD PTR checksum failed last byte != 0x00 0b%b", checksum);
+                //KERROR("RSD PTR checksum failed last byte != 0x00 0b%b", checksum);
                 continue;
             }
             checksum = 0;
@@ -100,12 +100,13 @@ acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable)
                 checksum += casted_table[i];
             }
             if(checksum & 0xff){
-                KERROR("RSD PTR checksum failed last byte != 0x00 0b%b", checksum);
+                //KERROR("RSD PTR checksum failed last byte != 0x00 0b%b", checksum);
                 continue;
             }
             return (acpi_rsd_ptr *)table[i].VendorTable;
         }
     }
+    KERROR("no valid entry found");
     return 0x0;
 }
 // 0xb0 0xcd 0x1b 0xfc 0x31 0x7d 0xaa 0x49

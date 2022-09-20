@@ -23,9 +23,9 @@ int builtins_testkarray(int argc, char **argv){
     return 0;
 }
 int builtins_testklist(int argc, char **argv){
-    klist *k = klist_new(NULL);
+    klist *k = klist_new(kfree);
     for(uint64_t i = 0; i < 0xff; i++){
-        klist_push(k,i);
+        klist_push(k,(uintptr_t)strdup("foobar"));
     }
     klist_debug_print(k);
     klist_free(k);
@@ -44,15 +44,13 @@ int builtins_testkcalloc(int argc, char **argv){
 }
 
 int builtins_teststrdup(int argc, char **argv){
-    #define TEST_STRDUP_SZ 0xff
-    char **arr = kcalloc(sizeof(char *),TEST_STRDUP_SZ);
-    for(int i = 0; i < TEST_STRDUP_SZ; i++){
-        arr[i] = strdup("12345");
+    char *f = kcalloc(sizeof(char *), 0xfffff);
+    karray *k = karray_new(sizeof(uintptr_t), kfree);
+    for(int i = 0; i < 0xff; i++){
+        karray_push(k, (uintptr_t)strdup("1234"));
     }
-    for(int i = 0; i < TEST_STRDUP_SZ; i++){
-        kfree(arr[i]);
-    }
-    kfree(arr);
+    karray_free(k);
+    kfree(f);
     return 0;
 }
 
@@ -181,7 +179,10 @@ int builtins_int(int argc, char **argv){
     INTERRUPT();
     return 0;
 }
-
+int builtins_exit(int argc, char **argv){
+    event_loop_remove_by_function(shell_non_blocking);
+    return 0;
+}
 int builtins_regdump(int argc, char **argv){
     cpu_registers r;
     cpu_registers_save(&r);
@@ -250,6 +251,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_int, "int");
+    BUILTINS_INIT_FN(builtins_exit, "exit");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_karray_pop, "testkarraypop");

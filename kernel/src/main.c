@@ -7,7 +7,7 @@ uint64_t kmain(bootinfo *bootinfo){
 	kprint("Welcome to l00n1x !\n");
 	event_loop_init();
 	event_loop_add(
-		(void (*)(void *))framebuffer_device_update,
+		(void (*)(void *))vt100_console_update_draw_screen,
 		(void *)fb,
 		100000
 	);

@@ -152,7 +152,7 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         }
                         break;
                 }
-                //vt100_console_update_draw_screen(fb);
+                vt100_console_update_draw_screen(fb);
                 break;
             }
     }

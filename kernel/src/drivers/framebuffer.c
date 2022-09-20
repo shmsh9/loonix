@@ -1,5 +1,5 @@
 #include <drivers/framebuffer.h>
-
+uint64_t framebuffer_last_draw_pixel_tick = 0;
 inline void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     switch((uintptr_t)framebuffer->buffer){
     case 0x0:
@@ -29,6 +29,7 @@ inline void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint6
     }
     graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     dst[pos] = *pixel;
+    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 
 inline void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
@@ -42,7 +43,8 @@ inline void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffe
     );
     __uint128_t pixel_casted128 = (__uint128_t)pixel_casted64 << 64 | pixel_casted64;
     */
-    memset(dst, (uint8_t)(px & 0xff), framebuffer->size);        
+    memset(dst, (uint8_t)(px & 0xff), framebuffer->size);
+    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 
 framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags){
@@ -82,13 +84,15 @@ void framebuffer_device_free(framebuffer_device *framebuffer){
         kfree(framebuffer->double_buffer);
     kfree(framebuffer);
 }
-
+uint64_t framebuffer_last_device_update_tick = 0;
 inline void framebuffer_device_update(framebuffer_device *framebuffer){
     if(!framebuffer)
         return;
     if(!framebuffer->double_buffer)
         return;
-    memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
+    if(framebuffer_last_device_update_tick < framebuffer_last_draw_pixel_tick)
+        memcpy(framebuffer->buffer, framebuffer->double_buffer, framebuffer->size);
+    framebuffer_last_device_update_tick = cpu_get_tick();
 }
 inline void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t offset, uint64_t size){
     if(offset+size > framebuffer->size){
@@ -99,7 +103,9 @@ inline void framebuffer_device_update_partial(framebuffer_device *framebuffer, u
         return;
     if(!framebuffer->double_buffer)
         return;
-    memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
+    if(framebuffer_last_device_update_tick < framebuffer_last_draw_pixel_tick)
+        memcpy(framebuffer->buffer+offset, framebuffer->double_buffer+offset, size);
+    framebuffer_last_device_update_tick = cpu_get_tick();
 }
 
 inline void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
@@ -134,6 +140,7 @@ inline void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer,
         );
         y++;
     }
+    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 inline void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     if(!framebuffer)
@@ -147,4 +154,5 @@ inline void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint
             memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
         }
     }
+    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
