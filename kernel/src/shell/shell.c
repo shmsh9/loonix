@@ -233,6 +233,22 @@ char **shell_parse_args(char cmdline[CMDLINE_MAX], int *argc){
     }
     KDEBUG("cmdline_trimmed : %s\nargc == %d\n", cmdline_trimmed, (uint64_t)tmp_argc);
     char **argv = kcalloc(tmp_argc, sizeof(char *));
+    char *buff = kmalloc(CMDLINE_MAX*sizeof(char));
+    int j = 0;
+    for(int i = 0 ; i < tmp_argc; i++){
+        char *tmp = cmdline_trimmed+j;
+        char *ptrbuff = buff;
+        while(*tmp && *tmp != ' '){
+            *ptrbuff = *tmp;
+            ptrbuff++;
+            tmp++;
+            j++;
+        }
+        *ptrbuff = 0;
+        argv[i] = strdup(buff);
+    }
+    *argc = tmp_argc;
+    kfree(buff);
     return argv;
 }
 int shell_exec(char cmdline[CMDLINE_MAX]){
