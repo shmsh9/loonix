@@ -13,7 +13,9 @@ int builtins_help(int argc, char **argv){
     return 0;
 }
 int builtins_testargs(int argc, char **argv){
-    kprintf("argc == %d\n", argc);
+    for(int i = 0; i < argc; i++){
+        kprintf("argv[%d] == %s\n", (uint64_t)i, argv[i]);
+    }
     return argc;
 }
 int builtins_time(int argc, char **argv){
@@ -21,7 +23,7 @@ int builtins_time(int argc, char **argv){
     if(argc >= 2)
         shell_exec(argv[1]);
     uint64_t t2 = cpu_get_tick();
-    kprintf("%d\n", t2-t1);
+    kprintf("\nticks\t%d\n", t2-t1);
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
