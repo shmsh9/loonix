@@ -184,7 +184,6 @@ static char ps2_scancode_pressed_set_1_shift[PS2_SET_1_SIZE] = {
     0x0,
 };
 uint8_t ps2_device_lastchar_pressed = 0;
-//interrupt disabled for now in PIC remap
 void ps2_device_irq_handler(){
     switch ((uintptr_t)ps2){
         case 0x0:
@@ -227,7 +226,6 @@ ps2_device *ps2_device_new(uintptr_t base_port){
     }
     //enable first port
     ps2_device_send_command(ret, 0xae);
-    //interrupt disabled for now in PIC remap
     interrupt_handler_install(ps2_device_irq_handler, 33);
     return ret;
 }
@@ -357,5 +355,9 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
 bool ps2_key_is_pressed(ps2_key_pressed k){
     if(!ps2_current_key_pressed)
         return false;
+    if(k >= PS2_SET_1_SIZE){
+        KERROR("k is out of range");
+        return false;
+    }
     return ps2_current_key_pressed[k];
 }

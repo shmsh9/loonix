@@ -12,15 +12,21 @@ uint64_t kmain(bootinfo *bootinfo){
 		main_event_loop,
 		(void (*)(void *))vt100_console_update_draw_screen,
 		(void *)fb,
-		10
+		1
 	);
 	event_loop_add(
 		main_event_loop,
 		shell_non_blocking,
 		0x0,
-		10
+		1
 	);
-	//shell();
+	event_loop_add(
+		main_event_loop,
+		(void (*)(void *))kprint,
+		"TEST LOOP\n",
+		1
+	);
+
 	event_loop_loop(main_event_loop);
 	KMESSAGE("main_event_loop ended");
 	//shell();

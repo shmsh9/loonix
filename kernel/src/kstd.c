@@ -7,6 +7,11 @@ void __stack_chk_fail(void){
     KPANIC("0x%x", __stack_chk_guard);
     while(1){}
 }
+uint64_t getuptime100s(){
+    if(rtc_device_time_since_boot_centisecond == 0)
+        KMESSAGE("rtc uptime == 0 !!!");
+    return rtc_device_time_since_boot_centisecond;
+}
 int strlen(const char *str){
 	  if(!str){
         KERROR("str == NULL");

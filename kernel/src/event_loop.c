@@ -17,7 +17,7 @@ void event_loop_loop(event_loop *loop){
     while(1){
         uint64_t event_loop_length = loop->length;
         for(uint64_t i = 0; i < event_loop_length; i++){
-            uint64_t tmp_tick = cpu_get_tick();
+            uint64_t tmp_tick = getuptime100s();
             event_loop_event *tmp_event = *(((event_loop_event **)loop->array)+i);
             if(tmp_tick >= tmp_event->last_execution+tmp_event->frequency){
                 tmp_event->last_execution = tmp_tick;
@@ -41,7 +41,8 @@ void event_loop_add(event_loop *loop, void (*fn)(void *), void *payload, uint64_
         .fn = fn,
         .payload = payload,
         .frequency = frequency,
-        .uuid = cpu_get_tick()
+        .uuid = cpu_get_tick(),
+        .last_execution = 0
     };
     karray_push(loop, (uint64_t)tmp_event);
 }

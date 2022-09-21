@@ -10,7 +10,6 @@ uint64_t vt100_console_current_y = 2;
 uint64_t vt100_console_tab_size = 9;
 uint64_t vt100_console_last_draw_timer = 0;
 uint64_t vt100_console_last_draw_offset = 0;
-uint32_t vt100_console_time_between_draw = VT100_REFRESH_TICK;
 bool vt100_console_escaping = false;
 bool vt100_console_initialized = false;
 bitmap_font vt100_console_bitmap_font = {0};
@@ -35,11 +34,11 @@ void vt100_console_init(framebuffer_device *fb){
     vt100_console_initialized = true;
 }
 void vt100_console_update_draw_screen(framebuffer_device *fb){
-    if(vt100_console_last_draw_timer+vt100_console_time_between_draw < cpu_get_tick()){
-        vt100_console_last_draw_timer = cpu_get_tick();
+    if(cpu_get_tick() >= vt100_console_last_draw_timer+VT100_REFRESH_TICK){
         //framebuffer_device_update_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
         framebuffer_device_update(fb);
         vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
+        vt100_console_last_draw_timer = cpu_get_tick();
     }
 }
 void vt100_console_increase_x(framebuffer_device *fb){
@@ -157,8 +156,8 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                         }
                         break;
                 }
-                vt100_console_update_draw_screen(fb);
                 break;
             }
     }
+    vt100_console_update_draw_screen(fb);
 }
