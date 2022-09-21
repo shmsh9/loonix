@@ -14,6 +14,10 @@
     mov  rdi, \index                 //interrupt number
     mov  rsi, rsp                    //stack pointer to get the frame
     call interrupt_handler           //calls the C code
+    push rax
+    mov  al, 0x20                   //ack PIC int
+    out  0x20, al
+    pop  rax
     sti                              //enable interrupts
     iretq
 .endm

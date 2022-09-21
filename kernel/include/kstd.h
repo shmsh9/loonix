@@ -70,18 +70,6 @@
     }\
 }
 
-extern uintptr_t __stack_chk_guard;
-extern kheap_allocated_block *kalloc_list;
-extern kheap_allocated_block kalloc_list_block;
-extern kheap heap;
-extern EFI_RUNTIME_SERVICES *runtime_services;
-extern struct efi_time global_efi_time;
-extern framebuffer_device *fb;
-extern uint64_t framebuffer_text_current_x;
-extern uint64_t framebuffer_text_current_y;
-extern ps2_device *ps2;
-extern serial_device *serial;
-
 typedef struct {
     uint8_t elementsz;
     uint32_t length;
@@ -106,6 +94,21 @@ struct stackframe{
     struct stackframe *frame;
     uint64_t instruction_pointer;         
 };
+typedef karray event_loop;
+extern uintptr_t __stack_chk_guard;
+extern kheap_allocated_block *kalloc_list;
+extern kheap_allocated_block kalloc_list_block;
+extern kheap heap;
+extern EFI_RUNTIME_SERVICES *runtime_services;
+extern struct efi_time global_efi_time;
+extern framebuffer_device *fb;
+extern uint64_t framebuffer_text_current_x;
+extern uint64_t framebuffer_text_current_y;
+extern ps2_device *ps2;
+extern serial_device *serial;
+extern event_loop *main_event_loop;
+extern uint64_t rtc_device_time_since_boot;
+
 void __stack_chk_fail(void);
 void stacktrace();
 int strlen(const char *str);

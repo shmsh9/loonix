@@ -34,7 +34,17 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     descriptor->isr_high      = (((uint64_t)isr) >> 32) & 0xFFFFFFFF;
     descriptor->reserved      = 0;
 }
+void rtc_device_interrupt();
+void rtc_install(){
+    interrupt_disable();
+    outb(0x70, 0x8B);
+    char prev = inb(0x71);
+    outb(0x70, 0x8B);
+    outb(0x71, prev | 0x40);
+    interrupt_handler_install(rtc_device_interrupt, 40);
+}
 void pic_remap(){
+    interrupt_disable();
     uint16_t PIC1_COMMAND = 0x20;
     uint16_t PIC2_COMMAND = 0xA0;
     uint16_t PIC1_DATA = PIC1_COMMAND+1;
@@ -58,7 +68,6 @@ void pic_remap(){
     //reset mask
     //outb(PIC1_DATA, 0xff);
     //outb(PIC2_DATA, 0xff);
-
 }
 void idt_init(bootinfo *bi){
     idtr.base = (uintptr_t)&idt[0];

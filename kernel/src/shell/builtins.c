@@ -54,10 +54,12 @@ int builtins_testkcalloc(int argc, char **argv){
     }
     return 0;
 }
-
+int builtins_uptime(int argc, char **argv){
+    kprintf("up since %d seconds\n", rtc_device_time_since_boot);
+    return 0;
+}
 int builtins_teststrdup(int argc, char **argv){
     char **f = kcalloc(sizeof(char *), 0xfff);
-    kprintf("f == 0x%x\n", f);
     karray *k = karray_new(sizeof(uintptr_t), kfree);
     for(int i = 0; i < 0xfff; i++){
         karray_push(k, (uintptr_t)strdup("1234"));
@@ -198,7 +200,7 @@ int builtins_int(int argc, char **argv){
     return 0;
 }
 int builtins_exit(int argc, char **argv){
-    event_loop_remove_by_function(shell_non_blocking);
+    event_loop_remove_by_function(main_event_loop, shell_non_blocking);
     return 0;
 }
 int builtins_regdump(int argc, char **argv){
@@ -270,6 +272,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_int, "int");
     BUILTINS_INIT_FN(builtins_time, "time");
+    BUILTINS_INIT_FN(builtins_uptime, "uptime");
     BUILTINS_INIT_FN(builtins_exit, "exit");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testargs, "testargs");

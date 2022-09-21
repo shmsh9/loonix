@@ -16,6 +16,7 @@ EFI_RUNTIME_SERVICES *runtime_services = 0;
 ps2_device *ps2 = 0x0;
 serial_device *serial = 0x0;
 acpi_table *acpi_tables = 0x0;
+
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
     interrupt_disable();
@@ -67,7 +68,7 @@ void crt0(bootinfo *bootinfo){
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
-    ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     INTERRUPT_INIT();
+    ps2 = ps2_device_new(PS2_DEVICE_ADDRESS);
     kmain(bootinfo);
 }

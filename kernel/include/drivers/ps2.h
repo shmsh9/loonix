@@ -126,4 +126,5 @@ void ps2_device_wait_tx(ps2_device *ps2);
 void ps2_device_wait_rx(ps2_device *ps2);
 void ps2_device_end_tx_rx(ps2_device *ps2);
 bool ps2_key_is_pressed(ps2_key_pressed k);
+void ps2_device_irq_handler();
 #endif

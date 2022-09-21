@@ -36,7 +36,7 @@
             interrupt_handler_install(interrupt_handler_zerodiv, 0x0);\
             interrupt_handler_install(interrupt_handler_breakpoint, 0x3);\
             interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
-            interrupt_handler_install(interrupt_handler_timer, 0x20);\
+            interrupt_handler_install(rtc_device_interrupt, 0x20);\
             interrupt_handler_install(interrupt_general_protection_fault, 0xD);\
     }
     /*
@@ -59,8 +59,8 @@
     }
     #define INTERRUPT_INIT(){\
             interrupt_functions_table_init();\
-            pic_remap();\
             interrupt_disable();\
+            pic_remap();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
             idt_init(bootinfo);\
@@ -150,9 +150,11 @@
         }\
     }
     void pic_remap();
+    void rtc_install();
     void interrupt_enable();
     void interrupt_disable();
     void interrupt_handler_install(void (*fn)(), uint16_t num);
+    void interrupt_handler_replace(void (*fn)(), uint16_t num);
     void interrupt_functions_table_init();
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);

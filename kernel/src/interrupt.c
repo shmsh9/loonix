@@ -1,5 +1,7 @@
 #include <arch/arch.h>
 #include <kstd.h>
+#include <drivers/rtc.h>
+
 #define KERRORINTERRUPT(msg, interrupt_frame){\
     kprintf("[%d][kernel][interrupt] : %s\n", cpu_get_tick() ,msg);\
     STACKTRACE();\
@@ -11,7 +13,9 @@
     BREAKPOINT();\
 }
 uint64_t interrupt_functions_table[INTERRUPT_FUNCTIONS_TABLE_SIZE] = {0};
-
+void interrupt_handler_null(void *interrupt_frame){
+    return;
+}
 void interrupt_handler_zerodiv(void *interrupt_frame){
     KERRORINTERRUPT("division by zero attempted", interrupt_frame);
 }
@@ -43,4 +47,11 @@ void interrupt_handler_install(void (*fn)(), uint16_t num){
     interrupt_functions_table[num] = (uint64_t)fn;
 }
 
+void interrupt_handler_replace(void (*fn)(), uint16_t num){
+    if(num >= INTERRUPT_FUNCTIONS_TABLE_SIZE){
+        KERROR("interrupt num exceeds %d", INTERRUPT_FUNCTIONS_TABLE_SIZE);
+        return;
+    }
+    interrupt_functions_table[num] = (uint64_t)fn;
+}
 

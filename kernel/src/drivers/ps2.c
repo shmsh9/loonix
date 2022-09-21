@@ -183,10 +183,20 @@ static char ps2_scancode_pressed_set_1_shift[PS2_SET_1_SIZE] = {
     0x0,
     0x0,
 };
-void ps2_irq_handler(){
-    if(!ps2)
-        return;
-    KMESSAGE("fired");
+uint8_t ps2_device_lastchar_pressed = 0;
+//interrupt disabled for now in PIC remap
+void ps2_device_irq_handler(){
+    switch ((uintptr_t)ps2){
+        case 0x0:
+            break;
+        default:{
+            uint8_t c = 0;
+            c = (uint8_t)inb(ps2->data_port);
+            ps2_keypress_update(c);
+            ps2_device_lastchar_pressed =  ps2_scancode_set_1_to_char(c);
+            break;
+        }
+    }
 } 
 
 ps2_device *ps2_device_new(uintptr_t base_port){
@@ -217,7 +227,8 @@ ps2_device *ps2_device_new(uintptr_t base_port){
     }
     //enable first port
     ps2_device_send_command(ret, 0xae);
-    interrupt_handler_install(ps2_irq_handler, 33);
+    //interrupt disabled for now in PIC remap
+    interrupt_handler_install(ps2_device_irq_handler, 33);
     return ret;
 }
 void ps2_device_set_bit(ps2_device *ps2, uint8_t bit){
@@ -290,10 +301,10 @@ uint8_t ps2_device_getchar_non_blocking(ps2_device *ps2){
             break;
 
         default:
-            if(ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT)){
-                uint8_t c = (uint8_t)inb(ps2->data_port);
-                ps2_keypress_update(c);
-                return ps2_scancode_set_1_to_char(c);
+            if(ps2_device_lastchar_pressed){
+                char ret = ps2_device_lastchar_pressed;
+                ps2_device_lastchar_pressed = 0;
+                return ret;
             }
             break;
     }
