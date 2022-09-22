@@ -1,7 +1,6 @@
 #include <kernel.h>
 
 event_loop *main_event_loop = 0x0;
-
 uint64_t kmain(bootinfo *bootinfo){
 	KMESSAGE("ARCH %s", ARCH_STRING);
 	KMESSAGE("Framebuffer %dx%d at 0x%x (%d MB)", fb->width, fb->height, fb->buffer, BYTES_TO_MB(fb->size));
