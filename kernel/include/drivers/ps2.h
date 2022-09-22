@@ -2,7 +2,6 @@
 #define PS2_H_
 #include <stdint.h>
 #include <stdbool.h>
-
 typedef struct {
     uint64_t data_port;
     uint64_t status_register;

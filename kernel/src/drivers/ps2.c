@@ -184,6 +184,7 @@ static char ps2_scancode_pressed_set_1_shift[PS2_SET_1_SIZE] = {
     0x0,
 };
 uint8_t ps2_device_lastchar_pressed = 0;
+
 void ps2_device_irq_handler(){
     switch ((uintptr_t)ps2){
         case 0x0:

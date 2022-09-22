@@ -17,7 +17,7 @@ void interrupt_handler_null(void *interrupt_frame){
     return;
 }
 void interrupt_handler_zerodiv(void *interrupt_frame){
-    KERRORINTERRUPT("division by zero attempted", interrupt_frame);
+    KPANICINTERRUPT("division by zero attempted", interrupt_frame);
 }
 void interrupt_handler_invalid_opcode(void *interrupt_frame){
     KPANICINTERRUPT("Invalid OP Code", interrupt_frame);

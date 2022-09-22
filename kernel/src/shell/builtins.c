@@ -55,7 +55,7 @@ int builtins_testkcalloc(int argc, char **argv){
     return 0;
 }
 int builtins_uptime(int argc, char **argv){
-    kprintf("up since %d seconds\n", rtc_device_time_since_boot_centisecond/100);
+    kprintf("up since %d seconds\n", getuptime100s()/100);
     return 0;
 }
 int builtins_teststrdup(int argc, char **argv){
@@ -120,6 +120,7 @@ int builtins_graphics(int argc, char **argv){
     uint32_t tux_x = fb->width/2 - tux->width/2;
     uint32_t tux_y = fb->height/2 - tux->height/2;
     while(1){
+        ps2_device_getchar_non_blocking(ps2);
         char serial_char = serial_device_readchar_non_blocking(serial);
         //ps2_keypress_update(k);
         if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){

@@ -20,7 +20,7 @@ void bitmap_font_free(bitmap_font font){
 void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
     if(!font16x16)
         return;
-    if(c >= 128){
+    if(c >= 128 || c < 0){
         KERROR("c is out of ascii range");
         return;
     }
@@ -93,7 +93,7 @@ void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_devic
 void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
     if(!font8x8)
         return;
-    if(c >= 128){
+    if(c >= 128 || c < 0){
         KERROR("c is out of ascii range");
         return;
     }
