@@ -11,8 +11,7 @@ __memset_64b:
 __memset_128b:
     ldp x3, x4, [x1]
     __memset_128b_loop:
-    stp  x3, x4, [x0]
-    add  x0, x0 ,#16
+    stp  x3, x4, [x0], #16
     sub  x2, x2, #16
     cbnz x2, __memset_128b_loop
     ret
@@ -30,10 +29,8 @@ __memcpy_64b:
 //void __memcpy_128b(void *dst = x0, void *src = x1, uint64_t sz = x2)
 __memcpy_128b:
     __memcpy_128b_loop:
-    ldp  x3, x4, [x1]
-    stp  x3, x4, [x0]
-    add  x0, x0, #16
-    add  x1, x1, #16
+    ldp  x3, x4, [x1], #16
+    stp  x3, x4, [x0], #16
     sub  x2, x2, #16
     cbnz x2, __memcpy_128b_loop
     ret
