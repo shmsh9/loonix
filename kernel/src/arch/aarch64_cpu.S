@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memset_128b, __memcpy_64b, __memcpy_128b
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memset_128b, __memcpy_64b, __memcpy_128b, cpu_get_cntpct
 //void __memset_64b(void *ptr = x0, uint64_t b = x1, uint64_t sz = x2)
 __memset_64b:
     __memset_64b_loop:
@@ -110,4 +110,8 @@ cpu_registers_load:
 //uint64_t cpu_get_tick()
 cpu_get_tick:
     mrs x0, CNTVCT_EL0
+    ret
+//uint64_t cpu_get_cntpct()
+cpu_get_cntpct:
+    mrs x0, CNTPCT_EL0
     ret

@@ -108,6 +108,7 @@
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
+    uint64_t cpu_get_cntpct();
     void __memset_64b(void *ptr, uint64_t b, uint64_t sz);
     void __memset_128b(void *ptr, uint64_t b[2], uint64_t sz);
     void __memcpy_64b(void *dst, void *src, uint64_t sz);

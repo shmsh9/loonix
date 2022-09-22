@@ -8,9 +8,14 @@ void __stack_chk_fail(void){
     while(1){}
 }
 uint64_t getuptime100s(){
-    if(rtc_device_time_since_boot_centisecond == 0)
-        KMESSAGE("rtc uptime == 0 !!!");
-    return rtc_device_time_since_boot_centisecond;
+    //if(rtc_device_time_since_boot_centisecond == 0)
+    //    KMESSAGE("rtc uptime == 0 !!!");
+    #ifdef __aarch64__
+        return cpu_get_cntpct()/1000000;
+    #endif
+    #ifdef __x86_64__
+        return rtc_device_time_since_boot_centisecond;
+    #endif
 }
 int strlen(const char *str){
 	  if(!str){
