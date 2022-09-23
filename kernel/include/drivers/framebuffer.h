@@ -19,7 +19,8 @@ typedef struct _framebuffer_device {
 
 framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags);
 void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel);
-void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
+void framebuffer_device_draw_pixel_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
+void framebuffer_device_draw_pixel_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel);
 void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite);
 void framebuffer_device_free(framebuffer_device *framebuffer);

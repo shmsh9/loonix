@@ -1,6 +1,6 @@
 #include <drivers/framebuffer.h>
 uint64_t framebuffer_last_draw_pixel_tick = 0;
-void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
+void framebuffer_device_draw_pixel_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     if(!framebuffer)
         return;
     if(!framebuffer->buffer)
@@ -17,7 +17,15 @@ void framebuffer_device_draw_pixel(framebuffer_device *framebuffer, uint64_t x, 
     dst[pos] = *pixel;
     framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
+void framebuffer_device_draw_pixel_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
+    if(!pixel->Alpha)
+        return;  
+    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
+    uint64_t pos = framebuffer->width*y+x;
+    dst[pos] = *pixel;
+    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 
+}
 void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
     if(!framebuffer->buffer)
         return;
@@ -99,7 +107,7 @@ void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64
     uint64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
        for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){
-           framebuffer_device_draw_pixel(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
+           framebuffer_device_draw_pixel_fast(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
            current_pixel++;
        }
        current_y++;
