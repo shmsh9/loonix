@@ -20,10 +20,12 @@ int builtins_testargs(int argc, char **argv){
 }
 int builtins_time(int argc, char **argv){
     uint64_t t1  = cpu_get_tick();
+    uint64_t s1 = getuptime100s();
     if(argc >= 2)
         shell_exec(argv[1]);
     uint64_t t2 = cpu_get_tick();
-    kprintf("\nticks\t%d\n", t2-t1);
+    uint64_t s2 = getuptime100s();
+    kprintf("\nticks   \t%d\nseconds \t%d\n", t2-t1, (s2-s1)/100);
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
@@ -132,14 +134,16 @@ int builtins_graphics(int argc, char **argv){
                 tux_y--;
         }
         if(ps2_key_is_pressed(PS2_KEY_A) ||  tolower(serial_char) == 'a'){
-            tux_x--;
+            if(tux_x - 1 > 0)
+                tux_x--;
         }
         if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
             if(tux->height+tux_y+1 < fb->height)
                 tux_y++;
         }
         if(ps2_key_is_pressed(PS2_KEY_D) ||  tolower(serial_char) == 'd'){
-            tux_x++;
+            if(tux_x + tux->width < fb->width)
+                tux_x++;
         }
 
 	    framebuffer_device_clear(fb, 
