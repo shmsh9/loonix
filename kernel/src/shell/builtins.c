@@ -119,30 +119,25 @@ int builtins_testmemcpy(int argc, char **argv){
 int builtins_graphics(int argc, char **argv){
 	#include <graphics/tux.png.h>
 	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
-    uint32_t tux_x = fb->width/2 - tux->width/2;
-    uint32_t tux_y = fb->height/2 - tux->height/2;
+    int32_t tux_x = fb->width/2 - tux->width/2;
+    int32_t tux_y = fb->height/2 - tux->height/2;
     while(1){
-        ps2_device_getchar_non_blocking(ps2);
         char serial_char = serial_device_readchar_non_blocking(serial);
-        //ps2_keypress_update(k);
         if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){
             KMESSAGE("Exit");
             break;
         }
         if(ps2_key_is_pressed(PS2_KEY_W) || tolower(serial_char) == 'w'){
-            if(tux_y - 1 > 0)
                 tux_y--;
         }
-        if(ps2_key_is_pressed(PS2_KEY_A) ||  tolower(serial_char) == 'a'){
-            if(tux_x - 1 > 0)
+        if(ps2_key_is_pressed(PS2_KEY_A) || tolower(serial_char) == 'a'){
                 tux_x--;
+                //KMESSAGE("tux_x 0x%x && tux_y 0x%x", tux_x, tux_y);
         }
         if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
-            if(tux->height+tux_y+1 < fb->height)
                 tux_y++;
         }
-        if(ps2_key_is_pressed(PS2_KEY_D) ||  tolower(serial_char) == 'd'){
-            if(tux_x + tux->width < fb->width)
+        if(ps2_key_is_pressed(PS2_KEY_D) || tolower(serial_char) == 'd'){
                 tux_x++;
         }
 

@@ -15,7 +15,8 @@ typedef struct _event_loop_event{
     event_loop *loop;
 }event_loop_event;
 event_loop *event_loop_new();
-void event_loop_loop();
+void event_loop_loop(event_loop *loop);
+void event_loop_loop_non_blocking(event_loop *loop);
 void event_loop_add(event_loop *loop, void (*fn)(void *), void *payload, uint64_t frequency);
 void event_loop_remove(event_loop *loop, event_loop_event *ev);
 void event_loop_remove_by_function(event_loop *loop, void (*fn)(void *));
