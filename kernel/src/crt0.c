@@ -1,6 +1,7 @@
 #include <drivers/ps2.h>
 #include <drivers/serial.h>
 #include <drivers/pci.h>
+#include <drivers/rtc.h>
 #include <newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
@@ -49,6 +50,8 @@ void crt0(bootinfo *bootinfo){
     //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
     process_init();
+    timer_init();
+    rtc_device_init();
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 

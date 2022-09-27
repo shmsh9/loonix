@@ -2,4 +2,5 @@
 #define RTC_H_
 #include <kstd.h>
 void rtc_device_interrupt();
+void rtc_device_init();
 #endif

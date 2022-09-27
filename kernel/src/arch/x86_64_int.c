@@ -1,4 +1,5 @@
 #include <kstd.h>
+#include <timer.h>
 #include <arch/arch.h>
 #include <bootloader.h>
 #ifdef __x86_64__
@@ -33,15 +34,6 @@ void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){
     descriptor->isr_mid       = (((uint64_t)isr) >> 16) & 0xFFFF;
     descriptor->isr_high      = (((uint64_t)isr) >> 32) & 0xFFFFFFFF;
     descriptor->reserved      = 0;
-}
-void rtc_device_interrupt();
-void rtc_install(){
-    interrupt_disable();
-    outb(0x70, 0x8B);
-    char prev = inb(0x71);
-    outb(0x70, 0x8B);
-    outb(0x71, prev | 0x40);
-    interrupt_handler_install(rtc_device_interrupt, 40);
 }
 void pic_remap(){
     interrupt_disable();

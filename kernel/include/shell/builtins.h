@@ -3,7 +3,6 @@
 #include <kstd.h>
 #include <drivers/ahci.h>
 #include <drivers/pci.h>
-#include <event_loop.h>
 #include <shell/shell.h>
 #include <process.h>
 

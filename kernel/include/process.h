@@ -1,13 +1,14 @@
 #ifndef PROCESS_H_
 #define PROCESS_H_
 #include <kstd.h>
+#include <arch/arch.h>
 #define PROCESS_STACK_SIZE MB_TO_BYTES(1)
 extern karray *process_list;
 typedef struct{
     uint32_t id;
     uint8_t priority;
     void *stack;
-    void *execution_pointer;
+    cpu_registers *registers;
     int argc;
     char **argv;
 }process;

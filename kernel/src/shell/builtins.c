@@ -198,10 +198,6 @@ int builtins_int(int argc, char **argv){
     INTERRUPT();
     return 0;
 }
-int builtins_exit(int argc, char **argv){
-    event_loop_remove_by_function(main_event_loop, shell_non_blocking);
-    return 0;
-}
 int builtins_regdump(int argc, char **argv){
     cpu_registers r;
     cpu_registers_save(&r);
@@ -307,7 +303,6 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_ps, "ps");
     BUILTINS_INIT_FN(builtins_testproc, "testproc");
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
-    BUILTINS_INIT_FN(builtins_exit, "exit");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testargs, "testargs");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");

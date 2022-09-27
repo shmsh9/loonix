@@ -4,6 +4,7 @@
 #include <arch/arch.h>
 #include <stdint.h>
 #include <newmem.h>
+#include <timer.h>
 #include <bootloader.h>
     #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
 	#define ARCH_STRING "x64"
@@ -36,7 +37,7 @@
             interrupt_handler_install(interrupt_handler_zerodiv, 0x0);\
             interrupt_handler_install(interrupt_handler_breakpoint, 0x3);\
             interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
-            interrupt_handler_install(rtc_device_interrupt, 0x20);\
+            interrupt_handler_install(timer_interrupt_handler, 0x20);\
             interrupt_handler_install(interrupt_general_protection_fault, 0xD);\
     }
     /*
