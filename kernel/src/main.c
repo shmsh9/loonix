@@ -19,14 +19,6 @@ uint64_t kmain(bootinfo *bootinfo){
 		0x0,
 		1
 	);
-	/*
-	event_loop_add(
-		main_event_loop,
-		(void (*)(void *))kprint,
-		"TEST LOOP\n",
-		100000000
-	);
-	*/
 	event_loop_loop(main_event_loop);
 	KMESSAGE("main_event_loop ended");
 	//shell();

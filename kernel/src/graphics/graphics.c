@@ -14,6 +14,7 @@ graphics_sprite *graphics_sprite_new(uint64_t x, uint64_t y){
    }
    ret->width = x;
    ret->height = y;
+   ret->size = x*y;
    return ret;
 }
 graphics_sprite *graphics_sprite_static_new(uint64_t x, uint64_t y, uint8_t *pixels){
@@ -30,6 +31,7 @@ graphics_sprite *graphics_sprite_static_new(uint64_t x, uint64_t y, uint8_t *pix
    ret->width = x;
    ret->height = y;
    ret->pixels = (graphics_pixel *)pixels;
+   ret->size = x*y;
    return ret;
 }
 

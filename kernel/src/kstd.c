@@ -39,13 +39,14 @@ inline uint8_t tolower(uint8_t c){
 }
 inline int atoi(const char *str){
     int ret = 0;
-    while(*str++){
+    while(*str){
         int c = isdigit(*str);
-        if(c == 0){
+        if(c == 0 && *str != '0'){
             return -1;
         }
         ret *= 10;
         ret += c;
+        str++;
     }
     return ret;
 }
@@ -619,7 +620,6 @@ void klist_push(klist *k, uintptr_t data){
     k->first->prev = to_push;
     k->first = to_push;
 }
-
 void klist_free(klist *k){
     if(!k){
         KERROR("k == NULL");

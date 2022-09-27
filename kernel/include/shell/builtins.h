@@ -5,6 +5,8 @@
 #include <drivers/pci.h>
 #include <event_loop.h>
 #include <shell/shell.h>
+#include <process.h>
+
 #define BUILTIN_SIZE 32
 #define BUILTINS_INIT_FN(fn, n){\
     if(builtins.length < BUILTIN_SIZE){\

@@ -6,7 +6,7 @@
 #include <bootloader.h>
 #include <arch/arch.h>
 #include <drivers/acpi.h>
-
+#include <process.h>
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};
@@ -48,6 +48,7 @@ void crt0(bootinfo *bootinfo){
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
+    process_init();
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 

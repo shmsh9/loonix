@@ -17,23 +17,20 @@ void framebuffer_device_draw_pixel_slow(framebuffer_device *framebuffer, int64_t
     uint64_t pos = framebuffer->width*y+x;
     //if(pos > framebuffer->width*framebuffer->height)
     //    return;
-    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
-    dst[pos] = *pixel;
+    framebuffer->dst[pos] = *pixel;
     framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 void framebuffer_device_draw_pixel_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, framebuffer_pixel *pixel){
     if(!pixel->Alpha)
         return;  
-    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     uint64_t pos = framebuffer->width*y+x;
-    dst[pos] = *pixel;
+    framebuffer->dst[pos] = *pixel;
     framebuffer_last_draw_pixel_tick = cpu_get_tick();
 
 }
 void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel *pixel){
     if(!framebuffer->buffer)
         return;
-    graphics_pixel *dst = framebuffer->double_buffer == 0x0 ? framebuffer->buffer : framebuffer->double_buffer;
     uint32_t px = *(uint32_t *)pixel;
     /*
     uint64_t pixel_casted64 = (uint64_t)(
@@ -41,7 +38,7 @@ void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel
     );
     __uint128_t pixel_casted128 = (__uint128_t)pixel_casted64 << 64 | pixel_casted64;
     */
-    memset(dst, (uint8_t)(px & 0xff), framebuffer->size);
+    memset(framebuffer->dst, (uint8_t)(px & 0xff), framebuffer->size);
     framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 
@@ -61,7 +58,8 @@ framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, ui
         .width = width,
         .height = height,
         .size = size,
-        .flags = flags
+        .flags = flags,
+        .dst = 0x0
     };
     if( (flags & FRAMEBUFFER_DOUBLE_BUFFERING) == FRAMEBUFFER_DOUBLE_BUFFERING){
         void *double_buffer = kmalloc(size);
@@ -73,7 +71,7 @@ framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, ui
             ret->double_buffer = double_buffer;
         }
     }
-
+    ret->dst = ret->double_buffer == 0x0 ? ret->buffer : ret->double_buffer;
     return ret;
 }
 
@@ -107,38 +105,34 @@ void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t
 }
 
 void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
-    uint64_t sprite_size = sprite->height * sprite->width;
-    uint64_t current_y = y;
-    for(uint64_t current_pixel = 0; current_pixel < sprite_size;){
-       for(uint64_t current_x = x; current_x < sprite->width+x; current_x++){
+    int64_t current_y = y;
+    for(uint64_t current_pixel = 0; current_pixel < sprite->size;){
+       for(int64_t current_x = x; current_x < sprite->width+x; current_x++){
            framebuffer_device_draw_pixel_slow(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
            current_pixel++;
        }
        current_y++;
     }
 }
-//can not handle transparency
-void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
-    graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
-    for(uint64_t sprite_line = 0; sprite_line < sprite->height; sprite_line++){
+//can not handle transparency && is unsafe
+void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, int64_t x, int64_t y, graphics_sprite *sprite){
+    for(uint64_t sprite_line = 0; sprite_line < sprite->height; sprite_line++, y++){
         memcpy(
-            dst+(framebuffer->width*y+x),
-            sprite->pixels+(sprite->width*sprite_line),
-            sprite->width*sizeof(graphics_pixel)
+            framebuffer->dst+(framebuffer->width*y+x),
+            sprite->pixels+((sprite->width)*sprite_line),
+            (sprite->width)*sizeof(graphics_pixel)
         );
-        y++;
     }
     framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     if(!framebuffer)
         return;
-    graphics_pixel *dst = framebuffer->double_buffer == 0 ? framebuffer->buffer : framebuffer->double_buffer;
     //uint64_t pixels_to_scroll = framebuffer->width * y;
     for(uint8_t j = 0; j < y; j++){
         for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
-            void *previous_line = (void *)(dst+i);
-            void *next_line = (void *)(dst+i+framebuffer->width);
+            void *previous_line = (void *)(framebuffer->dst+i);
+            void *next_line = (void *)(framebuffer->dst+i+framebuffer->width);
             memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
         }
     }
