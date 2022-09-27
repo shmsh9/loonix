@@ -9,8 +9,14 @@ uint64_t kmain(bootinfo *bootinfo){
 	KMESSAGE("Available system memory %d MB", BYTES_TO_MB(heap.free_memory));
 	kprint("Welcome to l00n1x !\n");
 	timer_event_new(
-		(void (*)(void *))framebuffer_device_update,
-		(void *)fb
+		(void (*)(void *))vt100_console_update_draw_screen,
+		(void *)fb,
+		10
+	);
+	timer_event_new(
+		(void (*)(void *))process_scheduler,
+		0x0,
+		0
 	);
 	while(1){
 		shell_non_blocking();

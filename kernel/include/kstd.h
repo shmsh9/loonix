@@ -95,6 +95,8 @@ struct stackframe{
     struct stackframe *frame;
     uint64_t instruction_pointer;         
 };
+#include <process.h>
+
 typedef karray event_loop;
 extern uintptr_t __stack_chk_guard;
 extern kheap_allocated_block *kalloc_list;

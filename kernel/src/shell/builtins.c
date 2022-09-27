@@ -148,7 +148,7 @@ int builtins_graphics(int argc, char **argv){
                 .Blue = 0x9f
             }
         );
-	    framebuffer_device_draw_sprite_fast(
+	    framebuffer_device_draw_sprite_slow(
             fb, 
             tux_x, 
             tux_y, 
@@ -233,7 +233,7 @@ int builtins_ps(int argc, char **argv){
     kprintf("pid\tname\n");
     for(int i = 0; i < process_list->length; i++){
         process *tmp = ((process **)(process_list->array))[i];
-        kprintf("%d\t%s\n", (uint64_t)tmp->id, tmp->argv[0]);
+        kprintf("%d\t%s\n", (uint64_t)tmp->id, argv[0] == 0 ? "": argv[0]);
     }
     return 0;
 }
@@ -256,7 +256,7 @@ int builtins_atoi(int argc, char **argv){
     return 0;
 }
 int builtins_testproc(int argc, char **argv){
-    process *proc = process_new(builtins_testproc, argc, argv);
+    process *proc = process_new(builtins_atoi, argc, argv);
     KMESSAGE("new process : %d %s", (uint64_t)proc->id, proc->argv[0]);
     return 0;
 }

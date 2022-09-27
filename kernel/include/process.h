@@ -18,4 +18,5 @@ process *process_new(int (*fn)(int, char **), int argc, char **argv);
 void process_karray_free(process *proc);
 void process_init();
 void process_free(uint32_t pid);
+void process_scheduler();
 #endif

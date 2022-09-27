@@ -1,8 +1,64 @@
 #ifndef X86_64_H_
 #define X86_64_H_
 #ifdef __x86_64__
-#include <arch/arch.h>
 #include <stdint.h>
+    typedef struct __attribute__((__packed__)){
+        uint64_t rax;
+        uint64_t rbx;
+        uint64_t rcx;
+        uint64_t rdx;
+        uint64_t rsi;
+        uint64_t rdi;
+        uint64_t rbp;
+        uint64_t rsp;
+        uint64_t r8;
+        uint64_t r9;
+        uint64_t r10;
+        uint64_t r11;
+        uint64_t r12;
+        uint64_t r13;
+        uint64_t r14;
+        uint64_t r15;
+        uint64_t rip;
+    }cpu_registers;
+    //https://wiki.osdev.org/GDT
+    typedef struct __attribute__((packed)) {
+	    uint16_t limit_low;           // The lower 16 bits of the limit.
+	    uint16_t base_low;            // Bits 0-15 of the base.
+	    uint8_t  base_middle;         // The next 8 bits of the base.
+	    uint8_t  access_byte;             // Access flags, determine what ring this segment can be used in.
+	    uint8_t  limit_high_and_flags;
+	    uint8_t  base_high;           // The next 8 bits of the base.
+    } gdt_entry;
+    
+    typedef struct __attribute__((packed)){
+        uint16_t size; //sizeof(gdt_table)-1B
+        uint64_t offset;
+    } gdt_ptr;
+
+    typedef struct __attribute__((packed)){
+    	uint16_t    isr_low;      // The lower 16 bits of the ISR's address
+    	uint16_t    kernel_cs;    // The GDT segment selector that the CPU will load into CS before calling the ISR
+    	uint8_t	    ist;          // The IST in the TSS that the CPU will load into RSP; set to zero for now
+    	uint8_t     attributes;   // Type and attributes; see the IDT page
+    	uint16_t    isr_mid;      // The higher 16 bits of the lower 32 bits of the ISR's address
+    	uint32_t    isr_high;     // The higher 32 bits of the ISR's address
+    	uint32_t    reserved;     // Set to zero
+    }idt_entry_t;
+
+    typedef struct __attribute__((packed)){
+    	uint16_t	limit;
+    	uint64_t	base;
+    } idtr_t;
+
+    typedef struct __attribute__((packed)) _x86_64_interrupt_frame {
+        uint64_t  rip;
+        uint64_t  cs;
+        uint64_t  flags;
+        uint64_t  rsp;
+        uint64_t  ss;
+    }x86_64_interrupt_frame;
+
 #include <newmem.h>
 #include <timer.h>
 #include <bootloader.h>
@@ -71,62 +127,6 @@
     #define NEWMEM_ALIGN 0x10
     #define VT100_REFRESH_TICK 0x2000000
 
-    typedef struct __attribute__((__packed__)){
-        uint64_t rax;
-        uint64_t rbx;
-        uint64_t rcx;
-        uint64_t rdx;
-        uint64_t rsi;
-        uint64_t rdi;
-        uint64_t rbp;
-        uint64_t rsp;
-        uint64_t r8;
-        uint64_t r9;
-        uint64_t r10;
-        uint64_t r11;
-        uint64_t r12;
-        uint64_t r13;
-        uint64_t r14;
-        uint64_t r15;
-        uint64_t rip;
-    }cpu_registers;
-    //https://wiki.osdev.org/GDT
-    typedef struct __attribute__((packed)) {
-	    uint16_t limit_low;           // The lower 16 bits of the limit.
-	    uint16_t base_low;            // Bits 0-15 of the base.
-	    uint8_t  base_middle;         // The next 8 bits of the base.
-	    uint8_t  access_byte;             // Access flags, determine what ring this segment can be used in.
-	    uint8_t  limit_high_and_flags;
-	    uint8_t  base_high;           // The next 8 bits of the base.
-    } gdt_entry;
-    
-    typedef struct __attribute__((packed)){
-        uint16_t size; //sizeof(gdt_table)-1B
-        uint64_t offset;
-    } gdt_ptr;
-
-    typedef struct __attribute__((packed)){
-    	uint16_t    isr_low;      // The lower 16 bits of the ISR's address
-    	uint16_t    kernel_cs;    // The GDT segment selector that the CPU will load into CS before calling the ISR
-    	uint8_t	    ist;          // The IST in the TSS that the CPU will load into RSP; set to zero for now
-    	uint8_t     attributes;   // Type and attributes; see the IDT page
-    	uint16_t    isr_mid;      // The higher 16 bits of the lower 32 bits of the ISR's address
-    	uint32_t    isr_high;     // The higher 32 bits of the ISR's address
-    	uint32_t    reserved;     // Set to zero
-    }idt_entry_t;
-
-    typedef struct __attribute__((packed)){
-    	uint16_t	limit;
-    	uint64_t	base;
-    } idtr_t;
-
-    typedef struct __attribute__((packed)) _x86_64_interrupt_frame {
-        uint64_t  rip;
-        uint64_t  cs;
-        uint64_t  flags;
-        uint64_t  rsp;
-        uint64_t  ss;
-    }x86_64_interrupt_frame;
     #define CPU_REGISTERS_PRINT(regs){\
         char *cpu_registers_names__func__ [sizeof(cpu_registers)/sizeof(uint64_t)] = {0};\
         cpu_registers_names__func__[0] = "rax";\

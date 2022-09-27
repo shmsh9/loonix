@@ -56,13 +56,13 @@ cpu_registers_save:
     mov [rdi+136],rax
     ret
 //void cpu_registers_load(cpu_registers *regs);
+//Need to modify RIP
 cpu_registers_load:
     mov rax,[rdi]
     mov rbx,[rdi+8]
     mov rcx,[rdi+16]
     mov rdx,[rdi+24]
     mov rsi,[rdi+32]
-    mov rdi,[rdi+40]
     mov rbp,[rdi+48]
     mov rsp,[rdi+56]
     mov r8,[rdi+64]
@@ -73,6 +73,7 @@ cpu_registers_load:
     mov r13,[rdi+104]
     mov r14,[rdi+112]
     mov r15,[rdi+128]
+    mov rdi,[rdi+40]
     ret
 //uint64_t cpu_get_tick()
 cpu_get_tick:

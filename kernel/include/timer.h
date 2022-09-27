@@ -11,5 +11,5 @@ typedef struct _timer_event{
 }timer_event;
 void timer_init();
 void timer_interrupt_handler();
-timer_event *timer_event_new(void(*fn)(void *), void *data);
+timer_event *timer_event_new(void(*fn)(void *), void *data, uint64_t frequency);
 #endif
