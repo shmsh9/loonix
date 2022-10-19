@@ -5,6 +5,7 @@
 #include <drivers/pci.h>
 #include <shell/shell.h>
 #include <sys/process.h>
+#include <sys/task.h>
 
 #define BUILTIN_SIZE 32
 #define BUILTINS_INIT_FN(fn, n){\

@@ -264,6 +264,19 @@ int builtins_testproc(int argc, char **argv){
     KMESSAGE("new process : %d %s", (uint64_t)proc->id, proc->argv[0]);
     return 0;
 }
+int builtins_task(int argc, char **argv){
+    task *t1 = task_new();
+    task *t2 = task_new();
+    task *t3 = task_new();
+    task_debug_print();
+    task_free(t3);
+    task_debug_print();
+    task_free(t1);
+    task_debug_print();
+    task_free(t2);
+    task_debug_print(); 
+    return 0;
+}
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -305,6 +318,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_atoi, "atoi");
     BUILTINS_INIT_FN(builtins_kill, "kill");
     BUILTINS_INIT_FN(builtins_ps, "ps");
+    BUILTINS_INIT_FN(builtins_task, "task");
     BUILTINS_INIT_FN(builtins_testproc, "testproc");
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
