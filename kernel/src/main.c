@@ -8,6 +8,10 @@ uint64_t kmain(bootinfo *bootinfo){
 	KMESSAGE("Framebuffer %dx%d at 0x%x (%d MB)", fb->width, fb->height, fb->buffer, BYTES_TO_MB(fb->size));
 	KMESSAGE("Available system memory %d MB", BYTES_TO_MB(heap.free_memory));
 	kprint("Welcome to l00n1x !\n");
+	task_new("rtc");
+	KMESSAGE("t->name == %s",
+		task_first->name
+	);
 	timer_event_new(
 		(void (*)(void *))vt100_console_update_draw_screen,
 		(void *)fb,

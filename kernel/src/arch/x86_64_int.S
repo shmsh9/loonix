@@ -20,11 +20,23 @@
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
 
-//save context between tasks
-.macro task_save_context
+.macro gen_interrupt_table index
+    .quad asm_interrupt_handler_\index
+.endm
+.macro gen_interrupt_handler index
+    asm_interrupt_handler_\index :
+    cli                              //disable interrupts
+    
+    //need to store the frame somewhere here
+    .task_save_context_begin_\index :
     push rax
     push rbx
+    mov  rax, \index
+    cmp  rax, 0x20                      //only save context for timer tasks
+    jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
+    cmp  rax, 0
+    je   .task_save_context_end_\index
     mov  rax, [rax+16]                  //rax == task_current->context
 
     mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
@@ -48,16 +60,9 @@
     mov [rax+cpu_registers_r15],r15
     mov rbx, [rsp+24]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
+    .task_save_context_end_\index :
     pop rbx
     pop rax
-.endm
-.macro gen_interrupt_table index
-    .quad asm_interrupt_handler_\index
-.endm
-.macro gen_interrupt_handler index
-    asm_interrupt_handler_\index :
-    //need to store the frame somewhere here
-    task_save_context
 
     push rax
     push rbx
@@ -83,7 +88,6 @@
     //pop  rbx                         //store original rip
     //push rbx                         //somehow rebalance the stack do not remove for now
     pushad
-    cli                              //disable interrupts
     cld                              //needed for sysV abi
     push rdi
     mov  rdi, \index                 //interrupt number

@@ -4,14 +4,15 @@ task *task_current = 0x0;
 task *task_first = 0x0;
 task *task_last = 0x0;
 
-task *task_new(){
+task *task_new(char *name){
     task *ret = kmalloc(sizeof(task));
     *ret = (task){
         .next = 0x0,
         .prev = task_last,  // task_last == 0x0 ? task_last : task_last;
         .uuid = cpu_get_tick(),
         .context = kcalloc(sizeof(cpu_registers),1),
-        .stack = kmalloc(TASK_STACK_SIZE)
+        .stack = kmalloc(TASK_STACK_SIZE),
+        .name = strdup(name)
     };
     if(!task_first){
         task_first = ret;
@@ -38,6 +39,7 @@ task *task_get_next(){
 void task_free(task *t){
     kfree(t->stack);
     kfree(t->context);
+    kfree(t->name);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;
@@ -75,9 +77,10 @@ void task_debug_print(){
     uint64_t i = 0;
     kprintf("Tasks :\n");
     while(t){
-        kprintf("\tTask %d : 0x%x\n", 
+        kprintf("\tTask %d : 0x%x (%s)\n", 
             i,
-            t->uuid
+            t->uuid,
+            t->name
         );
         i++;
         t = t->next;

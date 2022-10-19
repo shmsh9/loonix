@@ -265,16 +265,17 @@ int builtins_testproc(int argc, char **argv){
     return 0;
 }
 int builtins_task(int argc, char **argv){
-    task *t1 = task_new();
-    task *t2 = task_new();
-    task *t3 = task_new();
+    task *t1 = task_new("t1");
+    task *t2 = task_new("t2");
+    task *t3 = task_new("t3");
     task_debug_print();
     task_free(t3);
     task_debug_print();
     task_free(t1);
     task_debug_print();
     task_free(t2);
-    task_debug_print(); 
+    task_debug_print();
+   task_debug_print();
     return 0;
 }
 int builtins_lspci(int argc, char **argv){
