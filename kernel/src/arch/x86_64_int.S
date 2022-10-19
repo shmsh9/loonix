@@ -1,12 +1,33 @@
 .altmacro
 .extern interrupt_handler
 .global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0, interrupt_enable, interrupt_disable
+.extern current_interrupt_frame
 
 .macro gen_interrupt_table index
     .quad asm_interrupt_handler_\index
 .endm
 .macro gen_interrupt_handler index
     asm_interrupt_handler_\index :
+    //need to store the frame somewhere here
+    push rax
+    push rbx
+    lea rax, [rip+current_interrupt_frame]
+    
+    mov rbx, [rsp+16]               //+16 because of the 2 push
+    mov [rax], rbx                  //save RIP
+    
+    mov rbx, [rsp+24]
+    mov [rax+8], rbx                //save CS
+    
+    mov rbx, [rsp+32]
+    mov [rax+16], rbx               //save RFLAGS
+    
+    mov rbx, [rsp+40]
+    mov [rax+24], rbx               //save RSP
+
+
+    pop rbx
+    pop rax
     //pop  rbx                         //store original rip
     //push rbx                         //somehow rebalance the stack do not remove for now
     pushad
@@ -20,6 +41,13 @@
     push rax
     mov  al, 0x20                   //ack PIC int
     out  0x20, al
+    
+    lea  rax, [rip+current_interrupt_frame] //clear current_interrupt_frame
+    mov qword ptr [rax   ], 0       
+    mov qword ptr [rax+8 ], 0
+    mov qword ptr [rax+16], 0
+    mov qword ptr [rax+24], 0               //
+
     pop  rax
     sti                              //enable interrupts
     popad

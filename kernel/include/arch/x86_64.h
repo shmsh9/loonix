@@ -56,7 +56,6 @@
         uint64_t  cs;
         uint64_t  flags;
         uint64_t  rsp;
-        uint64_t  ss;
     }x86_64_interrupt_frame;
 
 #include <newmem.h>
@@ -102,16 +101,14 @@
         uint64_t  cs;
         uint64_t  flags;
         uint64_t  rsp;
-        uint64_t  ss;
     }x86_64_interrupt_frame;
     */
     #define INTERRUPT_FRAME_PRINT(interrupt_frame){\
-        kprintf("\n\t[rip] : 0x%x\n\t[cs ] : 0x%x\n\t[fl ] : 0x%x\n\t[rsp] : 0x%x\n\t[ss ] : 0x%x\n\n",\
+        kprintf("\n\t[rip] : 0x%x\n\t[cs ] : 0x%x\n\t[fl ] : 0x%x\n\t[rsp] : 0x%x\n\t\n",\
             ((x86_64_interrupt_frame *)interrupt_frame)->rip,\
             ((x86_64_interrupt_frame *)interrupt_frame)->cs,\
             ((x86_64_interrupt_frame *)interrupt_frame)->flags,\
-            ((x86_64_interrupt_frame *)interrupt_frame)->rsp,\
-            ((x86_64_interrupt_frame *)interrupt_frame)->ss\
+            ((x86_64_interrupt_frame *)interrupt_frame)->rsp\
         );\
     }
     #define INTERRUPT_INIT(){\

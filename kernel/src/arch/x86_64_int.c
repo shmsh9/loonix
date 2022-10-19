@@ -15,13 +15,12 @@ void interrupt_handler(uint64_t rdi_interrupt_num, x86_64_interrupt_frame *frame
         ((void (*)(x86_64_interrupt_frame *))interrupt_functions_table[rdi_interrupt_num])(frame);
         return;
     }
-    KPANIC("unhandled exception (%d) :\n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n\t[ss]     : 0x%x", 
+    KPANIC("unhandled exception (%d) :\n\t[rip]    : 0x%x\n\t[rsp]    : 0x%x\n\t[rflags] : 0b%b\n\t[cs]     : 0x%x\n", 
         rdi_interrupt_num,
         frame->rip,
         frame->rsp,
         (uint64_t)frame->flags,
-        frame->cs,
-        (uint64_t)frame->ss
+        frame->cs
     );
 }
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags){

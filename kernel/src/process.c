@@ -44,13 +44,13 @@ void process_free(uint32_t pid){
     }
     KMESSAGE("%d not found", pid);
 }
-
 void process_scheduler(){
     if(!process_list)
         return;
     if(process_list->length == 0)
         return;
     //process *proc = ((process **)(process_list->array))[process_current];
+
     process_last = process_current;
     if(process_current+1 >= process_list->length){
         process_current = 0;
@@ -58,10 +58,8 @@ void process_scheduler(){
     else{
         process_current++;
     }
-    /*
+    //cpu_registers_load(proc->registers);
     process *proc_last = ((process **)process_list->array)[process_last];
     cpu_registers_save(proc_last->registers);
-    process *proc = ((process **)process_list->array)[process_current];
-    cpu_registers_load(proc->registers);
-    */
+
 }
