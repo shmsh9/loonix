@@ -1,14 +1,64 @@
 .altmacro
 .extern interrupt_handler
 .global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0, interrupt_enable, interrupt_disable
-.extern current_interrupt_frame
+.extern current_interrupt_frame, task_current, task_first, 
+#define cpu_registers_rax 0
+#define cpu_registers_rbx 8
+#define cpu_registers_rcx 16
+#define cpu_registers_rdx 24
+#define cpu_registers_rsi 32
+#define cpu_registers_rdi 40
+#define cpu_registers_rbp 48
+#define cpu_registers_rsp 56
+#define cpu_registers_r8  64
+#define cpu_registers_r9  72
+#define cpu_registers_r10 80
+#define cpu_registers_r11 88
+#define cpu_registers_r12 96
+#define cpu_registers_r13 104
+#define cpu_registers_r14 112
+#define cpu_registers_r15 120
+#define cpu_registers_rip 128
 
+//save context between tasks
+.macro task_save_context
+    push rax
+    push rbx
+    lea  rax, [rip+task_current]
+    mov  rax, [rax+16]                  //rax == task_current->context
+
+    mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
+    mov [rax+cpu_registers_rax], rbx
+    mov rbx, qword ptr [rsp]            //because of the 2 push now contains old rbx
+    mov [rax+cpu_registers_rbx], rbx
+
+    mov [rax+cpu_registers_rcx],rcx
+    mov [rax+cpu_registers_rdx],rdx
+    mov [rax+cpu_registers_rsi],rsi
+    mov [rax+cpu_registers_rdi],rdi
+    mov [rax+cpu_registers_rbp],rbp
+    mov [rax+cpu_registers_rsp],rsp
+    mov [rax+cpu_registers_r8 ],r8
+    mov [rax+cpu_registers_r9 ],r9
+    mov [rax+cpu_registers_r10],r10
+    mov [rax+cpu_registers_r11],r11
+    mov [rax+cpu_registers_r12],r12
+    mov [rax+cpu_registers_r13],r13
+    mov [rax+cpu_registers_r14],r14
+    mov [rax+cpu_registers_r15],r15
+    mov rbx, [rsp+24]                   //old rip stored on the stack by the interrupt
+    mov [rax+cpu_registers_rip], rbx
+    pop rbx
+    pop rax
+.endm
 .macro gen_interrupt_table index
     .quad asm_interrupt_handler_\index
 .endm
 .macro gen_interrupt_handler index
     asm_interrupt_handler_\index :
     //need to store the frame somewhere here
+    task_save_context
+
     push rax
     push rbx
     lea rax, [rip+current_interrupt_frame]
@@ -24,10 +74,12 @@
     
     mov rbx, [rsp+40]
     mov [rax+24], rbx               //save RSP
-
+    
 
     pop rbx
     pop rax
+
+
     //pop  rbx                         //store original rip
     //push rbx                         //somehow rebalance the stack do not remove for now
     pushad
