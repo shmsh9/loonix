@@ -1,10 +1,10 @@
 #ifndef SHELL_BUILTINS_H_
 #define SHELL_BUILTINS_H_
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <drivers/ahci.h>
 #include <drivers/pci.h>
 #include <shell/shell.h>
-#include <process.h>
+#include <sys/process.h>
 
 #define BUILTIN_SIZE 32
 #define BUILTINS_INIT_FN(fn, n){\

@@ -2,12 +2,12 @@
 #include <drivers/serial.h>
 #include <drivers/pci.h>
 #include <drivers/rtc.h>
-#include <newmem.h>
+#include <sys/newmem.h>
 #include <kernel.h>
 #include <bootloader.h>
 #include <arch/arch.h>
 #include <drivers/acpi.h>
-#include <process.h>
+#include <sys/process.h>
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};

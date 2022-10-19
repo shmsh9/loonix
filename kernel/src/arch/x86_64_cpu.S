@@ -1,5 +1,7 @@
 .global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
+.extern current_interrupt_frame
+
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
     __memset_64b_loop:
@@ -33,47 +35,64 @@ __memcpy_128b:
     sub     rdx, 16
     jnz     __memcpy_128b_loop
     ret
-
+#define cpu_registers_rax 0
+#define cpu_registers_rbx 8
+#define cpu_registers_rcx 16
+#define cpu_registers_rdx 24
+#define cpu_registers_rsi 32
+#define cpu_registers_rdi 40
+#define cpu_registers_rbp 48
+#define cpu_registers_rsp 56
+#define cpu_registers_r8  64
+#define cpu_registers_r9  72
+#define cpu_registers_r10 80
+#define cpu_registers_r11 88
+#define cpu_registers_r12 96
+#define cpu_registers_r13 104
+#define cpu_registers_r14 112
+#define cpu_registers_r15 120
+#define cpu_registers_rip 128
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
-    mov [rdi], rax
-    mov [rdi+8], rbx
-    mov [rdi+16],rcx
-    mov [rdi+24],rdx
-    mov [rdi+32],rsi
-    mov [rdi+40],rdi
-    mov [rdi+48],rbp
-    mov [rdi+56],rsp
-    mov [rdi+64],r8
-    mov [rdi+72],r9
-    mov [rdi+80],r10
-    mov [rdi+88],r11
-    mov [rdi+96],r12
-    mov [rdi+104],r13
-    mov [rdi+112],r14
-    mov [rdi+128],r15
+    mov [rdi+cpu_registers_rax], rax
+    mov [rdi+cpu_registers_rbx], rbx
+    mov [rdi+cpu_registers_rcx],rcx
+    mov [rdi+cpu_registers_rdx],rdx
+    mov [rdi+cpu_registers_rsi],rsi
+    mov [rdi+cpu_registers_rdi],rdi
+    mov [rdi+cpu_registers_rbp],rbp
+    mov [rdi+cpu_registers_rsp],rsp
+    mov [rdi+cpu_registers_r8 ],r8
+    mov [rdi+cpu_registers_r9 ],r9
+    mov [rdi+cpu_registers_r10],r10
+    mov [rdi+cpu_registers_r11],r11
+    mov [rdi+cpu_registers_r12],r12
+    mov [rdi+cpu_registers_r13],r13
+    mov [rdi+cpu_registers_r14],r14
+    mov [rdi+cpu_registers_r15],r15
     lea rax, [rip]
-    mov [rdi+136],rax
+    mov [rdi+cpu_registers_rip],rax
     ret
 //void cpu_registers_load(cpu_registers *regs);
 //Need to modify RIP
 cpu_registers_load:
-    mov rax,[rdi]
-    mov rbx,[rdi+8]
-    mov rcx,[rdi+16]
-    mov rdx,[rdi+24]
-    mov rsi,[rdi+32]
-    mov rbp,[rdi+48]
-    mov rsp,[rdi+56]
-    mov r8,[rdi+64]
-    mov r9,[rdi+72]
-    mov r10,[rdi+80]
-    mov r11,[rdi+88]
-    mov r12,[rdi+96]
-    mov r13,[rdi+104]
-    mov r14,[rdi+112]
-    mov r15,[rdi+128]
-    mov rdi,[rdi+40]
+    mov rax,[rdi+cpu_registers_rax]
+    mov rbx,[rdi+cpu_registers_rbx]
+    mov rcx,[rdi+cpu_registers_rcx]
+    mov rdx,[rdi+cpu_registers_rdx]
+    mov rsi,[rdi+cpu_registers_rsi]
+    mov rbp,[rdi+cpu_registers_rbp]
+    mov rsp,[rdi+cpu_registers_rsp]
+    mov r8, [rdi+cpu_registers_r8 ]
+    mov r9, [rdi+cpu_registers_r9 ]
+    mov r10,[rdi+cpu_registers_r10]
+    mov r11,[rdi+cpu_registers_r11]
+    mov r12,[rdi+cpu_registers_r12]
+    mov r13,[rdi+cpu_registers_r13]
+    mov r14,[rdi+cpu_registers_r14]
+    mov r15,[rdi+cpu_registers_r15]
+    push    [rdi+cpu_registers_rip]
+    mov rdi,[rdi+cpu_registers_rdi]
     ret
 //uint64_t cpu_get_tick()
 cpu_get_tick:

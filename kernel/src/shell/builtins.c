@@ -255,8 +255,12 @@ int builtins_atoi(int argc, char **argv){
         KMESSAGE("%d", (uint64_t)atoi(argv[1]));
     return 0;
 }
+int foobar(){
+    KMESSAGE("hello");
+    return 0;
+}
 int builtins_testproc(int argc, char **argv){
-    process *proc = process_new(builtins_atoi, argc, argv);
+    process *proc = process_new(foobar, argc, argv);
     KMESSAGE("new process : %d %s", (uint64_t)proc->id, proc->argv[0]);
     return 0;
 }

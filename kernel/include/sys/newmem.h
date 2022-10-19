@@ -35,7 +35,7 @@ typedef struct {
     EFI_MEMORY_DESCRIPTOR *mmap;
     uint64_t length;
 }mmap;
-#include <kstd.h>
+#include <kstd/kstd.h>
 
 bool get_bit(uint8_t field, uint8_t bit);
 void set_bit(uint8_t *field, uint8_t bit);

@@ -1,6 +1,6 @@
 #ifndef CONSOLE_H_
 #define CONSOLE_H_
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <graphics/bitmap_font.h>
 #include <drivers/framebuffer.h>
 extern bool vt100_console_initialized;

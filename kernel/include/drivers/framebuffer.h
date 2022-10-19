@@ -1,7 +1,7 @@
 #ifndef FRAMEBUFFER_H_
 #define FRAMEBUFFER_H_
 #include <graphics/graphics.h>
-#include <kstd.h>
+#include <kstd/kstd.h>
 
 typedef graphics_pixel framebuffer_pixel;
 typedef struct _framebuffer_device {

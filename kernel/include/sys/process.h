@@ -1,6 +1,6 @@
 #ifndef PROCESS_H_
 #define PROCESS_H_
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <arch/arch.h>
 #define PROCESS_STACK_SIZE MB_TO_BYTES(1)
 extern karray *process_list;

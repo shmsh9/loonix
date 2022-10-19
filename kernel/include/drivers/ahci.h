@@ -1,7 +1,7 @@
 #ifndef AHCI_H_
 #define AHCI_H_
 #include <stdint.h>
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <drivers/pci.h>
 
 #define AHCI_PCI_SUBCLASS 0x06

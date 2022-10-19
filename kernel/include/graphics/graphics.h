@@ -24,7 +24,7 @@ typedef struct{
     uint64_t height;
     uint64_t size;
 } graphics_sprite;
-#include <kstd.h>
+#include <kstd/kstd.h>
 graphics_sprite *graphics_sprite_new(uint64_t x, uint64_t y);
 graphics_sprite *graphics_sprite_static_new(uint64_t x, uint64_t y, uint8_t *pixels);
 void graphics_sprite_free(graphics_sprite *ptr);

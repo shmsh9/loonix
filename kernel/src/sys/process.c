@@ -1,4 +1,4 @@
-#include <process.h>
+#include <sys/process.h>
 
 karray *process_list = 0x0;
 uint32_t process_last_free_id = 0;
@@ -44,13 +44,13 @@ void process_free(uint32_t pid){
     }
     KMESSAGE("%d not found", pid);
 }
+//need to save process_current between each interrupt
+extern void *current_interrupt_frame[4];
 void process_scheduler(){
     if(!process_list)
         return;
     if(process_list->length == 0)
-        return;
-    //process *proc = ((process **)(process_list->array))[process_current];
-
+        return;    
     process_last = process_current;
     if(process_current+1 >= process_list->length){
         process_current = 0;
@@ -58,8 +58,12 @@ void process_scheduler(){
     else{
         process_current++;
     }
+    process *proc = ((process **)process_list->array)[process_current];
+    proc->registers->rip = (uint64_t)current_interrupt_frame[0];
+    KMESSAGE("proc->registers->rip == 0x%x", 
+        proc->registers->rip
+    );
     //cpu_registers_load(proc->registers);
-    process *proc_last = ((process **)process_list->array)[process_last];
-    cpu_registers_save(proc_last->registers);
+    //cpu_registers_save(proc->registers);
 
 }

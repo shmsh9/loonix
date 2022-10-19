@@ -1,7 +1,7 @@
 #ifndef PCI_H_
 #define PCI_H_
 #include <stdint.h>
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <drivers/acpi.h>
 
 #define PCI_REGISTER_BAR0   0x10

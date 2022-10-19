@@ -1,4 +1,4 @@
-#include <newmem.h>
+#include <sys/newmem.h>
 uint64_t kheap_last_free_mem_bitfield = 0;
 void kheap_init(kheap *heap){
     heap->memory = 0x0;

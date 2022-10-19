@@ -58,8 +58,8 @@
         uint64_t  rsp;
     }x86_64_interrupt_frame;
 
-#include <newmem.h>
-#include <timer.h>
+#include <sys/newmem.h>
+#include <sys/timer.h>
 #include <bootloader.h>
     #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
 	#define ARCH_STRING "x64"

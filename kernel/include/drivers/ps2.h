@@ -9,7 +9,7 @@ typedef struct {
 } ps2_device;
 
 #include <io.h>
-#include <kstd.h>
+#include <kstd/kstd.h>
 #define PS2_SET_1_SIZE        0x58
 #define PS2_DEVICE_OUTPUT     0
 #define PS2_DEVICE_INPUT      1

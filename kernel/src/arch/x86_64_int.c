@@ -1,5 +1,5 @@
-#include <kstd.h>
-#include <timer.h>
+#include <kstd/kstd.h>
+#include <sys/timer.h>
 #include <arch/arch.h>
 #include <bootloader.h>
 #ifdef __x86_64__

@@ -4,11 +4,14 @@
 #include <drivers/framebuffer.h>
 #include <drivers/ps2.h>
 #include <drivers/vt100.h>
-#include <newmem.h>
+#include <sys/newmem.h>
 #include <bootloader.h>
 #include <arch/aarch64.h>
 #include <arch/x86_64.h>
-#include <timer.h>
+#include <sys/timer.h>
+#include <kstd/kstring.h>
+#include <kstd/karray.h>
+#include <kstd/klist.h>
 
 #define KERNEL_DEBUG
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JUMP_INSTRUCTION" 1b")
@@ -71,31 +74,12 @@
     }\
 }
 
-typedef struct {
-    uint8_t elementsz;
-    uint32_t length;
-    uint32_t alloc;
-    void(*karray_data_free_fn)(void *);
-    void *array;
-} karray;
-
-typedef struct _klist{
-    struct _klist_element *first;
-    struct _klist_element *last;
-    void(*klist_data_free_fn)(void *);
-} klist;
-
-typedef struct _klist_element{
-    struct _klist_element *next;
-    struct _klist_element *prev;
-    uintptr_t data;
-}klist_element;
 
 struct stackframe{
     struct stackframe *frame;
     uint64_t instruction_pointer;         
 };
-#include <process.h>
+#include <sys/process.h>
 
 typedef karray event_loop;
 extern uintptr_t __stack_chk_guard;
@@ -123,7 +107,6 @@ uint8_t tolower(uint8_t c);
 int isdigit(uint8_t c);
 char *strdup(const char *str);
 void memset(void *ptr, uint8_t b, uint64_t sz);
-uint64_t B_to_8B(uint8_t b);
 void kprintf(const char *fmt, ...);
 void kprinthex(void *ptr, uint64_t n);
 void kprint(const char *str);
@@ -137,14 +120,5 @@ void *kmalloc(uint64_t b);
 void *kcalloc(uint64_t n, uint64_t sz);
 void *krealloc(const void *ptr, uint64_t newsz);
 void kfree(void *p);
-karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
-void karray_free(karray *array);
-void karray_push(karray *array, uint64_t elem);
-void karray_pop(karray *array ,uint64_t index);
-void karray_debug_print(karray *array);
-klist *klist_new(void(*klist_data_free_fn)(void *));
-void klist_push(klist *k, uintptr_t data);
-void klist_free(klist *k);
-void klist_debug_print(klist *k);
 #endif
 

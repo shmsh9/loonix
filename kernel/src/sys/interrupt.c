@@ -1,5 +1,5 @@
 #include <arch/arch.h>
-#include <kstd.h>
+#include <kstd/kstd.h>
 #include <drivers/rtc.h>
 
 void *current_interrupt_frame[4] = {0x0};

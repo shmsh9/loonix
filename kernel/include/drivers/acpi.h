@@ -1,8 +1,8 @@
 #ifndef ACPI_H_
 #define ACPI_H_
 #include <stdint.h>
-#include <kstd.h>
-#include <newmem.h>
+#include <kstd/kstd.h>
+#include <sys/newmem.h>
 #include <bootloader.h>
 #include <Uefi.h>
 #include <Guid/Acpi.h>
