@@ -17,24 +17,11 @@ task *task_new(char *name){
     if(!task_first){
         task_first = ret;
     }
-    else{
+    if(task_last){
         task_last->next = ret;
     }
     task_last = ret;
     return ret;
-}
-task *task_get_next(){
-    if(!task_current)
-        return 0x0;
-    switch ((uintptr_t)task_current->next){
-        case 0x0:
-            return task_first;
-            break;
-        default:
-            return task_current->next;
-            break;
-    }
-    return 0x0;
 }
 void task_free(task *t){
     kfree(t->stack);
@@ -82,7 +69,22 @@ void task_debug_print(){
             t->uuid,
             t->name
         );
+        CPU_REGISTERS_PRINT(t->context);
         i++;
         t = t->next;
     }
+}
+
+void task_scheduler(){
+    if(!task_first)
+        return;
+    if(!task_current){
+        task_current = task_first;
+    }
+    else{
+        task_current = task_current->next == 0 ? task_first : task_current->next; 
+    }
+    KMESSAGE("task_current : %s", 
+        task_current->name
+    );
 }

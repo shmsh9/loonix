@@ -34,6 +34,7 @@
     mov  rax, \index
     cmp  rax, 0x20                      //only save context for timer tasks
     jne   .task_save_context_end_\index
+    /*
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
@@ -60,6 +61,7 @@
     mov [rax+cpu_registers_r15],r15
     mov rbx, [rsp+24]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
+    */
     .task_save_context_end_\index :
     pop rbx
     pop rax

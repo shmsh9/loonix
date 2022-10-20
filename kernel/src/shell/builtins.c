@@ -268,6 +268,7 @@ int builtins_task(int argc, char **argv){
     task *t1 = task_new("t1");
     task *t2 = task_new("t2");
     task *t3 = task_new("t3");
+    /*
     task_debug_print();
     task_free(t3);
     task_debug_print();
@@ -276,6 +277,14 @@ int builtins_task(int argc, char **argv){
     task_free(t2);
     task_debug_print();
    task_debug_print();
+   */
+    uint64_t time = getuptime100s();
+    while(getuptime100s() - time < 10){
+
+    }
+    task_free(t1);
+    task_free(t2);
+    task_free(t3);
     return 0;
 }
 int builtins_lspci(int argc, char **argv){

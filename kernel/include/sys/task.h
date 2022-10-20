@@ -23,4 +23,5 @@ task *task_new(char *name);
 task *task_get_next();
 void task_free(task *t);
 void task_debug_print();
+void task_scheduler();
 #endif
