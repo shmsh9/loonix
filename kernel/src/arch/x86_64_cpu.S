@@ -1,6 +1,6 @@
-.global cpu_registers_save, cpu_registers_load, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
+.global cpu_registers_save, task_cpu_registers_load, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
-.extern current_interrupt_frame
+.extern current_interrupt_frame, task_kernel_stack
 
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
@@ -73,16 +73,23 @@ cpu_registers_save:
     lea rax, [rip]
     mov [rdi+cpu_registers_rip],rax
     ret
-//void cpu_registers_load(cpu_registers *regs);
-//Need to modify RIP
-cpu_registers_load:
+//void task_cpu_registers_load(cpu_registers *regs);
+task_cpu_registers_load:
+    //save the kernel stack
+    push rax
+    lea rax, [rip+task_kernel_stack]
+    mov [rax], rbp
+    pop rax
+    ////////////////////////
+    mov rbp,[rdi+cpu_registers_rbp] 
+    mov rsp,[rdi+cpu_registers_rsp] //so that our push affects the newly allocated stack
+    mov rax,[rdi+cpu_registers_rip] 
+    push rax                        //this push for the rip return address
     mov rax,[rdi+cpu_registers_rax]
     mov rbx,[rdi+cpu_registers_rbx]
     mov rcx,[rdi+cpu_registers_rcx]
     mov rdx,[rdi+cpu_registers_rdx]
     mov rsi,[rdi+cpu_registers_rsi]
-    mov rbp,[rdi+cpu_registers_rbp]
-    mov rsp,[rdi+cpu_registers_rsp]
     mov r8, [rdi+cpu_registers_r8 ]
     mov r9, [rdi+cpu_registers_r9 ]
     mov r10,[rdi+cpu_registers_r10]
@@ -91,14 +98,7 @@ cpu_registers_load:
     mov r13,[rdi+cpu_registers_r13]
     mov r14,[rdi+cpu_registers_r14]
     mov r15,[rdi+cpu_registers_r15]
-    push    [rdi+cpu_registers_rip]
     mov rdi,[rdi+cpu_registers_rdi]
-    ret
-//
-cpu_registers_load2:
-    mov  rax, [rdi+cpu_registers_rip]
-    push rax
-    mov  rdi, [rdi+cpu_registers_rdi]
     ret
 
 //uint64_t cpu_get_tick()

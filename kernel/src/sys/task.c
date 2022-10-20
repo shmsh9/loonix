@@ -3,6 +3,7 @@
 task *task_current = 0x0;
 task *task_first = 0x0;
 task *task_last = 0x0;
+void *task_kernel_stack = 0x0;
 
 void task_end(task *t){
     t->status = task_status_ended;
@@ -15,12 +16,13 @@ task *task_new(void(*fn)(void *, task *), void *data){
         .prev = task_last,  // task_last == 0x0 ? task_last : task_last;
         .uuid = cpu_get_tick(),
         .context = kcalloc(sizeof(cpu_registers),1),
-        .stack = kmalloc(TASK_STACK_SIZE),
+        .stack_end = kcalloc(TASK_STACK_SIZE, 1),
         .status = task_status_created,
         .priority = 0,
         .fn = fn,
         .data = data
     };
+    ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
     if(!task_first){
         task_first = ret;
     }
@@ -31,7 +33,7 @@ task *task_new(void(*fn)(void *, task *), void *data){
     return ret;
 }
 void task_free(task *t){
-    kfree(t->stack);
+    kfree(t->stack_start);
     kfree(t->context);
     if(t->next && t->prev){
         t->next->prev = t->prev;
@@ -92,13 +94,25 @@ void task_scheduler(){
     else{
         task_current = task_get_next(); 
     }
+    /*
+    KMESSAGE("task_current == 0x%x\ntask_current->stack == 0x%x\ntask_kernel_stack == 0x%x", 
+        task_current,
+        task_current->stack_start,
+        task_kernel_stack
+    );
+    */
     switch (task_current->status){
     case task_status_created:
         //run the task
         //fakerun
         task_current->status = task_status_running;
+        //need abstraction for other ARCH
+        task_current->context->rsp = (uint64_t)task_current->stack_start;
+        task_current->context->rip = (uint64_t)task_current->fn;
+        task_current->context->rdi = (uint64_t)task_current->data;
         task_interrupt_enable();
-        task_current->fn(task_current->data, task_current);
+        task_cpu_registers_load(task_current->context);
+        //task_current->fn(task_current->data, task_current);
         break;
     case task_status_ended:
         task_free(task_current);
@@ -107,7 +121,7 @@ void task_scheduler(){
     case task_status_running:
         task_interrupt_enable();
         //reload task context
-        //cpu_registers_load(task_current->context);
+        task_cpu_registers_load(task_current->context);
         break;
     default:
         KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
@@ -117,12 +131,10 @@ void task_scheduler(){
         break;
     }
     // task_current->fn != 0x0 not the kmain task
-    /*
     if(task_current->context->rip != 0){
         KMESSAGE("\nCaptured task_current :\n\n");
         STACKTRACE_CTXT(task_current->context->rbp);
         CPU_REGISTERS_PRINT(task_current->context);
         BREAKPOINT();
     }
-    */
 }

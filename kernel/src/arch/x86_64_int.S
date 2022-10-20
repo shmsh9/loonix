@@ -1,7 +1,7 @@
 .altmacro
 .extern interrupt_handler
 .global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0, interrupt_enable, interrupt_disable, task_interrupt_enable
-.extern current_interrupt_frame, task_current, task_first, 
+.extern current_interrupt_frame, task_current, task_first, task_kernel_stack
 #define cpu_registers_rax 0
 #define cpu_registers_rbx 8
 #define cpu_registers_rcx 16
@@ -19,6 +19,9 @@
 #define cpu_registers_r14 112
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
+.section .data
+save_rax: .space 8
+save_rbx: .space 8
 
 .macro gen_interrupt_table index
     .quad asm_interrupt_handler_\index
@@ -29,20 +32,18 @@
     
     //need to store the frame somewhere here
     .task_save_context_begin_\index :
-    push rax
-    push rbx
+    mov  qword ptr [save_rax], rax
+    mov  qword ptr [save_rbx], rbx
     mov  rax, \index
     cmp  rax, 0x20                      //only save context for timer tasks
     jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
-    mov  rbx, [rax]
-    cmp  qword ptr[rbx+24], 0            //check if not kmain task
-    je   .task_save_context_end_\index
     mov  rax, [rbx+16]                  //rax == task_current->context
 
     mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
+    //crashes here after sometime maybe task_current gets corrupted
     mov [rax+cpu_registers_rax], rbx
     mov rbx, qword ptr [rsp]            //because of the 2 push now contains old rbx
     mov [rax+cpu_registers_rbx], rbx
@@ -63,11 +64,17 @@
     mov [rax+cpu_registers_r15],r15
     mov rbx, [rsp+16]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
-
-    .task_save_context_end_\index :
-    pop rbx
-    pop rax
-
+    //restore kernel stack
+    lea rax, [rip+task_kernel_stack]
+    add rsp, 16
+    mov rsp, [rax]    // <- Culprit /////
+    /////////////////////              //
+    .task_save_context_end_\index :    //
+    //pop rbx   //PLEASE RESTORE ME    //
+    //pop rax
+    mov rax, qword ptr [save_rax]
+    mov rbx, qword ptr [save_rbx]
+    //saving current interrupt frame
     push rax
     push rbx
     lea rax, [rip+current_interrupt_frame]
@@ -84,13 +91,9 @@
     mov rbx, [rsp+40]
     mov [rax+24], rbx               //save RSP
     
-
     pop rbx
     pop rax
-
-
-    //pop  rbx                         //store original rip
-    //push rbx                         //somehow rebalance the stack do not remove for now
+    ///////////////////////////////////////
     pushad
     cld                              //needed for sysV abi
     push rdi

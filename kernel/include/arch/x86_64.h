@@ -151,14 +151,13 @@
     void pic_remap();
     void rtc_install();
     void task_interrupt_enable();
+    void task_cpu_registers_load(volatile cpu_registers *regs);
     void interrupt_enable();
     void interrupt_disable();
     void interrupt_handler_install(void (*fn)(), uint16_t num);
     void interrupt_handler_replace(void (*fn)(), uint16_t num);
     void interrupt_functions_table_init();
     void cpu_registers_save(volatile cpu_registers *regs);
-    void cpu_registers_load(volatile cpu_registers *regs);
-    void cpu_registers_load2(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
     void gdt_entries_load(gdt_ptr *ptr);
     gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap);
@@ -169,11 +168,15 @@
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     void idt_init(bootinfo *bi);
     void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
+    #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_64b(dst, src, sz);
+    #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz);
+    /*
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
+
     #define __FASTEST_MEMSET(ptr, b, sz) {\
         uint64_t src[2] = {B_to_8B(b), B_to_8B(b)};\
         __memset_128b(ptr, src, sz);\
     }
-
+    */
 #endif
 #endif

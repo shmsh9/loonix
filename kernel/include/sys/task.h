@@ -20,7 +20,8 @@ typedef struct  __attribute__((packed)) _task{
     struct _task *prev;
     cpu_registers *context;
     void(*fn)(void *, struct _task *);
-    void *stack;
+    void *stack_start;
+    void *stack_end;
     task_status status;
     uint64_t uuid;
     uint8_t priority;
@@ -29,7 +30,7 @@ typedef struct  __attribute__((packed)) _task{
 
 extern task *task_current;
 extern task *task_first;
-
+extern void *task_kernel_stack;
 #include <kstd/kstd.h>
 
 void task_end(task *t);
