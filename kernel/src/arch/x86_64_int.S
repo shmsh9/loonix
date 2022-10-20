@@ -34,11 +34,13 @@
     mov  rax, \index
     cmp  rax, 0x20                      //only save context for timer tasks
     jne   .task_save_context_end_\index
-    /*
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
-    mov  rax, [rax+16]                  //rax == task_current->context
+    mov  rbx, [rax]
+    cmp  qword ptr[rbx+24], 0            //check if not kmain task
+    je   .task_save_context_end_\index
+    mov  rax, [rbx+16]                  //rax == task_current->context
 
     mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
     mov [rax+cpu_registers_rax], rbx
@@ -59,9 +61,9 @@
     mov [rax+cpu_registers_r13],r13
     mov [rax+cpu_registers_r14],r14
     mov [rax+cpu_registers_r15],r15
-    mov rbx, [rsp+24]                   //old rip stored on the stack by the interrupt
+    mov rbx, [rsp+16]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
-    */
+
     .task_save_context_end_\index :
     pop rbx
     pop rax
@@ -107,8 +109,8 @@
     mov qword ptr [rax+24], 0               //
 
     pop  rax
-    sti                              //enable interrupts
     popad
+    sti                              //enable interrupts
     iretq
 .endm
 .macro gen_interrupt_handler_loop

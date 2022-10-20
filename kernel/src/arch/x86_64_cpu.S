@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
+.global cpu_registers_save, cpu_registers_load, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
 .extern current_interrupt_frame
 
@@ -94,6 +94,13 @@ cpu_registers_load:
     push    [rdi+cpu_registers_rip]
     mov rdi,[rdi+cpu_registers_rdi]
     ret
+//
+cpu_registers_load2:
+    mov  rax, [rdi+cpu_registers_rip]
+    push rax
+    mov  rdi, [rdi+cpu_registers_rdi]
+    ret
+
 //uint64_t cpu_get_tick()
 cpu_get_tick:
     xor     rax, rax

@@ -33,6 +33,14 @@
         stk = stk->frame;\
     }\
 }
+#define STACKTRACE_CTXT(ctxt) {\
+    struct stackframe *stk = (struct stackframe *)ctxt;\
+    kprint("stacktrace : \n");\
+    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){\
+        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);\
+        stk = stk->frame;\
+    }\
+}
 #define KMSG(type, ...) {\
     kprintf("[%d][kernel][%s] : %s() : ",cpu_get_tick(),type, __func__);\
     kprintf(__VA_ARGS__);\

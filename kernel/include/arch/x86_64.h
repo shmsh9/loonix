@@ -61,6 +61,7 @@
 #include <sys/newmem.h>
 #include <sys/timer.h>
 #include <bootloader.h>
+#include <sys/task.h>
     #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
 	#define ARCH_STRING "x64"
     #define ARCH_UINT ARCH_X64
@@ -92,7 +93,7 @@
             interrupt_handler_install(interrupt_handler_zerodiv, 0x0);\
             interrupt_handler_install(interrupt_handler_breakpoint, 0x3);\
             interrupt_handler_install(interrupt_handler_invalid_opcode, 0x6);\
-            interrupt_handler_install(timer_interrupt_handler, 0x20);\
+            interrupt_handler_install(task_scheduler, 0x20);\
             interrupt_handler_install(interrupt_general_protection_fault, 0xD);\
     }
     /*
@@ -156,6 +157,7 @@
     void interrupt_functions_table_init();
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
+    void cpu_registers_load2(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();
     void gdt_entries_load(gdt_ptr *ptr);
     gdt_ptr * gdt_entries_new(bootinfo *bi, kheap *heap);

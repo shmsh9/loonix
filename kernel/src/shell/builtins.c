@@ -264,27 +264,23 @@ int builtins_testproc(int argc, char **argv){
     KMESSAGE("new process : %d %s", (uint64_t)proc->id, proc->argv[0]);
     return 0;
 }
+void TASK_FUNCTION testtask(void *data, task *t){
+    KMESSAGE("hello from %s", data);
+    KMESSAGE("task end %s", data);
+    TASK_FUNCTION_END(t);
+    task_end(t);
+}
 int builtins_task(int argc, char **argv){
-    task *t1 = task_new("t1");
-    task *t2 = task_new("t2");
-    task *t3 = task_new("t3");
-    /*
     task_debug_print();
-    task_free(t3);
-    task_debug_print();
-    task_free(t1);
-    task_debug_print();
-    task_free(t2);
-    task_debug_print();
-   task_debug_print();
-   */
-    sleep(5);
-    t1->status = task_status_ended;
-    t2->status = task_status_ended;
-    t3->status = task_status_ended;
-
     return 0;
 }
+int builtins_testtask(int argc, char **argv){
+    task_new(testtask, (void *)"t1");
+    task_new(testtask, (void *)"t2");
+    task_new(testtask, (void *)"t3");
+    return 0;
+}
+
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -326,6 +322,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_atoi, "atoi");
     BUILTINS_INIT_FN(builtins_kill, "kill");
     BUILTINS_INIT_FN(builtins_ps, "ps");
+    BUILTINS_INIT_FN(builtins_testtask, "testtask");
     BUILTINS_INIT_FN(builtins_task, "task");
     BUILTINS_INIT_FN(builtins_testproc, "testproc");
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
