@@ -7,16 +7,6 @@ void __stack_chk_fail(void){
     KPANIC("0x%x", __stack_chk_guard);
     while(1){}
 }
-uint64_t getuptime100s(){
-    //if(rtc_device_time_since_boot_centisecond == 0)
-    //    KMESSAGE("rtc uptime == 0 !!!");
-    #ifdef __aarch64__
-        return cpu_get_cntpct()/1000000;
-    #endif
-    #ifdef __x86_64__
-        return rtc_device_time_since_boot_centisecond;
-    #endif
-}
 void kprint(const char *str){
 	  if(!str)
         return;

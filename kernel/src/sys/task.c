@@ -12,7 +12,8 @@ task *task_new(char *name){
         .uuid = cpu_get_tick(),
         .context = kcalloc(sizeof(cpu_registers),1),
         .stack = kmalloc(TASK_STACK_SIZE),
-        .name = strdup(name)
+        .name = strdup(name),
+        .status = task_status_created
     };
     if(!task_first){
         task_first = ret;
@@ -74,7 +75,9 @@ void task_debug_print(){
         t = t->next;
     }
 }
-
+task *task_get_next(){
+    return task_current->next == 0 ? task_first : task_current->next;
+}
 void task_scheduler(){
     if(!task_first)
         return;
@@ -82,9 +85,25 @@ void task_scheduler(){
         task_current = task_first;
     }
     else{
-        task_current = task_current->next == 0 ? task_first : task_current->next; 
+        task_current = task_get_next(); 
     }
-    KMESSAGE("task_current : %s", 
-        task_current->name
-    );
+    switch (task_current->status)
+    {
+    case task_status_created:
+        //run the task
+        task_current->status = task_status_running;
+        break;
+    case task_status_ended:
+        task_free(task_current);
+        task_current = task_get_next();
+        break;
+    case task_status_running:
+        break;
+    default:
+        KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
+            task_current,
+            task_current->status
+        );
+        break;
+    }
 }

@@ -12,6 +12,7 @@
 #include <kstd/kstring.h>
 #include <kstd/karray.h>
 #include <kstd/klist.h>
+#include <kstd/ktime.h>
 
 #define KERNEL_DEBUG
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JUMP_INSTRUCTION" 1b")
@@ -94,11 +95,9 @@ extern uint64_t framebuffer_text_current_y;
 extern ps2_device *ps2;
 extern serial_device *serial;
 extern event_loop *main_event_loop;
-extern uint64_t rtc_device_time_since_boot_centisecond;
 
 void __stack_chk_fail(void);
 void stacktrace();
-uint64_t getuptime100s();
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 int atoi(const char *str);
