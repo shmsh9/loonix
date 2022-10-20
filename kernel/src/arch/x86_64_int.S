@@ -35,7 +35,7 @@
     cmp  rax, 0x20                      //only save context for timer tasks
     jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
-    cmp  rax, 0
+    cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
     mov  rax, [rax+16]                  //rax == task_current->context
 
