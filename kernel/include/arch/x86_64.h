@@ -150,6 +150,7 @@
     }
     void pic_remap();
     void rtc_install();
+    void task_interrupt_enable();
     void interrupt_enable();
     void interrupt_disable();
     void interrupt_handler_install(void (*fn)(), uint16_t num);

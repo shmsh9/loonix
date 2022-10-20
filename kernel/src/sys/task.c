@@ -97,9 +97,7 @@ void task_scheduler(){
         //run the task
         //fakerun
         task_current->status = task_status_running;
-        //task_current->context->rip = (uint64_t)task_current->fn;
-        //task_current->context->rdi = (uint64_t)task_current->data;
-        //cpu_registers_load2(task_current->context);
+        task_interrupt_enable();
         task_current->fn(task_current->data, task_current);
         break;
     case task_status_ended:
@@ -107,7 +105,9 @@ void task_scheduler(){
         task_current = task_get_next();
         break;
     case task_status_running:
-        cpu_registers_load2(task_current->context);
+        task_interrupt_enable();
+        //reload task context
+        //cpu_registers_load(task_current->context);
         break;
     default:
         KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
@@ -117,10 +117,12 @@ void task_scheduler(){
         break;
     }
     // task_current->fn != 0x0 not the kmain task
+    /*
     if(task_current->context->rip != 0){
         KMESSAGE("\nCaptured task_current :\n\n");
         STACKTRACE_CTXT(task_current->context->rbp);
         CPU_REGISTERS_PRINT(task_current->context);
         BREAKPOINT();
     }
+    */
 }
