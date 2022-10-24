@@ -38,9 +38,9 @@
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
-
-    mov  rax, [rax]               //rax == task_current->context
-    add  rax, 16                    //
+    mov  rax, [rax]               //rax == *task_current
+    add  rax, 16                  //
+    mov  rax, [rax]               //rax == *task_current->context
 
     mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
     //crashes here after sometime maybe task_current gets corrupted
@@ -52,7 +52,7 @@
     mov [rax+cpu_registers_rdx],rdx
     mov [rax+cpu_registers_rsi],rsi
     mov [rax+cpu_registers_rdi],rdi
-    mov rbx, [rsp+40]               // +40 == 2 push rax rbx && interrupt frame 32Bytes
+    lea rbx, [rsp+48]               // +48 == 2 push rax rbx && interrupt frame 32Bytes
     mov [rax+cpu_registers_rsp],rbx //
     mov [rax+cpu_registers_rbp],rbp
     mov [rax+cpu_registers_r8 ],r8

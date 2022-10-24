@@ -268,7 +268,6 @@ void TASK_FUNCTION testtask(void *data, task *t){
     KMESSAGE("hello from %s", data);
     KMESSAGE("task end %s", data);
     TASK_FUNCTION_END(t);
-    task_end(t);
 }
 int builtins_task(int argc, char **argv){
     task_debug_print();
@@ -276,8 +275,9 @@ int builtins_task(int argc, char **argv){
 }
 int builtins_testtask(int argc, char **argv){
     task_new(testtask, (void *)"t1");
-    task_new(testtask, (void *)"t2");
-    task_new(testtask, (void *)"t3");
+    KMESSAGE("after task_new()");
+    //task_new(testtask, (void *)"t2");
+    //task_new(testtask, (void *)"t3");
     return 0;
 }
 

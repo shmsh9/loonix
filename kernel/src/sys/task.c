@@ -97,11 +97,13 @@ void task_scheduler(){
     else{
         task_current = task_get_next(); 
     }
+    /*
     KMESSAGE("task_current == 0x%x\ntask_current->stack == 0x%x\ntask_kernel_stack == 0x%x", 
         task_current,
         task_current->stack_start,
         task_kernel_stack
     );
+    */
     switch (task_current->status){
     case task_status_created:
         //run the task
