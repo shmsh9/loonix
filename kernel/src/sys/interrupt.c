@@ -11,6 +11,7 @@ void *current_interrupt_frame[4] = {0x0};
     framebuffer_device_update(fb);\
 }
 #define KPANICINTERRUPT(msg, interrupt_frame) {\
+    interrupt_disable();\
     KERRORINTERRUPT(msg, interrupt_frame);\
     BREAKPOINT();\
 }

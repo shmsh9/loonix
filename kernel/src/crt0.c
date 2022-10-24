@@ -74,5 +74,8 @@ void crt0(bootinfo *bootinfo){
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
-    kmain(bootinfo);
+    //kmain(bootinfo);
+    task *main_task = task_new((void (*)(void *, task *))kmain, bootinfo);
+    KMESSAGE("main_task == 0x%x", main_task);
+    BREAKPOINT();
 }

@@ -1,6 +1,6 @@
 .global cpu_registers_save, task_cpu_registers_load, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
-.extern current_interrupt_frame, task_kernel_stack
+.extern current_interrupt_frame
 
 //void __memset_64b(void *ptr = %rdi, uint64_t b = %rsi, uint64_t sz = %rdx)
 __memset_64b:
@@ -75,12 +75,6 @@ cpu_registers_save:
     ret
 //void task_cpu_registers_load(cpu_registers *regs);
 task_cpu_registers_load:
-    //save the kernel stack
-    push rax
-    lea rax, [rip+task_kernel_stack]
-    mov [rax], rbp
-    pop rax
-    ////////////////////////
     mov rbp,[rdi+cpu_registers_rbp] 
     mov rsp,[rdi+cpu_registers_rsp] //so that our push affects the newly allocated stack
     mov rax,[rdi+cpu_registers_rip] 
@@ -99,6 +93,13 @@ task_cpu_registers_load:
     mov r14,[rdi+cpu_registers_r14]
     mov r15,[rdi+cpu_registers_r15]
     mov rdi,[rdi+cpu_registers_rdi]
+    //ack PIC && reenable interrupts//
+    push rax
+    mov  al, 0x20                   //ack PIC int
+    out  0x20, al
+    sti
+    pop rax
+    ///////////////////////////////////
     ret
 
 //uint64_t cpu_get_tick()

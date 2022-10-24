@@ -30,7 +30,6 @@ typedef struct  __attribute__((packed)) _task{
 
 extern task *task_current;
 extern task *task_first;
-extern void *task_kernel_stack;
 #include <kstd/kstd.h>
 
 void task_end(task *t);

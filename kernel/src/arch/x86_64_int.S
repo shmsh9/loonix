@@ -1,7 +1,7 @@
 .altmacro
 .extern interrupt_handler
 .global asm_interrupt_table, gdt_entries_load, asm_interrupt_handler_0, interrupt_enable, interrupt_disable, task_interrupt_enable
-.extern current_interrupt_frame, task_current, task_first, task_kernel_stack
+.extern current_interrupt_frame, task_current, task_first
 #define cpu_registers_rax 0
 #define cpu_registers_rbx 8
 #define cpu_registers_rcx 16
@@ -52,7 +52,7 @@
     mov [rax+cpu_registers_rdx],rdx
     mov [rax+cpu_registers_rsi],rsi
     mov [rax+cpu_registers_rdi],rdi
-    lea rbx, [rsp+48]               // +48 == 2 push rax rbx && interrupt frame 32Bytes
+    mov rbx, [rsp+40]               // +40 == 2 push rax rbx && interrupt frame 32Bytes 
     mov [rax+cpu_registers_rsp],rbx //
     mov [rax+cpu_registers_rbp],rbp
     mov [rax+cpu_registers_r8 ],r8

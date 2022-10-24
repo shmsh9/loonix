@@ -3,7 +3,6 @@
 task *task_current = 0x0;
 task *task_first = 0x0;
 task *task_last = 0x0;
-void *task_kernel_stack = 0x0;
 
 void task_end(task *t){
     t->status = task_status_ended;
@@ -98,10 +97,9 @@ void task_scheduler(){
         task_current = task_get_next(); 
     }
     /*
-    KMESSAGE("task_current == 0x%x\ntask_current->stack == 0x%x\ntask_kernel_stack == 0x%x", 
+    KMESSAGE("task_current == 0x%x task_current->stack == 0x%x", 
         task_current,
-        task_current->stack_start,
-        task_kernel_stack
+        task_current->stack_start
     );
     */
     switch (task_current->status){
@@ -113,7 +111,7 @@ void task_scheduler(){
         task_current->context->rsp = (uint64_t)task_current->stack_start;
         task_current->context->rip = (uint64_t)task_current->fn;
         task_current->context->rdi = (uint64_t)task_current->data;
-        task_interrupt_enable();
+        //task_interrupt_enable();
         task_cpu_registers_load(task_current->context);
         break;
     case task_status_ended:
@@ -121,7 +119,10 @@ void task_scheduler(){
         task_current = task_get_next();
         break;
     case task_status_running:
-        task_interrupt_enable();
+        //KMESSAGE("\nreloading task 0x%x : \n", task_current);
+        //STACKTRACE_CTXT(task_current->context->rbp);
+        //CPU_REGISTERS_PRINT(task_current->context);
+        //task_interrupt_enable();
         //reload task context
         task_cpu_registers_load(task_current->context);
         break;
@@ -131,12 +132,5 @@ void task_scheduler(){
             task_current->status
         );
         break;
-    }
-    // task_current->fn != 0x0 not the kmain task
-    if(task_current->context->rip != 0){
-        KMESSAGE("\nCaptured task_current :\n\n");
-        STACKTRACE_CTXT(task_current->context->rbp);
-        CPU_REGISTERS_PRINT(task_current->context);
-        BREAKPOINT();
     }
 }
