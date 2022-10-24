@@ -125,7 +125,7 @@ void task_scheduler(){
     case task_status_ended:
         task_free(task_current);
         task_current = task_get_next();
-        return;
+        task_scheduler();
         break;
     case task_status_running:
         task_cpu_registers_load(task_current->context);
