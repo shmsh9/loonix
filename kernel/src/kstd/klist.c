@@ -52,23 +52,13 @@ void klist_free(klist *k){
         return;
     }
     klist_element *curr = k->first;
-    if(!curr->next){
-        if(k->klist_data_free_fn)
-            k->klist_data_free_fn((void *)k->first->data);
-        kfree(curr);
-        kfree(k);
-        return;
-    }
-    while(curr->next){
-        klist_element *tmp = curr->next;
+    while(curr){
         if(k->klist_data_free_fn)
             k->klist_data_free_fn((void *)curr->data);
-        kfree(curr);
-        curr = tmp;
+        klist_element *prev = curr;
+        curr = curr->next;
+        kfree(prev);
     }
-    if(k->klist_data_free_fn)
-        k->klist_data_free_fn((void *)curr->data);
-    kfree(curr);
     kfree(k);
 }
 
@@ -86,14 +76,10 @@ void klist_debug_print(klist *k){
         return;
     }
     klist_element *curr = k->first;
-    if(!curr->next){
-        kprintf("{ 0x%x }\n", curr->data);
-        return;
-    }
     kprint("{");
-    while (curr->next){
+    while(curr){
         kprintf(" 0x%x ->", curr->data);
         curr = curr->next;
     }
-    kprintf(" 0x%x }\n", curr->data);
+    kprint(" }\n");
 }

@@ -88,7 +88,6 @@ struct stackframe{
     struct stackframe *frame;
     uint64_t instruction_pointer;         
 };
-#include <sys/process.h>
 
 typedef karray event_loop;
 extern uintptr_t __stack_chk_guard;

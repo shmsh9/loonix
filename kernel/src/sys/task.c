@@ -5,10 +5,16 @@ task *task_first = 0x0;
 task *task_last = 0x0;
 
 void task_end(task *t){
+    if(!t)
+        return;
     t->status = task_status_ended;
 }
 
-task *task_new(void(*fn)(void *, task *), void *data){
+task *task_new(void(*fn)(void *, task *), void *data, char *name){
+    if(!fn){
+        KERROR("fn == 0x0");
+        return 0x0;
+    }
     task *ret = kmalloc(sizeof(task));
     *ret = (task){
         .next = 0x0,
@@ -19,7 +25,8 @@ task *task_new(void(*fn)(void *, task *), void *data){
         .status = task_status_created,
         .priority = 0,
         .fn = fn,
-        .data = data
+        .data = data,
+        .name = name == 0x0 ? "(null)" : strdup(name)
     };
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
     if(!task_first){
@@ -50,7 +57,7 @@ void task_free(task *t){
         return;
     }
     //t was the last task
-    if(t->prev && !t->next){
+    if(t->prev && !t->next && t == task_last){
         t->prev->next = 0x0;
         task_last = t->prev;
         kfree(t);
@@ -70,13 +77,14 @@ void task_debug_print(){
     }
     task *t = task_first;
     uint64_t i = 0;
-    kprintf("Tasks :\n");
+    kprintf("number\tname\taddress\n");
     while(t){
-        kprintf("\tTask %d : 0x%x\n", 
-            i,
+        kprintf("%d\t%s\t0x%x\n",
+            i, 
+            t->name,
             t->uuid
         );
-        CPU_REGISTERS_PRINT(t->context);
+        //CPU_REGISTERS_PRINT(t->context);
         i++;
         t = t->next;
     }
@@ -111,19 +119,15 @@ void task_scheduler(){
         task_current->context->rsp = (uint64_t)task_current->stack_start;
         task_current->context->rip = (uint64_t)task_current->fn;
         task_current->context->rdi = (uint64_t)task_current->data;
-        //task_interrupt_enable();
+        task_current->context->rsi = (uint64_t)task_current;
         task_cpu_registers_load(task_current->context);
         break;
     case task_status_ended:
         task_free(task_current);
         task_current = task_get_next();
+        return;
         break;
     case task_status_running:
-        //KMESSAGE("\nreloading task 0x%x : \n", task_current);
-        //STACKTRACE_CTXT(task_current->context->rbp);
-        //CPU_REGISTERS_PRINT(task_current->context);
-        //task_interrupt_enable();
-        //reload task context
         task_cpu_registers_load(task_current->context);
         break;
     default:

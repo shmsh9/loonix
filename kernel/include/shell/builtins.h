@@ -4,7 +4,6 @@
 #include <drivers/ahci.h>
 #include <drivers/pci.h>
 #include <shell/shell.h>
-#include <sys/process.h>
 #include <sys/task.h>
 
 #define BUILTIN_SIZE 32

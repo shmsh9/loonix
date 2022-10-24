@@ -7,7 +7,6 @@
 #include <bootloader.h>
 #include <arch/arch.h>
 #include <drivers/acpi.h>
-#include <sys/process.h>
 uintptr_t __stack_chk_guard = STACK_CHK_GUARD;
 kheap_allocated_block *kalloc_list = 0;
 kheap_allocated_block kalloc_list_block = {0};
@@ -74,8 +73,6 @@ void crt0(bootinfo *bootinfo){
     if(!acpi_tables)
         KERROR("Error getting ACPI tables");
     pci_enum_ecam(acpi_tables->mcfg);
-    //kmain(bootinfo);
-    task *main_task = task_new((void (*)(void *, task *))kmain, bootinfo);
-    KMESSAGE("main_task == 0x%x", main_task);
+    kmain(bootinfo);
     BREAKPOINT();
 }

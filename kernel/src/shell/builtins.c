@@ -229,44 +229,26 @@ int builtins_karray_pop(int argc, char **argv){
     return 0;
 
 }
-int builtins_ps(int argc, char **argv){
-    kprintf("pid\tname\n");
-    for(int i = 0; i < process_list->length; i++){
-        process *tmp = ((process **)(process_list->array))[i];
-        kprintf("%d\t%s\n", (uint64_t)tmp->id, argv[0] == 0 ? "": argv[0]);
-    }
-    return 0;
-}
-int builtins_kill(int argc, char **argv){
-    if(argc >= 2){
-        uint32_t pid = atoi(argv[1]);
-        if(pid == -1){
-            kprintf("error parsing pid %s\n", argv[1]);
-            return -1;
-        }
-        process_free(pid);
-        return 0;
-    }
-    kprintf("usage : %s pid\n", argv[0]);
-    return -1;
-}
 int builtins_atoi(int argc, char **argv){
     if(argc >= 2)
         KMESSAGE("%d", (uint64_t)atoi(argv[1]));
     return 0;
 }
-int foobar(){
-    KMESSAGE("hello");
-    return 0;
+void TASK_FUNCTION timer_task(void *data, task *t){
+	sleep((uint64_t)data);
+	KMESSAGE("%ds passed", data);
+    //remove 2 task close bug
+    TASK_FUNCTION_END(t);
+
 }
-int builtins_testproc(int argc, char **argv){
-    process *proc = process_new(foobar, argc, argv);
-    KMESSAGE("new process : %d %s", (uint64_t)proc->id, proc->argv[0]);
-    return 0;
-}
+
 void TASK_FUNCTION testtask(void *data, task *t){
-    KMESSAGE("hello from %s", data);
-    KMESSAGE("task end %s", data);
+    uint64_t i = 1;
+    while(i < 6){
+        KMESSAGE("hello (%d/5) from %s", i , data);
+        sleep(1);
+        i++;
+    }
     TASK_FUNCTION_END(t);
 }
 int builtins_task(int argc, char **argv){
@@ -274,10 +256,8 @@ int builtins_task(int argc, char **argv){
     return 0;
 }
 int builtins_testtask(int argc, char **argv){
-    task_new(testtask, (void *)"t1");
-    KMESSAGE("after task_new()");
-    //task_new(testtask, (void *)"t2");
-    //task_new(testtask, (void *)"t3");
+    task_new(timer_task, (void *)5, 0x0);
+    task_new(testtask, (void *)"task2", 0x0);
     return 0;
 }
 
@@ -320,11 +300,8 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_int, "int");
     BUILTINS_INIT_FN(builtins_time, "time");
     BUILTINS_INIT_FN(builtins_atoi, "atoi");
-    BUILTINS_INIT_FN(builtins_kill, "kill");
-    BUILTINS_INIT_FN(builtins_ps, "ps");
     BUILTINS_INIT_FN(builtins_testtask, "testtask");
     BUILTINS_INIT_FN(builtins_task, "task");
-    BUILTINS_INIT_FN(builtins_testproc, "testproc");
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testargs, "testargs");
