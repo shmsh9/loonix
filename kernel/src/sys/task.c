@@ -124,7 +124,7 @@ void task_scheduler(){
         break;
     case task_status_ended:
         task_free(task_current);
-        task_current = task_get_next();
+        //task_current = task_get_next();
         task_scheduler();
         break;
     case task_status_running:
