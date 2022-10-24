@@ -33,7 +33,9 @@ task *task_new(void(*fn)(void *, task *), void *data){
     return ret;
 }
 void task_free(task *t){
-    kfree(t->stack_start);
+    if(!t)
+        return;
+    kfree(t->stack_end);
     kfree(t->context);
     if(t->next && t->prev){
         t->next->prev = t->prev;
@@ -45,7 +47,6 @@ void task_free(task *t){
     if(t->next && !t->prev){
         t->next->prev = 0x0;
         task_first = t->next;
-        task_last = t->next;
         kfree(t);
         return;
     }
@@ -82,7 +83,9 @@ void task_debug_print(){
     }
 }
 task *task_get_next(){
-    return task_current->next == 0 ? task_first : task_current->next;
+    if(!task_current)
+        return 0x0;
+    return task_current->next == 0x0 ? task_first : task_current->next;
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
@@ -94,13 +97,11 @@ void task_scheduler(){
     else{
         task_current = task_get_next(); 
     }
-    /*
     KMESSAGE("task_current == 0x%x\ntask_current->stack == 0x%x\ntask_kernel_stack == 0x%x", 
         task_current,
         task_current->stack_start,
         task_kernel_stack
     );
-    */
     switch (task_current->status){
     case task_status_created:
         //run the task
@@ -112,7 +113,6 @@ void task_scheduler(){
         task_current->context->rdi = (uint64_t)task_current->data;
         task_interrupt_enable();
         task_cpu_registers_load(task_current->context);
-        //task_current->fn(task_current->data, task_current);
         break;
     case task_status_ended:
         task_free(task_current);

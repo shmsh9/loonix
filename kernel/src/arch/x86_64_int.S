@@ -20,8 +20,6 @@
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
 .section .data
-save_rax: .space 8
-save_rbx: .space 8
 
 .macro gen_interrupt_table index
     .quad asm_interrupt_handler_\index
@@ -32,15 +30,17 @@ save_rbx: .space 8
     
     //need to store the frame somewhere here
     .task_save_context_begin_\index :
-    mov  qword ptr [save_rax], rax
-    mov  qword ptr [save_rbx], rbx
+    push rax
+    push rbx
     mov  rax, \index
     cmp  rax, 0x20                      //only save context for timer tasks
     jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
-    mov  rax, [rbx+16]                  //rax == task_current->context
+
+    mov  rax, [rax]               //rax == task_current->context
+    add  rax, 16                    //
 
     mov rbx, qword ptr [rsp+8]         //because of the 2 push now contains old rax
     //crashes here after sometime maybe task_current gets corrupted
@@ -52,8 +52,9 @@ save_rbx: .space 8
     mov [rax+cpu_registers_rdx],rdx
     mov [rax+cpu_registers_rsi],rsi
     mov [rax+cpu_registers_rdi],rdi
+    mov rbx, [rsp+40]               // +40 == 2 push rax rbx && interrupt frame 32Bytes
+    mov [rax+cpu_registers_rsp],rbx //
     mov [rax+cpu_registers_rbp],rbp
-    mov [rax+cpu_registers_rsp],rsp
     mov [rax+cpu_registers_r8 ],r8
     mov [rax+cpu_registers_r9 ],r9
     mov [rax+cpu_registers_r10],r10
@@ -65,15 +66,15 @@ save_rbx: .space 8
     mov rbx, [rsp+16]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
     //restore kernel stack
-    lea rax, [rip+task_kernel_stack]
-    add rsp, 16
-    mov rsp, [rax]    // <- Culprit /////
+    //lea rax, [rip+task_kernel_stack]
+    //cmp rax, 0
+    //je  .task_save_context_end_\index
+    //add rsp, 16
+    //mov rsp, [rax]    // <- Culprit /////
     /////////////////////              //
     .task_save_context_end_\index :    //
-    //pop rbx   //PLEASE RESTORE ME    //
-    //pop rax
-    mov rax, qword ptr [save_rax]
-    mov rbx, qword ptr [save_rbx]
+    pop rbx   //PLEASE RESTORE ME    //
+    pop rax
     //saving current interrupt frame
     push rax
     push rbx
