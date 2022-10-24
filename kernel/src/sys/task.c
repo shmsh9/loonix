@@ -130,6 +130,12 @@ void task_scheduler(){
     case task_status_running:
         task_cpu_registers_load(task_current->context);
         break;
+    case task_status_waiting:
+        if(task_current->task_wait_over){
+            task_current->status = task_status_running;
+        }
+        task_scheduler();
+        break;
     default:
         KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
             task_current,

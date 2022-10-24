@@ -243,12 +243,14 @@ void TASK_FUNCTION timer_task(void *data, task *t){
 }
 
 void TASK_FUNCTION testtask(void *data, task *t){
+    void *foo = kcalloc(sizeof(char), 0xffff);
     uint64_t i = 1;
     while(i < 6){
         KMESSAGE("hello (%d/5) from %s", i , data);
         sleep(1);
         i++;
     }
+    kfree(foo);
     TASK_FUNCTION_END(t);
 }
 int builtins_task(int argc, char **argv){
@@ -256,8 +258,10 @@ int builtins_task(int argc, char **argv){
     return 0;
 }
 int builtins_testtask(int argc, char **argv){
-    task_new(timer_task, (void *)5, 0x0);
+    task_new(testtask, (void *)"task0", 0x0);
+    task_new(testtask, (void *)"task1", 0x0);
     task_new(testtask, (void *)"task2", 0x0);
+    task_new(testtask, (void *)"task3", 0x0);
     return 0;
 }
 

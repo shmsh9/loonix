@@ -12,7 +12,8 @@
 typedef enum _task_status {
     task_status_ended,
     task_status_running,
-    task_status_created
+    task_status_created,
+    task_status_waiting
 }task_status;
 
 typedef struct  __attribute__((packed)) _task{
@@ -27,6 +28,7 @@ typedef struct  __attribute__((packed)) _task{
     uint64_t uuid;
     uint8_t priority;
     void *data;
+    bool task_wait_over;
 }task;
 
 extern task *task_current;

@@ -127,16 +127,19 @@ void *kmalloc(uint64_t b){
         KERROR("b == 0");
         return 0x0;
     }
+    interrupt_disable();
     for(int i = kalloc_list_last; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
+                interrupt_enable();
                 return (void *)block.ptr;
             }
             else{
                 KERROR("allocation failed !");
+                interrupt_enable();
                 return 0x0;
             }
         }
@@ -147,10 +150,12 @@ void *kmalloc(uint64_t b){
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
+                interrupt_enable();
                 return (void *)block.ptr;
             }
             else{
                 KERROR("allocation failed !");
+                interrupt_enable();
                 return 0x0;
             }
         }
@@ -162,6 +167,7 @@ void *kmalloc(uint64_t b){
     kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
     if(!tmp.ptr){
         KERROR("not enough memory to realloc kalloc_list !");
+        interrupt_enable();
         return 0x0;
     }
     //LEAKS
@@ -178,15 +184,18 @@ void *kmalloc(uint64_t b){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
+                interrupt_enable();
                 return (void *)block.ptr;
             }
             else{
                 KERROR("allocation failed !");
+                interrupt_enable();
                 return 0x0;
             }
         }
     }
     KERROR("kmalloc failed even after resizing");
+    interrupt_enable();
     return 0x0;
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
@@ -245,9 +254,11 @@ void kfree(void *p){
         KERROR("null pointer !");
         return;
     }
+    interrupt_disable();
     int32_t ptrindex = kalloc_find_ptr_alloc(p);
     if(ptrindex == -1)
         return;
     kheap_free_mem2(&heap, &kalloc_list[ptrindex]);
     memset(kalloc_list+ptrindex, 0, sizeof(kheap_allocated_block));
+    interrupt_enable();
 }
