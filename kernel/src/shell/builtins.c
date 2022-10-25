@@ -234,34 +234,27 @@ int builtins_atoi(int argc, char **argv){
         KMESSAGE("%d", (uint64_t)atoi(argv[1]));
     return 0;
 }
-void TASK_FUNCTION timer_task(void *data, task *t){
+int timer_task(void *data, task *t){
 	sleep((uint64_t)data);
 	KMESSAGE("%ds passed", data);
     //remove 2 task close bug
-    TASK_FUNCTION_END(t);
-
+    return 0;
 }
 
-void TASK_FUNCTION testtask(void *data, task *t){
-    void *foo = kcalloc(sizeof(char), 0xffff);
-    uint64_t i = 1;
-    while(i < 6){
-        KMESSAGE("hello (%d/5) from %s", i , data);
-        sleep(1);
-        i++;
-    }
-    kfree(foo);
-    TASK_FUNCTION_END(t);
+int testtask(void *data, task *t){
+    KMESSAGE("%s", data);
+    builtins_testklist(0, 0x0);
+    return 0;
 }
 int builtins_task(int argc, char **argv){
     task_debug_print();
     return 0;
 }
 int builtins_testtask(int argc, char **argv){
-    task_new(testtask, (void *)"task0", 0x0);
-    task_new(testtask, (void *)"task1", 0x0);
-    task_new(testtask, (void *)"task2", 0x0);
-    task_new(testtask, (void *)"task3", 0x0);
+    task_new(timer_task, (void *)1, 0x0);
+    task_new(timer_task, (void *)2, 0x0);
+    task_new(timer_task, (void *)3, 0x0);
+    task_new(timer_task, (void *)4, 0x0);
     return 0;
 }
 

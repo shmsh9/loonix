@@ -9,8 +9,19 @@ void task_end(task *t){
         return;
     t->status = task_status_ended;
 }
-
-task *task_new(void(*fn)(void *, task *), void *data, char *name){
+void task_lock(){
+    interrupt_disable();
+}
+void task_unlock(){
+    interrupt_enable();
+}
+void *task_kmalloc(uint32_t sz){
+    task_lock();
+    void *ret = kmalloc(sz);
+    task_unlock();
+    return ret;
+}
+task *task_new(int(*fn)(void *, task *), void *data, char *name){
     if(!fn){
         KERROR("fn == 0x0");
         return 0x0;
@@ -29,6 +40,7 @@ task *task_new(void(*fn)(void *, task *), void *data, char *name){
         .name = name == 0x0 ? "(null)" : strdup(name)
     };
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
+    ret->context->CPU_REGISTER_STACK = (uint64_t)ret->stack_start;
     if(!task_first){
         task_first = ret;
     }
@@ -94,6 +106,11 @@ task *task_get_next(){
         return 0x0;
     return task_current->next == 0x0 ? task_first : task_current->next;
 }
+void task_run(void *data, task *t){
+    t->fn(data, t);
+    task_end(t);
+    while(1){}
+}
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
     if(!task_first)
@@ -113,14 +130,21 @@ void task_scheduler(){
     switch (task_current->status){
     case task_status_created:
         //run the task
-        //fakerun
         task_current->status = task_status_running;
         //need abstraction for other ARCH
+        /*
         task_current->context->rsp = (uint64_t)task_current->stack_start;
-        task_current->context->rip = (uint64_t)task_current->fn;
+        task_current->context->rip = (uint64_t)task_run;
         task_current->context->rdi = (uint64_t)task_current->data;
         task_current->context->rsi = (uint64_t)task_current;
-        task_cpu_registers_load(task_current->context);
+        */
+        //void task_cpu_registers_load(cpu_registers *rdi, void *rsi (fn), void *rdx (data), task *rcx (t));
+        task_cpu_registers_load(
+            task_current->context,
+            (void *)task_run,
+            task_current->data,
+            task_current
+        );
         break;
     case task_status_ended:
         task_free(task_current);
@@ -128,7 +152,7 @@ void task_scheduler(){
         task_scheduler();
         break;
     case task_status_running:
-        task_cpu_registers_load(task_current->context);
+        task_cpu_registers_reload(task_current->context);
         break;
     case task_status_waiting:
         if(task_current->task_wait_over){

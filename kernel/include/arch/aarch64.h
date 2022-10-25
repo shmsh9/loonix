@@ -64,11 +64,14 @@
         uint64_t x28;
         uint64_t x29;
         uint64_t x30;
+        uint64_t sp;
     }cpu_registers;
     #define CPU_REGISTERS_PRINT(regs){\
-        for(uint8_t i = 0; i < sizeof(cpu_registers)/sizeof(uint64_t); i++){\
+        for(uint8_t i = 0; i < (sizeof(cpu_registers)/sizeof(uint64_t)) - 1; i++){\
             kprintf("\t[x%d%s] : 0x%x\n", i, i < 10 ? " " : "" ,((uint64_t *)regs)[i]);\
         }\
+        kprintf("\t[sp ] : 0x%x\n", regs->sp);\
+
     }
     typedef struct __attribute__((packed)) _interrupt_vector_table_entry{
         uint64_t a;

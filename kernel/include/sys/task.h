@@ -4,11 +4,7 @@
 #include <arch/arch.h>
 
 #define TASK_STACK_SIZE 0x10000
-#define TASK_FUNCTION __attribute__((noreturn))
-#define TASK_FUNCTION_END(t){\
-    task_end(t);\
-    while(1){}\
-}
+
 typedef enum _task_status {
     task_status_ended,
     task_status_running,
@@ -20,7 +16,7 @@ typedef struct  __attribute__((packed)) _task{
     struct _task *next;
     struct _task *prev;
     cpu_registers *context;
-    void(*fn)(void *, struct _task *);
+    int(*fn)(void *, struct _task *);
     void *stack_start;
     void *stack_end;
     char *name;
@@ -35,10 +31,13 @@ extern task *task_current;
 extern task *task_first;
 #include <kstd/kstd.h>
 
+void task_lock();
+void task_unlock();
 void task_end(task *t);
-task *task_new(void(*fn)(void *, task *), void *data, char *name);
+task *task_new(int(*fn)(void *, task *), void *data, char *name);
 task *task_get_next();
 void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
+
 #endif

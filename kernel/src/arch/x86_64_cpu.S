@@ -1,4 +1,4 @@
-.global cpu_registers_save, task_cpu_registers_load, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
+.global cpu_registers_save, task_cpu_registers_load, task_cpu_registers_reload, cpu_registers_load2, cpu_get_tick, __memcpy_64b, __memset_64b, __memset_128b, __memcpy_128b, exception_handler
 .section .text
 .extern current_interrupt_frame
 
@@ -73,8 +73,23 @@ cpu_registers_save:
     lea rax, [rip]
     mov [rdi+cpu_registers_rip],rax
     ret
-//void task_cpu_registers_load(cpu_registers *regs);
+//void task_cpu_registers_load(cpu_registers *rdi, void *rsi (fn), void *rdx (data), task *rcx (t));
 task_cpu_registers_load:
+    mov rsp,[rdi+cpu_registers_rsp]
+    mov rbp,[rdi+cpu_registers_rbp]
+    mov rax, rsi
+    mov rdi, rdx
+    mov rsi, rcx
+    //ack PIC && reenable interrupts//
+    push rax
+    mov  al, 0x20                   //ack PIC int
+    out  0x20, al
+    sti
+    pop rax
+    ///////////////////////////////////
+    call rax
+//void task_cpu_registers_reload(cpu_registers *regs);
+task_cpu_registers_reload:
     mov rbp,[rdi+cpu_registers_rbp] 
     mov rsp,[rdi+cpu_registers_rsp] //so that our push affects the newly allocated stack
     mov rax,[rdi+cpu_registers_rip] 

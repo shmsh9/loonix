@@ -71,6 +71,7 @@
     #define JUMP_INSTRUCTION "jmp"
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
+    #define CPU_REGISTER_STACK rsp
     #define _INB(address, ret){\
         volatile uint8_t tmp = 0;\
         __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
@@ -151,7 +152,8 @@
     void pic_remap();
     void rtc_install();
     void task_interrupt_enable();
-    void task_cpu_registers_load(volatile cpu_registers *regs);
+    void task_cpu_registers_load(volatile cpu_registers *regs, void *fn, void *data, void *t);
+    void task_cpu_registers_reload(volatile cpu_registers *regs);
     void interrupt_enable();
     void interrupt_disable();
     void interrupt_handler_install(void (*fn)(), uint16_t num);
