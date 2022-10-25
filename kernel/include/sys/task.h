@@ -24,12 +24,10 @@ typedef struct  __attribute__((packed)) _task{
     uint64_t uuid;
     uint8_t priority;
     void *data;
-    bool task_wait_over;
 }task;
 
 extern task *task_current;
 extern task *task_first;
-#include <kstd/kstd.h>
 
 void task_lock();
 void task_unlock();
@@ -39,5 +37,6 @@ task *task_get_next();
 void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
+#include <kstd/kstd.h>
 
 #endif

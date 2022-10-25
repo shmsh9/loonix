@@ -6,13 +6,13 @@
 #include <drivers/vt100.h>
 #include <sys/newmem.h>
 #include <bootloader.h>
-#include <arch/aarch64.h>
-#include <arch/x86_64.h>
+#include <arch/arch.h>
 #include <sys/timer.h>
 #include <kstd/kstring.h>
 #include <kstd/karray.h>
 #include <kstd/klist.h>
 #include <kstd/ktime.h>
+#include <sys/task.h>
 
 #define KERNEL_DEBUG
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JUMP_INSTRUCTION" 1b")

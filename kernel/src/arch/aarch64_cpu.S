@@ -1,4 +1,4 @@
-.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memset_128b, __memcpy_64b, __memcpy_128b, cpu_get_cntpct
+.global cpu_registers_save, cpu_registers_load, cpu_get_tick, __memset_64b, __memset_128b, __memcpy_64b, __memcpy_128b, cpu_get_cntpct, task_cpu_registers_load, task_cpu_registers_reload
 //void __memset_64b(void *ptr = x0, uint64_t b = x1, uint64_t sz = x2)
 __memset_64b:
     __memset_64b_loop:
@@ -34,74 +34,107 @@ __memcpy_128b:
     sub  x2, x2, #16
     cbnz x2, __memcpy_128b_loop
     ret
+    
+#define cpu_registers_x0  0
+#define cpu_registers_x1  8
+#define cpu_registers_x2  16
+#define cpu_registers_x3  24
+#define cpu_registers_x4  32
+#define cpu_registers_x5  40
+#define cpu_registers_x6  48
+#define cpu_registers_x7  56
+#define cpu_registers_x8  64
+#define cpu_registers_x9  72
+#define cpu_registers_x10 80
+#define cpu_registers_x11 88
+#define cpu_registers_x12 96
+#define cpu_registers_x13 104
+#define cpu_registers_x14 112
+#define cpu_registers_x15 120
+#define cpu_registers_x16 128
+#define cpu_registers_x17 136
+#define cpu_registers_x18 144
+#define cpu_registers_x19 152
+#define cpu_registers_x20 160
+#define cpu_registers_x21 168
+#define cpu_registers_x22 176
+#define cpu_registers_x23 184
+#define cpu_registers_x24 192
+#define cpu_registers_x25 200
+#define cpu_registers_x26 208
+#define cpu_registers_x27 216
+#define cpu_registers_x28 224
+#define cpu_registers_x29 232
+#define cpu_registers_x30 240
+#define cpu_registers_sp  248
 
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
-    str x0,  [x0]
-    str x1,  [x0, #8  ]
-    str x2,  [x0, #16 ]
-    str x3,  [x0, #24 ]
-    str x4,  [x0, #32 ]
-    str x5,  [x0, #40 ]
-    str x6,  [x0, #48 ]
-    str x7,  [x0, #56 ]
-    str x8,  [x0, #64 ]
-    str x9,  [x0, #72 ]
-    str x10, [x0, #80 ]
-    str x11, [x0, #88 ]
-    str x12, [x0, #96 ]
-    str x13, [x0, #104]
-    str x14, [x0, #112 ]
-    str x15, [x0, #120 ]
-    str x16, [x0, #128 ]
-    str x17, [x0, #136 ]
-    str x18, [x0, #144 ]
-    str x19, [x0, #152 ]
-    str x20, [x0, #160 ]
-    str x21, [x0, #168 ]
-    str x22, [x0, #176 ]
-    str x23, [x0, #184 ]
-    str x24, [x0, #192 ]
-    str x25, [x0, #200 ]
-    str x26, [x0, #208 ]
-    str x27, [x0, #216 ]
-    str x28, [x0, #224 ]
-    str x29, [x0, #232 ]
-    str x30, [x0, #240 ]
+    str x1,  [x0, #cpu_registers_x1 ]
+    str x2,  [x0, #cpu_registers_x2 ]
+    str x3,  [x0, #cpu_registers_x3 ]
+    str x4,  [x0, #cpu_registers_x4 ]
+    str x5,  [x0, #cpu_registers_x5 ]
+    str x6,  [x0, #cpu_registers_x6 ]
+    str x7,  [x0, #cpu_registers_x7 ]
+    str x8,  [x0, #cpu_registers_x8 ]
+    str x9,  [x0, #cpu_registers_x9 ]
+    str x10, [x0, #cpu_registers_x10]
+    str x11, [x0, #cpu_registers_x11]
+    str x12, [x0, #cpu_registers_x12]
+    str x13, [x0, #cpu_registers_x13]
+    str x14, [x0, #cpu_registers_x14]
+    str x15, [x0, #cpu_registers_x15]
+    str x16, [x0, #cpu_registers_x16]
+    str x17, [x0, #cpu_registers_x17]
+    str x18, [x0, #cpu_registers_x18]
+    str x19, [x0, #cpu_registers_x19]
+    str x20, [x0, #cpu_registers_x20]
+    str x21, [x0, #cpu_registers_x21]
+    str x22, [x0, #cpu_registers_x22]
+    str x23, [x0, #cpu_registers_x23]
+    str x24, [x0, #cpu_registers_x24]
+    str x25, [x0, #cpu_registers_x25]
+    str x26, [x0, #cpu_registers_x26]
+    str x27, [x0, #cpu_registers_x27]
+    str x28, [x0, #cpu_registers_x28]
+    str x29, [x0, #cpu_registers_x29]
+    str x30, [x0, #cpu_registers_x30]
+    str x0,  [x0, #cpu_registers_x0 ]
     ret
 //void cpu_registers_load(cpu_registers *regs);
 cpu_registers_load:
-    ldr x0,  [x0]
-    ldr x1,  [x0, #8  ]
-    ldr x2,  [x0, #16 ]
-    ldr x3,  [x0, #24 ]
-    ldr x4,  [x0, #32 ]
-    ldr x5,  [x0, #40 ]
-    ldr x6,  [x0, #48 ]
-    ldr x7,  [x0, #56 ]
-    ldr x8,  [x0, #64 ]
-    ldr x9,  [x0, #72 ]
-    ldr x10, [x0, #80 ]
-    ldr x11, [x0, #88 ]
-    ldr x12, [x0, #96 ]
-    ldr x13, [x0, #104]
-    ldr x14, [x0, #112 ]
-    ldr x15, [x0, #120 ]
-    ldr x16, [x0, #128 ]
-    ldr x17, [x0, #136 ]
-    ldr x18, [x0, #144 ]
-    ldr x19, [x0, #152 ]
-    ldr x20, [x0, #160 ]
-    ldr x21, [x0, #168 ]
-    ldr x22, [x0, #176 ]
-    ldr x23, [x0, #184 ]
-    ldr x24, [x0, #192 ]
-    ldr x25, [x0, #200 ]
-    ldr x26, [x0, #208 ]
-    ldr x27, [x0, #216 ]
-    ldr x28, [x0, #224 ]
-    ldr x29, [x0, #232 ]
-    ldr x30, [x0, #240 ]
+    ldr x1,  [x0, #cpu_registers_x1 ]
+    ldr x2,  [x0, #cpu_registers_x2 ]
+    ldr x3,  [x0, #cpu_registers_x3 ]
+    ldr x4,  [x0, #cpu_registers_x4 ]
+    ldr x5,  [x0, #cpu_registers_x5 ]
+    ldr x6,  [x0, #cpu_registers_x6 ]
+    ldr x7,  [x0, #cpu_registers_x7 ]
+    ldr x8,  [x0, #cpu_registers_x8 ]
+    ldr x9,  [x0, #cpu_registers_x9 ]
+    ldr x10, [x0, #cpu_registers_x10]
+    ldr x11, [x0, #cpu_registers_x11]
+    ldr x12, [x0, #cpu_registers_x12]
+    ldr x13, [x0, #cpu_registers_x13]
+    ldr x14, [x0, #cpu_registers_x14]
+    ldr x15, [x0, #cpu_registers_x15]
+    ldr x16, [x0, #cpu_registers_x16]
+    ldr x17, [x0, #cpu_registers_x17]
+    ldr x18, [x0, #cpu_registers_x18]
+    ldr x19, [x0, #cpu_registers_x19]
+    ldr x20, [x0, #cpu_registers_x20]
+    ldr x21, [x0, #cpu_registers_x21]
+    ldr x22, [x0, #cpu_registers_x22]
+    ldr x23, [x0, #cpu_registers_x23]
+    ldr x24, [x0, #cpu_registers_x24]
+    ldr x25, [x0, #cpu_registers_x25]
+    ldr x26, [x0, #cpu_registers_x26]
+    ldr x27, [x0, #cpu_registers_x27]
+    ldr x28, [x0, #cpu_registers_x28]
+    ldr x29, [x0, #cpu_registers_x29]
+    ldr x30, [x0, #cpu_registers_x30]
+    ldr x0,  [x0, #cpu_registers_x0 ]
     ret
 
 //uint64_t cpu_get_tick()
@@ -111,4 +144,18 @@ cpu_get_tick:
 //uint64_t cpu_get_cntpct()
 cpu_get_cntpct:
     mrs x0, CNTPCT_EL0
+    ret
+//void task_cpu_registers_load(cpu_registers *x0, void *x1 (fn), void *x2 (data), task *x3 (t));
+task_cpu_registers_load:
+    ldr x9,  [x0, #cpu_registers_sp ]
+    mov sp,  x9
+    ldr x29, [x0, #cpu_registers_x29] //rbp
+    mov x9, x1
+    mov x0, x2
+    mov x1, x3
+    msr daifset, #2 //interrupt enable
+    br  x9
+//void task_cpu_registers_reload(cpu_registers *regs x0);
+task_cpu_registers_reload:
+    msr daifset, #2 //interrupt enable
     ret

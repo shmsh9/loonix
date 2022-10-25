@@ -7,6 +7,10 @@ uint64_t kmain(bootinfo *bootinfo){
 	KMESSAGE("Available system memory %d MB", BYTES_TO_MB(heap.free_memory));
 	kprint("Welcome to l00n1x !\n");
 	task_new((int (*)(void *, task *))shell, 0x0, "shell");
+	#ifdef __aarch64__
+	//timer interrupts not yet working
+	task_scheduler();
+	#endif
 	BREAKPOINT();
 	return 0xcafe;
 }

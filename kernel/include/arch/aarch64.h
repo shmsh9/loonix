@@ -1,9 +1,9 @@
 #ifndef AARCH64_H_
 #define AARCH64_H_
-#include <arch/arch.h>
 #include <stdint.h>
 #ifdef __aarch64__
     #define INTERRUPT_FUNCTIONS_TABLE_SIZE 256
+    #define CPU_REGISTER_STACK sp
 	#define ARCH_STRING "aarch64"
     #define ARCH_UINT ARCH_AARCH64
     #define SERIAL_DEVICE_NEW() serial_pl011_device_new()
@@ -70,8 +70,7 @@
         for(uint8_t i = 0; i < (sizeof(cpu_registers)/sizeof(uint64_t)) - 1; i++){\
             kprintf("\t[x%d%s] : 0x%x\n", i, i < 10 ? " " : "" ,((uint64_t *)regs)[i]);\
         }\
-        kprintf("\t[sp ] : 0x%x\n", regs->sp);\
-
+        kprintf("\t[sp ] : 0x%x\n", ((uint64_t *)regs)[31]);\
     }
     typedef struct __attribute__((packed)) _interrupt_vector_table_entry{
         uint64_t a;
@@ -108,6 +107,8 @@
     void interrupt_handler_install(void (*fn)(), uint16_t num);
     void init_interrupt_vector_table();
     void interrupt_handler(uint64_t far_el1, uint64_t esr_el1, uint64_t interrupt_type);
+    void task_cpu_registers_load(volatile cpu_registers *regs, void *fn, void *data, void *t);
+    void task_cpu_registers_reload(volatile cpu_registers *regs);
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);
     uint64_t cpu_get_tick();

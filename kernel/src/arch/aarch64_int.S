@@ -1,4 +1,7 @@
 //https://krinkinmu.github.io/2021/01/10/aarch64-interrupt-handling.html
+
+.extern current_interrupt_frame, task_current
+
 .macro interruptdisable
     msr daifclr, #2
 .endm
@@ -128,5 +131,3 @@ interrupt_disable:
 interrupt_enable:
     interruptenable
     ret
-
-//void process_switch_context(process *x0)

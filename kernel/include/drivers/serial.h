@@ -13,8 +13,7 @@ typedef struct _serial_device{
 }serial_device;
 #include <io.h>
 #include <drivers/pl011uart.h>
-#include <arch/aarch64.h>
-#include <arch/x86_64.h>
+#include <arch/arch.h>
 #include <kstd/kstd.h>
 #include <drivers/serial_pl011.h>
 #include <drivers/serial_x86.h>

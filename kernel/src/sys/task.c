@@ -155,9 +155,11 @@ void task_scheduler(){
         task_cpu_registers_reload(task_current->context);
         break;
     case task_status_waiting:
+        /*
         if(task_current->task_wait_over){
             task_current->status = task_status_running;
         }
+        */
         task_scheduler();
         break;
     default:
