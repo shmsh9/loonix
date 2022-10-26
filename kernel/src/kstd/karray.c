@@ -2,7 +2,7 @@
 
 void karray_push(karray *array, uint64_t elem){
     if(array->length+1 > array->alloc){
-        void *tmp = krealloc(array->array, ((array->alloc*array->elementsz)<<1));
+        void *tmp = krealloc(array->array, ((array->alloc*array->elementsz)*2));
         if(tmp){
             kfree(array->array);
             array->array = tmp;

@@ -20,6 +20,8 @@
         uint64_t r14;
         uint64_t r15;
         uint64_t rip;
+        uint64_t xmm0[2];
+        uint64_t flags;
     }cpu_registers;
     //https://wiki.osdev.org/GDT
     typedef struct __attribute__((packed)) {
@@ -170,15 +172,15 @@
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     void idt_init(bootinfo *bi);
     void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags);
+    /*
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_64b(dst, src, sz);
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz);
-    /*
+    */
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
 
     #define __FASTEST_MEMSET(ptr, b, sz) {\
         uint64_t src[2] = {B_to_8B(b), B_to_8B(b)};\
         __memset_128b(ptr, src, sz);\
     }
-    */
 #endif
 #endif

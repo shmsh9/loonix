@@ -52,6 +52,9 @@ __memcpy_128b:
 #define cpu_registers_r14 112
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
+#define cpu_registers_xmm0 136
+#define cpu_registers_flags 144
+
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
     mov [rdi+cpu_registers_rax], rax
@@ -108,6 +111,14 @@ task_cpu_registers_reload:
     mov r14,[rdi+cpu_registers_r14]
     mov r15,[rdi+cpu_registers_r15]
     mov rdi,[rdi+cpu_registers_rdi]
+    movdqu xmm0, [rdi+cpu_registers_xmm0]
+    ///restore RFLAGS
+    //push rax
+    //mov  rax, [rdi+cpu_registers_flags]
+    //push rax
+    //popfq
+    //cli
+    /////////////////
     //ack PIC && reenable interrupts//
     push rax
     mov  al, 0x20                   //ack PIC int

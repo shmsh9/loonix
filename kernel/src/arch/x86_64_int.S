@@ -19,6 +19,8 @@
 #define cpu_registers_r14 112
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
+#define cpu_registers_xmm0 136
+#define cpu_registers_flags 144
 .section .data
 
 .macro gen_interrupt_table index
@@ -38,6 +40,8 @@
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
+    
+    //// Save current context
     mov  rax, [rax]               //rax == *task_current
     add  rax, 16                  //
     mov  rax, [rax]               //rax == *task_current->context
@@ -65,15 +69,12 @@
     mov [rax+cpu_registers_r15],r15
     mov rbx, [rsp+16]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
-    //restore kernel stack
-    //lea rax, [rip+task_kernel_stack]
-    //cmp rax, 0
-    //je  .task_save_context_end_\index
-    //add rsp, 16
-    //mov rsp, [rax]    // <- Culprit /////
-    /////////////////////              //
-    .task_save_context_end_\index :    //
-    pop rbx   //PLEASE RESTORE ME    //
+    movdqu [rax+cpu_registers_xmm0], xmm0 //the only one I use
+    mov rbx, [rsp+32]                  //old rflags stored on the stack by the interrupt
+    mov [rax+cpu_registers_flags], rbx
+    /////////////////////////////////////
+    .task_save_context_end_\index :
+    pop rbx
     pop rax
     //saving current interrupt frame
     push rax
@@ -102,16 +103,17 @@
     mov  rsi, rsp                    //stack pointer to get the frame
     call interrupt_handler           //calls the C code
     pop  rdi
+    //ack PIC//////////////////
     push rax
-    mov  al, 0x20                   //ack PIC int
+    mov  al, 0x20
     out  0x20, al
-    
-    lea  rax, [rip+current_interrupt_frame] //clear current_interrupt_frame
+    //////clear current_interrupt_frame
+    lea  rax, [rip+current_interrupt_frame] 
     mov qword ptr [rax   ], 0       
     mov qword ptr [rax+8 ], 0
     mov qword ptr [rax+16], 0
-    mov qword ptr [rax+24], 0               //
-
+    mov qword ptr [rax+24], 0
+    ////////////////////////////
     pop  rax
     popad
     sti                              //enable interrupts
