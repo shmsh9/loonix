@@ -6,11 +6,18 @@ void *current_interrupt_frame[4] = {0x0};
 
 #define KERRORINTERRUPT(msg, interrupt_frame){\
     kprintf("[%d][kernel][interrupt] : %s\n", cpu_get_tick() ,msg);\
-    STACKTRACE();\
+    if(!task_current){\
+        STACKTRACE();\
+    }\
+    else{\
+        STACKTRACE_CTXT(task_current->context->rbp)\
+        CPU_REGISTERS_PRINT(task_current->context);\
+    }\
     INTERRUPT_FRAME_PRINT(interrupt_frame);\
     framebuffer_device_update(fb);\
 }
 #define KPANICINTERRUPT(msg, interrupt_frame) {\
+    task_lock();\
     interrupt_disable();\
     KERRORINTERRUPT(msg, interrupt_frame);\
     BREAKPOINT();\

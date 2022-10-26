@@ -23,7 +23,8 @@ void task_unlock(){
 void task_allocation_add(uint64_t p){
     if(!task_current)
         return;
-    karray_push(task_current->allocations, p);
+    //why u bug mf ??!!
+    //karray_push(task_current->allocations, p);
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){

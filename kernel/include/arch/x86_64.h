@@ -147,6 +147,9 @@
         cpu_registers_names__func__[14] = "r14";\
         cpu_registers_names__func__[15] = "r15";\
         cpu_registers_names__func__[16] = "rip";\
+        cpu_registers_names__func__[17] = "xmm0_0";\
+        cpu_registers_names__func__[18] = "xmm0_1";\
+        cpu_registers_names__func__[19] = "flags";\
         for(uint8_t i = 0; i < sizeof(cpu_registers)/sizeof(uint64_t); i++){\
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\
