@@ -3,6 +3,7 @@
 task *task_current = 0x0;
 task *task_first = 0x0;
 task *task_last = 0x0;
+uint64_t task_last_tick = 0x0;
 
 void task_end(task *t){
     if(!t)
@@ -15,13 +16,7 @@ void task_lock(){
 void task_unlock(){
     interrupt_enable();
 }
-void *task_kmalloc(uint32_t sz){
-    task_lock();
-    void *ret = kmalloc(sz);
-    task_unlock();
-    return ret;
-}
-task *task_new(int(*fn)(void *, task *), void *data, char *name){
+task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
         KERROR("fn == 0x0");
         return 0x0;
@@ -30,15 +25,34 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name){
     *ret = (task){
         .next = 0x0,
         .prev = task_last,  // task_last == 0x0 ? task_last : task_last;
-        .uuid = cpu_get_tick(),
         .context = kcalloc(sizeof(cpu_registers),1),
         .stack_end = kcalloc(TASK_STACK_SIZE, 1),
         .status = task_status_created,
-        .priority = 0,
         .fn = fn,
         .data = data,
-        .name = name == 0x0 ? "(null)" : strdup(name)
+        .name = name == 0x0 ? "(null)" : strdup(name),
+        .priority = priority
     };
+    switch (ret->priority){
+        case task_priority_high:
+            ret->time_max = TASK_CPU_TIME_HIGH;
+            break;
+        case task_priority_medium:
+            ret->time_max = TASK_CPU_TIME_MEDIUM;
+            break;
+        case task_priority_low:
+            ret->time_max = TASK_CPU_TIME_LOW;
+            break;
+        case task_priority_sleep:
+            ret->time_max = TASK_CPU_TIME_SLEEP;
+            break;
+        default:
+            KMESSAGE("task_current->priority == %d (unknown) defaulting to TASK_CPU_TIME_MEDIUM",
+                (uint64_t)task_current->priority
+            );
+            ret->time_max = TASK_CPU_TIME_MEDIUM;
+            break;
+    }
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
     ret->context->CPU_REGISTER_STACK = (uint64_t)ret->stack_start;
     if(!task_first){
@@ -49,6 +63,32 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name){
     }
     task_last = ret;
     return ret;
+}
+task_priority task_priority_get(task *t){
+    return t == 0x0 ? task_priority_medium : t->priority;
+}
+void task_priority_set(task *t, task_priority p){
+    if(!t){
+        KERROR("t == NULL");
+        return;
+    }
+    switch(p){
+        case task_priority_high:
+            t->time_max = TASK_CPU_TIME_HIGH;
+            break;
+        case task_priority_medium:
+            t->time_max = TASK_CPU_TIME_MEDIUM;
+            break;
+        case task_priority_low:
+            t->time_max = TASK_CPU_TIME_LOW;
+            break;
+        case task_priority_sleep:
+            t->time_max = TASK_CPU_TIME_SLEEP;
+            break;
+        default:
+            KERROR("p == %d (unknown)", p);
+            break;
+    }
 }
 void task_free(task *t){
     if(!t)
@@ -94,7 +134,7 @@ void task_debug_print(){
         kprintf("%d\t%s\t0x%x\n",
             i, 
             t->name,
-            t->uuid
+            t
         );
         //CPU_REGISTERS_PRINT(t->context);
         i++;
@@ -118,55 +158,43 @@ void task_scheduler(){
     if(!task_current){
         task_current = task_first;
     }
-    else{
-        task_current = task_get_next(); 
+    task_current->time += cpu_get_tick() - task_last_tick;
+
+    if(task_current->time >= task_current->time_max){
+        task_current->time = 0;
+        task_current = task_get_next();
     }
-    /*
-    KMESSAGE("task_current == 0x%x task_current->stack == 0x%x", 
-        task_current,
-        task_current->stack_start
-    );
-    */
+
+    task_last_tick = cpu_get_tick();
     switch (task_current->status){
-    case task_status_created:
-        //run the task
-        task_current->status = task_status_running;
-        //need abstraction for other ARCH
-        /*
-        task_current->context->rsp = (uint64_t)task_current->stack_start;
-        task_current->context->rip = (uint64_t)task_run;
-        task_current->context->rdi = (uint64_t)task_current->data;
-        task_current->context->rsi = (uint64_t)task_current;
-        */
-        //void task_cpu_registers_load(cpu_registers *rdi, void *rsi (fn), void *rdx (data), task *rcx (t));
-        task_cpu_registers_load(
-            task_current->context,
-            (void *)task_run,
-            task_current->data,
-            task_current
-        );
-        break;
-    case task_status_ended:
-        task_free(task_current);
-        //task_current = task_get_next();
-        task_scheduler();
-        break;
-    case task_status_running:
-        task_cpu_registers_reload(task_current->context);
-        break;
-    case task_status_waiting:
-        /*
-        if(task_current->task_wait_over){
+        case task_status_created:
+            //run the task
             task_current->status = task_status_running;
-        }
-        */
-        task_scheduler();
-        break;
-    default:
-        KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
-            task_current,
-            task_current->status
-        );
-        break;
+            task_current->time = cpu_get_tick();
+            task_cpu_registers_load(
+                task_current->context,
+                (void *)task_run,
+                task_current->data,
+                task_current
+            );
+            break;
+        case task_status_ended:
+            task_free(task_current);
+            task_current = task_get_next();
+            task_scheduler();
+            break;
+        case task_status_running:
+            task_cpu_registers_reload(task_current->context);
+            break;
+        case task_status_wait_io:
+            task_scheduler();
+            break;
+        default:
+            KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
+                task_current,
+                task_current->status
+            );
+            break;
     }
+    task_scheduler();
 }

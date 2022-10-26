@@ -116,6 +116,7 @@ int builtins_testmemcpy(int argc, char **argv){
     kprintf("foo = %s\n", foo);
     return 0;
 }
+
 int builtins_graphics(int argc, char **argv){
 	#include <graphics/tux.png.h>
 	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
@@ -240,21 +241,40 @@ int timer_task(void *data, task *t){
     //remove 2 task close bug
     return 0;
 }
-
-int testtask(void *data, task *t){
-    KMESSAGE("%s", data);
-    builtins_testklist(0, 0x0);
-    return 0;
-}
 int builtins_task(int argc, char **argv){
     task_debug_print();
     return 0;
 }
+int testtask(void *data, task *t){
+    uint64_t *i = data;
+    while (*i < 5){
+        kprintf("i == %d        \r", *i);
+        sleep(1);
+    }
+    return 0;
+}
+int testtask2(void *data, task *t){
+    uint64_t *i = data;
+    while(*i < 5){
+        sleep(1);
+        task_lock();
+        *i += 1;
+        task_unlock();
+    }
+    return 0;
+}
+
 int builtins_testtask(int argc, char **argv){
-    task_new(timer_task, (void *)1, 0x0);
-    task_new(timer_task, (void *)2, 0x0);
-    task_new(timer_task, (void *)3, 0x0);
-    task_new(timer_task, (void *)4, 0x0);
+    uint64_t *i = kmalloc(sizeof(uint64_t));
+    *i = 0;
+    task_new(testtask, (void *)i, "test", task_priority_high);
+    task_new(testtask2, (void *)i, "test2", task_priority_high);
+    task_new(
+        (int (*)(void *, task *))builtins_graphics, 
+        0x0, 
+        "graphics", 
+        task_priority_high
+    );
     return 0;
 }
 

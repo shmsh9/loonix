@@ -14,7 +14,10 @@ uint64_t getuptime100s(){
 void sleep(uint32_t s){
     uint64_t t = getuptime100s();
     s *= 100;
+    task_priority old = task_priority_get(task_current);
+    task_priority_set(task_current, task_priority_sleep);
     while(getuptime100s() - t < s){
 
     }
+    task_priority_set(task_current, old);
 }
