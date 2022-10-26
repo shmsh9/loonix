@@ -6,7 +6,7 @@ void karray_push(karray *array, uint64_t elem){
         if(tmp){
             kfree(array->array);
             array->array = tmp;
-            array->alloc <<= 1;
+            array->alloc *= 2;
         }
         else{
             KERROR("krealloc() : failed");
@@ -104,7 +104,7 @@ karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
     *ret = (karray){
         .elementsz = elementsz,
         .length = 0,
-        .alloc = 16,
+        .alloc = 64,
         .karray_data_free_fn = karray_data_free_fn
     };
     ret->array = kmalloc(ret->alloc*ret->elementsz);

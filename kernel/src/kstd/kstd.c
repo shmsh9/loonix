@@ -203,18 +203,24 @@ void *kmalloc(uint64_t b){
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
     if(!ptr){
-        KERROR("0x%x not in allocation table !", ptr);
+        KERROR("ptr == NULL !", ptr);
         return -1;
     }
+    task_lock();
     for(uint64_t i = kalloc_list_last; i < kalloc_list_alloc; i++){
-        if(kalloc_list[i].ptr == (uintptr_t)ptr)
+        if(kalloc_list[i].ptr == (uintptr_t)ptr){
+            task_unlock();
             return i;
+        }
     }
     for(uint64_t i = 0; i < kalloc_list_last; i++){
-        if(kalloc_list[i].ptr == (uintptr_t)ptr)
+        if(kalloc_list[i].ptr == (uintptr_t)ptr){
+            task_unlock();
             return i;
+        }
     }
-    KERROR("0x%x not in allocation table !", ptr);
+    //KERROR("0x%x not in allocation table !", ptr);
+    task_unlock();
     return -1;
 }
 void *kcalloc(uint64_t n, uint64_t sz){

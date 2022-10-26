@@ -21,9 +21,9 @@ void task_unlock(){
         interrupt_enable();
 }
 void task_allocation_add(uint64_t p){
-    //Lead to protection fault
-    //if(task_current && task_current->allocations)
-        //klist_push(task_current->allocations, p);
+    if(!task_current)
+        return;
+    karray_push(task_current->allocations, p);
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
@@ -41,7 +41,8 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         .fn = fn,
         .data = data,
         .name = name == 0x0 ? strdup("(null)") : strdup(name),
-        .priority = priority
+        .priority = priority,
+        .allocations = karray_new(sizeof(uint64_t), kfree)
     };
     switch (ret->priority){
         case task_priority_high:
@@ -104,9 +105,16 @@ void task_priority_set(task *t, task_priority p){
 void task_free(task *t){
     if(!t)
         return;
+    KMESSAGE(
+        "freeing task %s (0x%x) (allocations : %d)",
+        t->name,
+        t,
+        t->allocations->length
+    );
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
+    karray_free(t->allocations);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;

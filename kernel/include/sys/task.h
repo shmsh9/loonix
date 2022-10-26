@@ -2,6 +2,7 @@
 #define TASK_H_
 #include <stdint.h>
 #include <arch/arch.h>
+#include <kstd/karray.h>
 
 #define TASK_STACK_SIZE 0x10000
 
@@ -37,6 +38,7 @@ typedef struct  __attribute__((packed)) _task{
     uint64_t time;
     uint64_t time_max;
     task_priority priority;
+    karray *allocations;
 }task;
 
 extern task *task_current;
