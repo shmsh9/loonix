@@ -251,6 +251,7 @@ int testtask(void *data, task *t){
         kprintf("i == %d        \r", *i);
         sleep(1);
     }
+    //builtins_testscroll(0, 0x0);
     return 0;
 }
 int testtask2(void *data, task *t){
@@ -261,6 +262,7 @@ int testtask2(void *data, task *t){
         *i += 1;
         task_unlock();
     }
+    kfree(i);
     return 0;
 }
 
@@ -269,12 +271,14 @@ int builtins_testtask(int argc, char **argv){
     *i = 0;
     task_new(testtask, (void *)i, "test", task_priority_high);
     task_new(testtask2, (void *)i, "test2", task_priority_high);
+    /*
     task_new(
         (int (*)(void *, task *))builtins_graphics, 
         0x0, 
         "graphics", 
         task_priority_high
     );
+    */
     return 0;
 }
 

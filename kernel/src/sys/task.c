@@ -4,6 +4,7 @@ task *task_current = 0x0;
 task *task_first = 0x0;
 task *task_last = 0x0;
 uint64_t task_last_tick = 0x0;
+uint64_t task_lock_counter = 0;
 
 void task_end(task *t){
     if(!t)
@@ -12,15 +13,24 @@ void task_end(task *t){
 }
 void task_lock(){
     interrupt_disable();
+    task_lock_counter++;
 }
 void task_unlock(){
-    interrupt_enable();
+    task_lock_counter--;
+    if(!task_lock_counter)
+        interrupt_enable();
+}
+void task_allocation_add(uint64_t p){
+    //Lead to protection fault
+    //if(task_current && task_current->allocations)
+        //klist_push(task_current->allocations, p);
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
         KERROR("fn == 0x0");
         return 0x0;
     }
+    task_lock();
     task *ret = kmalloc(sizeof(task));
     *ret = (task){
         .next = 0x0,
@@ -30,7 +40,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         .status = task_status_created,
         .fn = fn,
         .data = data,
-        .name = name == 0x0 ? "(null)" : strdup(name),
+        .name = name == 0x0 ? strdup("(null)") : strdup(name),
         .priority = priority
     };
     switch (ret->priority){
@@ -62,6 +72,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         task_last->next = ret;
     }
     task_last = ret;
+    task_unlock();
     return ret;
 }
 task_priority task_priority_get(task *t){
@@ -95,6 +106,7 @@ void task_free(task *t){
         return;
     kfree(t->stack_end);
     kfree(t->context);
+    kfree(t->name);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;

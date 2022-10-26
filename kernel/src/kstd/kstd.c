@@ -135,6 +135,7 @@ void *kmalloc(uint64_t b){
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
+                task_allocation_add(block.ptr);
                 task_unlock();
                 return (void *)block.ptr;
             }
@@ -151,6 +152,7 @@ void *kmalloc(uint64_t b){
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
+                task_allocation_add(block.ptr);
                 task_unlock();
                 return (void *)block.ptr;
             }
@@ -171,7 +173,6 @@ void *kmalloc(uint64_t b){
         task_unlock();
         return 0x0;
     }
-    //LEAKS
     KDEBUG("reallocating kalloc_list to %d", kalloc_list_alloc_new);
     memcpy((void *)tmp.ptr, (void *)kalloc_list, kalloc_list_alloc_old*sizeof(kheap_allocated_block));
     memset((kheap_allocated_block *)tmp.ptr+kalloc_list_alloc_old, 0, kalloc_list_alloc_old*sizeof(kheap_allocated_block));
@@ -185,6 +186,7 @@ void *kmalloc(uint64_t b){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
+                task_allocation_add(block.ptr);
                 task_unlock();
                 return (void *)block.ptr;
             }

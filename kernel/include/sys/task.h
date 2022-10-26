@@ -52,6 +52,7 @@ task *task_get_next();
 void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
+void task_allocation_add(uint64_t p);
 #include <kstd/kstd.h>
 
 #endif
