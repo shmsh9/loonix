@@ -1,6 +1,7 @@
 #include <arch/arch.h>
 #include <kstd/kstd.h>
 #include <drivers/rtc.h>
+#include <sys/task.h>
 
 void *current_interrupt_frame[4] = {0x0};
 
@@ -11,7 +12,6 @@ void *current_interrupt_frame[4] = {0x0};
     }\
     else{\
         kprintf("task (%s) : \n", task_current->name);\
-        STACKTRACE_CTXT(task_current->context->rbp)\
         CPU_REGISTERS_PRINT(task_current->context);\
     }\
     INTERRUPT_FRAME_PRINT(interrupt_frame);\
@@ -19,8 +19,9 @@ void *current_interrupt_frame[4] = {0x0};
 }
 #define KPANICINTERRUPT(msg, interrupt_frame) {\
     task_lock();\
-    interrupt_disable();\
     KERRORINTERRUPT(msg, interrupt_frame);\
+    task_kill_current();\
+    task_unlock();\
     BREAKPOINT();\
 }
 uint64_t interrupt_functions_table[INTERRUPT_FUNCTIONS_TABLE_SIZE] = {0};
@@ -53,7 +54,7 @@ void interrupt_handler_install(void (*fn)(), uint16_t num){
         return;
     }
     if(interrupt_functions_table[num]){
-        KERROR("interrupt %d is already installed");
+        KERROR("interrupt %d is already installed", (uint64_t)num);
         return;
     }
     interrupt_functions_table[num] = (uint64_t)fn;

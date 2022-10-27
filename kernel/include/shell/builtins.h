@@ -1,10 +1,8 @@
 #ifndef SHELL_BUILTINS_H_
 #define SHELL_BUILTINS_H_
-#include <kstd/kstd.h>
-#include <drivers/ahci.h>
+
+#include <stdint.h>
 #include <drivers/pci.h>
-#include <shell/shell.h>
-#include <sys/task.h>
 
 #define BUILTIN_SIZE 32
 #define BUILTINS_INIT_FN(fn, n){\
@@ -32,5 +30,9 @@ int builtins_help(int argc, char **argv);
 int builtins_free(int argc, char **argv);
 void builtins_init();
 extern struct fnbuiltins builtins;
+#include <drivers/ahci.h>
+#include <shell/shell.h>
+#include <sys/task.h>
+#include <kstd/kstd.h>
 
 #endif

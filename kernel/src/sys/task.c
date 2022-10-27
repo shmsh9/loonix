@@ -14,6 +14,9 @@ void task_end(task *t){
         return;
     t->status = task_status_ended;
 }
+void task_kill_current(){
+    task_end(task_current);
+}
 void task_lock(){
     interrupt_disable();
     task_lock_counter++;
@@ -120,11 +123,13 @@ void task_priority_set(task *t, task_priority p){
 void task_free(task *t){
     if(!t)
         return;
+    /*
     KMESSAGE(
         "freeing task %s (0x%x)",
         t->name,
         t
     );
+    */
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
@@ -149,11 +154,11 @@ void task_free(task *t){
         kfree(t);
         return;
     }
-    KMESSAGE("t->next && t->prev == 0x0");
     task_last = 0x0;
     task_first = 0x0;
     task_current = 0x0;
     kfree(t);
+    KMESSAGE("No more tasks need to reload shell");
 }
 
 void task_debug_print(){
@@ -187,8 +192,9 @@ void task_run(void *data, task *t){
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
-    if(!task_first)
+    if(!task_first){
         return;
+    }
     if(!task_current){
         task_current = task_first;
     }

@@ -1,7 +1,6 @@
 #ifndef AHCI_H_
 #define AHCI_H_
 #include <stdint.h>
-#include <kstd/kstd.h>
 #include <drivers/pci.h>
 
 #define AHCI_PCI_SUBCLASS 0x06
@@ -221,7 +220,8 @@ typedef struct __attribute((packed)) ahci_hba_mem{
 	// 0x100 - 0x10FF, Port control registers
 	ahci_hba_port	ports[1];	// 1 ~ 32
 } ahci_hba_mem;
- 
+
+#include <kstd/kstd.h>
 ahci_device *ahci_device_new(ahci_controller *controller, uint8_t port);
 void ahci_controller_free(ahci_controller *controller);
 ahci_controller *ahci_controller_new();

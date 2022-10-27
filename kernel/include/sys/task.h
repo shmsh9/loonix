@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <arch/arch.h>
 #include <kstd/karray.h>
+#include <shell/shell.h>
 
 #define TASK_STACK_SIZE 0x10000
 
@@ -54,6 +55,7 @@ void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
 void task_allocation_add(kheap_allocated_block *b);
+void task_kill_current();
 
 #include <sys/newmem.h>
 #include <kstd/kstd.h>

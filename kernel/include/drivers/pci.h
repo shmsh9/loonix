@@ -1,8 +1,6 @@
 #ifndef PCI_H_
 #define PCI_H_
 #include <stdint.h>
-#include <kstd/kstd.h>
-#include <drivers/acpi.h>
 
 #define PCI_REGISTER_BAR0   0x10
 #define PCI_REGISTER_BAR1   0x14   
@@ -24,8 +22,6 @@
 
 
 #define pci_ecam_dev_get_config_address(ecam_base_address, bus, slot, function) ((((bus * 256) + (slot * 8) + function) * 4096) + ecam_base_address)
-extern karray *pci_devices;
-extern char *pci_class_strings[0x100];
 
 
 typedef struct __attribute__((packed)) _pci_config_header{
@@ -123,6 +119,11 @@ typedef struct _pci_device{
     pci_device_2 *dev2;
 
 }pci_device;
+#include <kstd/kstd.h>
+#include <drivers/acpi.h>
+
+extern karray *pci_devices;
+extern char *pci_class_strings[0x100];
 
 void pci_class_strings_init();
 uint8_t pci_device_get_header_type(pci_device *dev);

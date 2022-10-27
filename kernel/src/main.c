@@ -12,10 +12,6 @@ uint64_t kmain(bootinfo *bootinfo){
 		"shell",
 		task_priority_medium
 	);
-	#ifdef __aarch64__
-	//timer interrupts not yet working
-	task_scheduler();
-	#endif
 	BREAKPOINT();
 	return 0xcafe;
 }

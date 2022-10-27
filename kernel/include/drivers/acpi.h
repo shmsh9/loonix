@@ -1,8 +1,6 @@
 #ifndef ACPI_H_
 #define ACPI_H_
 #include <stdint.h>
-#include <kstd/kstd.h>
-#include <sys/newmem.h>
 #include <bootloader.h>
 #include <Uefi.h>
 #include <Guid/Acpi.h>
@@ -126,6 +124,9 @@ typedef struct _acpi_table{
   acpi_fadt *fadt;
   acpi_mcfg *mcfg;
 }acpi_table;
+
+#include <kstd/kstd.h>
+#include <sys/newmem.h>
 
 acpi_rsd_ptr *acpi_find_rsd_ptr(EFI_CONFIGURATION_TABLE *table, uint64_t ntable);
 acpi_xsdt *acpi_find_xsdt(acpi_rsd_ptr *rsd_ptr);

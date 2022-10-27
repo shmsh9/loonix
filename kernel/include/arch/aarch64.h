@@ -30,7 +30,6 @@
     #define INTERRUPT_INIT(){\
         interrupt_functions_table_init();\
         init_interrupt_vector_table();\
-        interrupt_enable();\
     }
     typedef struct __attribute__((packed)){
         uint64_t x0;

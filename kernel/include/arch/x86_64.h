@@ -117,12 +117,10 @@
     }
     #define INTERRUPT_INIT(){\
             interrupt_functions_table_init();\
-            interrupt_disable();\
             pic_remap();\
             gdt_ptr *gdt = gdt_entries_new(bootinfo, &heap);\
             gdt_entries_load(gdt);\
             idt_init(bootinfo);\
-            interrupt_enable();\
     }
     #define NEWMEM_HACK_UGLY_OFFSET 0x0
     #define NEWMEM_ALIGN 0x10
