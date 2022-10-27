@@ -6,6 +6,9 @@ task *task_last = 0x0;
 uint64_t task_last_tick = 0x0;
 uint64_t task_lock_counter = 0;
 
+extern uint64_t kalloc_list_alloc;
+extern uint64_t kalloc_list_last;
+
 void task_end(task *t){
     if(!t)
         return;
@@ -20,11 +23,23 @@ void task_unlock(){
     if(!task_lock_counter)
         interrupt_enable();
 }
-void task_allocation_add(uint64_t p){
-    if(!task_current)
-        return;
-    //why u bug mf ??!!
-    //karray_push(task_current->allocations, p);
+void task_allocation_remove(task *t){
+    task_lock();
+    for(uint64_t i = 0; i < kalloc_list_alloc; i++){
+        if(kalloc_list[i].task == t){
+            kheap_free_mem2(&heap, &kalloc_list[i]);
+            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
+        }
+    }
+    task_unlock();
+}
+void task_allocation_add(kheap_allocated_block *b){
+    if(!task_current){
+        b->task = 0x0;
+    }
+    else{
+        b->task = task_current;
+    }
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
@@ -42,8 +57,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         .fn = fn,
         .data = data,
         .name = name == 0x0 ? strdup("(null)") : strdup(name),
-        .priority = priority,
-        .allocations = karray_new(sizeof(uint64_t), kfree)
+        .priority = priority
     };
     switch (ret->priority){
         case task_priority_high:
@@ -107,15 +121,14 @@ void task_free(task *t){
     if(!t)
         return;
     KMESSAGE(
-        "freeing task %s (0x%x) (allocations : %d)",
+        "freeing task %s (0x%x)",
         t->name,
-        t,
-        t->allocations->length
+        t
     );
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
-    karray_free(t->allocations);
+    task_allocation_remove(t);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;

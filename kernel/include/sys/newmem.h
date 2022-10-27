@@ -4,9 +4,11 @@
 #include <stdbool.h>
 #include <bootloader.h>
 
+
 #define HEAP_BLOCK_SIZE  4096
 #define HEAP_HEADER_SIZE HEAP_BLOCK_SIZE/8
 #define MMAP_ELEMENT_SIZE 48
+typedef struct _task task;
 typedef struct{
     uint8_t block[HEAP_BLOCK_SIZE];
 }block;
@@ -22,13 +24,13 @@ typedef struct _kheap {
     uint64_t n_block;
     uint64_t free_memory;
 } kheap;
-
 typedef struct _kheap_allocated_block{
     struct _memblock *block;
     uint64_t         bitfield;
     uint8_t          bit;
     uint64_t         size;
     uintptr_t        ptr;
+    task            *task;
 }kheap_allocated_block;
 
 typedef struct {

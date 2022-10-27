@@ -135,7 +135,7 @@ void *kmalloc(uint64_t b){
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
-                task_allocation_add(block.ptr);
+                task_allocation_add(kalloc_list+i);
                 task_unlock();
                 return (void *)block.ptr;
             }
@@ -152,7 +152,7 @@ void *kmalloc(uint64_t b){
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
-                task_allocation_add(block.ptr);
+                task_allocation_add(kalloc_list+i);
                 task_unlock();
                 return (void *)block.ptr;
             }
@@ -186,7 +186,7 @@ void *kmalloc(uint64_t b){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
-                task_allocation_add(block.ptr);
+                task_allocation_add(kalloc_list+i);
                 task_unlock();
                 return (void *)block.ptr;
             }

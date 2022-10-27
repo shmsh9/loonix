@@ -10,6 +10,7 @@ void *current_interrupt_frame[4] = {0x0};
         STACKTRACE();\
     }\
     else{\
+        kprintf("task (%s) : \n", task_current->name);\
         STACKTRACE_CTXT(task_current->context->rbp)\
         CPU_REGISTERS_PRINT(task_current->context);\
     }\
@@ -39,6 +40,7 @@ void interrupt_handler_timer(){
     KMESSAGE("Timer fired");
 }
 void interrupt_general_protection_fault(){
+    task_lock();
     KPANICINTERRUPT("protection fault !", current_interrupt_frame);
 }
 void interrupt_functions_table_init(){

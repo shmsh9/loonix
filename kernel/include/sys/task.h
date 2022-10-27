@@ -38,7 +38,6 @@ typedef struct  __attribute__((packed)) _task{
     uint64_t time;
     uint64_t time_max;
     task_priority priority;
-    karray *allocations;
 }task;
 
 extern task *task_current;
@@ -54,7 +53,9 @@ task *task_get_next();
 void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
-void task_allocation_add(uint64_t p);
+void task_allocation_add(kheap_allocated_block *b);
+
+#include <sys/newmem.h>
 #include <kstd/kstd.h>
 
 #endif

@@ -247,17 +247,17 @@ int builtins_task(int argc, char **argv){
 }
 int testtask(void *data, task *t){
     uint64_t *i = data;
-    char *foobar  = kcalloc(sizeof(char),2);
-    foobar[0] = 'f';
-    foobar[1] = 0x0;
     while (*i < 5){
-        //kprintf("i == %d        \r", *i);
+        kprintf("i == %d        \r", *i);
         sleep(1);
     }
     //builtins_testscroll(0, 0x0);
     return 0;
 }
 int testtask2(void *data, task *t){
+    char *f = kmalloc(512);
+    f[0] = 'f';
+    f[1] = 0;
     uint64_t *i = data;
     while(*i < 5){
         sleep(1);
@@ -274,12 +274,14 @@ int builtins_testtask(int argc, char **argv){
     *i = 0;
     task_new(testtask, (void *)i, "test", task_priority_high);
     task_new(testtask2, (void *)i, "test2", task_priority_high);
+    /*
     task_new(
         (int (*)(void *, task *))builtins_graphics, 
         0x0, 
         "graphics", 
         task_priority_high
     );
+    */
     return 0;
 }
 
