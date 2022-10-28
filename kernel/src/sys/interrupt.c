@@ -11,7 +11,7 @@ void *current_interrupt_frame[4] = {0x0};
         STACKTRACE();\
     }\
     else{\
-        kprintf("task (%s) : \n", task_current->name);\
+        kprintf("task 0x%x (%s) : \n", task_current, task_current->name);\
         STACKTRACE_CTXT(task_current->context->CPU_REGISTER_FRAME);\
         CPU_REGISTERS_PRINT(task_current->context);\
     }\

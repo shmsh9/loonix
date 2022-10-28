@@ -275,14 +275,12 @@ int builtins_testtask(int argc, char **argv){
     *i = 0;
     task_new(testtask, (void *)i, "test", task_priority_high);
     task_new(testtask2, (void *)i, "test2", task_priority_high);
-    /*
     task_new(
         (int (*)(void *, task *))builtins_graphics, 
         0x0, 
         "graphics", 
         task_priority_high
     );
-    */
     return 0;
 }
 

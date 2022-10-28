@@ -17,6 +17,27 @@ void task_end(task *t){
 void task_end_current(){
     task_end(task_current);
 }
+void task_end_wait(task *t){
+    while(task_status_get(t) != task_status_ended){
+        sleep(1);
+    }
+}
+task_status task_status_get(task *t){
+    if(!t){
+        return task_status_ended;
+    }
+    task_lock();
+    task *t2 = task_first;
+    while(t2){
+        if(t == t2){
+            task_unlock();
+            return t2->status;
+        }
+        t2 = t2->next;
+    }
+    task_unlock();
+    return task_status_ended;
+}
 void task_lock(){
     interrupt_disable();
     task_lock_counter++;

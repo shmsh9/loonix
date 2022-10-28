@@ -49,6 +49,8 @@ void task_unlock();
 void task_end(task *t);
 void task_priority_set(task *t, task_priority p);
 task_priority task_priority_get(task *t);
+task_status task_status_get(task *t);
+void task_end_wait(task *t);
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority);
 task *task_get_next();
 void task_free(task *t);

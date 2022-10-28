@@ -48,9 +48,6 @@ void crt0(bootinfo *bootinfo){
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
     //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
-    //process_init();
-    //timer_init();
-    //rtc_device_init();
     fb = framebuffer_device_new(
         bootinfo->framebuffer.address, 
         bootinfo->framebuffer.width, 
@@ -75,7 +72,12 @@ void crt0(bootinfo *bootinfo){
     pci_enum_ecam(acpi_tables->mcfg);
     
     //End of init
+    task_new((int (*)(void *, task *))kmain, 
+        bootinfo,
+        "kmain",
+        task_priority_low
+    );
     interrupt_enable();
-    kmain(bootinfo);
+    //kmain(bootinfo);
     BREAKPOINT();
 }
