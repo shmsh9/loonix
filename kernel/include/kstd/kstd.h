@@ -40,6 +40,7 @@
         kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);\
         stk = stk->frame;\
     }\
+    kputc('\n');\
 }
 #define KMSG(type, ...) {\
     kprintf("[%d][kernel][%s] : %s() : ",cpu_get_tick(),type, __func__);\

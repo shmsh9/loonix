@@ -34,9 +34,9 @@
     .task_save_context_begin_\index :
     push rax
     push rbx
-    mov  rax, \index
-    cmp  rax, 0x20                      //only save context for timer tasks
-    jne   .task_save_context_end_\index
+    //mov  rax, \index
+    //cmp  rax, 0x20                      //only save context for timer tasks
+    //jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index

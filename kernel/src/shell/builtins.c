@@ -266,6 +266,7 @@ int testtask2(void *data, task *t){
         task_unlock();
     }
     kfree(i);
+    builtins_int(0, 0x0);
     return 0;
 }
 

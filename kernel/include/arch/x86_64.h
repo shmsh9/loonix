@@ -74,6 +74,7 @@
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
     #define CPU_REGISTER_STACK rsp
+    #define CPU_REGISTER_FRAME rbp
     #define _INB(address, ret){\
         volatile uint8_t tmp = 0;\
         __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\

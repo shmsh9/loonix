@@ -55,7 +55,7 @@ void task_free(task *t);
 void task_debug_print();
 void task_scheduler();
 void task_allocation_add(kheap_allocated_block *b);
-void task_kill_current();
+void task_end_current();
 
 #include <sys/newmem.h>
 #include <kstd/kstd.h>

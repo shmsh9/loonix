@@ -14,7 +14,7 @@ void task_end(task *t){
         return;
     t->status = task_status_ended;
 }
-void task_kill_current(){
+void task_end_current(){
     task_end(task_current);
 }
 void task_lock(){

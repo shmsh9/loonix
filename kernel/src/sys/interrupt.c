@@ -12,6 +12,7 @@ void *current_interrupt_frame[4] = {0x0};
     }\
     else{\
         kprintf("task (%s) : \n", task_current->name);\
+        STACKTRACE_CTXT(task_current->context->CPU_REGISTER_FRAME);\
         CPU_REGISTERS_PRINT(task_current->context);\
     }\
     INTERRUPT_FRAME_PRINT(interrupt_frame);\
@@ -20,7 +21,7 @@ void *current_interrupt_frame[4] = {0x0};
 #define KPANICINTERRUPT(msg, interrupt_frame) {\
     task_lock();\
     KERRORINTERRUPT(msg, interrupt_frame);\
-    task_kill_current();\
+    task_end_current();\
     task_unlock();\
     BREAKPOINT();\
 }
