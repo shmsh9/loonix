@@ -283,7 +283,111 @@ int builtins_testtask(int argc, char **argv){
     );
     return 0;
 }
+int entropy_gol(void *data, task *t){
+    int i = 3;
+    while(1){
+        i *=i;
+        if(i > 1)
+            i /= i-1;
+        else
+            i++;
+    }
+}
+void gol_print(karray *game){
+    graphics_pixel b_less_pixel[] = {
+        GRAPHICS_PIXEL_BLACK,
+        GRAPHICS_PIXEL_GREEN
+    };
+    //framebuffer_device_clear(fb, &GRAPHICS_PIXEL_BLACK);
+    for(int i = 0; i < game->length; i++){
+        for(int j = 0; j < fb->width; j++){
+            framebuffer_device_draw_pixel_fast(
+                fb,
+                j,
+                i,
+                &b_less_pixel[(uint8_t)((char **)game->array)[i][j]]
+            );
+        }
+    }
+    framebuffer_device_update(fb);
+}
+void gol_tick(karray *game, uint8_t rand){
+    for(int i = 0; i < game->length; i++){
+        for(int j = 0; j < fb->width; j++){
+            int neigh = 0;
+            if(j - 1 >= 0){
+                neigh += ((char **)game->array)[i][j];
+            }
+            if(j + 1 < fb->width){
+                neigh += ((char **)game->array)[i][j];
+            }
+            if(i -1 >= 0){
+                int start = j - 1 >= 0 ? j - 1 : j;
+                int end = j + 1 < fb->width ? j + 1 : j;
+                for(int x = start; x < end; x++){
+                    neigh += ((char **)game->array)[i-1][x];
+                }
+            }
+            if(i+1 < game->length){
+                int start = j - 1 >= 0 ? j - 1 : j;
+                int end = j + 1 < fb->width ? j + 1 : j;
+                for(int x = start; x < end; x++){
+                    neigh += ((char **)game->array)[i+1][x];
+                }
 
+            }
+            if(((char **)game->array)[i][j]){
+                if(neigh < 2 || neigh > 3){
+                    ((char **)game->array)[i][j] = 0;
+                }
+            }
+            else{
+                if(neigh == 3)
+                    ((char **)game->array)[i][j] = 1;
+            }
+            if((cpu_get_tick() & 0xaa) == 0){
+                switch(rand){
+                    case 0:
+                        break;
+                    case 1:
+                        ((char **)game->array)[i][j] = 1;
+                        break;
+                    case 2:
+                        ((char **)game->array)[i][j] = 0;
+                        break;
+                }
+            }
+        }
+    }
+}
+int builtins_gol(int argc, char **argv){
+    karray *game = karray_new(sizeof(char *), kfree);
+    for(int i = 0; i < fb->height; i++){
+        karray_push(game, (uint64_t)kcalloc(fb->width,1));
+    }
+    /*
+    task *entropy = task_new(
+        entropy_gol,
+        0x0,
+        "entropy",
+        task_priority_medium
+    );
+    */
+    while(!ps2_key_is_pressed(PS2_KEY_ESCAPE)){
+        uint8_t rand = 0;
+        if(ps2_key_is_pressed(PS2_KEY_R)){
+            rand = 1;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_X)){
+            rand = 2;
+        }
+        gol_print(game);
+        gol_tick(game, rand);
+    }
+    //task_end(entropy);
+    karray_free(game);
+    return 0;
+}
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -318,6 +422,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_help, "help");
     BUILTINS_INIT_FN(builtins_ahci, "ahci");
     BUILTINS_INIT_FN(builtins_lspci, "lspci");
+    BUILTINS_INIT_FN(builtins_gol, "gol");
     BUILTINS_INIT_FN(builtins_clear, "clear");
     BUILTINS_INIT_FN(builtins_free, "free");
     BUILTINS_INIT_FN(builtins_int, "int");

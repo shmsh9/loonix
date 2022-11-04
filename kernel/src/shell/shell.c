@@ -2,13 +2,6 @@
 
 int shell(){
     builtins_init();
-    /* Why compiler does not do this for me ??? */
-    /*
-    builtins[0].ptrfn = clear;
-    builtins[0].name = "clear";
-    builtins[1].ptrfn = help;
-    builtins[1].name = "help";
-    */
 
     kprint(SHELL_PROMPT);
     char c = 0;
