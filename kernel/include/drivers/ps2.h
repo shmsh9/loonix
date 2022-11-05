@@ -8,7 +8,7 @@ typedef struct {
     uint64_t command_register;
 } ps2_device;
 
-#include <io.h>
+#include <sys/io.h>
 #include <kstd/kstd.h>
 #define PS2_SET_1_SIZE        0x58
 #define PS2_DEVICE_OUTPUT     0

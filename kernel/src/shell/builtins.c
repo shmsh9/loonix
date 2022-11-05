@@ -293,7 +293,7 @@ int entropy_gol(void *data, task *t){
             i++;
     }
 }
-void gol_print(karray *game){
+void gol_print(karray *game, int cur_x, int cur_y){
     graphics_pixel b_less_pixel[] = {
         GRAPHICS_PIXEL_BLACK,
         GRAPHICS_PIXEL_GREEN
@@ -307,8 +307,15 @@ void gol_print(karray *game){
                 i,
                 &b_less_pixel[(uint8_t)((char **)game->array)[i][j]]
             );
+            
         }
     }
+    framebuffer_device_draw_pixel_fast(
+        fb,
+        cur_x,
+        cur_y,
+        &GRAPHICS_PIXEL_RED
+    );
     framebuffer_device_update(fb);
 }
 void gol_tick(karray *game, uint8_t rand){
@@ -316,10 +323,10 @@ void gol_tick(karray *game, uint8_t rand){
         for(int j = 0; j < fb->width; j++){
             int neigh = 0;
             if(j - 1 >= 0){
-                neigh += ((char **)game->array)[i][j];
+                neigh += ((char **)game->array)[i][j-1];
             }
             if(j + 1 < fb->width){
-                neigh += ((char **)game->array)[i][j];
+                neigh += ((char **)game->array)[i][j+1];
             }
             if(i -1 >= 0){
                 int start = j - 1 >= 0 ? j - 1 : j;
@@ -361,18 +368,17 @@ void gol_tick(karray *game, uint8_t rand){
     }
 }
 int builtins_gol(int argc, char **argv){
+    kprintf("Lame Game Of Life :\nWASD to move\nSpace do spawn cell\nP to start/stop generation\nR to generate random cells\nX to kill random cells\n");
+    framebuffer_device_update(fb);
+    char c = kgetchar();
+    c++;
     karray *game = karray_new(sizeof(char *), kfree);
     for(int i = 0; i < fb->height; i++){
         karray_push(game, (uint64_t)kcalloc(fb->width,1));
     }
-    /*
-    task *entropy = task_new(
-        entropy_gol,
-        0x0,
-        "entropy",
-        task_priority_medium
-    );
-    */
+    int curr_x = fb->width/2;
+    int curr_y = fb->height/2;
+    bool pause = true; 
     while(!ps2_key_is_pressed(PS2_KEY_ESCAPE)){
         uint8_t rand = 0;
         if(ps2_key_is_pressed(PS2_KEY_R)){
@@ -381,10 +387,28 @@ int builtins_gol(int argc, char **argv){
         if(ps2_key_is_pressed(PS2_KEY_X)){
             rand = 2;
         }
-        gol_print(game);
-        gol_tick(game, rand);
+        if(ps2_key_is_pressed(PS2_KEY_W)){
+            curr_y--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_A)){
+            curr_x--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_S)){
+            curr_y++;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_D)){
+            curr_x++;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_SPACE)){
+            ((char **)game->array)[curr_y][curr_x] = 1;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_P)){
+            pause = !pause;
+        }
+        gol_print(game, curr_x, curr_y);
+        if(!pause)
+            gol_tick(game, rand);
     }
-    //task_end(entropy);
     karray_free(game);
     return 0;
 }

@@ -1,4 +1,4 @@
-#include <io.h>
+#include <sys/io.h>
 
 void outb(uint64_t address, uint32_t data){
     _OUTB(address, data);

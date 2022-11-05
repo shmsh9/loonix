@@ -11,7 +11,7 @@ typedef struct _serial_device{
 	uint8_t  tx_mask;
 	uint8_t  char_in;
 }serial_device;
-#include <io.h>
+#include <sys/io.h>
 #include <drivers/pl011uart.h>
 #include <arch/arch.h>
 #include <kstd/kstd.h>
