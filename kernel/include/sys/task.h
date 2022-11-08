@@ -6,11 +6,11 @@
 #include <shell/shell.h>
 
 #define TASK_STACK_SIZE 0x10000
-
-#define TASK_CPU_TIME_HIGH    0x100000000
-#define TASK_CPU_TIME_MEDIUM  0x10000000
-#define TASK_CPU_TIME_LOW     0x1000000
-#define TASK_CPU_TIME_SLEEP   0x1000
+#define TASK_CPU_TIME_TOTAL   0x100000
+#define TASK_CPU_TIME_HIGH    0x2
+#define TASK_CPU_TIME_MEDIUM  0x4
+#define TASK_CPU_TIME_LOW     0x8
+#define TASK_CPU_TIME_SLEEP   0xF
 
 typedef enum _task_status {
     task_status_ended,
@@ -36,8 +36,8 @@ typedef struct  __attribute__((packed)) _task{
     char *name;
     task_status status;
     void *data;
-    uint64_t time;
-    uint64_t time_max;
+    uint32_t time_slice;
+    int32_t time_slice_remaining;
     task_priority priority;
 }task;
 

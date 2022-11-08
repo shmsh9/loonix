@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <drivers/pci.h>
+#include <shell/gol.h>
 
 #define BUILTIN_SIZE 32
 #define BUILTINS_INIT_FN(fn, n){\

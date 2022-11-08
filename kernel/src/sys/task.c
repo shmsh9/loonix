@@ -5,6 +5,7 @@ task *task_first = 0x0;
 task *task_last = 0x0;
 uint64_t task_last_tick = 0x0;
 uint64_t task_lock_counter = 0;
+uint64_t task_time_total_available = TASK_CPU_TIME_TOTAL;
 
 extern uint64_t kalloc_list_alloc;
 extern uint64_t kalloc_list_last;
@@ -85,22 +86,22 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
     };
     switch (ret->priority){
         case task_priority_high:
-            ret->time_max = TASK_CPU_TIME_HIGH;
+            ret->time_slice = TASK_CPU_TIME_HIGH;
             break;
         case task_priority_medium:
-            ret->time_max = TASK_CPU_TIME_MEDIUM;
+            ret->time_slice = TASK_CPU_TIME_MEDIUM;
             break;
         case task_priority_low:
-            ret->time_max = TASK_CPU_TIME_LOW;
+            ret->time_slice = TASK_CPU_TIME_LOW;
             break;
         case task_priority_sleep:
-            ret->time_max = TASK_CPU_TIME_SLEEP;
+            ret->time_slice = TASK_CPU_TIME_SLEEP;
             break;
         default:
             KMESSAGE("task_current->priority == %d (unknown) defaulting to TASK_CPU_TIME_MEDIUM",
                 (uint64_t)task_current->priority
             );
-            ret->time_max = TASK_CPU_TIME_MEDIUM;
+            ret->time_slice = TASK_CPU_TIME_MEDIUM;
             break;
     }
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
@@ -125,16 +126,16 @@ void task_priority_set(task *t, task_priority p){
     }
     switch(p){
         case task_priority_high:
-            t->time_max = TASK_CPU_TIME_HIGH;
+            t->time_slice = TASK_CPU_TIME_HIGH;
             break;
         case task_priority_medium:
-            t->time_max = TASK_CPU_TIME_MEDIUM;
+            t->time_slice = TASK_CPU_TIME_MEDIUM;
             break;
         case task_priority_low:
-            t->time_max = TASK_CPU_TIME_LOW;
+            t->time_slice = TASK_CPU_TIME_LOW;
             break;
         case task_priority_sleep:
-            t->time_max = TASK_CPU_TIME_SLEEP;
+            t->time_slice = TASK_CPU_TIME_SLEEP;
             break;
         default:
             KERROR("p == %d (unknown)", p);
@@ -219,10 +220,18 @@ void task_scheduler(){
     if(!task_current){
         task_current = task_first;
     }
-    task_current->time += cpu_get_tick() - task_last_tick;
+    task_current->time_slice_remaining -= cpu_get_tick() - task_last_tick;
 
-    if(task_current->time >= task_current->time_max){
-        task_current->time = 0;
+    if(task_current->time_slice_remaining <= 0){
+        /*
+        KMESSAGE("switching task %s time_slice == %d", 
+            task_current->name,
+            (uint64_t)(task_time_total_available >> task_current->time_slice)
+        );
+        
+        kgetchar();
+        */
+        task_current->time_slice_remaining = task_time_total_available >> task_current->time_slice;
         task_current = task_get_next();
     }
 
@@ -231,7 +240,7 @@ void task_scheduler(){
         case task_status_created:
             //run the task
             task_current->status = task_status_running;
-            task_current->time = cpu_get_tick();
+            task_current->time_slice_remaining = task_time_total_available >> task_current->time_slice;
             task_cpu_registers_load(
                 task_current->context,
                 (void *)task_run,
