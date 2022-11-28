@@ -253,6 +253,9 @@ char **shell_parse_args2(char cmdline[CMDLINE_MAX], int *argc){
 	kfree(tmp);
 	return argv;
 }
+int shell_exec_args_wrapped(shell_args_wrapped *args, task *t){
+    return args->fn(args->argc, args->argv);
+}
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)
         return 0;
@@ -260,11 +263,33 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
     char **argv = shell_parse_args2(cmdline, &argc);
     for(int i = 0; i < builtins.length; i++){
         if(strcmp(argv[0], builtins.builtins[i].name) == 0){
-            int ret = builtins.builtins[i].ptrfn(argc, argv);
+            shell_args_wrapped *argw = kmalloc(sizeof(shell_args_wrapped));
+            *argw = (shell_args_wrapped){
+                .argc = argc,
+                .argv = argv,
+                .fn = builtins.builtins[i].ptrfn
+            };
+            task *subproc = task_new(
+                (int (*)(void *, task *))shell_exec_args_wrapped,
+                (void *)argw,
+                argv[0],
+                task_priority_medium
+            );
+            while(subproc->status != task_status_ended){
+                int ctrl = kgetchar_non_blocking();
+                //CTRL + C
+                if(ctrl == 0x3){
+                    task_end(subproc);
+                    kprint("^C");
+                }
+                vt100_console_update_draw_screen(fb);
+            }
+            //int ret = builtins.builtins[i].ptrfn(argc, argv);
             for(int i = 0; i < argc; i++)
                 kfree(argv[i]);
             kfree(argv);
-            return ret;
+            kfree(argw);
+            return 0;
         }
     }
     kprintf("-"SHELL_NAME": %s: command not found\n", cmdline);

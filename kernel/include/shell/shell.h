@@ -6,6 +6,12 @@
 #define SHELL_NAME   "sh3w4x"
 #define SHELL_PROMPT SHELL_NAME" $> "
 #define CMDLINE_MAX  1024
+
+typedef struct _shell_args_wrapped{
+    int argc;
+    char **argv;
+    int (*fn)(int, char**);
+}shell_args_wrapped;
 int shell();
 void shell_non_blocking();
 int shell_exec(char cmdline[CMDLINE_MAX]);
