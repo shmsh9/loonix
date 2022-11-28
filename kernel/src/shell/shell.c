@@ -282,6 +282,7 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
                     task_end(subproc);
                     kprint("^C");
                 }
+                sleep_100(10);
                 vt100_console_update_draw_screen(fb);
             }
             //int ret = builtins.builtins[i].ptrfn(argc, argv);

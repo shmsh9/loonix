@@ -208,6 +208,7 @@ int builtins_regdump(int argc, char **argv){
 
 int builtins_ahci(int argc, char **argv){
     ahci_controller *cont = ahci_controller_new();
+    ahci_controller_probe_ports(cont); 
     if(!cont)
         return -1;
     ahci_device *dev0 = ahci_device_new(cont, 0);
@@ -215,10 +216,19 @@ int builtins_ahci(int argc, char **argv){
         kfree(cont);
         return -1;
     }
-    KDEBUG("ABAR at 0x%x", cont->abar >> 4);
+    char buff[512] = {0};
+    ahci_device_read(
+        dev0,
+        0,
+        0,
+        512,
+        (uint64_t *)&buff
+    );
+    /*
     ahci_device_send_command(dev0, 0);
     ahci_device_free(dev0);
     ahci_controller_free(cont);
+    */
     return 0;
 }
 int builtins_karray_pop(int argc, char **argv){

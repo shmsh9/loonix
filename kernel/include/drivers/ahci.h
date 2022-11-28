@@ -5,23 +5,36 @@
 
 #define AHCI_PCI_SUBCLASS 0x06
 #define ATA_CMD_IDENTIFY  0xEC
+#define ATA_DEV_BUSY 0x80
+#define ATA_DEV_DRQ 0x08
+#define ATA_CMD_READ_DMA_EX 0x25
 
+#define HBA_PORT_IPM_ACTIVE 1
+#define HBA_PORT_DET_PRESENT 3
+#define	SATA_SIG_ATA	0x00000101	// SATA drive
+#define	SATA_SIG_ATAPI	0xEB140101	// SATAPI drive
+#define	SATA_SIG_SEMB	0xC33C0101	// Enclosure management bridge
+#define	SATA_SIG_PM	0x96690101	// Port multiplier
+
+#define	AHCI_BASE	0x400000	// 4M 
+#define HBA_PxCMD_ST    0x0001
+#define HBA_PxCMD_FRE   0x0010
+#define HBA_PxCMD_FR    0x4000
+#define HBA_PxCMD_CR    0x8000
+#define HBA_PxIS_TFES (1 << 30)
 typedef enum{
     AHCI_CONTROLLER_IDE,
     AHCI_CONTROLLER_SATA
 } ahci_controller_mode;
 
+typedef enum{
+	AHCI_DEVICE_NULL,
+	AHCI_DEVICE_SATA,
+	AHCI_DEVICE_SEMB,
+	AHCI_DEVICE_PM,
+	AHCI_DEVICE_SATAPI
+}ahci_device_type;
 
-typedef struct _ahci_controller{
-    pci_device *dev;
-    ahci_controller_mode mode;
-	uint64_t abar;
-}ahci_controller;
-
-typedef struct _ahci_device{
-	uint8_t device;
-    ahci_controller *controller;
-}ahci_device;
 
 typedef enum{
 	FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
@@ -220,6 +233,68 @@ typedef struct __attribute((packed)) ahci_hba_mem{
 	// 0x100 - 0x10FF, Port control registers
 	ahci_hba_port	ports[1];	// 1 ~ 32
 } ahci_hba_mem;
+typedef struct _ahci_hba_prdt_entry{
+	uint32_t dba;		// Data base address
+	uint32_t dbau;		// Data base address upper 32 bits
+	uint32_t rsv0;		// Reserved
+ 
+	// DW3
+	uint32_t dbc:22;		// Byte count, 4M max
+	uint32_t rsv1:9;		// Reserved
+	uint32_t i:1;		// Interrupt on completion
+}ahci_hba_prdt_entry;
+typedef struct _ahci_hba_cmd_tbl{
+	// 0x00
+	uint8_t  cfis[64];	// Command FIS
+ 
+	// 0x40
+	uint8_t  acmd[16];	// ATAPI command, 12 or 16 bytes
+ 
+	// 0x50
+	uint8_t  rsv[48];	// Reserved
+ 
+	// 0x80
+	ahci_hba_prdt_entry	prdt_entry[1];	// Physical region descriptor table entries, 0 ~ 65535
+}ahci_hba_cmd_tbl;
+
+typedef struct _ahci_hba_cmd_header{
+	// DW0
+	uint8_t  cfl:5;		// Command FIS length in DWORDS, 2 ~ 16
+	uint8_t  a:1;		// ATAPI
+	uint8_t  w:1;		// Write, 1: H2D, 0: D2H
+	uint8_t  p:1;		// Prefetchable
+ 
+	uint8_t  r:1;		// Reset
+	uint8_t  b:1;		// BIST
+	uint8_t  c:1;		// Clear busy upon R_OK
+	uint8_t  rsv0:1;		// Reserved
+	uint8_t  pmp:4;		// Port multiplier port
+ 
+	uint16_t prdtl;		// Physical region descriptor table length in entries
+ 
+	// DW1
+	volatile
+	uint32_t prdbc;		// Physical region descriptor byte count transferred
+ 
+	// DW2, 3
+	uint32_t ctba;		// Command table descriptor base address
+	uint32_t ctbau;		// Command table descriptor base address upper 32 bits
+ 
+	// DW4 - 7
+	uint32_t rsv1[4];	// Reserved
+} ahci_hba_cmd_header;
+
+typedef struct _ahci_controller{
+    pci_device *dev;
+    ahci_controller_mode mode;
+	uint64_t abar;
+}ahci_controller;
+
+typedef struct _ahci_device{
+	uint8_t device;
+	ahci_hba_port *port;
+    ahci_controller *controller;
+}ahci_device;
 
 #include <kstd/kstd.h>
 ahci_device *ahci_device_new(ahci_controller *controller, uint8_t port);
@@ -227,4 +302,8 @@ void ahci_controller_free(ahci_controller *controller);
 ahci_controller *ahci_controller_new();
 void ahci_device_free(ahci_device *ahci);
 void ahci_device_send_command(ahci_device *ahci, uint8_t cmd);
+void ahci_controller_probe_ports(ahci_controller *controller);
+void ahci_device_stop_command(ahci_device *dev);
+void ahci_device_start_command(ahci_device *dev);
+bool ahci_device_read(ahci_device *dev, uint32_t startl, uint32_t starth, uint32_t count, uint64_t *buff);
 #endif
