@@ -116,7 +116,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
     return ret;
 }
 task_priority task_priority_get(task *t){
-    return t == 0x0 ? task_priority_medium : t->priority;
+    return t == 0x0 ? task_priority_null : t->priority;
 }
 void task_priority_set(task *t, task_priority p){
     if(!t){

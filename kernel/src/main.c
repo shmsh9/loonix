@@ -11,7 +11,7 @@ uint64_t kmain(bootinfo *bootinfo){
 			(int (*)(void *, task *))shell, 
 			0x0, 
 			"shell",
-			task_priority_medium
+			task_priority_high
 		);
 		task_end_wait(shell_task);
 	}

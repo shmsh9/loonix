@@ -280,8 +280,8 @@ int testtask2(void *data, task *t){
 int builtins_testtask(int argc, char **argv){
     uint64_t *i = kmalloc(sizeof(uint64_t));
     *i = 0;
-    task_new(testtask, (void *)i, "test", task_priority_high);
-    task_new(testtask2, (void *)i, "test2", task_priority_high);
+    task_new(testtask, (void *)i, "test", task_priority_medium);
+    task_new(testtask2, (void *)i, "test2", task_priority_medium);
     /*
     task_new(
         (int (*)(void *, task *))builtins_graphics, 

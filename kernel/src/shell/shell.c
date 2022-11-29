@@ -273,7 +273,7 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
                 (int (*)(void *, task *))shell_exec_args_wrapped,
                 (void *)argw,
                 argv[0],
-                task_priority_medium
+                task_priority_high
             );
             while(subproc->status != task_status_ended){
                 int ctrl = kgetchar_non_blocking();
@@ -283,7 +283,6 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
                     kprint("^C");
                 }
                 sleep_100(10);
-                vt100_console_update_draw_screen(fb);
             }
             //int ret = builtins.builtins[i].ptrfn(argc, argv);
             for(int i = 0; i < argc; i++)

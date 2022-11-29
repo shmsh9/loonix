@@ -5,7 +5,7 @@
 #include <kstd/karray.h>
 #include <shell/shell.h>
 
-#define TASK_STACK_SIZE 0x10000
+#define TASK_STACK_SIZE       0x10000
 #define TASK_CPU_TIME_TOTAL   0x100000
 #define TASK_CPU_TIME_HIGH    0x2
 #define TASK_CPU_TIME_MEDIUM  0x4
@@ -23,7 +23,8 @@ typedef enum _task_priority{
     task_priority_high,
     task_priority_medium,
     task_priority_low,
-    task_priority_sleep
+    task_priority_sleep,
+    task_priority_null
 }task_priority;
 
 typedef struct  __attribute__((packed)) _task{
