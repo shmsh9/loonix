@@ -49,6 +49,10 @@ void task_unlock(){
         interrupt_enable();
 }
 void task_allocation_remove(task *t){
+    if(!t){
+        KERROR("t == NULL");
+        return;
+    }
     task_lock();
     for(uint64_t i = 0; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].task == t){
@@ -59,12 +63,7 @@ void task_allocation_remove(task *t){
     task_unlock();
 }
 void task_allocation_add(kheap_allocated_block *b){
-    if(!task_current){
-        b->task = 0x0;
-    }
-    else{
-        b->task = task_current;
-    }
+    b->task = 0x0;
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
