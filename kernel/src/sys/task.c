@@ -63,7 +63,7 @@ void task_allocation_remove(task *t){
     task_unlock();
 }
 void task_allocation_add(kheap_allocated_block *b){
-    b->task = 0x0;
+    b->task = task_current;
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
