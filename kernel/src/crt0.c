@@ -72,12 +72,14 @@ void crt0(bootinfo *bootinfo){
     pci_enum_ecam(acpi_tables->mcfg);
     
     //End of init
+    /*
     task_new((int (*)(void *, task *))kmain, 
         bootinfo,
         "kmain",
         task_priority_low
     );
+    */
     interrupt_enable();
-    //kmain(bootinfo);
+    kmain(bootinfo);
     BREAKPOINT();
 }

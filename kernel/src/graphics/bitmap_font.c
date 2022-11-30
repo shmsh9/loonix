@@ -96,15 +96,63 @@ void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *f
     uint64_t curr_y = y;
     uint64_t curr_x = x;
     for(uint8_t current_bitfield = 0; current_bitfield < 8; current_bitfield++){
-        curr_x = x;
-        for(uint8_t current_bit = 0; current_bit < 8; current_bit++){
-            framebuffer_device_draw_pixel_fast(fb,
-                    curr_x,
-                    curr_y,
-                    px_branchless[ (font8x8[c][current_bitfield] >> current_bit) & 1]
-            );
-           curr_x++;
-        }
+        //curr_x = x;
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 0) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+1,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 1) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+2,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 2) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+3,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 3) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+4,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 4) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+5,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 5) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+6,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 6) & 1]
+
+        );
+        framebuffer_device_draw_pixel_fast(
+            fb,
+            curr_x+7,
+            curr_y,
+            px_branchless[ (font8x8[c][current_bitfield] >> 7) & 1]
+
+        );
         curr_y++;
     }
 }

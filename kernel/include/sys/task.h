@@ -10,7 +10,7 @@
 #define TASK_CPU_TIME_HIGH    0x2
 #define TASK_CPU_TIME_MEDIUM  0x4
 #define TASK_CPU_TIME_LOW     0x8
-#define TASK_CPU_TIME_SLEEP   0xF
+#define TASK_CPU_TIME_SLEEP   0x20
 
 typedef enum _task_status {
     task_status_ended,
