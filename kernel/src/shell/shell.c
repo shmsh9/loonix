@@ -276,13 +276,14 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
                 task_priority_high
             );
             while(subproc->status != task_status_ended){
+                
                 int ctrl = kgetchar_non_blocking();
                 //CTRL + C
                 if(ctrl == 0x3){
                     task_end(subproc);
                     kprint("^C");
                 }
-                sleep_100(10);
+                //sleep_100(50);
             }
             //int ret = builtins.builtins[i].ptrfn(argc, argv);
             for(int i = 0; i < argc; i++)
