@@ -341,6 +341,9 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
             case PS2_KEY_C:
                 return 0x3;
                 break;
+            case PS2_KEY_L:
+                return 0x0c;
+                break;
             case PS2_KEY_M:
                 return '\n';
             default:

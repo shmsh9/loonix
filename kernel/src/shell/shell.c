@@ -35,6 +35,12 @@ int shell(){
                 cmdlinepos = 0;
                 kprint(SHELL_PROMPT);
                 break;
+            case 0x0c:
+                builtins_clear(0, 0x0);
+                memset(cmdline, 0, CMDLINE_MAX);
+                cmdlinepos = 0;
+                kprint(SHELL_PROMPT);
+                break;
             //Backspace
             case 0x7f:
                 if( (cmdlinepos - 1) >= 0){

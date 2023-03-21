@@ -19,7 +19,7 @@ acpi_table *acpi_tables = 0x0;
 
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
-    interrupt_disable();
+    task_lock();
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
@@ -72,14 +72,11 @@ void crt0(bootinfo *bootinfo){
     pci_enum_ecam(acpi_tables->mcfg);
     
     //End of init
-    /*
     task_new((int (*)(void *, task *))kmain, 
         bootinfo,
         "kmain",
         task_priority_low
     );
-    */
-    interrupt_enable();
-    kmain(bootinfo);
+    task_unlock();
     BREAKPOINT();
 }

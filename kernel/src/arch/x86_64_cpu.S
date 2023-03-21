@@ -87,9 +87,9 @@ task_cpu_registers_load:
     push rax
     mov  al, 0x20                   //ack PIC int
     out  0x20, al
-    sti
     pop rax
     ///////////////////////////////////
+    sti
     call rax
 //void task_cpu_registers_reload(cpu_registers *regs);
 task_cpu_registers_reload:
@@ -117,14 +117,14 @@ task_cpu_registers_reload:
     push rax
     popfq
     pop rax
-    cli
+    //cli
     mov rdi,[rdi+cpu_registers_rdi]
     /////////////////
     //ack PIC && reenable interrupts//
     push rax
     mov  al, 0x20                   //ack PIC int
     out  0x20, al
-    sti
+    //sti
     pop rax
     ///////////////////////////////////
     ret

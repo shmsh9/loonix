@@ -116,7 +116,7 @@
     ////////////////////////////
     pop  rax
     popad
-    sti                              //enable interrupts
+    //sti                              //enable interrupts
     iretq
 .endm
 .macro gen_interrupt_handler_loop

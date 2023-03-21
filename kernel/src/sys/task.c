@@ -63,7 +63,9 @@ void task_allocation_remove(task *t){
     task_unlock();
 }
 void task_allocation_add(kheap_allocated_block *b){
+    task_lock();
     b->task = task_current;
+    task_unlock();
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
@@ -154,7 +156,7 @@ void task_free(task *t){
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
-    task_allocation_remove(t);
+    //task_allocation_remove(t);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;
@@ -214,11 +216,12 @@ void task_run(void *data, task *t){
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
     if(!task_first){
+        KPANIC("task_first == NULL");
         return;
     }
-    if(!task_current){
+    if(!task_current)
         task_current = task_first;
-    }
+    
     task_current->time_slice_remaining -= cpu_get_tick() - task_last_tick;
 
     if(task_current->time_slice_remaining <= 0){

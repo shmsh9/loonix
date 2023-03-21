@@ -224,38 +224,51 @@ int32_t kalloc_find_ptr_alloc(const void *ptr){
     return -1;
 }
 void *kcalloc(uint64_t n, uint64_t sz){
+    task_lock();
     if(n == 0){
         KERROR("n == 0");
+        task_unlock();
         return 0x0;
     }
     if(sz == 0){
         KERROR("sz == 0");
+        task_unlock();
         return 0x0;
     }
     void *ret = kmalloc(n*sz);
     if(!ret){
         KERROR("kmalloc() failed")
+        task_unlock();
         return 0x0;
     }
     memset(ret, 0, n*sz);
+    task_unlock();
     return ret;
 }
 void *krealloc(const void *ptr, uint64_t newsz){
+    task_lock();
     if(!ptr){
         KERROR("ptr == NULL");
+        task_unlock();
         return 0x0;
     }
     if(!newsz){
         KERROR("newsz == 0");
+        task_unlock();
         return 0x0;
     }
     int32_t oldptr = kalloc_find_ptr_alloc(ptr);
-    if(oldptr == -1)
+    if(oldptr == -1){
+        task_unlock();
         return 0x0;
+    }
     void *ret = kmalloc(newsz);
-    if(!ret)
+    if(!ret){
+        task_unlock();
         return 0x0;
+    }
     memcpy(ret, ptr, (uint64_t)kalloc_list[oldptr].size);
+    task_unlock();
     return ret; 
 }
 void kfree(void *p){
@@ -271,6 +284,13 @@ void kfree(void *p){
         return;
     }
     kheap_free_mem2(&heap, &kalloc_list[ptrindex]);
-    memset(kalloc_list+ptrindex, 0, sizeof(kheap_allocated_block));
+    kalloc_list[ptrindex] = (kheap_allocated_block){
+        .bit = 0,
+        .bitfield = 0,
+        .block = 0,
+        .ptr = 0,
+        .size = 0,
+        .task = 0
+    };
     task_unlock();
 }

@@ -3,6 +3,7 @@
 
 .section .text
 _start:
+	cli //disable interrupts
 	lea	rsp, [rip+__STACK_TOP]
 	xor rbp, rbp
 	call crt0
