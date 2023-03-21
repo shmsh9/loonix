@@ -20,7 +20,7 @@
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
 #define cpu_registers_xmm0 136
-#define cpu_registers_flags 144
+#define cpu_registers_flags 152
 .section .data
 
 .macro gen_interrupt_table index
