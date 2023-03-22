@@ -5,6 +5,7 @@ typedef struct {
     uint8_t elementsz;
     uint32_t length;
     uint32_t alloc;
+    int64_t lock;
     void(*karray_data_free_fn)(void *);
     void *array;
 } karray;

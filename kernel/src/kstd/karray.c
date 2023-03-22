@@ -1,6 +1,15 @@
 #include <kstd/karray.h>
-
+void karray_lock(karray *array){
+    while(array->lock){
+        sleep_100(1);
+    }
+    array->lock++;
+}
+void karray_unlock(karray *array){
+    array->lock--;
+}
 void karray_push(karray *array, uint64_t elem){
+    karray_lock(array);
     if(array->length+1 > array->alloc){
         void *tmp = krealloc(array->array, ((array->alloc*array->elementsz)*2));
         if(tmp){
@@ -10,6 +19,7 @@ void karray_push(karray *array, uint64_t elem){
         }
         else{
             KERROR("krealloc() : failed");
+            karray_unlock(array);
             return;
         }
     }
@@ -27,11 +37,14 @@ void karray_push(karray *array, uint64_t elem){
             ((uint64_t *)array->array)[array->length++] = (uint64_t)elem;
             break;
     }
+    karray_unlock(array);
 }
 
 void karray_pop(karray *array ,uint64_t index){
-    if(index >= array->length){
+    karray_lock(array);
+    if(index >= array->length){ 
         KMESSAGE("index >= array->length");
+        karray_unlock(array);
         return;
     }
     if(array->karray_data_free_fn){
@@ -83,6 +96,7 @@ void karray_pop(karray *array ,uint64_t index){
         } 
     }
     array->length--;
+    karray_unlock(array);
 }
 
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
@@ -105,12 +119,14 @@ karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
         .elementsz = elementsz,
         .length = 0,
         .alloc = 64,
-        .karray_data_free_fn = karray_data_free_fn
+        .karray_data_free_fn = karray_data_free_fn,
+        .lock = 0
     };
     ret->array = kmalloc(ret->alloc*ret->elementsz);
     return ret;
 }
 void karray_free(karray *array){
+    karray_lock(array);
     if(array->karray_data_free_fn){
         switch (array->elementsz){
             case 1:{
@@ -151,6 +167,7 @@ void karray_free(karray *array){
     kfree(array);
 }
 void karray_debug_print(karray *array){
+    karray_lock(array);
     kprint("{ ");
     switch(array->elementsz){
         case 1:
@@ -182,5 +199,6 @@ void karray_debug_print(karray *array){
 	          }
             break;
     }
-	  kprint("}\n");
+	kprint("}\n");
+    karray_unlock(array);
 }

@@ -1,11 +1,22 @@
 #include <kstd/klist.h>
+void klist_lock(klist *l){
+    while(l->lock){
+        sleep_100(1);
+    }
+    l->lock++;
+}
+
+void klist_unlock(klist *l){
+    l->lock--;
+}
 
 klist *klist_new(void(*klist_data_free_fn)(void *)){
     klist *ret = kmalloc(sizeof(klist));
     *ret = (klist){
         .first = 0x0,
         .last = 0x0,
-        .klist_data_free_fn = klist_data_free_fn
+        .klist_data_free_fn = klist_data_free_fn,
+        .lock = 0
     };
     return ret;
 }
@@ -15,6 +26,7 @@ void klist_push(klist *k, uintptr_t data){
         KERROR("k == NULL");
         return;
     }
+    klist_lock(k);
     if(!k->first){
         klist_element *to_push = kmalloc(sizeof(klist_element));
         *to_push = (klist_element){
@@ -22,11 +34,9 @@ void klist_push(klist *k, uintptr_t data){
             .next = 0x0,
             .prev = 0x0
         };
-        *k = (klist){
-            .first = to_push,
-            .last = to_push,
-            .klist_data_free_fn = k->klist_data_free_fn,
-        };
+        k->first = to_push;
+        k->last = to_push;
+        klist_unlock(k);
         return;
     }
     klist_element *to_push = kmalloc(sizeof(klist_element));
@@ -37,12 +47,14 @@ void klist_push(klist *k, uintptr_t data){
     };
     k->first->prev = to_push;
     k->first = to_push;
+    klist_unlock(k);
 }
 void klist_free(klist *k){
     if(!k){
         KERROR("k == NULL");
         return;
     }
+    klist_lock(k);
     if(!k->first){
         KERROR("k->first == NULL");
         return;
@@ -59,6 +71,7 @@ void klist_free(klist *k){
         curr = curr->next;
         kfree(prev);
     }
+    klist_unlock(k);
     kfree(k);
 }
 
@@ -75,6 +88,7 @@ void klist_debug_print(klist *k){
         KERROR("k->last == NULL");
         return;
     }
+    klist_lock(k);
     klist_element *curr = k->first;
     kprint("{");
     while(curr){
@@ -82,4 +96,5 @@ void klist_debug_print(klist *k){
         curr = curr->next;
     }
     kprint(" }\n");
+    klist_unlock(k);
 }

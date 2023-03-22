@@ -36,11 +36,26 @@ int builtins_testkarray(int argc, char **argv){
     karray_free(k);
     return 0;
 }
+int klisttask(void *data, task *t){
+    klist *k = (klist *)data;
+    for(uint64_t i = 0xff; i < 0xfff; i++){
+        klist_push(k,(uintptr_t)strdup("foobar"));
+    }
+    return 0;
+}
 int builtins_testklist(int argc, char **argv){
     klist *k = klist_new(kfree);
+    task *t = task_new(
+        klisttask,
+        (void *)k,
+        "pushklist",
+        task_priority_high
+    );
+    
     for(uint64_t i = 0; i < 0xff; i++){
         klist_push(k,(uintptr_t)strdup("foobar"));
     }
+    task_end_wait(t);
     klist_debug_print(k);
     klist_free(k);
     return 0;

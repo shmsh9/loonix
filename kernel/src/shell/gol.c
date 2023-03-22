@@ -14,7 +14,7 @@ int gol_entropy(void *data, task *t){
 void gol_print(karray *game, int cur_x, int cur_y){
     graphics_pixel b_less_pixel[] = {
         GRAPHICS_PIXEL_BLACK,
-        GRAPHICS_PIXEL_GREEN
+        GRAPHICS_PIXEL_WHITE
     };
     //framebuffer_device_clear(fb, &GRAPHICS_PIXEL_BLACK);
     for(int i = 0; i < game->length; i++){

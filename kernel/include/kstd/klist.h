@@ -7,6 +7,7 @@ typedef struct _klist{
     struct _klist_element *first;
     struct _klist_element *last;
     void(*klist_data_free_fn)(void *);
+    int64_t lock;
 } klist;
 
 typedef struct _klist_element{
