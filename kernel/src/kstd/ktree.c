@@ -84,17 +84,52 @@ ktree *ktree_search(ktree *t, uint64_t p){
         return ktree_search(t->left, p);
     }
 }
-/*
-void ktree_pop(ktree *t){
-    if(!t->left && !t->right){
-        ktree_free(t);
-        return;
-    }
-    if(t->left && t->right){
-        ktree *new_root = t->left;
-    }
+ktree *ktree_min_payload(ktree *t){
+    ktree *curr = t;
+    while(curr && curr->left)
+        curr = curr->left;
+    return curr;
 }
-*/
+void ktree_free_node(ktree *t){
+    if(!t)
+        return;
+    kfree(t);
+}
+ktree *ktree_del(ktree *t, uint64_t p){
+    if(!t)
+        return t;
+    ktree_lock(t);
+    if(p < t->payload)
+        t->left = ktree_del(t->left, p);
+    else if(p > t->payload)
+        t->right = ktree_del(t->right, p);
+    else{
+        // node with only one child or no child
+        if (t->left == NULL) {
+            ktree* temp = t->right;
+            ktree_free_node(t);
+            return temp;
+        }
+        else if (t->right == NULL) {
+            ktree* temp = t->left;
+            ktree_free_node(t);
+            return temp;
+        }
+        // node with two children:
+        // Get the inorder successor
+        // (smallest in the right subtree)
+        ktree *temp = ktree_min_payload(t->right);
+ 
+        // Copy the inorder
+        // successor's content to this node
+        t->payload = temp->payload;
+ 
+        // Delete the inorder successor
+        t->right = ktree_del(t->right, temp->payload);
+    }
+    ktree_unlock(t);
+    return t;
+}
 void ktree_free(ktree *t){
     if(!t)
         return;

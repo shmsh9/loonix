@@ -331,8 +331,9 @@ int builtins_testktree(int argc, char **argv){
     ktree_add(t, 16);
     ktree_add(t, 20);
     ktree_debug_print(t, 0);
-    kprint("\n");
-    ktree_debug_print(ktree_search(t, 14), 0);
+    kprint("ENDE \n");
+    ktree_del(t, 0x11);
+    ktree_debug_print(t, 0);
     ktree_free(t);
     return 0;
 }

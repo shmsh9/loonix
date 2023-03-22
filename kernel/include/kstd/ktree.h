@@ -14,6 +14,7 @@ typedef struct _ktree{
 ktree * ktree_new(uint64_t p);
 void ktree_debug_print(ktree *t, uint64_t l);
 void ktree_add(ktree *t, uint64_t p);
+ktree *ktree_del(ktree *t, uint64_t p);
 ktree * ktree_search(ktree *t, uint64_t p);
 void ktree_free(ktree *t);
 #endif
