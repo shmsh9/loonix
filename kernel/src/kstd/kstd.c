@@ -283,6 +283,13 @@ void kfree(void *p){
         task_unlock();
         return;
     }
+    /*
+    if(task_current && kalloc_list[ptrindex].task != task_current){
+        KERROR("kalloc_list[ptrindex].task != task_current");
+        task_unlock();
+        return;
+    }
+    */
     kheap_free_mem2(&heap, &kalloc_list[ptrindex]);
     kalloc_list[ptrindex] = (kheap_allocated_block){
         .bit = 0,

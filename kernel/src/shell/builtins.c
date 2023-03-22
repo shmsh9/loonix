@@ -256,32 +256,30 @@ int builtins_task(int argc, char **argv){
     return 0;
 }
 int testtask(void *data, task *t){
-    uint64_t *i = data;
+    uint64_t *i = kmalloc(sizeof(uint64_t));
+    *i = 0;
     while (*i < 20){
         kprintf("i == %d        \r", *i);
-        //sleep(1);
+        *i += 1;
     }
+    kfree(i);
     //builtins_testscroll(0, 0x0);
     return 0;
 }
 int testtask2(void *data, task *t){
-    uint64_t *i = data;
+    uint64_t *i = kmalloc(sizeof(uint64_t));
+    *i = 0;
     while(*i < 20){
-        task_lock();
         *i += 1;
-        task_unlock();
         sleep(1);
     }
     kfree(i);
     builtins_int(0, 0x0);
     return 0;
 }
-
 int builtins_testtask(int argc, char **argv){
-    uint64_t *i = kmalloc(sizeof(uint64_t));
-    *i = 0;
-    task_new(testtask, (void *)i, "test", task_priority_medium);
-    task_new(testtask2, (void *)i, "test2", task_priority_medium);
+    task_new(testtask, 0x0, "test", task_priority_medium);
+    task_new(testtask2, 0x0, "test2", task_priority_medium);
     /*
     task_new(
         (int (*)(void *, task *))builtins_graphics, 

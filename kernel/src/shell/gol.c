@@ -1,9 +1,10 @@
 #include <shell/gol.h>
 
 int gol_entropy(void *data, task *t){
-    int i = 3;
+    uint8_t rnd = (uint64_t)data;
+    int i = 3302283 ^ rnd;
     while(1){
-        i *=i;
+        i *= rnd ^ i;
         if(i > 1)
             i /= i-1;
         else
@@ -85,12 +86,10 @@ void gol_tick(karray *game, uint8_t rand){
 }
 int builtins_gol(int argc, char **argv){
     kprintf("Lame Game Of Life :\nWASD to move\nSpace do spawn cell\nP to start/stop generation\nR to generate random cells\nX to kill random cells\n");
-    framebuffer_device_update(fb);
     char c = kgetchar();
-    c++;
-    task_new(
+    task *entropy = task_new(
         gol_entropy,
-        0x0,
+        (void *)(uint64_t)c,
         "gol_entropy",
         task_priority_low
     );
@@ -132,5 +131,6 @@ int builtins_gol(int argc, char **argv){
             gol_tick(game, rand);
     }
     karray_free(game);
+    task_end(entropy);
     return 0;
 }

@@ -6,14 +6,19 @@ task *task_last = 0x0;
 uint64_t task_last_tick = 0x0;
 uint64_t task_lock_counter = 0;
 uint64_t task_time_total_available = TASK_CPU_TIME_TOTAL;
+bool task_new_memory_allocation = false;
 
 extern uint64_t kalloc_list_alloc;
 extern uint64_t kalloc_list_last;
 
 void task_end(task *t){
-    if(!t)
-        return;
-    t->status = task_status_ended;
+    switch((uintptr_t)t){
+        case 0x0:
+            break;
+        default:
+            t->status = task_status_ended;
+            break;
+    }
 }
 void task_end_current(){
     task_end(task_current);
@@ -45,8 +50,13 @@ void task_lock(){
 }
 void task_unlock(){
     task_lock_counter--;
-    if(!task_lock_counter)
-        interrupt_enable();
+    switch(task_lock_counter){
+        case 0:
+            interrupt_enable();
+            break;
+        default:
+            break;
+    }
 }
 void task_allocation_remove(task *t){
     if(!t){
@@ -54,17 +64,16 @@ void task_allocation_remove(task *t){
         return;
     }
     task_lock();
-    for(uint64_t i = 0; i < kalloc_list_alloc; i++){
-        if(kalloc_list[i].task == t){
-            kheap_free_mem2(&heap, &kalloc_list[i]);
-            memset(kalloc_list+i, 0, sizeof(kheap_allocated_block));
-        }
-    }
+    for(uint64_t i = 0; i < kalloc_list_alloc; i++)
+        if(kalloc_list[i].task == t)
+            kfree((void *)kalloc_list[i].ptr);
     task_unlock();
 }
 void task_allocation_add(kheap_allocated_block *b){
+    task *task_branchless[] = { task_current, 0x0 };
+    //KMESSAGE("task_new_memory_allocation == %d", (uint64_t)task_new_memory_allocation);
     task_lock();
-    b->task = task_current;
+    b->task = task_branchless[task_new_memory_allocation];
     task_unlock();
 }
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
@@ -73,6 +82,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         return 0x0;
     }
     task_lock();
+    task_new_memory_allocation = true;
     task *ret = kmalloc(sizeof(task));
     *ret = (task){
         .next = 0x0,
@@ -114,6 +124,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         task_last->next = ret;
     }
     task_last = ret;
+    task_new_memory_allocation = false;
     task_unlock();
     return ret;
 }
@@ -156,7 +167,7 @@ void task_free(task *t){
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
-    //task_allocation_remove(t);
+    task_allocation_remove(t);
     if(t->next && t->prev){
         t->next->prev = t->prev;
         t->prev->next = t->next;
@@ -253,13 +264,13 @@ void task_scheduler(){
         case task_status_ended:
             task_free(task_current);
             task_current = task_get_next();
-            task_scheduler();
+            //task_scheduler();
             break;
         case task_status_running:
             task_cpu_registers_reload(task_current->context);
             break;
         case task_status_wait_io:
-            task_scheduler();
+            //task_scheduler();
             break;
         default:
             KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
