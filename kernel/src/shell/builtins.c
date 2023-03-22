@@ -307,32 +307,21 @@ int builtins_testtask(int argc, char **argv){
 }
 
 int builtins_testktree(int argc, char **argv){
-    ktree *t = ktree_new(11);
-    ktree_add(t, 17);
-    ktree_add(t, 5);
-    ktree_add(t, 21);
-    ktree_add(t, 18);
-    ktree_add(t, 19);
-    ktree_add(t, 14);
-    ktree_add(t, 0);
+    ktree *t = ktree_new(5);
     ktree_add(t, 1);
     ktree_add(t, 2);
     ktree_add(t, 3);
     ktree_add(t, 4);
+
     ktree_add(t, 6);
     ktree_add(t, 7);
     ktree_add(t, 8);
-    ktree_add(t, 8);
     ktree_add(t, 9);
-    ktree_add(t, 10);
-    ktree_add(t, 12);
-    ktree_add(t, 13);
-    ktree_add(t, 15);
-    ktree_add(t, 16);
-    ktree_add(t, 20);
+
     ktree_debug_print(t, 0);
     kprint("ENDE \n");
-    ktree_del(t, 0x11);
+    ktree_del(t, 5);
+    ktree_del(t, 6);
     ktree_debug_print(t, 0);
     ktree_free(t);
     return 0;

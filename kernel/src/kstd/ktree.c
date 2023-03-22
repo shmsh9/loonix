@@ -86,8 +86,10 @@ ktree *ktree_search(ktree *t, uint64_t p){
 }
 ktree *ktree_min_payload(ktree *t){
     ktree *curr = t;
+    ktree_lock(t);
     while(curr && curr->left)
         curr = curr->left;
+    ktree_unlock(t);
     return curr;
 }
 void ktree_free_node(ktree *t){
@@ -107,11 +109,13 @@ ktree *ktree_del(ktree *t, uint64_t p){
         // node with only one child or no child
         if (t->left == NULL) {
             ktree* temp = t->right;
+            ktree_unlock(t);
             ktree_free_node(t);
             return temp;
         }
         else if (t->right == NULL) {
             ktree* temp = t->left;
+            ktree_unlock(t);
             ktree_free_node(t);
             return temp;
         }
