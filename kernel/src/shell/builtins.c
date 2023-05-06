@@ -305,7 +305,19 @@ int builtins_testtask(int argc, char **argv){
     */
     return 0;
 }
-
+int builtins_testkhash(int argc, char **argv){
+    khashmap *h = khashmap_new();
+    khashmap_set(h, "foobar", 0x1);
+    khashmap_set(h, "foobarbar", 0x2);
+    khashmap_set(h, "azerty", 0x3);
+    khashmap_set(h, "[[[[[", 0x3);
+    kprintf("h[azerty] == 0x%x\n", khashmap_get(h, "azerty"));
+    kprintf("h[foobar] == 0x%x\n", khashmap_get(h, "foobar"));
+    kprintf("h[Foobar] == 0x%x\n", khashmap_get(h, "Foobar"));
+    khashmap_debug_print(h);
+    khashmap_free(h);
+    return 0;
+}
 int builtins_testktree(int argc, char **argv){
     ktree *t = ktree_new(5, 0);
     ktree_add(t, 1, 0);
@@ -374,6 +386,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_testargs, "testargs");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_testktree, "testktree");
+    BUILTINS_INIT_FN(builtins_testkhash, "testkhash");
     BUILTINS_INIT_FN(builtins_karray_pop, "testkarraypop");
     BUILTINS_INIT_FN(builtins_testklist, "testklist");
     BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");

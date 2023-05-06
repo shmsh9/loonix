@@ -13,6 +13,7 @@
 #include <kstd/klist.h>
 #include <kstd/ktime.h>
 #include <kstd/ktree.h>
+#include <kstd/khashmap.h>
 #include <sys/task.h>
 
 #define KERNEL_DEBUG
