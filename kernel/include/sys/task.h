@@ -16,7 +16,8 @@ typedef enum _task_status {
     task_status_ended,
     task_status_running,
     task_status_created,
-    task_status_wait_io
+    task_status_wait_io,
+    task_status_paused
 }task_status;
 
 typedef enum _task_priority{
@@ -60,7 +61,9 @@ void task_debug_print();
 void task_scheduler();
 void task_allocation_add(kheap_allocated_block *b);
 void task_end_current();
-
+task *task_search_by_name(char *name);
+void task_pause(task *t);
+void task_resume(task *t);
 #include <sys/newmem.h>
 #include <kstd/kstd.h>
 

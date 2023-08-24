@@ -92,12 +92,16 @@ int builtins_teststrdup(int argc, char **argv){
 }
 
 int builtins_testscroll(int argc, char **argv){
+    task_pause(task_search_by_name("kmain"));
+    task_pause(task_search_by_name("shell"));
     kprint("{ ");
     for(int i = 0; i < 0xffff; i++){
         kprintf("0x%x", i);
         if(i+1 < 0xffff)
             kprint(", ");
     }
+    task_resume(task_search_by_name("shell"));
+    task_resume(task_search_by_name("kmain"));
     kprint("}\n");
     return 0;
 }
@@ -133,6 +137,8 @@ int builtins_testmemcpy(int argc, char **argv){
 }
 
 int builtins_graphics(int argc, char **argv){
+    task_pause(task_search_by_name("kmain"));
+    task_pause(task_search_by_name("shell"));
 	#include <graphics/tux.png.h>
 	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
     int32_t tux_x = fb->width/2 - tux->width/2;
@@ -140,6 +146,8 @@ int builtins_graphics(int argc, char **argv){
     while(1){
         char serial_char = serial_device_readchar_non_blocking(serial);
         if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){
+            task_resume(task_search_by_name("kmain"));
+            task_resume(task_search_by_name("shell"));
             KMESSAGE("Exit");
             break;
         }

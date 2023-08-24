@@ -70,6 +70,33 @@ void task_allocation_remove(task *t){
             kfree((void *)kalloc_list[i].ptr);
     task_unlock();
 }
+task *task_search_by_name(char *name){
+    if(!name){
+        KERROR("name == NULL");
+        return 0x0;
+    }
+    task *t = task_first;
+    while(t){
+        if(strcmp(t->name, name) == 0)
+            return t;
+        t = t->next;
+    }
+    return 0x0;
+}
+void task_pause(task *t){
+    if(!t){
+        KERROR("t == NULL");
+        return;
+    }
+    t->status = task_status_paused;
+}
+void task_resume(task *t){
+    if(!t){
+        KERROR("t == NULL");
+        return;
+    }
+    t->status = task_status_running;
+}
 void task_allocation_add(kheap_allocated_block *b){
     task *task_branchless[] = { task_current, 0x0 };
     //KMESSAGE("task_new_memory_allocation == %d", (uint64_t)task_new_memory_allocation);
@@ -272,6 +299,9 @@ void task_scheduler(){
             break;
         case task_status_wait_io:
             //task_scheduler();
+            break;
+        case task_status_paused:
+            task_current = task_get_next();
             break;
         default:
             KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
