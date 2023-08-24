@@ -17,4 +17,5 @@ void shell_non_blocking();
 int shell_exec(char cmdline[CMDLINE_MAX]);
 void rmchar(char cmdline[CMDLINE_MAX], int pos);
 void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos);
+uint8_t shell_get_cursor_char();
 #endif

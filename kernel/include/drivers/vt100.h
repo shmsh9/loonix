@@ -3,6 +3,11 @@
 #include <kstd/kstd.h>
 #include <graphics/bitmap_font.h>
 #include <drivers/framebuffer.h>
+#define VT100_CURSOR_N_FRAME 25
+#define VT100_CURSOR_FIRST_FRAME 50
+#define VT100_CURSOR_OFF 0x0
+#define VT100_CURSOR_LAST_FRAME VT100_CURSOR_FIRST_FRAME+VT100_CURSOR_N_FRAME 
+
 extern bool vt100_console_initialized;
 void vt100_console_init(framebuffer_device *fb);
 void vt100_console_update_draw_screen(framebuffer_device *fb);

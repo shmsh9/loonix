@@ -1,5 +1,11 @@
 #include <shell/shell.h>
 
+uint8_t shell_cursor_char = ' ';
+
+uint8_t shell_get_cursor_char(){
+    return shell_cursor_char;
+}
+
 int shell(){
     builtins_init();
 
@@ -8,6 +14,8 @@ int shell(){
     char cmdline[CMDLINE_MAX+1] = {0};
     int cmdlinepos = 0;
     while(1){
+        int oldpos = cmdlinepos == 0 ? 0 : cmdlinepos -1;
+        shell_cursor_char = cmdline[oldpos] == 0x0 ? ' ' : cmdline[oldpos];
         c = kgetchar_non_blocking();
         switch(c){
             //no input at the time

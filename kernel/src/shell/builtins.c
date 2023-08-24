@@ -82,12 +82,12 @@ int builtins_teststrdup(int argc, char **argv){
         karray_push(k, (uintptr_t)strdup("1234"));
         f[i] = strdup("1234");
     }
-    karray_free(k);
+    //karray_free(k);
     for(int i = 0; i < 0xfff; i++){
-        kfree(f[i]);
+        //kfree(f[i]);
     }
 
-    kfree(f);
+    //kfree(f);
     return 0;
 }
 
@@ -200,7 +200,6 @@ int builtins_reboot(int argc, char **argv){
     runtime_services->ResetSystem(EfiResetCold, 0, 0, 0x0);
     return 0;
 }
-
 int builtins_poweroff(int argc, char **argv){
     runtime_services->ResetSystem(EfiResetShutdown, 0, 0, 0x0);
     return 0;
@@ -279,6 +278,11 @@ int testtask(void *data, task *t){
     }
     kfree(i);
     //builtins_testscroll(0, 0x0);
+    return 0;
+}
+int builtins_testleak(int argc, char **argv){
+    uint8_t *foo = kmalloc(512);
+    foo++;
     return 0;
 }
 int testtask2(void *data, task *t){
@@ -380,6 +384,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_time, "time");
     BUILTINS_INIT_FN(builtins_atoi, "atoi");
     BUILTINS_INIT_FN(builtins_testtask, "testtask");
+    BUILTINS_INIT_FN(builtins_testleak, "testleak");
     BUILTINS_INIT_FN(builtins_task, "task");
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");

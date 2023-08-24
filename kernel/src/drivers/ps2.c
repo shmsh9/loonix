@@ -334,7 +334,10 @@ void ps2_keypress_update(uint8_t scancode){
 uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     if(scancode >= 0x81)
         return 0x0;
-    
+    //direction keys to handle here
+    if(scancode == 0xe0){
+        return 0x0;
+    }
     //CTRL combinations
     if(ps2_current_key_pressed[PS2_KEY_CTRL_LEFT]){
         switch(scancode){

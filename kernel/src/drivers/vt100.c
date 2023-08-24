@@ -12,7 +12,11 @@ uint64_t vt100_console_last_draw_timer = 0;
 uint64_t vt100_console_last_draw_offset = 0;
 bool vt100_console_escaping = false;
 bool vt100_console_initialized = false;
+bool vt100_console_cursor_enabled = true;
+bool vt100_console_cursor_drawed = false;
 bitmap_font vt100_console_bitmap_font = {0};
+uint8_t vt100_cursor_state = VT100_CURSOR_OFF;
+
 void (*vt100_console_font_drawing_function)(char **, framebuffer_device *,uint64_t, uint64_t, uint8_t);
 
 void vt100_console_init(framebuffer_device *fb){
@@ -36,6 +40,32 @@ void vt100_console_init(framebuffer_device *fb){
 void vt100_console_update_draw_screen(framebuffer_device *fb){
     if(cpu_get_tick() >= vt100_console_last_draw_timer+VT100_REFRESH_TICK){
         //framebuffer_device_update_partial(fb, vt100_console_last_draw_offset, fb->size - vt100_console_last_draw_offset);
+        if(vt100_console_cursor_enabled){
+            if(vt100_cursor_state >= VT100_CURSOR_FIRST_FRAME){
+                if(!vt100_console_cursor_drawed){
+                    vt100_console_font_drawing_function(
+                        vt100_console_bitmap_font,
+                        fb,
+                        vt100_console_current_x-vt100_console_font_width,
+                        vt100_console_current_y,
+                        0x0
+                    );
+                    vt100_console_cursor_drawed = true;
+                }
+                if(vt100_cursor_state == VT100_CURSOR_LAST_FRAME){
+                    vt100_console_font_drawing_function(
+                        vt100_console_bitmap_font,
+                        fb,
+                        vt100_console_current_x-vt100_console_font_width,
+                        vt100_console_current_y,
+                        shell_get_cursor_char()
+                    );
+                    vt100_cursor_state = VT100_CURSOR_OFF;
+                    vt100_console_cursor_drawed = false;
+                }
+            }
+            vt100_cursor_state++;
+        }
         framebuffer_device_update(fb);
         vt100_console_last_draw_offset = vt100_console_current_x*vt100_console_current_y;
         vt100_console_last_draw_timer = cpu_get_tick();
@@ -117,6 +147,18 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
         case 0x0:
             break;
         default:
+            if(vt100_console_cursor_drawed){
+                vt100_console_font_drawing_function(
+                    vt100_console_bitmap_font,
+                    fb,
+                    vt100_console_current_x-vt100_console_font_width,
+                    vt100_console_current_y,
+                    shell_get_cursor_char()
+                );
+
+            }
+            vt100_cursor_state = VT100_CURSOR_OFF;
+            vt100_console_cursor_drawed = false;
             if(vt100_console_escaping){
                 int tmp_result = isdigit(c);
                 switch(tmp_result){
