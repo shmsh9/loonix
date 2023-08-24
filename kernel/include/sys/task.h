@@ -48,6 +48,7 @@ extern task *task_first;
 void task_lock();
 void task_unlock();
 void task_end(task *t);
+void task_allocation_remove(task *t);
 void task_priority_set(task *t, task_priority p);
 task_priority task_priority_get(task *t);
 task_status task_status_get(task *t);

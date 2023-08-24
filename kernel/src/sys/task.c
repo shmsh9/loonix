@@ -16,6 +16,7 @@ void task_end(task *t){
         case 0x0:
             break;
         default:
+            task_allocation_remove(t);
             t->status = task_status_ended;
             break;
     }
