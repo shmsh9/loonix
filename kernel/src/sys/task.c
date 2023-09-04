@@ -156,7 +156,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
     ret->context->CPU_REGISTER_STACK = (uint64_t)ret->stack_start;
     if(!task_first){
-        kprintf("task_first == %s", ret->name);
+        //kprintf("task_first == %s", ret->name);
         task_first = ret;
     }
     if(task_last){

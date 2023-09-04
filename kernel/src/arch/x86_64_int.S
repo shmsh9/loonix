@@ -34,9 +34,9 @@
     .task_save_context_begin_\index :
     push rax
     push rbx
-    //mov  rax, \index
-    //cmp  rax, 0x20                      //only save context for timer tasks
-    //jne   .task_save_context_end_\index
+    mov  rax, \index
+    cmp  rax, 0x20                      //only save context for timer tasks
+    jne   .task_save_context_end_\index
     lea  rax, [rip+task_current]
     cmp  qword ptr [rax], 0
     je   .task_save_context_end_\index
@@ -74,11 +74,11 @@
     mov [rax+cpu_registers_flags], rbx
     /////////////////////////////////////
     .task_save_context_end_\index :
-    pop rbx
-    pop rax
+    //pop rbx
+    //pop rax
     //saving current interrupt frame
-    push rax
-    push rbx
+    //push rax
+    //push rbx
     lea rax, [rip+current_interrupt_frame]
     
     mov rbx, [rsp+16]               //+16 because of the 2 push
@@ -93,8 +93,8 @@
     mov rbx, [rsp+40]
     mov [rax+24], rbx               //save RSP
     
-    pop rbx
-    pop rax
+    //pop rbx
+    //pop rax
     ///////////////////////////////////////
     pushad
     cld                              //needed for sysV abi
@@ -104,7 +104,7 @@
     call interrupt_handler           //calls the C code
     pop  rdi
     //ack PIC//////////////////
-    push rax
+    //push rax
     mov  al, 0x20
     out  0x20, al
     //////clear current_interrupt_frame
@@ -114,8 +114,9 @@
     mov qword ptr [rax+16], 0
     mov qword ptr [rax+24], 0
     ////////////////////////////
-    pop  rax
     popad
+    pop  rbx
+    pop  rax
     //sti                              //enable interrupts
     iretq
 .endm
@@ -148,8 +149,12 @@
     push r13
     push r14
     push r15
+    sub    rsp, 16
+    movdqu [rsp], xmm0
 .endm
 .macro popad
+    movdqu [rsp], xmm0
+    add rsp, 16
     pop r15
     pop r14
     pop r13
