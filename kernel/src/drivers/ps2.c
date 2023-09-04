@@ -342,6 +342,7 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
     if(ps2_current_key_pressed[PS2_KEY_CTRL_LEFT]){
         switch(scancode){
             case PS2_KEY_C:
+                INTERRUPT_SIGINT();
                 return 0x3;
                 break;
             case PS2_KEY_L:
@@ -349,6 +350,8 @@ uint8_t ps2_scancode_set_1_to_char(uint8_t scancode){
                 break;
             case PS2_KEY_M:
                 return '\n';
+            case PS2_KEY_T:
+                INTERRUPT_DEBUG();
             default:
                 break;
         }

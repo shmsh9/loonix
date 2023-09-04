@@ -41,6 +41,7 @@ typedef struct  __attribute__((packed)) _task{
     uint32_t time_slice;
     int32_t time_slice_remaining;
     task_priority priority;
+    task *waiting_on;
 }task;
 
 extern task *task_current;
@@ -61,6 +62,7 @@ void task_debug_print();
 void task_scheduler();
 void task_allocation_add(kheap_allocated_block *b);
 void task_end_current();
+void task_end_later(task *t);
 task *task_search_by_name(char *name);
 void task_pause(task *t);
 void task_resume(task *t);

@@ -131,6 +131,6 @@ int builtins_gol(int argc, char **argv){
             gol_tick(game, rand);
     }
     karray_free(game);
-    task_end(entropy);
+    task_end_later(entropy);
     return 0;
 }

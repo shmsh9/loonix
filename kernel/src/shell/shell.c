@@ -5,10 +5,15 @@ uint8_t shell_cursor_char = ' ';
 uint8_t shell_get_cursor_char(){
     return shell_cursor_char;
 }
+task *shell_current_subproc = 0x0;
+void shell_sigint(){
+    if(shell_current_subproc)
+        task_end_later(shell_current_subproc);
+}
 
 int shell(){
     builtins_init();
-
+    interrupt_handler_install(shell_sigint, INTERRUPT_NUMBER_SIGINT);
     kprint(SHELL_PROMPT);
     char c = 0;
     char cmdline[CMDLINE_MAX+1] = {0};
@@ -117,6 +122,7 @@ int shell(){
     }
     return 0;
 }
+/*
 char shell_non_blocking_cmdline[CMDLINE_MAX+1] = {0};
 int shell_non_blocking_cmdlinepos = 0;
 bool shell_non_blocking_first_execution = true;
@@ -218,6 +224,7 @@ void shell_non_blocking(){
             break;
     }
 }
+*/
 char **shell_parse_args2(char cmdline[CMDLINE_MAX], int *argc){
     *argc = 1;
 	int l = strlen(cmdline);
@@ -289,16 +296,9 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
                 argv[0],
                 task_priority_high
             );
-            while(subproc->status != task_status_ended){
-                
-                int ctrl = kgetchar_non_blocking();
-                //CTRL + C
-                if(ctrl == 0x3){
-                    task_end(subproc);
-                    kprint("^C");
-                }
-                //sleep_100(50);
-            }
+            shell_current_subproc = subproc;
+            task_end_wait(subproc);
+            shell_current_subproc = 0x0;
             //int ret = builtins.builtins[i].ptrfn(argc, argv);
             for(int i = 0; i < argc; i++)
                 kfree(argv[i]);

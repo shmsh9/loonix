@@ -36,7 +36,9 @@ void interrupt_handler_invalid_opcode(){
     KPANICINTERRUPT("Invalid OP Code", current_interrupt_frame);
 }
 void interrupt_handler_breakpoint(){
-    KPANICINTERRUPT("Breakpoint", current_interrupt_frame);
+    task_lock();
+    KERRORINTERRUPT("Debug", current_interrupt_frame);
+    task_unlock();
 }
 void interrupt_handler_timer(){
     KMESSAGE("Timer fired");

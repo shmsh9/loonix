@@ -21,12 +21,21 @@ void task_end(task *t){
             break;
     }
 }
+void task_end_later(task *t){
+    if(!t){
+        KERROR("t == NULL");
+        return;
+    }
+    t->status = task_status_ended;
+}
 void task_end_current(){
-    task_end(task_current);
+    task_end_later(task_current);
 }
 void task_end_wait(task *t){
+    task_current->waiting_on = t;
+    task_pause(task_current);
     while(task_status_get(t) != task_status_ended){
-        sleep(1);
+        sleep_100(1);
     }
 }
 task_status task_status_get(task *t){
@@ -121,7 +130,8 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
         .fn = fn,
         .data = data,
         .name = name == 0x0 ? strdup("(null)") : strdup(name),
-        .priority = priority
+        .priority = priority,
+        .waiting_on = 0x0
     };
     switch (ret->priority){
         case task_priority_high:
@@ -146,6 +156,7 @@ task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority p
     ret->stack_start = (void *)((uint64_t)ret->stack_end + (TASK_STACK_SIZE));
     ret->context->CPU_REGISTER_STACK = (uint64_t)ret->stack_start;
     if(!task_first){
+        kprintf("task_first == %s", ret->name);
         task_first = ret;
     }
     if(task_last){
@@ -249,11 +260,12 @@ task *task_get_next(){
 }
 void task_run(void *data, task *t){
     t->fn(data, t);
-    task_end(t);
+    task_end_later(t);
     while(1){}
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
+    task_scheduler_start:
     if(!task_first){
         KPANIC("task_first == NULL");
         return;
@@ -289,19 +301,23 @@ void task_scheduler(){
                 task_current
             );
             break;
-        case task_status_ended:
+        case task_status_ended:{
+            task *tmpt = task_first;
+            while(tmpt){
+                if(tmpt->waiting_on == task_current)
+                    task_resume(tmpt);
+                tmpt = tmpt->next;
+            }
             task_free(task_current);
             task_current = task_get_next();
-            //task_scheduler();
             break;
+        }
         case task_status_running:
             task_cpu_registers_reload(task_current->context);
             break;
         case task_status_wait_io:
-            //task_scheduler();
             break;
         case task_status_paused:
-            task_current = task_get_next();
             break;
         default:
             KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
@@ -310,5 +326,5 @@ void task_scheduler(){
             );
             break;
     }
-    task_scheduler();
+    goto task_scheduler_start;
 }

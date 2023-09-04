@@ -3,8 +3,8 @@
 #include <kstd/kstd.h>
 #include <graphics/bitmap_font.h>
 #include <drivers/framebuffer.h>
-#define VT100_CURSOR_N_FRAME 25
-#define VT100_CURSOR_FIRST_FRAME 50
+#define VT100_CURSOR_N_FRAME 30
+#define VT100_CURSOR_FIRST_FRAME 55
 #define VT100_CURSOR_OFF 0x0
 #define VT100_CURSOR_LAST_FRAME VT100_CURSOR_FIRST_FRAME+VT100_CURSOR_N_FRAME 
 

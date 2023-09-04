@@ -71,6 +71,9 @@
     #define SERIAL_DEVICE_NEW() serial_x86_device_new()
     #define PCI_BUS_ADDRESS 0xCF8
     #define JUMP_INSTRUCTION "jmp"
+    #define INTERRUPT_NUMBER_SIGINT 2
+    #define INTERRUPT_SIGINT() __asm__ __volatile__("int $2")
+    #define INTERRUPT_DEBUG() __asm__ __volatile("int $3")
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
     #define CPU_REGISTER_STACK rsp
