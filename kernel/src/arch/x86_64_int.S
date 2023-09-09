@@ -153,7 +153,7 @@
     movdqu [rsp], xmm0
 .endm
 .macro popad
-    movdqu [rsp], xmm0
+    movdqu xmm0, [rsp]
     add rsp, 16
     pop r15
     pop r14
