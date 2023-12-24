@@ -104,12 +104,12 @@ void framebuffer_device_update_partial(framebuffer_device *framebuffer, uint64_t
     framebuffer_last_device_update_tick = cpu_get_tick();
 }
 
-void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, uint64_t x, uint64_t y, graphics_sprite *sprite){
+void framebuffer_device_draw_sprite_slow(framebuffer_device *framebuffer, int64_t x, int64_t y, graphics_sprite *sprite){
     int64_t current_y = y;
     for(uint64_t current_pixel = 0; current_pixel < sprite->size;){
-       for(int64_t current_x = x; current_x < sprite->width+x; current_x++){
-           framebuffer_device_draw_pixel_slow(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
-           current_pixel++;
+       for(int64_t current_x = x; current_x < ((int64_t)(sprite->width))+x; current_x++){
+            framebuffer_device_draw_pixel_slow(framebuffer, current_x, current_y, &sprite->pixels[current_pixel]);
+            current_pixel++;
        }
        current_y++;
     }
@@ -122,8 +122,8 @@ void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, int64_
             sprite->pixels+((sprite->width)*sprite_line),
             (sprite->width)*sizeof(graphics_pixel)
         );
+        framebuffer_last_draw_pixel_tick = cpu_get_tick();
     }
-    framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
 void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
     if(!framebuffer)

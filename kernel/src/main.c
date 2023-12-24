@@ -13,9 +13,11 @@ uint64_t kmain(bootinfo *bootinfo){
 			"shell",
 			task_priority_high
 		);
+		//task_scheduler();
 		//task_end_wait(shell_task);
 	//}
 	task_unlock();
-	while(1){}
+	BREAKPOINT();
+	KMESSAGE("breakpoint passed X_X");
 	return 0xcafe;
 }

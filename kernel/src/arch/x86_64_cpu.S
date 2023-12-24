@@ -18,6 +18,7 @@ __memset_128b:
     add    rdi, 16
     sub    rdx, 16
     jnz   __memset_128b_loop
+    //vpxor xmm0, xmm0, xmm0
     ret
 //void __memcpy_64b(void *dst = %rdi, void *src = %rsi, uint64_t sz = %rdx)
 __memcpy_64b:
@@ -34,6 +35,7 @@ __memcpy_128b:
     add     rdi, 16
     sub     rdx, 16
     jnz     __memcpy_128b_loop
+    //vpxor xmm0, xmm0, xmm0
     ret
 #define cpu_registers_rax 0
 #define cpu_registers_rbx 8

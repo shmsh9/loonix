@@ -148,7 +148,6 @@ int builtins_graphics(int argc, char **argv){
         }
         if(ps2_key_is_pressed(PS2_KEY_A) || tolower(serial_char) == 'a'){
                 tux_x--;
-                //KMESSAGE("tux_x 0x%x && tux_y 0x%x", tux_x, tux_y);
         }
         if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
                 tux_y++;
@@ -165,7 +164,7 @@ int builtins_graphics(int argc, char **argv){
             }
         );
 	    framebuffer_device_draw_sprite_slow(
-            fb, 
+            fb,
             tux_x, 
             tux_y, 
             tux

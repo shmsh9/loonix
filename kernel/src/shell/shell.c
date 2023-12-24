@@ -12,8 +12,11 @@ void shell_sigint(){
 }
 
 int shell(){
+    KMESSAGE("shell started");
     builtins_init();
+    KMESSAGE("shell_builtins initiated");
     interrupt_handler_install(shell_sigint, INTERRUPT_NUMBER_SIGINT);
+    KMESSAGE("shell interrupt_handler installed");
     kprint(SHELL_PROMPT);
     char c = 0;
     char cmdline[CMDLINE_MAX+1] = {0};

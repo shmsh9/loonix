@@ -271,7 +271,7 @@ void ps2_device_wait_rx(ps2_device *ps2){
     while(!ps2_device_get_bit(ps2, PS2_DEVICE_OUTPUT)){}
 }
 void ps2_device_end_tx_rx(ps2_device *ps2){
-    //ps2_device_unset_bit(ps2, PS2_DEVICE_OUTPUT);
+    ps2_device_unset_bit(ps2, PS2_DEVICE_OUTPUT);
 }
 uint8_t ps2_device_get_scancode(ps2_device *ps2){
     switch ((uintptr_t)ps2){
