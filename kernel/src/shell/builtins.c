@@ -333,7 +333,13 @@ int builtins_testktree(int argc, char **argv){
     ktree_free(t);
     return 0;
 }
+int builtins_testvm(int argc, char **argv){
+    char *in = "import os\nfoo = 135\nbar = 12\n";
+    bool ok = parse_code((uint8_t *)in);
+    kprintf("%s\n parse == %s\n", in, ok ? "true":"false" );
 
+    return 0;
+}
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -380,6 +386,7 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_uptime, "uptime");
     BUILTINS_INIT_FN(builtins_regdump, "regdump");
     BUILTINS_INIT_FN(builtins_testargs, "testargs");
+    BUILTINS_INIT_FN(builtins_testvm, "testvm");
     BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
     BUILTINS_INIT_FN(builtins_testktree, "testktree");
     BUILTINS_INIT_FN(builtins_testkhash, "testkhash");

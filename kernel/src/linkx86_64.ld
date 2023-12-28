@@ -3,7 +3,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	.text.start : {
+	.text.start 0x1000000 : {
 		crt0.o(.text)
 	}
 	.text : ALIGN(0x1000){
