@@ -52,7 +52,7 @@
 #define KMESSAGE(...) KMSG("message", __VA_ARGS__)
 #define KERROR(...) {\
     KMSG("error", __VA_ARGS__);\
-    kprintf("%s:%d\n", __FILE__, __LINE__);\
+    kprintf("%s:%d\n", __FILE__, (uint64_t)__LINE__);\
     STACKTRACE();\
     framebuffer_device_update(fb);\
 }
@@ -60,7 +60,7 @@
 	volatile cpu_registers r__func__;\
 	cpu_registers_save(&r__func__);\
     KMSG("panic !", __VA_ARGS__);\
-    kprintf("%s:%d\n", __FILE__, __LINE__);\
+    kprintf("%s:%d\n", __FILE__, (uint64_t)__LINE__);\
     STACKTRACE();\
     kprint("registers  :\n");\
 	CPU_REGISTERS_PRINT(&r__func__);\
@@ -69,7 +69,7 @@
 }
 #ifdef KERNEL_DEBUG
 #define KDEBUG(fmt, ...) {\
-    kprintf("[%d][kernel][debug] : %s() %s:%d : "fmt"\n",cpu_get_tick(),__func__,__FILE__,__LINE__, __VA_ARGS__);\
+    kprintf("[%d][kernel][debug] : %s() %s:%d : "fmt"\n",cpu_get_tick(),__func__,__FILE__,(uint64_t)__LINE__, __VA_ARGS__);\
 }
 #endif
 #ifndef KERNEL_DEBUG

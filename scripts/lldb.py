@@ -6,6 +6,6 @@ param = config.get_params()
 if param['ARCH'] == "x86_64":
     offset = "0x1000000"
 if param['ARCH'] == "aarch64":
-    offset = "0x40000000"
+    offset = "0x40100000"
 
-os.system(f"lldb kernel/kernel.elf -o 'gdb-remote localhost:1234' -o 'image load -f kernel.elf -s {offset}'")
+os.system(f"lldb kernel/kernel.elf -o 'gdb-remote localhost:1234' -o 'image load -f kernel.elf'")

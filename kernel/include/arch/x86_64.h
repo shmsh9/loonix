@@ -113,10 +113,10 @@
     */
     #define INTERRUPT_FRAME_PRINT(interrupt_frame){\
         kprintf("\n\t[rip] : 0x%x\n\t[cs ] : 0x%x\n\t[fl ] : 0x%x\n\t[rsp] : 0x%x\n\t\n",\
-            ((x86_64_interrupt_frame *)interrupt_frame)->rip,\
-            ((x86_64_interrupt_frame *)interrupt_frame)->cs,\
-            ((x86_64_interrupt_frame *)interrupt_frame)->flags,\
-            ((x86_64_interrupt_frame *)interrupt_frame)->rsp\
+            (uint64_t)((x86_64_interrupt_frame *)interrupt_frame)->rip,\
+            (uint64_t)((x86_64_interrupt_frame *)interrupt_frame)->cs,\
+            (uint64_t)((x86_64_interrupt_frame *)interrupt_frame)->flags,\
+            (uint64_t)((x86_64_interrupt_frame *)interrupt_frame)->rsp\
         );\
     }
     #define INTERRUPT_INIT(){\

@@ -170,7 +170,7 @@ uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
 		kaddr = (void *)0x40100000;
 	#endif
 	#ifdef __x86_64__
-		kaddr = (void *)0x1000000;
+		kaddr = (void *)0x0;
 	#endif
 	void *prog = kallocaddress(alloc, kaddr);
 	bi->kernelsize = alloc;

@@ -35,8 +35,8 @@ acpi_sdt_header *acpi_find_table(acpi_xsdt *xsdt,char signature[4]){
 
         }
     }
-    char signature_str[5] = {signature[0],signature[1],signature[2],signature[3], 0 };
-    KERROR("%s table not found", signature_str);
+    //char signature_str[5] = {signature[0],signature[1],signature[2],signature[3], 0 };
+    //KERROR("%s table not found", signature_str);
     return 0x0;
 
 }

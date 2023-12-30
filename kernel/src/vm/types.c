@@ -41,8 +41,7 @@ vm_type _get_type(uint8_t *in, uint64_t in_len){
 
         default:
             {
-                vm_type (*fn)(uint8_t *, uint64_t) = (vm_type (*)(uint8_t *, uint64_t))((uint64_t)f[in[0]]+0x1000000);
-                return fn(in, in_len);
+                return f[in[0]](in, in_len);
                 break;
             }
     }

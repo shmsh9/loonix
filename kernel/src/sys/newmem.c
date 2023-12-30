@@ -203,7 +203,7 @@ void kheap_debug_print2(kheap *heap){
             }
             kprint(" [ ");
             for(uint8_t j = 0; j < 8; j++){
-                kprintf("%d", get_bit(heap->header[current_bitfield+i*HEAP_HEADER_SIZE], j));
+                kprintf("%d", (uint64_t)get_bit(heap->header[current_bitfield+i*HEAP_HEADER_SIZE], j));
             }
             kprint(" ] ");
             if(!((current_bitfield+1) % 4) && current_bitfield != 0)
@@ -240,7 +240,7 @@ void mmap_debug_print(mmap *mmap){
     for(int i = 0; i < mmap->length; i++){
         EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
         kprintf("mmap[%d]\n0x%x (%d KB)\nattributes 0x%x\n%s",
-            i,
+            (uint64_t)i,
             desc->PhysicalStart, 
             BYTES_TO_KB(desc->NumberOfPages*HEAP_BLOCK_SIZE),
             desc->Attribute,

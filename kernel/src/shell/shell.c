@@ -12,11 +12,12 @@ void shell_sigint(){
 }
 
 int shell(){
-    KMESSAGE("shell started");
+    kprintf("shell INIT,\n");
+//    KMESSAGE("shell started");
     builtins_init();
-    KMESSAGE("shell_builtins initiated");
+//    KMESSAGE("shell_builtins initiated");
     interrupt_handler_install(shell_sigint, INTERRUPT_NUMBER_SIGINT);
-    KMESSAGE("shell interrupt_handler installed");
+//    KMESSAGE("shell interrupt_handler installed");
     kprint(SHELL_PROMPT);
     char c = 0;
     char cmdline[CMDLINE_MAX+1] = {0};
@@ -95,7 +96,7 @@ int shell(){
                             break;
                         //non handled char
                         default:
-                            kprintf("0x%x\n", esc);
+                            kprintf("0x%x\n", (uint64_t)esc);
                             memset(cmdline, 0, CMDLINE_MAX);
                             cmdlinepos = 0;
                             kprint(SHELL_PROMPT);
@@ -109,13 +110,13 @@ int shell(){
                         cmdline[cmdlinepos] = c;
                         cmdlinepos++;
                         if(c < 32)
-                            kprintf("0x%x", c);
+                            kprintf("0x%x", (uint64_t)c);
                         else
                             kputc(c);
                     }
                 }
                 else{ 
-                    kprintf("CMDLINE_MAX overflow : %d !\n", cmdlinepos);
+                    kprintf("CMDLINE_MAX overflow : %d !\n", (uint64_t)cmdlinepos);
                     memset(cmdline, 0, CMDLINE_MAX);
                     cmdlinepos = 0;
                     kprint(SHELL_PROMPT);
@@ -329,10 +330,10 @@ void refreshline(char cmdline[CMDLINE_MAX], int cmdlinepos){
         return;
     }
     kprintf("\033[%dD%s \033[1D\033[%dD\033[%dC",
-        (cmdlinepos+1), 
+        (uint64_t)(cmdlinepos+1), 
         cmdline,
-        strlen(cmdline), 
-        cmdlinepos
+        (uint64_t)strlen(cmdline), 
+        (uint64_t)cmdlinepos
     );
     /*
     kprintf("\033[%dD", cmdlinepos+1);

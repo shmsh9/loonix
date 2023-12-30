@@ -34,7 +34,7 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
             }
         }
     }
-    KMESSAGE("enumerated %d devices", pci_devices->length);
+    KMESSAGE("enumerated %d devices", (uint64_t)pci_devices->length);
 }
 void pci_class_strings_init(){
     pci_class_strings[PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller";
