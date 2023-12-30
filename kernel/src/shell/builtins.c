@@ -1,15 +1,9 @@
 #include <shell/builtins.h>
 
-struct fnbuiltins builtins = {0};
+
 
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
-    return 0;
-}
-int builtins_help(int argc, char **argv){
-    for(int i = 0 ; i < builtins.length; i++){
-        kprintf("%s\n", builtins.builtins[i].name);
-    }
     return 0;
 }
 int builtins_testargs(int argc, char **argv){
@@ -369,6 +363,7 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
+/*
 void builtins_init(){
     builtins.length = 0;
     BUILTINS_INIT_FN(builtins_help, "help");
@@ -401,5 +396,58 @@ void builtins_init(){
     BUILTINS_INIT_FN(builtins_reboot, "reboot");
     BUILTINS_INIT_FN(builtins_poweroff, "poweroff");
 
-}
+} 
+*/
 
+struct fnbuiltin _shell_builtins[] = {
+    
+    (struct fnbuiltin){
+        .name = "clear",
+        .ptrfn = builtins_clear,
+    },
+
+    (struct fnbuiltin){
+        .name = "help",
+        .ptrfn = builtins_help,
+    },
+
+    (struct fnbuiltin){
+        .name = "task",
+        .ptrfn = builtins_task,
+    },
+
+    (struct fnbuiltin){
+        .name = "graphics",
+        .ptrfn = builtins_graphics,
+    },
+
+    (struct fnbuiltin){
+        .name = "gol",
+        .ptrfn = builtins_gol,
+    },
+
+    (struct fnbuiltin){
+        .name = "testvm",
+        .ptrfn = builtins_testvm,
+    },
+
+    (struct fnbuiltin){
+        .name = "testscroll",
+        .ptrfn = builtins_testscroll,
+    },
+
+    (struct fnbuiltin){
+        .name = "poweroff",
+        .ptrfn = builtins_poweroff,
+    },
+
+};
+uint32_t _shell_builtins_size = sizeof(_shell_builtins)/sizeof(_shell_builtins[0]);
+
+int builtins_help(int argc, char **argv){
+    
+    for(int i = 0 ; i < _shell_builtins_size; i++)
+        kprintf("%s\n", _shell_builtins[i].name);
+
+    return 0;
+}

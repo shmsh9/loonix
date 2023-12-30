@@ -14,7 +14,7 @@ void shell_sigint(){
 int shell(){
     kprintf("shell INIT,\n");
 //    KMESSAGE("shell started");
-    builtins_init();
+//    builtins_init();
 //    KMESSAGE("shell_builtins initiated");
     interrupt_handler_install(shell_sigint, INTERRUPT_NUMBER_SIGINT);
 //    KMESSAGE("shell interrupt_handler installed");
@@ -286,13 +286,13 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
         return 0;
     int argc = 0;
     char **argv = shell_parse_args2(cmdline, &argc);
-    for(int i = 0; i < builtins.length; i++){
-        if(strcmp(argv[0], builtins.builtins[i].name) == 0){
+    for(int i = 0; i < _shell_builtins_size; i++){
+        if(strcmp(argv[0], _shell_builtins[i].name) == 0){
             shell_args_wrapped *argw = kmalloc(sizeof(shell_args_wrapped));
             *argw = (shell_args_wrapped){
                 .argc = argc,
                 .argv = argv,
-                .fn = builtins.builtins[i].ptrfn
+                .fn = _shell_builtins[i].ptrfn
             };
             task *subproc = task_new(
                 (int (*)(void *, task *))shell_exec_args_wrapped,
