@@ -48,7 +48,7 @@ void gol_tick(uint8_t *cells, uint8_t rand){
     
 
     uint8_t b_less_choice[2][8] = {
-        //neigh == 0, 1, 2, 3, 4, 5, 6, 7
+   //n == 0, 1, 2, 3, 4, 5, 6, 7
         { 0, 0, 0, 1, 0, 0, 0, 0 }, //dead
         { 0, 0, 1, 1, 0, 0, 0, 0 }  //alive
     };

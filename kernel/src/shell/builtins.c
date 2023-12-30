@@ -427,6 +427,16 @@ struct fnbuiltin _shell_builtins[] = {
     },
 
     (struct fnbuiltin){
+        .name = "free",
+        .ptrfn = builtins_free,
+    },
+    
+    (struct fnbuiltin){
+        .name = "time",
+        .ptrfn = builtins_time,
+    },
+    
+    (struct fnbuiltin){
         .name = "testvm",
         .ptrfn = builtins_testvm,
     },

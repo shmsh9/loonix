@@ -20,6 +20,19 @@ acpi_table *acpi_tables = 0x0;
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
     task_lock();
+
+    //temp stack serial obj
+    serial = &(serial_device){
+        .data = SERIAL_X86_ADDRESS,
+        .rx_mask = SERIAL_X86_RX_MASK,
+        .tx_mask = SERIAL_X86_TX_MASK,
+        .rx_tx = SERIAL_X86_ADDRESS+SERIAL_X86_RX_TX_OFFSET,
+        .getchar_non_blocking = serial_x86_device_getchar_non_blocking,
+        .wait_rx = serial_x86_device_wait_rx,
+        .wait_tx = serial_x86_device_wait_tx,
+        .char_in = 0
+    };
+
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
