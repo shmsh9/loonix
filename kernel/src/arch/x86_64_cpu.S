@@ -80,6 +80,9 @@ cpu_registers_save:
     ret
 //void task_cpu_registers_load(cpu_registers *rdi, void *rsi (fn), void *rdx (data), task *rcx (t));
 task_cpu_registers_load:
+    test rcx, rcx
+    jz .task_cpu_registers_load_exit_null
+
     mov rsp,[rdi+cpu_registers_rsp]
     mov rbp,[rdi+cpu_registers_rbp]
     mov rax, rsi
@@ -93,8 +96,13 @@ task_cpu_registers_load:
     ///////////////////////////////////
     sti
     call rax
+    .task_cpu_registers_load_exit_null:
+    ret
 //void task_cpu_registers_reload(cpu_registers *regs);
 task_cpu_registers_reload:
+    test rdi,rdi
+    jz .task_cpu_registers_reload_exit_null
+
     mov rbp,[rdi+cpu_registers_rbp] 
     mov rsp,[rdi+cpu_registers_rsp] //so that our push affects the newly allocated stack
     mov rax,[rdi+cpu_registers_rip] 
@@ -129,6 +137,7 @@ task_cpu_registers_reload:
     //sti
     pop rax
     ///////////////////////////////////
+    .task_cpu_registers_reload_exit_null:
     ret
 
 //uint64_t cpu_get_tick()

@@ -261,7 +261,8 @@ task *task_get_next(){
 void task_run(void *data, task *t){
     t->fn(data, t);
     task_end_later(t);
-    while(1){}
+    while (1){}
+    
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond++; //uglross
@@ -287,7 +288,9 @@ void task_scheduler(){
         task_current->time_slice_remaining = task_time_total_available >> task_current->time_slice;
         task_current = task_get_next();
     }
-
+    if(!task_current){
+        KPANIC("task_get_next() returned 0x0");
+    }
     task_last_tick = cpu_get_tick();
     switch (task_current->status){
         case task_status_created:
@@ -300,6 +303,7 @@ void task_scheduler(){
                 task_current->data,
                 task_current
             );
+            KERROR("loaded 0x0 X_X");
             break;
         case task_status_ended:{
             task *tmpt = task_first;
@@ -314,6 +318,7 @@ void task_scheduler(){
         }
         case task_status_running:
             task_cpu_registers_reload(task_current->context);
+            KERROR("reloaded 0x0 X_X");
             break;
         case task_status_wait_io:
             break;
