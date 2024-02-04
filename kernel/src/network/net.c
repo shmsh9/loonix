@@ -3,7 +3,7 @@
 void net_debug_print_packet(uint8_t *packet, uint16_t len){
     etherhdr eth = *(etherhdr *)packet;
     ether_debug_print(&eth);
-    switch ((eth.ethertype << 8 | ((eth.ethertype >> 8) & 0xff))){
+    switch(U16LE(eth.ethertype)){
         case ETHER_TYPE_IPV4:{
             uint8_t *ippacket = packet+sizeof(etherhdr);
             ipv4hdr iphdr = *(ipv4hdr *)(ippacket);
@@ -14,7 +14,7 @@ void net_debug_print_packet(uint8_t *packet, uint16_t len){
                 len-sizeof(etherhdr), 
                 &l
             );
-            ipv4packet_debug_print(ippacket, l);
+            ipv4packet_debug_print(&iphdr, ippacket, l);
             break;
         }
 
