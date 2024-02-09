@@ -1,7 +1,6 @@
 #include <shell/builtins.h>
 #include <network/net.h>
 
-
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
     return 0;
@@ -212,6 +211,36 @@ int builtins_regdump(int argc, char **argv){
     CPU_REGISTERS_PRINT(&r);
     return 0;
 }
+bool nstrcmp(const char *a, const char *b){
+    return !(bool)strcmp(a,b);
+}
+bool u16cmp(uint16_t a, uint16_t b){
+    return a == b;
+}
+int builtins_arrcmp(int argc, char **argv){
+    karray *arr = _karray_static(char, ((char *[]){"foo", "bar", "baz"}));
+    karray *arr2 = _karray_static(uint16_t, ((uint16_t []){0, 1, 0x1337}));
+    karray *arr3 = karray_new(sizeof(uint16_t), 0x0);
+    for(int i = 0; i < 0xff; i++){
+        karray_push(arr3, i);
+    }
+    kprintf("arr.contains(\"foo1\") == %s\n",
+        _karray_contains(char *, arr, "foo1", nstrcmp) ? "true" : "false"
+    );
+    kprintf("arr2.contains(0x1337) == %s\n",
+        _karray_contains(uint16_t, arr2, 0x1337, u16cmp) ? "true" : "false"
+    );
+    kprintf("arr3.contains(0x1337) == %s\n",
+        _karray_contains(uint16_t, arr3, 0x1337, u16cmp) ? "true" : "false"
+    );
+    kprintf("arr3.contains(0xfe) == %s\n",
+        _karray_contains(uint16_t, arr3, 0xfe, u16cmp) ? "true" : "false"
+    );
+
+    karray_free(arr3);
+    return 0;
+}
+
 int builtins_net(int argc, char **argv){
     uint8_t icmp_request[] = {
         0x34, 0x49, 0x5b, 0xd9, 0x46, 0x9c, 0xa0, 0xce,
@@ -541,41 +570,6 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
-/*
-void builtins_init(){
-    builtins.length = 0;
-    BUILTINS_INIT_FN(builtins_help, "help");
-    BUILTINS_INIT_FN(builtins_ahci, "ahci");
-    BUILTINS_INIT_FN(builtins_lspci, "lspci");
-    BUILTINS_INIT_FN(builtins_gol, "gol");
-    BUILTINS_INIT_FN(builtins_clear, "clear");
-    BUILTINS_INIT_FN(builtins_free, "free");
-    BUILTINS_INIT_FN(builtins_int, "int");
-    BUILTINS_INIT_FN(builtins_time, "time");
-    BUILTINS_INIT_FN(builtins_atoi, "atoi");
-    BUILTINS_INIT_FN(builtins_testtask, "testtask");
-    BUILTINS_INIT_FN(builtins_testleak, "testleak");
-    BUILTINS_INIT_FN(builtins_task, "task");
-    BUILTINS_INIT_FN(builtins_uptime, "uptime");
-    BUILTINS_INIT_FN(builtins_regdump, "regdump");
-    BUILTINS_INIT_FN(builtins_testargs, "testargs");
-    BUILTINS_INIT_FN(builtins_testvm, "testvm");
-    BUILTINS_INIT_FN(builtins_testkarray, "testkarray");
-    BUILTINS_INIT_FN(builtins_testktree, "testktree");
-    BUILTINS_INIT_FN(builtins_testkhash, "testkhash");
-    BUILTINS_INIT_FN(builtins_karray_pop, "testkarraypop");
-    BUILTINS_INIT_FN(builtins_testklist, "testklist");
-    BUILTINS_INIT_FN(builtins_testkcalloc, "testkcalloc");
-    BUILTINS_INIT_FN(builtins_teststrdup, "teststrdup");
-    BUILTINS_INIT_FN(builtins_testscroll, "testscroll");
-    BUILTINS_INIT_FN(builtins_testmemset, "testmemset");
-    BUILTINS_INIT_FN(builtins_testmemcpy, "testmemcpy");
-    BUILTINS_INIT_FN(builtins_graphics, "graphics");
-    BUILTINS_INIT_FN(builtins_reboot, "reboot");
-    BUILTINS_INIT_FN(builtins_poweroff, "poweroff");
-
-} 
-*/
 
 struct fnbuiltin _shell_builtins[] = {
     
@@ -613,7 +607,10 @@ struct fnbuiltin _shell_builtins[] = {
         .name = "time",
         .ptrfn = builtins_time,
     },
-    
+    (struct fnbuiltin){
+        .name = "arrcmp",
+        .ptrfn = builtins_arrcmp,
+    },
     (struct fnbuiltin){
         .name = "testvm",
         .ptrfn = builtins_testvm,

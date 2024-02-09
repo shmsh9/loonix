@@ -10,6 +10,7 @@ def main():
     c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=c11 \
     		-Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable\
             -Wno-strict-prototypes\
+            -Wno-gnu-statement-expression-from-macro-expansion \
             -target {param['ARCH']}-none-elf -g -O0 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
     ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
     config.clean_files_glob(f"{target}/src/","*.o")
