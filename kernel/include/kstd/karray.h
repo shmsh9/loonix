@@ -10,27 +10,23 @@ typedef struct {
     void(*karray_data_free_fn)(void *);
     void *array;
 } karray;
-#define _karray_contains(type, arr, e, fn)({\
+#define _karray_contains(arr, e, fn)({\
     bool contains = false;\
     for(int i = 0; i < arr->length; i++){\
-        contains = fn(((type *)arr->array)[i], e);\
+        contains = fn(((typeof(e) *)arr->array)[i], e);\
         if(contains)\
             break;\
     }\
     contains;\
 })
-#define _karray_static(type, arr) ({ \
-    type *stackarr[sizeof(arr)/sizeof(arr[0])] = {0};\
-    karray *ret = &(karray){\
+#define _karray_static(arr) ({ \
+    &(karray){\
         .elementsz = sizeof(arr[0]),\
-        .length = 0,\
+        .length = sizeof(arr)/sizeof(arr[0]),\
         .alloc = sizeof(arr)/sizeof(arr[0]),\
         .karray_data_free_fn = 0x0,\
-        .array = stackarr\
-    }; \
-    for(int i = 0; i < sizeof(arr)/sizeof(arr[0]); i++) \
-        karray_push(ret, (uint64_t)arr[i]); \
-    ret; \
+        .array = arr\
+    };\
 })
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
 bool karray_contains_str(karray *array, char *e);

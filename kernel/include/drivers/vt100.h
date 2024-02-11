@@ -20,5 +20,4 @@ void vt100_console_set_y(framebuffer_device *fb, uint64_t y);
 void vt100_console_escaping_stop(framebuffer_device *fb, uint8_t c);
 void vt100_console_reset_x(framebuffer_device *fb);
 void vt100_console_reset_y(framebuffer_device *fb);
-void vt100_console_init();
 #endif

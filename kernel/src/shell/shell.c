@@ -12,7 +12,7 @@ void shell_sigint(){
 }
 
 int shell(){
-    kprintf("shell INIT,\n");
+    //kprintf("shell INIT,\n");
 //    KMESSAGE("shell started");
 //    builtins_init();
 //    KMESSAGE("shell_builtins initiated");

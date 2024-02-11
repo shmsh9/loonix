@@ -217,26 +217,39 @@ bool nstrcmp(const char *a, const char *b){
 bool u16cmp(uint16_t a, uint16_t b){
     return a == b;
 }
+bool u32cmp(uint32_t a, uint32_t b){
+    return a == b;
+}
+#define lambda(lambda_ret, lambda_args, lambda_body)\
+({\
+lambda_ret lambda__anon lambda_args\
+lambda_body\
+&lambda__anon;\
+});
+
 int builtins_arrcmp(int argc, char **argv){
-    karray *arr = _karray_static(char, ((char *[]){"foo", "bar", "baz"}));
-    karray *arr2 = _karray_static(uint16_t, ((uint16_t []){0, 1, 0x1337}));
-    karray *arr3 = karray_new(sizeof(uint16_t), 0x0);
-    for(int i = 0; i < 0xff; i++){
+    karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
+    karray *arr2 = _karray_static(((uint16_t []){0, 1, 0x1337}));
+    karray *arr3 = karray_new(sizeof(uint32_t), 0x0);
+    for(int i = 0; i < 0xffff+1; i++){
         karray_push(arr3, i);
     }
     kprintf("arr.contains(\"foo1\") == %s\n",
-        _karray_contains(char *, arr, "foo1", nstrcmp) ? "true" : "false"
+        _karray_contains(arr, (char *)"foo1", nstrcmp) ? "true" : "false"
     );
-    kprintf("arr2.contains(0x1337) == %s\n",
-        _karray_contains(uint16_t, arr2, 0x1337, u16cmp) ? "true" : "false"
-    );
-    kprintf("arr3.contains(0x1337) == %s\n",
-        _karray_contains(uint16_t, arr3, 0x1337, u16cmp) ? "true" : "false"
-    );
-    kprintf("arr3.contains(0xfe) == %s\n",
-        _karray_contains(uint16_t, arr3, 0xfe, u16cmp) ? "true" : "false"
+    kprintf("arr.contains(\"bar\") == %s\n",
+        _karray_contains(arr, (char *)"bar", nstrcmp) ? "true" : "false"
     );
 
+    kprintf("arr2.contains(0x1337) == %s\n",
+        _karray_contains(arr2, 0x1337, u16cmp) ? "true" : "false"
+    );
+    kprintf("arr3.contains(0xffff0) == %s\n",
+        _karray_contains(arr3, 0xffff0, u32cmp) ? "true" : "false"
+    );
+    kprintf("arr3.contains(0xffff) == %s\n",
+        _karray_contains(arr3, 0xffff, u32cmp) ? "true" : "false"
+    );
     karray_free(arr3);
     return 0;
 }
