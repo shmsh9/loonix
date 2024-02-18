@@ -1,6 +1,6 @@
 #include <shell/builtins.h>
 #include <network/net.h>
-
+#include <kstd/regex.h>
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
     return 0;
@@ -251,6 +251,13 @@ int builtins_arrcmp(int argc, char **argv){
         _karray_contains(arr3, 0xffff, u32cmp) ? "true" : "false"
     );
     karray_free(arr3);
+    karray *aut = regex_new("regex[a-c]{3}[0-9]");
+    kprintf("aut->length == %d\n", aut->length);
+    for(int i = 0; i < aut->length; i++){
+        regex_automaton *r = ((regex_automaton **)(aut->array))[i];
+        regex_automaton_debug_print(r);
+    }
+    karray_free(aut);
     return 0;
 }
 
