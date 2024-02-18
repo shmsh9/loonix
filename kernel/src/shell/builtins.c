@@ -220,14 +220,8 @@ bool u16cmp(uint16_t a, uint16_t b){
 bool u32cmp(uint32_t a, uint32_t b){
     return a == b;
 }
-#define lambda(lambda_ret, lambda_args, lambda_body)\
-({\
-lambda_ret lambda__anon lambda_args\
-lambda_body\
-&lambda__anon;\
-});
-
 int builtins_arrcmp(int argc, char **argv){
+    /*
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
     karray *arr2 = _karray_static(((uint16_t []){0, 1, 0x1337}));
     karray *arr3 = karray_new(sizeof(uint32_t), 0x0);
@@ -251,6 +245,7 @@ int builtins_arrcmp(int argc, char **argv){
         _karray_contains(arr3, 0xffff, u32cmp) ? "true" : "false"
     );
     karray_free(arr3);
+    */
     karray *aut = regex_new("regex[a-c]{3}[0-9]");
     kprintf("aut->length == %d\n", aut->length);
     for(int i = 0; i < aut->length; i++){

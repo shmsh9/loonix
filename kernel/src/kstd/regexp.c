@@ -1,7 +1,7 @@
 #include <kstd/regex.h>
 void regex_automaton_free(regex_automaton *a){
     karray_free(a->alphabet);
-    //kfree(a);
+    kfree(a);
 }
 regex_automaton *regex_automaton_new(uint32_t l, karray *a){
    regex_automaton *ret = kmalloc(sizeof(regex_automaton));
@@ -21,7 +21,7 @@ void regex_automaton_debug_print(regex_automaton *r){
             i+1 < r->alphabet->length ? ',' : ' '
         );
    }
-   kprintf("}\n");
+   kprintf("} }\n");
 }
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
@@ -73,6 +73,7 @@ karray *regex_new(char *s){
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
                     );
                     alphabet_parsed = karray_new(sizeof(char), NULL);
+                    continue;
                 }
                 if(length_parsing){
                     length_parsed *= 10;
@@ -91,7 +92,7 @@ karray *regex_new(char *s){
                     }
                     if(s[i] == ',' && !alphabet_is_comma_list){
                         alphabet_is_comma_list = true;
-                        karray_push(alphabet_parsed, s[i-1]);
+                        karray_push(alphabet_parsed, (uint64_t)s[i-1]);
                         continue;
                     }
                 }
