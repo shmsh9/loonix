@@ -6,12 +6,12 @@
 void *current_interrupt_frame[4] = {0x0};
 
 #define KERRORINTERRUPT(msg, interrupt_frame){\
-    kprintf("[%d][kernel][interrupt] : %s\n", cpu_get_tick() ,msg);\
+    kprintf("[%d][kernel][interrupt] : %s\n", (uint64_t)cpu_get_tick() ,msg);\
     if(!task_current){\
         STACKTRACE();\
     }\
     else{\
-        kprintf("task 0x%x (%s) : \n", task_current, task_current->name);\
+        kprintf("task 0x%x (%s) : \n", (uint64_t)task_current, task_current->name);\
         STACKTRACE_CTXT(task_current->context->CPU_REGISTER_FRAME);\
         CPU_REGISTERS_PRINT(task_current->context);\
     }\

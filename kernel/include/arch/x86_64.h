@@ -79,19 +79,19 @@
     #define CPU_REGISTER_STACK rsp
     #define CPU_REGISTER_FRAME rbp
     #define _INB(address, ret){\
-        volatile uint8_t tmp = 0;\
-        __asm__ __volatile__("inb %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
-        ret = tmp;\
+        volatile uint8_t _inb_tmp = 0;\
+        __asm__ __volatile__("inb %1, %0" :  "=a"(_inb_tmp) : "dN"((volatile uint16_t)address));\
+        ret = _inb_tmp;\
     }
     #define _INW(address, ret){\
-        volatile uint16_t tmp = 0;\
-        __asm__ __volatile__("inw %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
-        ret = tmp;\
+        volatile uint16_t _inw_tmp = 0;\
+        __asm__ __volatile__("inw %1, %0" :  "=a"(_inw_tmp) : "dN"((volatile uint16_t)address));\
+        ret = _inw_tmp;\
     }
     #define _INL(address, ret){\
-        volatile uint32_t tmp = 0;\
-        __asm__ __volatile__("inl %1, %0" :  "=a"(tmp) : "dN"((volatile uint16_t)address));\
-        ret = tmp;\
+        volatile uint32_t _inl_tmp = 0;\
+        __asm__ __volatile__("inl %1, %0" :  "=a"(_inl_tmp) : "dN"((volatile uint16_t)address));\
+        ret = _inl_tmp;\
     }
     #define _OUTB(address, data) __asm__ __volatile__("outb %0, %1" : : "a"((uint8_t)data), "Nd"((uint16_t)address))
     #define _OUTL(address, data) __asm__ __volatile__("outl %0, %1" : : "a"((uint32_t)data), "Nd"((uint16_t)address))
@@ -184,8 +184,8 @@
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
 
     #define __FASTEST_MEMSET(ptr, b, sz) {\
-        uint64_t src[2] = {B_to_8B(b), B_to_8B(b)};\
-        __memset_128b(ptr, src, sz);\
+        uint64_t _fastest_memset_src[2] = {B_to_8B(b), B_to_8B(b)};\
+        __memset_128b(ptr, _fastest_memset_src, sz);\
     }
 #endif
 #endif

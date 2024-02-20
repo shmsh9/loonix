@@ -27,25 +27,25 @@
 #define STACK_TRACE_NMAX 10
 
 #define STACKTRACE() {\
-    struct stackframe *stk = {0};\
-    GET_STACKFRAME(stk);\
+    struct stackframe *_stacktrace_stk_var = {0};\
+    GET_STACKFRAME(_stacktrace_stk_var);\
     kprint("stacktrace : \n");\
-    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){\
-        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);\
-        stk = stk->frame;\
+    for(uint8_t i = 0; _stacktrace_stk_var && i < STACK_TRACE_NMAX; i++){\
+        kprintf("\t[%d] : 0x%x\n", i, _stacktrace_stk_var->instruction_pointer);\
+        _stacktrace_stk_var = _stacktrace_stk_var->frame;\
     }\
 }
 #define STACKTRACE_CTXT(ctxt) {\
-    struct stackframe *stk = (struct stackframe *)ctxt;\
+    struct stackframe *_stacktrace_stk_var = (struct stackframe *)ctxt;\
     kprint("stacktrace : \n");\
-    for(uint8_t i = 0; stk && i < STACK_TRACE_NMAX; i++){\
-        kprintf("\t[%d] : 0x%x\n", i, stk->instruction_pointer);\
-        stk = stk->frame;\
+    for(uint8_t i = 0; _stacktrace_stk_var && i < STACK_TRACE_NMAX; i++){\
+        kprintf("\t[%d] : 0x%x\n", i, _stacktrace_stk_var->instruction_pointer);\
+        _stacktrace_stk_var = _stacktrace_stk_var->frame;\
     }\
     kputc('\n');\
 }
 #define KMSG(type, ...) {\
-    kprintf("[%d][kernel][%s] : %s() : ",cpu_get_tick(),type, __func__);\
+    kprintf("[%d][kernel][%s] : %s() : ",(uint64_t)cpu_get_tick(),type, __func__);\
     kprintf(__VA_ARGS__);\
     kputc('\n');\
 }
