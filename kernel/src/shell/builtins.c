@@ -213,6 +213,19 @@ int builtins_regdump(int argc, char **argv){
     CPU_REGISTERS_PRINT(&r);
     return 0;
 }
+int builtins_regex(int argc, char **argv){
+    karray *aut = regex_new("regex[a-c]{3}[0-9]");
+    kprintf(
+        "regex_match(aut, \"regexabc1\") == %s\n",
+        regex_match(aut, "regexabc1") ? "true" : "false"
+    );
+    kprintf(
+        "regex_match(aut, \"regex1\") == %s\n",
+        regex_match(aut, "regex1") ? "true" : "false"
+    );
+    karray_free(aut);
+    return 0;
+}
 int builtins_arrcmp(int argc, char **argv){
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
     karray *arr2 = _karray_static(((uint16_t []){0, 1, 0x1337}));
@@ -237,27 +250,18 @@ int builtins_arrcmp(int argc, char **argv){
         _karray_contains(arr3, 0xffff, cmp_u32) ? "true" : "false"
     );
     karray_free(arr3);
-    karray *aut = regex_new("regex[a-c]{3}[0-9]");
 
-    karray *arr4 = _karray_static(((char []){'a', 'b', 'c'}));
     for(char i = 'a'; i < 'h'; i++){
         kprintf("arr.contains('%c') == %s\n",
             (char)i,
-            _karray_contains(arr4,(char)i,cmp_char) ? "true" : "false"
+            _karray_contains(
+                _karray_static(((char []){'a', 'b', 'c'})),
+                (char)i,
+                cmp_char
+            ) ? "true" : "false"
         );
 
     }
-    kprintf(
-        "regex_match(aut, \"regexabc1\") == %s\n",
-        regex_match(aut, "regexabc1") ? "true" : "false"
-    );
-    kprintf(
-        "regex_match(aut, \"regexacsae1\") == %s\n",
-        regex_match(aut, "regexacsae1") ? "true" : "false"
-    );
-
-    karray_free(aut);
-
     return 0;
 }
 
@@ -622,7 +626,10 @@ struct fnbuiltin _shell_builtins[] = {
         .name = "free",
         .ptrfn = builtins_free,
     },
-    
+    (struct fnbuiltin){
+        .name = "regex",
+        .ptrfn = builtins_regex,
+    },
     (struct fnbuiltin){
         .name = "time",
         .ptrfn = builtins_time,

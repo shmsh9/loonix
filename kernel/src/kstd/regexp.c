@@ -44,7 +44,7 @@ bool regex_match(karray *at, char *s){
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
     //char sp[] = {'{', '}', '[', ']'};
-    //karray *special_chars = _karray_static(sp);
+    karray *special_chars = _karray_static(((char []){'{', '}', '[', ']'}));
     bool alphabet_started = false;
     bool length_parsing = false;
     uint32_t length_parsed = 0;
@@ -59,7 +59,7 @@ karray *regex_new(char *s){
             case ']':
                 alphabet_started = false;
                 alphabet_is_comma_list = false;
-                if(i+1 >= l || s[i+1] != '{'){
+                if(i+1 >= l || (i+1 < l && s[i+1] != '{') ){
                    karray_push(
                         ret,
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
@@ -81,7 +81,7 @@ karray *regex_new(char *s){
                 length_parsed = 0;
                 continue;
             default:
-                if(!length_parsing && !alphabet_started){
+                if(!_karray_contains(special_chars, s[i], cmp_char) && !length_parsing && !alphabet_started){
                     karray_push(
                         alphabet_parsed,
                         (uint64_t)s[i]
@@ -116,6 +116,8 @@ karray *regex_new(char *s){
                 }
         }
     }
+    if(alphabet_parsed && alphabet_parsed->length == 0)
+        karray_free(alphabet_parsed);
     return ret;
 }
 /*
