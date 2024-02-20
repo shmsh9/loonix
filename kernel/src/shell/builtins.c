@@ -1,6 +1,8 @@
 #include <shell/builtins.h>
 #include <network/net.h>
 #include <kstd/regex.h>
+#include <kstd/cmp.h>
+
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
     return 0;
@@ -211,17 +213,7 @@ int builtins_regdump(int argc, char **argv){
     CPU_REGISTERS_PRINT(&r);
     return 0;
 }
-bool nstrcmp(const char *a, const char *b){
-    return !(bool)strcmp(a,b);
-}
-bool u16cmp(uint16_t a, uint16_t b){
-    return a == b;
-}
-bool u32cmp(uint32_t a, uint32_t b){
-    return a == b;
-}
 int builtins_arrcmp(int argc, char **argv){
-    /*
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
     karray *arr2 = _karray_static(((uint16_t []){0, 1, 0x1337}));
     karray *arr3 = karray_new(sizeof(uint32_t), 0x0);
@@ -229,30 +221,43 @@ int builtins_arrcmp(int argc, char **argv){
         karray_push(arr3, i);
     }
     kprintf("arr.contains(\"foo1\") == %s\n",
-        _karray_contains(arr, (char *)"foo1", nstrcmp) ? "true" : "false"
+        _karray_contains(arr, (char *)"foo1", cmp_str) ? "true" : "false"
     );
     kprintf("arr.contains(\"bar\") == %s\n",
-        _karray_contains(arr, (char *)"bar", nstrcmp) ? "true" : "false"
+        _karray_contains(arr, (char *)"bar", cmp_str) ? "true" : "false"
     );
 
     kprintf("arr2.contains(0x1337) == %s\n",
-        _karray_contains(arr2, 0x1337, u16cmp) ? "true" : "false"
+        _karray_contains(arr2, 0x1337, cmp_u16) ? "true" : "false"
     );
     kprintf("arr3.contains(0xffff0) == %s\n",
-        _karray_contains(arr3, 0xffff0, u32cmp) ? "true" : "false"
+        _karray_contains(arr3, 0xffff0, cmp_u32) ? "true" : "false"
     );
     kprintf("arr3.contains(0xffff) == %s\n",
-        _karray_contains(arr3, 0xffff, u32cmp) ? "true" : "false"
+        _karray_contains(arr3, 0xffff, cmp_u32) ? "true" : "false"
     );
     karray_free(arr3);
-    */
     karray *aut = regex_new("regex[a-c]{3}[0-9]");
-    kprintf("aut->length == %d\n", aut->length);
-    for(int i = 0; i < aut->length; i++){
-        regex_automaton *r = ((regex_automaton **)(aut->array))[i];
-        regex_automaton_debug_print(r);
+
+    karray *arr4 = _karray_static(((char []){'a', 'b', 'c'}));
+    for(char i = 'a'; i < 'h'; i++){
+        kprintf("arr.contains('%c') == %s\n",
+            (char)i,
+            _karray_contains(arr4,(char)i,cmp_char) ? "true" : "false"
+        );
+
     }
+    kprintf(
+        "regex_match(aut, \"regexabc1\") == %s\n",
+        regex_match(aut, "regexabc1") ? "true" : "false"
+    );
+    kprintf(
+        "regex_match(aut, \"regexacsae1\") == %s\n",
+        regex_match(aut, "regexacsae1") ? "true" : "false"
+    );
+
     karray_free(aut);
+
     return 0;
 }
 

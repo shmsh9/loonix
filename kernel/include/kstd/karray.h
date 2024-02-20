@@ -11,13 +11,13 @@ typedef struct {
     void *array;
 } karray;
 #define _karray_contains(arr, e, fn)({\
-    bool contains = false;\
-    for(int i = 0; i < arr->length; i++){\
-        contains = fn(((typeof(e) *)arr->array)[i], e);\
-        if(contains)\
+    bool _karray_contains_return = false;\
+    for(int _karray_contains_i = 0; _karray_contains_i < arr->length; _karray_contains_i++){\
+        _karray_contains_return = fn(((typeof(e) *)arr->array)[_karray_contains_i], e);\
+        if(_karray_contains_return)\
             break;\
     }\
-    contains;\
+    _karray_contains_return;\
 })
 #define _karray_static(arr) ({ \
     &(karray){\

@@ -23,6 +23,24 @@ void regex_automaton_debug_print(regex_automaton *r){
    }
    kprintf("} }\n");
 }
+
+bool regex_match(karray *at, char *s){
+    regex_automaton **a = (regex_automaton **)at->array;
+    int l = strlen(s);
+    int k = 0;
+    for(int i = 0; i < at->length; i++){
+        int j = 0;
+        while(j < a[i]->length){
+            if(k >= l)
+                return false;
+            if(!_karray_contains(a[i]->alphabet, (char)s[k], cmp_char))
+                return false;
+            j++;
+            k++;
+        }
+    }
+    return true;
+}
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
     //char sp[] = {'{', '}', '[', ']'};
