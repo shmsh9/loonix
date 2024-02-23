@@ -1,6 +1,7 @@
 #include <shell/shell.h>
 
 uint8_t shell_cursor_char = ' ';
+int shell_exit_code = 0;
 
 uint8_t shell_get_cursor_char(){
     return shell_cursor_char;
@@ -280,6 +281,12 @@ char **shell_parse_args2(char cmdline[CMDLINE_MAX], int *argc){
 }
 int shell_exec_args_wrapped(shell_args_wrapped *args, task *t){
     return args->fn(args->argc, args->argv);
+}
+void shell_set_exit_code(int e){
+    shell_exit_code = e;
+}
+int shell_get_exit_code(){
+    return shell_exit_code;
 }
 int shell_exec(char cmdline[CMDLINE_MAX]){
     if(cmdline[0] == 0x0)

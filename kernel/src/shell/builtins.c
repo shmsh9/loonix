@@ -213,18 +213,28 @@ int builtins_regdump(int argc, char **argv){
     CPU_REGISTERS_PRINT(&r);
     return 0;
 }
+int builtins_get_exit_code(int argc, char **argv){
+    int c = shell_get_exit_code();
+    if(c < 0)
+        kputc('-');
+    kprintf("%d\n", (uint64_t)((~c)+1));
+    return c;
+}
 int builtins_regex(int argc, char **argv){
-    karray *aut = regex_new("regex[a-c]{3}[0-9]");
-    kprintf(
-        "regex_match(aut, \"regexabc1\") == %s\n",
-        regex_match(aut, "regexabc1") ? "true" : "false"
-    );
-    kprintf(
-        "regex_match(aut, \"regex1\") == %s\n",
-        regex_match(aut, "regex1") ? "true" : "false"
-    );
+    if(argc != 3){
+        kprintf(
+            "usage: %s expression string to match\n", 
+            argv[0]
+        );
+        shell_set_exit_code(-1);
+        return -1;
+    } 
+    karray *aut = regex_new(argv[1]);
+    bool m = regex_match(aut, argv[2]);
+    kprintf("%s\n", m ? "true" : "false");
     karray_free(aut);
-    return 0;
+    shell_set_exit_code(m ? 0 : -1);
+    return m ? 0 : -1;
 }
 int builtins_arrcmp(int argc, char **argv){
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
@@ -629,6 +639,10 @@ struct fnbuiltin _shell_builtins[] = {
     (struct fnbuiltin){
         .name = "regex",
         .ptrfn = builtins_regex,
+    },
+    (struct fnbuiltin){
+        .name = "exitcode",
+        .ptrfn = builtins_get_exit_code,
     },
     (struct fnbuiltin){
         .name = "time",
