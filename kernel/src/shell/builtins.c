@@ -226,6 +226,19 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
+        char *r = "[a-z]*\\s=\\s*[0-9]*";
+        karray *aut = regex_new(r);
+        char *match = "foobar =    100";
+        bool m = regex_match(aut, match);
+        for(int i = 0; i < aut->length; i++)
+            regex_automaton_debug_print(((regex_automaton**)aut->array)[i]);
+
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            m ? "true" : "false"
+        );
+
         shell_set_exit_code(-1);
         return -1;
     } 
