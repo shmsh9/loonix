@@ -3,8 +3,8 @@
 #include <kstd/kstd.h>
 #include <kstd/cmp.h>
 
-#define REGEX_INF_LEN UINT32_MAX 
-
+#define REGEX_INF_ZR_LEN UINT32_MAX 
+#define REGEX_OPT_LEN 0
 typedef struct _regex_automaton{
     uint32_t length;
     karray *alphabet;

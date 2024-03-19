@@ -226,17 +226,45 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
-        char *r = "[a-z]*\\s=\\s*[0-9]*";
+        char *r = "\\s*[a-zA-Z]{1}[a-zA-Z0-9]*\\s*=\\s*[0-9]{1}[0-9]*\\s*;";
         karray *aut = regex_new(r);
-        char *match = "foobar =    100";
-        bool m = regex_match(aut, match);
         for(int i = 0; i < aut->length; i++)
-            regex_automaton_debug_print(((regex_automaton**)aut->array)[i]);
-
+            regex_automaton_debug_print(((regex_automaton **)aut->array)[i]);
+        char *match = "F00Bar=100;";
         kprintf("%s match %s %s\n", 
             r,
             match,
-            m ? "true" : "false"
+            regex_match(aut, match) ? "true" : "false"
+        );
+        match = " F00Bar = 100;";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
+        );
+        match = " F00Bar = \t100;\t";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
+        );
+        match = " F00Bar = \t100 ";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
+        );
+        match = " F00Bar = \ta00;\t";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
+        );
+        match = " 00Bar = \ta00;\t";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
         );
 
         shell_set_exit_code(-1);
