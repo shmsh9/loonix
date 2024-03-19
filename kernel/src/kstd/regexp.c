@@ -17,7 +17,7 @@ void regex_automaton_debug_print(regex_automaton *r){
    for(int i = 0; i < r->alphabet->length; i++){
        kprintf(
             "%c%c", 
-            s[i], 
+            (s[i] > 32 && s[i] < 127) ? s[i] : ' ', 
             i+1 < r->alphabet->length ? ',' : ' '
         );
    }
@@ -38,9 +38,15 @@ bool regex_match(karray *at, char *s){
         while(j < a[i]->length){
             if(a[i]->length == REGEX_INF_ZR_LEN){
                 if(k >= l ){
-                    for(int k = i; k < at->length; k++)
-                        if(a[k]->length != REGEX_INF_ZR_LEN || a[k]->length != REGEX_OPT_LEN)
-                            return false;
+		    //Final automaton
+		    if(i+1 == at->length)
+		        return true;
+		    //Check if mandatory automatons missed
+                    for(int k = i; k < at->length; k++){
+                        if(a[k]->length != REGEX_INF_ZR_LEN || a[k]->length != REGEX_OPT_LEN){
+			    return false;
+			}
+		    }
                     return true;
 
                 }
@@ -74,6 +80,9 @@ karray *regex_new(char *s){
         '(',')',
         '.','*',
         '\\', '?'
+    }));
+    karray *special_chars_len = _karray_static(((char []){
+        '{', '}','*','?'
     }));
     bool alphabet_started = false;
     bool length_parsing = false;
@@ -116,7 +125,7 @@ karray *regex_new(char *s){
             case ']':
                 alphabet_started = false;
                 alphabet_is_comma_list = false;
-                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars, s[i+1], cmp_char)) ){
+                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1], cmp_char)) ){
                    karray_push(
                         ret,
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
@@ -165,7 +174,10 @@ karray *regex_new(char *s){
                         alphabet_parsed,
                         (uint64_t)s[i]
                     );
-                    karray_push(
+		    //do not push length == 1 alphabet
+                    if(i+1 < l && (s[i+1] == '*' || s[i+1] == '?'))
+		        continue;
+		    karray_push(
                         ret,
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
                     );

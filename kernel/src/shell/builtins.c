@@ -266,11 +266,22 @@ int builtins_regex(int argc, char **argv){
             match,
             regex_match(aut, match) ? "true" : "false"
         );
-
+        r = ".*";
+        kfree(aut);
+	aut = regex_new(r);
+	match = "abc";
+        kprintf("%s match %s %s\n", 
+            r,
+            match,
+            regex_match(aut, match) ? "true" : "false"
+        );
+	
         shell_set_exit_code(-1);
         return -1;
     } 
     karray *aut = regex_new(argv[1]);
+    for(int i = 0; i < aut->length; i++)
+        regex_automaton_debug_print(((regex_automaton **)aut->array)[i]);
     bool m = regex_match(aut, argv[2]);
     kprintf("%s\n", m ? "true" : "false");
     karray_free(aut);
