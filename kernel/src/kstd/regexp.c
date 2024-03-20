@@ -23,53 +23,59 @@ void regex_automaton_debug_print(regex_automaton *r){
    }
    kprintf("} }\n");
 }
+bool _regex_match_inf_opt_at(regex_automaton *a, char **s){
+    //KDEBUG("*s == %s", *s);
+    return *(*s) && _karray_contains(a->alphabet, *(*s), cmp_char);
+}
+bool _regex_match_opt_at(regex_automaton *a, char **s){
+    //KDEBUG("*s == %s", *s);
+    (*s) += _karray_contains(a->alphabet, *(*s), cmp_char);
+    return true;
+}
 
-bool regex_match(karray *at, char *s){
-    regex_automaton **a = (regex_automaton **)at->array;
-    int l = strlen(s);
-    int k = 0;
-    for(int i = 0; i < at->length; i++){
-        int j = 0;
-        if(a[i]->length == REGEX_OPT_LEN){
-            if(_karray_contains(a[i]->alphabet, (char)s[k], cmp_char))
-                k++;
-            continue;
-        }
-        while(j < a[i]->length){
-            if(a[i]->length == REGEX_INF_ZR_LEN){
-                if(k >= l ){
-		    //Final automaton
-		    if(i+1 == at->length)
-		        return true;
-		    //Check if mandatory automatons missed
-                    for(int k = i; k < at->length; k++){
-                        if(a[k]->length != REGEX_INF_ZR_LEN || a[k]->length != REGEX_OPT_LEN){
-			    return false;
-			}
-		    }
-                    return true;
-                }
-                if(!_karray_contains(a[i]->alphabet, (char)s[k], cmp_char) && i+1 < at->length ){
-                    if(_karray_contains(a[i+1]->alphabet, (char)s[k], cmp_char))
-                        break;
-                    if(a[i+1]->length == REGEX_INF_ZR_LEN)
-                        break;
-                }
-                if(!_karray_contains(a[i]->alphabet, (char)s[k], cmp_char))
-                    return false;
-                j = 0;
-                k++;
-                continue;
-            }
-            if(k >= l && a[i]->length)
-                return false;
-            if(!_karray_contains(a[i]->alphabet, (char)s[k], cmp_char))
-                return false;
-            j++;
-            k++;
-        }
+bool _regex_match_fixed_at(regex_automaton *a, char **s){
+    for(int i = 0; i < a->length && *(*s); i++){        
+        //KDEBUG("*s == %s", *s);
+        if(!_karray_contains(a->alphabet, *(*s), cmp_char))
+            return false;
+        *s += 1;
     }
     return true;
+}
+bool regex_match(karray *at, char *s){
+    char *curr_s = s;
+    int i = 0;
+    for(; i < at->length && *curr_s; i++){
+        regex_automaton *a = ((regex_automaton **)at->array)[i];
+        switch(a->length){
+            case REGEX_INF_ZR_LEN:
+                while(_regex_match_inf_opt_at(a, &curr_s) && *curr_s){
+                    //Check if end of inf loop
+                    if(i+1 < at->length){
+                        char *tmps = curr_s;
+                        regex_automaton *tmpa = ((regex_automaton **)at->array)[i+1];
+                        if(tmpa->length != REGEX_INF_ZR_LEN && tmpa->length != REGEX_OPT_LEN && _regex_match_fixed_at(tmpa, &tmps)){
+                            break;
+                        }
+                    }
+                    curr_s++;
+                }
+                break;
+            case REGEX_OPT_LEN:
+                _regex_match_opt_at(a, &curr_s);
+                break;
+            default:
+                if(!_regex_match_fixed_at(a, &curr_s) && i+1 == at->length)
+                    return false;
+                break;
+        }
+    }
+    for(; i < at->length; i++){
+        regex_automaton *a = ((regex_automaton **)at->array)[i];
+        if(a->length != REGEX_INF_ZR_LEN && a->length != REGEX_OPT_LEN)
+            return false;
+    }
+    return !*curr_s && i == at->length;
 }
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
