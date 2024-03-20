@@ -227,25 +227,40 @@ int builtins_regex(int argc, char **argv){
             argv[0]
         );
         karray *regx[] = {
-            regex_new("\\s*[a-zA-Z]{1}[a-zA-Z0-9]*\\s*=\\s*[0-9]{1}[0-9]*\\s*;"),
+            regex_new(VM_UINT_ASSIGNMENT),
+            regex_new(VM_UINT_ASSIGNMENT),
+            regex_new(VM_STRING_ASSIGNMENT),
             regex_new("b"),
             regex_new("[a,b,c]*"),
             regex_new("a?"),
-            regex_new("a{3}")
+            regex_new("a{3}"),
+            regex_new("a{3}"),
+            regex_new("a?."),
+            regex_new("a?.")
         };
         char *testS[sizeof(regx)/sizeof(regx[0])] = {
-            "F00Bar=100;",
+            "foobar = 100;",
+            "foobar = 100;",
+            "F00Bar=\"100\";",
             "a",
             "abc",
             "ab",
-            "aaa"
+            "aaa",
+            "aaab",
+            "ab",
+            "b"
         };
 
         bool testR[sizeof(regx)/sizeof(regx[0])] = {
             true,
+            true,
+            true,
             false,
             true,
             false,
+            true,
+            false,
+            true,
             true
         };
         for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++){
@@ -254,8 +269,11 @@ int builtins_regex(int argc, char **argv){
                 kprintf("regex_match(\"%s\") == true\n", testS[i]);
             else
                 kprintf("regex_match(\"%s\") == false\n", testS[i]);
-            if(m != testR[i])
-                kprintf("/!\\test failed for expression : %s regx[%d]\n", testS[i], (uint64_t)i);
+            if(m != testR[i]){
+                KERROR("/!\\test failed for expression : %s regx[%d]\n", testS[i], (uint64_t)i);
+                for(int j = 0; j < regx[i]->length; j++)
+                    regex_automaton_debug_print(((regex_automaton **)regx[i]->array)[j]);
+            }
         }
         for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++)
             karray_free(regx[i]);
@@ -604,10 +622,13 @@ int builtins_testktree(int argc, char **argv){
     return 0;
 }
 int builtins_testvm(int argc, char **argv){
-    char *in = "import os\nfoo = 135\nbar = 12\n";
-    bool ok = parse_code((uint8_t *)in);
-    kprintf("%s\n parse == %s\n", in, ok ? "true":"false" );
-
+    char *in[] = {
+        "foobar = 100;",
+        "F00bar = \"12\";"
+    };
+    for(int i = 0; i < sizeof(in)/sizeof(in[0]); i++){
+        parse_code((uint8_t *)in[i]);
+    }
     return 0;
 }
 int builtins_lspci(int argc, char **argv){

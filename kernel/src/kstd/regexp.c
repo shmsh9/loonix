@@ -48,7 +48,6 @@ bool regex_match(karray *at, char *s){
 			}
 		    }
                     return true;
-
                 }
                 if(!_karray_contains(a[i]->alphabet, (char)s[k], cmp_char) && i+1 < at->length ){
                     if(_karray_contains(a[i+1]->alphabet, (char)s[k], cmp_char))
@@ -139,6 +138,13 @@ karray *regex_new(char *s){
                         alphabet_parsed,
                         (char)i
                     );
+                }
+                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1], cmp_char)) ){
+                   karray_push(
+                        ret,
+                        (uint64_t)regex_automaton_new(1, alphabet_parsed)
+                    );
+                    alphabet_parsed = karray_new(sizeof(char), NULL);
                 }
                 continue;
             case '*':

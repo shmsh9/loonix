@@ -91,9 +91,26 @@ bool _map_variables(uint8_t *in, uint64_t in_len){
 }
 
 bool parse_code(uint8_t *in){
-    uint64_t in_len = strlen((char *)in);
-    if(!_check_symbols(in, in_len))
-        return false;
+    char *possible_lines[] = {
+        VM_STRING_ASSIGNMENT,
+        VM_UINT_ASSIGNMENT
+    };
+    karray *regx[sizeof(possible_lines)/sizeof(possible_lines[0])] = {
+        regex_new(VM_STRING_ASSIGNMENT),
+        regex_new(VM_UINT_ASSIGNMENT)
+    };
 
-    return _map_variables(in, in_len);
+    for(int i = 0; i < sizeof(possible_lines)/sizeof(possible_lines[0]); i++){
+        if(regex_match(regx[i], (char *)in)){
+            //MEMORY LEAK
+            kprintf("%s is regx[%d] (%s)\n", (uint64_t)i, possible_lines[i]);
+            for(int j = 0; j < sizeof(regx)/sizeof(regx[0]); j++)
+                karray_free(regx[j]);
+            return true;
+        }
+    }
+    kprintf("%s is garbage\n", in);
+    for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++)
+       karray_free(regx[i]);
+    return false;
 }
