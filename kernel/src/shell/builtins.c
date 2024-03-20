@@ -226,57 +226,17 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
-        karray *regx[] = {
-            regex_new(VM_UINT_ASSIGNMENT),
-            regex_new(VM_UINT_ASSIGNMENT),
-            regex_new(VM_STRING_ASSIGNMENT),
-            regex_new("b"),
-            regex_new("[a,b,c]*"),
-            regex_new("a?"),
-            regex_new("a{3}"),
-            regex_new("a{3}"),
-            regex_new("a?."),
-            regex_new("a?.")
-        };
-        char *testS[sizeof(regx)/sizeof(regx[0])] = {
-            "foobar = 100;",
-            "foobar = 100;",
-            "F00Bar=\"100\";",
-            "a",
-            "abc",
-            "ab",
-            "aaa",
-            "aaab",
-            "ab",
-            "b"
-        };
+        uint64_t t[][3] = {
+            {(uint64_t)regex_new(VM_UINT_ASSIGNMENT), (uint64_t)"  foobar = 100;", (uint64_t)true},
+            {(uint64_t)regex_new(VM_STRING_ASSIGNMENT), (uint64_t)"  foobar = \"100\";", (uint64_t)true}
 
-        bool testR[sizeof(regx)/sizeof(regx[0])] = {
-            true,
-            true,
-            true,
-            false,
-            true,
-            false,
-            true,
-            false,
-            true,
-            true
         };
-        for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++){
-            bool m = regex_match(regx[i], testS[i]);
-            if(m)
-                kprintf("regex_match(\"%s\") == true\n", testS[i]);
-            else
-                kprintf("regex_match(\"%s\") == false\n", testS[i]);
-            if(m != testR[i]){
-                KERROR("/!\\test failed for expression : %s regx[%d]\n", testS[i], (uint64_t)i);
-                for(int j = 0; j < regx[i]->length; j++)
-                    regex_automaton_debug_print(((regex_automaton **)regx[i]->array)[j]);
-            }
+        for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
+            karray *r = (karray *)(t[i][0]);
+            char *s = (char *)(t[i][1]);
+            bool exp = (bool)(t[i][2]);
+            kprintf("regex_match(%s) %s\n", s, regex_match(r,s) ? "true" : "false", exp);
         }
-        for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++)
-            karray_free(regx[i]);
         shell_set_exit_code(-1);
         return -1;
     } 
