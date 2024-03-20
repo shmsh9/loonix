@@ -65,7 +65,7 @@ bool regex_match(karray *at, char *s){
                 _regex_match_opt_at(a, &curr_s);
                 break;
             default:
-                if(!_regex_match_fixed_at(a, &curr_s) && i+1 == at->length)
+                if(!_regex_match_fixed_at(a, &curr_s))
                     return false;
                 break;
         }
