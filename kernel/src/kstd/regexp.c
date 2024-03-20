@@ -174,10 +174,10 @@ karray *regex_new(char *s){
                         alphabet_parsed,
                         (uint64_t)s[i]
                     );
-		    //do not push length == 1 alphabet
-                    if(i+1 < l && (s[i+1] == '*' || s[i+1] == '?'))
-		        continue;
-		    karray_push(
+		            //do not push length != 1 alphabet
+                    if(i+1 < l && _karray_contains(special_chars_len, s[i+1], cmp_char))
+		                continue;
+		            karray_push(
                         ret,
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
                     );
@@ -207,94 +207,8 @@ karray *regex_new(char *s){
                 }
         }
     }
-    if(alphabet_parsed && alphabet_parsed->length == 0)
-        karray_free(alphabet_parsed);
+    //FIX USE AFTER FREE HERE!
+    //if(alphabet_parsed && alphabet_parsed->length == 0)
+    //    karray_free(alphabet_parsed);
     return ret;
 }
-/*
-def automat(exp: str) -> list:
-    special_chars = [
-        "{", "}", "[", "]"
-    ]
-    automatons = []
-    alphabet_started = False
-    length_parsing = False
-    length_parsed = 0
-    alphabet_parsed = []
-    alphabet_is_comma_list = False
-    for i in range(0, len(exp)):
-        #single char
-        if exp[i] not in special_chars and not length_parsing and not alphabet_started:
-            automatons.append({
-                "alphabet": [exp[i]],
-                "length": 1
-            })
-        #charset
-        if exp[i] == "[":
-            alphabet_started = True
-            continue
-        #end of charset
-        if exp[i] == "]":
-            alphabet_started = False
-            alphabet_is_comma_list = False
-            #single char from alphabet
-            if i+1 >= len(exp) or exp[i+1] != "{":
-                automatons.append({
-                    "alphabet": alphabet_parsed,
-                    "length": 1
-                })
-                alphabet_parsed = []
-            continue
-        if exp[i] == "{":
-            length_parsing = True
-            length_parsed = 0
-            continue
-        if exp[i] == "}":
-            length_parsing = False
-            automatons.append({
-                "alphabet": alphabet_parsed,
-                "length": length_parsed
-            })
-            alphabet_parsed = []
-            length_parsed = 0
-            continue
-        if length_parsing:
-            length_parsed *= 10
-            length_parsed += int(exp[i])
-            continue
-        if alphabet_started:
-            if alphabet_is_comma_list and exp[i] != ",":
-                alphabet_parsed.append(exp[i])
-            if exp[i] == "-":
-                alphabet_parsed += [chr(x) for x in range(ord(exp[i-1]), ord(exp[i+1])+1)]
-                continue
-            if exp[i] == "," and not alphabet_is_comma_list:
-                alphabet_is_comma_list = True
-                alphabet_parsed.append(exp[i-1])
-                continue
-            continue
-            pass
-    return automatons
-
-def automat_match(aut: list, s: str) -> bool:
-    i = 0
-    print(aut)
-    print(s)
-    for a in aut:
-        print(a)
-        j = 0
-        while j < a["length"]:
-            print(f"{s[i]} in {a['alphabet']}")
-            if s[i] not in a["alphabet"]:
-                return False
-            i += 1
-            j += 1
-    return True
-
-r = automat("regex[0-9][a-c]{3}")
-print(
-    automat_match(r, "regex1aaa")
-)
-*/
-
-

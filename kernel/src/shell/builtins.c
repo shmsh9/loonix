@@ -226,56 +226,39 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
-        char *r = "\\s*[a-zA-Z]{1}[a-zA-Z0-9]*\\s*=\\s*[0-9]{1}[0-9]*\\s*;";
-        karray *aut = regex_new(r);
-        for(int i = 0; i < aut->length; i++)
-            regex_automaton_debug_print(((regex_automaton **)aut->array)[i]);
-        char *match = "F00Bar=100;";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        match = " F00Bar = 100;";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        match = " F00Bar = \t100;\t";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        match = " F00Bar = \t100 ";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        match = " F00Bar = \ta00;\t";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        match = " 00Bar = \ta00;\t";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-        r = ".*";
-        kfree(aut);
-	aut = regex_new(r);
-	match = "abc";
-        kprintf("%s match %s %s\n", 
-            r,
-            match,
-            regex_match(aut, match) ? "true" : "false"
-        );
-	
+        karray *regx[] = {
+            regex_new("\\s*[a-zA-Z]{1}[a-zA-Z0-9]*\\s*=\\s*[0-9]{1}[0-9]*\\s*;"),
+            regex_new("b"),
+            regex_new("[a,b,c]*"),
+            regex_new("a?"),
+            regex_new("a{3}")
+        };
+        char *testS[sizeof(regx)/sizeof(regx[0])] = {
+            "F00Bar=100;",
+            "a",
+            "abc",
+            "ab",
+            "aaa"
+        };
+
+        bool testR[sizeof(regx)/sizeof(regx[0])] = {
+            true,
+            false,
+            true,
+            false,
+            true
+        };
+        for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++){
+            bool m = regex_match(regx[i], testS[i]);
+            if(m)
+                kprintf("regex_match(\"%s\") == true\n", testS[i]);
+            else
+                kprintf("regex_match(\"%s\") == false\n", testS[i]);
+            if(m != testR[i])
+                kprintf("/!\\test failed for expression : %s regx[%d]\n", testS[i], (uint64_t)i);
+        }
+        for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++)
+            karray_free(regx[i]);
         shell_set_exit_code(-1);
         return -1;
     } 

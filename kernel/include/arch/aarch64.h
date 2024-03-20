@@ -118,8 +118,8 @@
     void __memcpy_128b(void *dst, void *src, uint64_t sz);
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
     #define __FASTEST_MEMSET(ptr, b, sz) {\
-        uint64_t src[2] = {B_to_8B(b), B_to_8B(b)};\
-        __memset_128b(ptr, src, sz);\
+        uint64_t __FASTEST_MEMSET_SRC##__COUNTER__[2] = {B_to_8B(b), B_to_8B(b)};\
+        __memset_128b(ptr, __FASTEST_MEMSET_SRC##__COUNTER__, sz);\
     }
 #endif
 #endif

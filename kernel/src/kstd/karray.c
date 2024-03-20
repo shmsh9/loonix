@@ -104,7 +104,6 @@ void karray_pop(karray *array ,uint64_t index){
     array->length--;
     karray_unlock(array);
 }
-
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
     switch(elementsz){
         case 1:
