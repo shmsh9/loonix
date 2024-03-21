@@ -85,7 +85,7 @@ karray *regex_new(char *s){
         '(',')',
         '.','*',
         '\\', '?',
-        '-'
+        '-', ','
     }));
     karray *special_chars_len = _karray_static(((char []){
         '{', '}','*','?'
@@ -110,23 +110,27 @@ karray *regex_new(char *s){
                             for(int x = 0; x < whitespace_chars->length; x++)
                                 karray_push(alphabet_parsed, ((char *)whitespace_chars->array)[x]);
                             if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
-                                karray_push(
-                                    ret,
-                                    (uint64_t)regex_automaton_new(1, alphabet_parsed)
-                                );
-                                alphabet_parsed = karray_new(sizeof(char), NULL);
+                                if(!alphabet_started){
+                                    karray_push(
+                                        ret,
+                                        (uint64_t)regex_automaton_new(1, alphabet_parsed)
+                                    );
+                                    alphabet_parsed = karray_new(sizeof(char), NULL);
+                                }
                             }
                             i+=1;
                             continue;
                         //Push escaped char
                         default:
                             karray_push(alphabet_parsed, s[i+1]);
-                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
-                                karray_push(
-                                    ret,
-                                    (uint64_t)regex_automaton_new(1, alphabet_parsed)
-                                );
-                                alphabet_parsed = karray_new(sizeof(char), NULL);
+                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char))){
+                                if(!alphabet_started){
+                                    karray_push(
+                                        ret,
+                                        (uint64_t)regex_automaton_new(1, alphabet_parsed)
+                                    );
+                                    alphabet_parsed = karray_new(sizeof(char), NULL);
+                                }
                             }
                             i+=1;
                             continue;
@@ -213,13 +217,13 @@ karray *regex_new(char *s){
                     continue;
                 }
                 if(alphabet_started){
-                    if(alphabet_is_comma_list && s[i] != ','){
-                        karray_push(alphabet_parsed, (uint64_t)s[i]);
-                        continue;
-                    }
                     if(s[i] == '-'){
                         for(int x = s[i-1]; x < s[i+1]+1; x++)
                             karray_push(alphabet_parsed, (uint64_t)x);
+                        continue;
+                    }
+                    if(alphabet_is_comma_list && s[i] != ','){
+                        karray_push(alphabet_parsed, (uint64_t)s[i]);
                         continue;
                     }
                     if(s[i] == ',' && !alphabet_is_comma_list){

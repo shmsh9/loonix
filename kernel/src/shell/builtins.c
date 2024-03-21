@@ -254,6 +254,10 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen()", (uint64_t)false},
             {(uint64_t)"[a-z,\\*,0]", (uint64_t)"a", (uint64_t)true},
             {(uint64_t)"[a-z,\\*,0]", (uint64_t)"ab", (uint64_t)false},
+            {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"ab", (uint64_t)false},
+            {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"a", (uint64_t)true},
+            {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"a", (uint64_t)true},
+            {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"x", (uint64_t)true},
 
         };
         for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
