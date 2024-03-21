@@ -227,15 +227,37 @@ int builtins_regex(int argc, char **argv){
             argv[0]
         );
         uint64_t t[][3] = {
-            {(uint64_t)regex_new(VM_UINT_ASSIGNMENT), (uint64_t)"  foobar = 100;", (uint64_t)true},
-            {(uint64_t)regex_new(VM_STRING_ASSIGNMENT), (uint64_t)"  foobar = \"100\";", (uint64_t)true}
+            {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)"  foobar = 100;", (uint64_t)true},
+            {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)"  foobar = abc;", (uint64_t)false},
+            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = \"100\";", (uint64_t)true},
+            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = 100\";", (uint64_t)false},
+            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = \"abc\";", (uint64_t)true},
+            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = 'abc';", (uint64_t)false},
+            {(uint64_t)".*abc", (uint64_t)"  foobar = 'abc';", (uint64_t)false},
+            {(uint64_t)".*abc", (uint64_t)"1234abc", (uint64_t)true},
+            {(uint64_t)".*", (uint64_t)"1234abc", (uint64_t)true},
+            {(uint64_t)"ab?", (uint64_t)"ab", (uint64_t)true},
+            {(uint64_t)"ab?", (uint64_t)"a", (uint64_t)true},
+            {(uint64_t)"ab?", (uint64_t)"ac", (uint64_t)false},
+            {(uint64_t)"[a-z]{3}", (uint64_t)"abc", (uint64_t)true},
+            {(uint64_t)"[a-z]{3}", (uint64_t)"1bc", (uint64_t)false},
+            {(uint64_t)".{3}", (uint64_t)"1bc", (uint64_t)true},
+            {(uint64_t)".{3}", (uint64_t)"1bcd", (uint64_t)false},
 
         };
         for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
-            karray *r = (karray *)(t[i][0]);
+            char *rx = (char *)t[i][0];
+            karray *r = regex_new(rx);
             char *s = (char *)(t[i][1]);
             bool exp = (bool)(t[i][2]);
-            kprintf("regex_match(%s) %s\n", s, regex_match(r,s) ? "true" : "false", exp);
+            bool ok = regex_match(r,s) == exp;
+            kprintf("regex_match(\"%s\", \"%s\") == %s\n\ttest %s\n\n",
+                rx,
+                s,
+                exp ? "true" : "false",
+                ok ? "Ok" : "Failed !!!"
+            );
+            karray_free(r);
         }
         shell_set_exit_code(-1);
         return -1;
