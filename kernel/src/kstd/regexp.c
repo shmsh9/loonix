@@ -84,7 +84,8 @@ karray *regex_new(char *s){
         '[', ']',
         '(',')',
         '.','*',
-        '\\', '?'
+        '\\', '?',
+        '-'
     }));
     karray *special_chars_len = _karray_static(((char []){
         '{', '}','*','?'

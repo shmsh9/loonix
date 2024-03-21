@@ -249,6 +249,8 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen () { return 0; }", (uint64_t)true},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(){return 1;}", (uint64_t)true},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen (){ return 3;}", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** regex_automaton_new(){}", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** __do_not_use(){}", (uint64_t)true},        
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen()", (uint64_t)false},
 
         };

@@ -3,8 +3,8 @@
 
 #define VM_END_SENTENCE ";"
 
-#define VM_TYPE_NAME "[a-zA-Z]{1}[a-zA-Z0-9]*\\s*\\**"
-#define VM_VARIABLE_NAME "[a-zA-Z]{1}[a-zA-Z0-9]*"
+#define VM_TYPE_NAME "[a-zA-Z,_]{1}[a-zA-Z0-9,_]*\\s*\\**"
+#define VM_VARIABLE_NAME "[a-zA-Z,_]{1}[a-zA-Z0-9,_]*"
 #define VM_FN_NAME VM_VARIABLE_NAME
 #define VM_FN_RET_TYPE VM_TYPE_NAME
 
