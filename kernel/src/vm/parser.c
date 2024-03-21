@@ -91,26 +91,34 @@ bool _map_variables(uint8_t *in, uint64_t in_len){
 }
 
 bool parse_code(uint8_t *in){
-    char *possible_lines[] = {
-        VM_STRING_ASSIGNMENT,
-        VM_UINT_ASSIGNMENT
-    };
-    karray *regx[sizeof(possible_lines)/sizeof(possible_lines[0])] = {
-        regex_new(VM_STRING_ASSIGNMENT),
-        regex_new(VM_UINT_ASSIGNMENT)
-    };
+    uint64_t grammars[][3] = {
+        {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)regex_new(VM_UINT_ASSIGNMENT), (uint64_t)"VM_UINT_ASSIGNMENT"},
+        {(uint64_t)VM_UINT_DECLARATION, (uint64_t)regex_new(VM_UINT_DECLARATION), (uint64_t)"VM_UINT_DECLARATION"},
 
-    for(int i = 0; i < sizeof(possible_lines)/sizeof(possible_lines[0]); i++){
-        if(regex_match(regx[i], (char *)in)){
-            //MEMORY LEAK
-            kprintf("%s is regx[%d] (%s)\n", (uint64_t)i, possible_lines[i]);
-            for(int j = 0; j < sizeof(regx)/sizeof(regx[0]); j++)
-                karray_free(regx[j]);
-            return true;
+        {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)regex_new(VM_STRING_ASSIGNMENT), (uint64_t)"VM_STRING_ASSIGNMENT"},
+        {(uint64_t)VM_STRING_DECLARATION, (uint64_t)regex_new(VM_STRING_DECLARATION), (uint64_t)"VM_STRING_DECLARATION"},
+
+
+        {(uint64_t)VM_VARIABLE_TO_VARIABLE_ASSIGNMENT, (uint64_t)regex_new(VM_VARIABLE_TO_VARIABLE_ASSIGNMENT), (uint64_t)"VM_VARIABLE_TO_VARIABLE_ASSIGNMENT"},
+        {(uint64_t)VM_VARIABLE_TO_VARIABLE_DECLARATION, (uint64_t)regex_new(VM_VARIABLE_TO_VARIABLE_DECLARATION), (uint64_t)"VM_VARIABLE_TO_VARIABLE_DECLARATION"},
+
+        {(uint64_t)VM_FN_DEFINITION, (uint64_t)regex_new(VM_FN_DEFINITION), (uint64_t)"VM_FN_DEFINITION"},
+
+    };
+    bool m = false;
+
+    for(int i = 0; i < sizeof(grammars)/sizeof(grammars[0]); i++){
+        karray *regx = (karray *)grammars[i][1];
+        char *expr = (char *)grammars[i][0];
+        char *name = (char *)grammars[i][2];
+        if(regex_match(regx, (char *)in)){
+            m = true;
+            KDEBUG("%s is %s (%s)", in, name, expr);
         }
     }
-    kprintf("%s is garbage\n", in);
-    for(int i = 0; i < sizeof(regx)/sizeof(regx[0]); i++)
-       karray_free(regx[i]);
-    return false;
+    if(!m)
+        KDEBUG("%s is garbage\n", in);
+    for(int j = 0; j < sizeof(grammars)/sizeof(grammars[0]); j++)
+        karray_free((karray *)grammars[j][1]);
+    return m;
 }

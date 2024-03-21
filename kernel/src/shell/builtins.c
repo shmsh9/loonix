@@ -243,6 +243,11 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)"[a-z]{3}", (uint64_t)"1bc", (uint64_t)false},
             {(uint64_t)".{3}", (uint64_t)"1bc", (uint64_t)true},
             {(uint64_t)".{3}", (uint64_t)"1bcd", (uint64_t)false},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"void * malloc(){ return NULL; }", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen () { return 0; }", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(){return 1;}", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen (){ return 3;}", (uint64_t)true},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen()", (uint64_t)false},
 
         };
         for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
@@ -251,12 +256,16 @@ int builtins_regex(int argc, char **argv){
             char *s = (char *)(t[i][1]);
             bool exp = (bool)(t[i][2]);
             bool ok = regex_match(r,s) == exp;
-            kprintf("regex_match(\"%s\", \"%s\") == %s\n\ttest %s\n\n",
+            KDEBUG("regex_match(\"%s\", \"%s\") == %s\n\ttest %s",
                 rx,
                 s,
                 exp ? "true" : "false",
                 ok ? "Ok" : "Failed !!!"
             );
+            if(!ok){
+                for(int j = 0; j < r->length; j++)
+                    regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
+            }
             karray_free(r);
         }
         shell_set_exit_code(-1);
@@ -606,7 +615,20 @@ int builtins_testktree(int argc, char **argv){
 int builtins_testvm(int argc, char **argv){
     char *in[] = {
         "foobar = 100;",
-        "F00bar = \"12\";"
+        "F00bar = \"12\";",
+        "\tF00bar = \"12\";",
+        "F00bar    = \"12\";",
+        "char a = b;",
+        "char * a = b;",
+        "a=b;",
+        "char* f = \"foobar\";",
+        "char * f = \"foobar\";",
+        "int x = 0;",
+        "char* a=b;",
+        "char *   f =   \"hello\" ;",
+        "void **foobar(){}",
+        "int * strlen () {}",
+
     };
     for(int i = 0; i < sizeof(in)/sizeof(in[0]); i++){
         parse_code((uint8_t *)in[i]);
