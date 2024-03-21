@@ -243,6 +243,8 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)"[a-z]{3}", (uint64_t)"1bc", (uint64_t)false},
             {(uint64_t)".{3}", (uint64_t)"1bc", (uint64_t)true},
             {(uint64_t)".{3}", (uint64_t)"1bcd", (uint64_t)false},
+            {(uint64_t)"\\**", (uint64_t)"****", (uint64_t)true},
+            {(uint64_t)"\\**", (uint64_t)"a", (uint64_t)false},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"void * malloc(){ return NULL; }", (uint64_t)true},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen () { return 0; }", (uint64_t)true},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(){return 1;}", (uint64_t)true},

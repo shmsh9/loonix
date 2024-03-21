@@ -103,16 +103,12 @@ karray *regex_new(char *s){
     for(int i = 0; i < l; i++){
         switch(s[i]){
             case '\\':
-                if(!alphabet_started && alphabet_parsed->length != 0 /*maybe buggy with opt size*/){
-                    karray_push(ret, (uint64_t)regex_automaton_new(length_parsed == 0 ? 1 : length_parsed, alphabet_parsed));
-                    alphabet_parsed = karray_new(sizeof(char), NULL);
-                }
                 if(i+1 < l){
                     switch (s[i+1]){
                         case 's':
                             for(int x = 0; x < whitespace_chars->length; x++)
                                 karray_push(alphabet_parsed, ((char *)whitespace_chars->array)[x]);
-                            if(i+1 >= l || (i+2 < l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
+                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
                                 karray_push(
                                     ret,
                                     (uint64_t)regex_automaton_new(1, alphabet_parsed)
@@ -124,14 +120,15 @@ karray *regex_new(char *s){
                         //Push escaped char
                         default:
                             karray_push(alphabet_parsed, s[i+1]);
-                            if(i+1 >= l || (i+2 < l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
+                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
                                 karray_push(
                                     ret,
                                     (uint64_t)regex_automaton_new(1, alphabet_parsed)
                                 );
                                 alphabet_parsed = karray_new(sizeof(char), NULL);
                             }
-                            break;
+                            i+=1;
+                            continue;
                     }
                 }
                 continue;
@@ -157,11 +154,13 @@ karray *regex_new(char *s){
                     );
                 }
                 if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1], cmp_char)) ){
-                   karray_push(
-                        ret,
-                        (uint64_t)regex_automaton_new(1, alphabet_parsed)
-                    );
-                    alphabet_parsed = karray_new(sizeof(char), NULL);
+                    if(alphabet_parsed->length != 0){
+                        karray_push(
+                            ret,
+                            (uint64_t)regex_automaton_new(1, alphabet_parsed)
+                        );
+                        alphabet_parsed = karray_new(sizeof(char), NULL);
+                    }
                 }
                 continue;
             case '*':
