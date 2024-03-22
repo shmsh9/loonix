@@ -13,6 +13,14 @@ void regex_automaton_free(regex_automaton *a);
 void regex_automaton_debug_print(regex_automaton *r);
 karray *regex_new(char *s);
 bool regex_match(karray *at, char *s);
-
+#define _regex_automaton_static(a,l) ({\
+    &(regex_automaton){\
+        .length = l,\
+        .alphabet = a\
+    };\
+})
+#define _regex_static(expr) ({ \
+    \
+})
 #endif 
 

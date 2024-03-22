@@ -278,6 +278,11 @@ int builtins_regex(int argc, char **argv){
             }
             karray_free(r);
         }
+        regex_automaton *r = _regex_automaton_static(
+            _karray_static(((char[]){'a','b','c'})),
+            1
+        );
+        regex_automaton_debug_print(r);
         shell_set_exit_code(-1);
         return -1;
     } 
