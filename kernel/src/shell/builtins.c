@@ -258,7 +258,6 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"a", (uint64_t)true},
             {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"a", (uint64_t)true},
             {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"x", (uint64_t)true},
-
         };
         for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
             char *rx = (char *)t[i][0];
@@ -278,21 +277,74 @@ int builtins_regex(int argc, char **argv){
             }
             karray_free(r);
         }
-        char *rx = "ab.";
-        char *s = "abde";
+        uint64_t _static_t[][4] = {
+            {
+                (uint64_t)"[\\s,\\*,0,a-z]", 
+                (uint64_t)"x", 
+                (uint64_t)true,
+                (uint64_t)_regex_static(
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS,'*','0',_REGEX_STATIC_a_z}), 1)
+                )
+            },
+            {
+                (uint64_t)VM_STRING_ASSIGNMENT, 
+                (uint64_t)"foo = \"bar\";", 
+                (uint64_t)true,
+                (uint64_t)_regex_static(
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, '_'}), 1), //[a-zA-Z,_]{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, _REGEX_STATIC_0_9,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
+                    _regex_automaton_static(_regex_dict({'='}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
+                    _regex_automaton_static(_regex_dict({'"'}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), 1), // .{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN), // .*
+                    _regex_automaton_static(_regex_dict({'"'}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
+                    _regex_automaton_static(_regex_dict({';'}), 1)
 
-        karray *r = _regex_static(
-            _regex_automaton_static({'a'}, 1),
-            _regex_automaton_static({'b'}, 1),
-            _regex_automaton_static({_REGEX_STATIC_ANY}, 1)
-        );
-        for(int i = 0; i < r->length; i++)
-            regex_automaton_debug_print(((regex_automaton**)r->array)[i]);
-        KDEBUG("STATIC regex_match(\"%s\", \"%s\") == %s\n",
-            rx,
-            s,
-            regex_match(r, s) ? "true" : "false"
-        );
+                )
+            },
+            {
+                (uint64_t)VM_STRING_ASSIGNMENT, 
+                (uint64_t)"foo = \"bar\"", 
+                (uint64_t)false,
+                (uint64_t)_regex_static(
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, '_'}), 1), //[a-zA-Z,_]{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, _REGEX_STATIC_0_9,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
+                    _regex_automaton_static(_regex_dict({'='}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
+                    _regex_automaton_static(_regex_dict({'"'}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), 1), // .{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN), // .*
+                    _regex_automaton_static(_regex_dict({'"'}), 1),
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
+                    _regex_automaton_static(_regex_dict({';'}), 1)
+
+                )
+            }
+
+        };
+        for(int i = 0; i  < sizeof(_static_t)/sizeof(_static_t[0]); i++){
+            char *rx = (char *)_static_t[i][0];
+            karray *r = (karray *)_static_t[i][3];
+            char *s = (char *)(_static_t[i][1]);
+            bool exp = (bool)(_static_t[i][2]);
+            bool ok = regex_match(r,s) == exp;
+            KDEBUG("_static_regex_match(\"%s\", \"%s\") == %s\n\ttest %s",
+                rx,
+                s,
+                exp ? "true" : "false",
+                ok ? "Ok" : "Failed !!!"
+            );
+            if(!ok){
+                for(int j = 0; j < r->length; j++)
+                    regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
+            }
+        }
         shell_set_exit_code(-1);
         return -1;
     } 

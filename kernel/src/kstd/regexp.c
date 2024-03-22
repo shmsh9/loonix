@@ -92,9 +92,7 @@ karray *regex_new(char *s){
         '{', '}','*','?'
     }));
 
-    karray *whitespace_chars = _karray_static(((char []){
-        '\r', '\n', ' ', '\t'
-    }));
+    karray *whitespace_chars = _karray_static(((char []){_REGEX_STATIC_WS}));
 
     bool alphabet_started = false;
     bool length_parsing = false;
