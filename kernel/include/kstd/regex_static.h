@@ -1,5 +1,7 @@
 #ifndef _REGEX_STATIC_H
 #define _REGEX_STATIC_H
+#include <kstd/regex.h>
+#include <kstd/kstd.h>
 
 #define _REGEX_STATIC_ANY \
     0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,\
@@ -36,7 +38,22 @@
         .alphabet = _karray_static(((char[])a))\
     };\
 })
-
-#define _regex_static(...) ( _karray_static( ((uint64_t[]){ __VA_ARGS__ }) ) )
-
+#define _regex_static(...) _karray_static( ((uint64_t[]){ __VA_ARGS__ }) )
+#define _regex_static_new(expr) ({\
+    static uint64_t _regex_static_new_ret[sizeof(expr)-1] = {0};\
+    static char _regex_static_new_arr_raw[sizeof(expr)-1][UINT8_MAX] = {0};\
+    static karray _regex_static_new_arr[sizeof(expr)-1] = {0}; \
+    static regex_automaton _regex_static_new_at[sizeof(expr)-1] = {0};\
+    for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
+        _regex_static_new_arr_raw[_regex_static_new_i][0] = expr[_regex_static_new_i];\
+        _regex_static_new_arr[_regex_static_new_i] = (karray){ \
+            .length = 1, .alloc = UINT8_MAX, \
+            .array = _regex_static_new_arr_raw+_regex_static_new_i, \
+            .elementsz = sizeof(expr[0]) \
+        }; \
+        _regex_static_new_at[_regex_static_new_i] = (regex_automaton){.length = 1, .alphabet = _regex_static_new_arr+_regex_static_new_i};\
+        _regex_static_new_ret[_regex_static_new_i] = (uint64_t)(_regex_static_new_at+_regex_static_new_i);\
+    }\
+    (_karray_static(_regex_static_new_ret));\
+})
 #endif

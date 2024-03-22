@@ -287,6 +287,18 @@ int builtins_regex(int argc, char **argv){
                 )
             },
             {
+                (uint64_t)"abc", 
+                (uint64_t)"a", 
+                (uint64_t)false,
+                (uint64_t)_regex_static_new("abc")
+            },
+            {
+                (uint64_t)"abc", 
+                (uint64_t)"abc", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("abc")
+            },
+            {
                 (uint64_t)"[a-z]{3}", 
                 (uint64_t)"abc", 
                 (uint64_t)true,
