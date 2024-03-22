@@ -278,18 +278,21 @@ int builtins_regex(int argc, char **argv){
             }
             karray_free(r);
         }
-        char *rx = "abc";
-        char *s = "abd";
-        karray *r = _regex_static(rx);
+        char *rx = "ab.";
+        char *s = "abde";
+
+        karray *r = _regex_static(
+            _regex_automaton_static({'a'}, 1),
+            _regex_automaton_static({'b'}, 1),
+            _regex_automaton_static({_REGEX_STATIC_ANY}, 1)
+        );
         for(int i = 0; i < r->length; i++)
             regex_automaton_debug_print(((regex_automaton**)r->array)[i]);
-
         KDEBUG("STATIC regex_match(\"%s\", \"%s\") == %s\n",
             rx,
             s,
             regex_match(r, s) ? "true" : "false"
         );
-
         shell_set_exit_code(-1);
         return -1;
     } 
