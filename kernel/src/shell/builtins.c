@@ -287,13 +287,30 @@ int builtins_regex(int argc, char **argv){
                 )
             },
             {
+                (uint64_t)"[a-z]{3}", 
+                (uint64_t)"abc", 
+                (uint64_t)true,
+                (uint64_t)_regex_static(
+                    _regex_automaton_static(_regex_dict({'a','b','c'}), 3)
+                )
+            },
+            {
+                (uint64_t)"[a-z]{3}", 
+                (uint64_t)"abC", 
+                (uint64_t)false,
+                (uint64_t)_regex_static(
+                    _regex_automaton_static(_regex_dict({'a','b','c'}), 3)
+                )
+            },
+
+            {
                 (uint64_t)VM_STRING_ASSIGNMENT, 
                 (uint64_t)"foo = \"bar\";", 
                 (uint64_t)true,
                 (uint64_t)_regex_static(
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, '_'}), 1), //[a-zA-Z,_]{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, _REGEX_STATIC_0_9,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), //[a-zA-Z,_]{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHANUM,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
                     _regex_automaton_static(_regex_dict({'='}), 1),
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
@@ -303,7 +320,6 @@ int builtins_regex(int argc, char **argv){
                     _regex_automaton_static(_regex_dict({'"'}), 1),
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
                     _regex_automaton_static(_regex_dict({';'}), 1)
-
                 )
             },
             {
@@ -312,8 +328,8 @@ int builtins_regex(int argc, char **argv){
                 (uint64_t)false,
                 (uint64_t)_regex_static(
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, '_'}), 1), //[a-zA-Z,_]{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_A_Z, _REGEX_STATIC_a_z, _REGEX_STATIC_0_9,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), //[a-zA-Z,_]{1}
+                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHANUM,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
                     _regex_automaton_static(_regex_dict({'='}), 1),
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
@@ -323,7 +339,6 @@ int builtins_regex(int argc, char **argv){
                     _regex_automaton_static(_regex_dict({'"'}), 1),
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
                     _regex_automaton_static(_regex_dict({';'}), 1)
-
                 )
             }
 
