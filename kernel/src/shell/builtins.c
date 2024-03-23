@@ -352,6 +352,12 @@ int builtins_regex(int argc, char **argv){
                     _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
                     _regex_automaton_static(_regex_dict({';'}), 1)
                 )
+            },
+            {
+                (uint64_t)"ab?", 
+                (uint64_t)"abc", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("ab?")
             }
 
         };
@@ -372,6 +378,7 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
+
         shell_set_exit_code(-1);
         return -1;
     } 

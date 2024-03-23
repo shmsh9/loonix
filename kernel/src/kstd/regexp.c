@@ -79,20 +79,9 @@ bool regex_match(karray *at, char *s){
 }
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
-    karray *special_chars = _karray_static(((char []){
-        '{', '}', 
-        '[', ']',
-        '(',')',
-        '.','*',
-        '\\', '?',
-        '-', ',',
-        '$', '^'
-    }));
-    karray *special_chars_len = _karray_static(((char []){
-        '{', '}','*','?'
-    }));
-
-    karray *whitespace_chars = _karray_static(((char []){_REGEX_STATIC_WS}));
+    karray *special_chars = _karray_static(((char []){ REGEX_SPECIAL_CHARS }));
+    karray *special_chars_len = _karray_static(((char []){ REGEX_LENGTH_CHARS }));
+    karray *whitespace_chars = _karray_static(((char []){ REGEX_WS_CHARS }));
 
     bool alphabet_started = false;
     bool length_parsing = false;

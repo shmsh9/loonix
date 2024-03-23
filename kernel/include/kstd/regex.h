@@ -5,6 +5,9 @@
 
 #define REGEX_INF_ZR_LEN UINT32_MAX 
 #define REGEX_OPT_LEN 0
+#define REGEX_SPECIAL_CHARS '{','}','*','?','[', ']','(',')','.','\\','-', ',','$','^'
+#define REGEX_LENGTH_CHARS  '{','}','*','?'
+#define REGEX_WS_CHARS '\r','\t','\n',' '
 typedef struct _regex_automaton{
     uint32_t length;
     karray *alphabet;
