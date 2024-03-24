@@ -350,6 +350,30 @@ int builtins_regex(int argc, char **argv){
                 (uint64_t)true,
                 (uint64_t)_regex_static_new("abc.*xyz")
             },
+            {
+                (uint64_t)"a{3}", 
+                (uint64_t)"aaa", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("a{3}")
+            },
+            {
+                (uint64_t)"a{3}", 
+                (uint64_t)"aab", 
+                (uint64_t)false,
+                (uint64_t)_regex_static_new("a{3}")
+            },
+            {
+                (uint64_t)"a{3}.", 
+                (uint64_t)"aaab", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("a{3}.")
+            },
+            {
+                (uint64_t)"[a,b,c]", 
+                (uint64_t)"a", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("[a,b,c]")
+            },
 
         };
         for(int i = 0; i  < sizeof(_static_t)/sizeof(_static_t[0]); i++){

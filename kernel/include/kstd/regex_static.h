@@ -59,6 +59,17 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     ret->length++;\
     i++;\
 
+#define _regex_static_new_push(i,c,n) \
+    _regex_static_new_arr_raw[i][n] = c;\
+    _regex_static_new_arr[i] = (karray){ \
+        .length = n, .alloc = UINT8_MAX, \
+        .array = _regex_static_new_arr_raw+i, \
+        .elementsz = sizeof(c) \
+    }; \
+    _regex_static_new_at[i] = (regex_automaton){.length = 1, .alphabet = _regex_static_new_arr+i};\
+    _regex_static_new_ret[i] = (uint64_t)(_regex_static_new_at+i);\
+    n++;\
+
 #define _regex_static_new(expr) ({\
     static uint64_t _regex_static_new_ret[sizeof(expr)-1] = {0};\
     static char _regex_static_new_arr_raw[sizeof(expr)-1][UINT8_MAX] = {0};\
@@ -82,6 +93,37 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
 	    case '*':\
 	        _regex_static_new_at[_curr_at-1].length = REGEX_INF_ZR_LEN;\
 	        break;\
+	    case '{':{\
+		int lp = 0;\
+		int _x = _regex_static_new_i+1;\
+		for(; _x < sizeof(expr)-1 && expr[_x] != '}'; _x++){\
+		    lp *=10;\
+		    lp += expr[_x] - '0';\
+		}\
+		_regex_static_new_at[_curr_at-1].length = lp;\
+		_regex_static_new_i = _x;\
+		break;\
+	    }\
+	    case '[':{\
+	        int _c = 0;\
+		int _x = _regex_static_new_i+1;\
+		for(; _x < sizeof(expr)-1 && expr[_x] != ']'; _x++ ){\
+		    switch(expr[_x]){\
+		        case '-':\
+			    break;\
+			case ',':\
+			    break;\
+			default:\
+			    \
+			    _regex_static_new_push(_curr_at, expr[_x], _c);\
+			    break;\
+		    }\
+		}\
+		_regex_static_new_i = _x;\
+	        ret->length++;\
+		_curr_at++;\
+		break;\
+	    }\
 	    default:\
 	    	\
 		break;\
