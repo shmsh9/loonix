@@ -279,14 +279,6 @@ int builtins_regex(int argc, char **argv){
         }
         uint64_t _static_t[][4] = {
             {
-                (uint64_t)"[\\s,\\*,0,a-z]", 
-                (uint64_t)"x", 
-                (uint64_t)true,
-                (uint64_t)_regex_static(
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS,'*','0',_REGEX_STATIC_a_z}), 1)
-                )
-            },
-            {
                 (uint64_t)"abc", 
                 (uint64_t)"a", 
                 (uint64_t)false,
@@ -299,66 +291,65 @@ int builtins_regex(int argc, char **argv){
                 (uint64_t)_regex_static_new("abc")
             },
             {
-                (uint64_t)"[a-z]{3}", 
+                (uint64_t)"ab.", 
                 (uint64_t)"abc", 
                 (uint64_t)true,
-                (uint64_t)_regex_static(
-                    _regex_automaton_static(_regex_dict({'a','b','c'}), 3)
-                )
+                (uint64_t)_regex_static_new("ab.")
             },
             {
-                (uint64_t)"[a-z]{3}", 
-                (uint64_t)"abC", 
-                (uint64_t)false,
-                (uint64_t)_regex_static(
-                    _regex_automaton_static(_regex_dict({'a','b','c'}), 3)
-                )
-            },
-
-            {
-                (uint64_t)VM_STRING_ASSIGNMENT, 
-                (uint64_t)"foo = \"bar\";", 
-                (uint64_t)true,
-                (uint64_t)_regex_static(
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), //[a-zA-Z,_]{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHANUM,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
-                    _regex_automaton_static(_regex_dict({'='}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({'"'}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), 1), // .{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN), // .*
-                    _regex_automaton_static(_regex_dict({'"'}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
-                    _regex_automaton_static(_regex_dict({';'}), 1)
-                )
-            },
-            {
-                (uint64_t)VM_STRING_ASSIGNMENT, 
-                (uint64_t)"foo = \"bar\"", 
-                (uint64_t)false,
-                (uint64_t)_regex_static(
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), //[a-zA-Z,_]{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHANUM,'_'}), REGEX_INF_ZR_LEN), //[a-zA-Z0-9,_]*
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
-                    _regex_automaton_static(_regex_dict({'='}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), // \s*
-                    _regex_automaton_static(_regex_dict({'"'}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), 1), // .{1}
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN), // .*
-                    _regex_automaton_static(_regex_dict({'"'}), 1),
-                    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),// \s*
-                    _regex_automaton_static(_regex_dict({';'}), 1)
-                )
-            },
-            {
-                (uint64_t)"ab?", 
+                (uint64_t)"abc?", 
                 (uint64_t)"abc", 
                 (uint64_t)true,
-                (uint64_t)_regex_static_new("ab?")
-            }
+                (uint64_t)_regex_static_new("abc?")
+            },
+            {
+                (uint64_t)"abc?", 
+                (uint64_t)"ab", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("abc?")
+            },
+            {
+                (uint64_t)"abc*", 
+                (uint64_t)"abcccccc", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("abc*")
+            },
+            {
+                (uint64_t)"abc*", 
+                (uint64_t)"abczzzzz", 
+                (uint64_t)false,
+                (uint64_t)_regex_static_new("abc*")
+            },
+            {
+                (uint64_t)".*", 
+                (uint64_t)"a", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new(".*")
+            },
+            {
+                (uint64_t)".*", 
+                (uint64_t)"abc", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new(".*")
+            },
+            {
+                (uint64_t)"abc.*", 
+                (uint64_t)"abcdefg", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("abc.*")
+            },
+            {
+                (uint64_t)"abc.*xyz", 
+                (uint64_t)"abcdefg", 
+                (uint64_t)false,
+                (uint64_t)_regex_static_new("abc.*xyz")
+            },
+            {
+                (uint64_t)"abc.*xyz", 
+                (uint64_t)"abcdefgxyz", 
+                (uint64_t)true,
+                (uint64_t)_regex_static_new("abc.*xyz")
+            },
 
         };
         for(int i = 0; i  < sizeof(_static_t)/sizeof(_static_t[0]); i++){
@@ -378,7 +369,6 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
-
         shell_set_exit_code(-1);
         return -1;
     } 

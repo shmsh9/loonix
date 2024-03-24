@@ -46,21 +46,47 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     return false;
 } 
 #define _regex_static(...) _karray_static( ((uint64_t[]){ __VA_ARGS__ }) )
+#define _regex_static_new_set(i,a,n) \
+    for(int _regex_static_new_set_i = 0;_regex_static_new_set_i < sizeof(a)/sizeof(a[0]);_regex_static_new_set_i++)\
+        _regex_static_new_arr_raw[i][_regex_static_new_set_i] = a[_regex_static_new_set_i];\
+    _regex_static_new_arr[i] = (karray){ \
+        .length = sizeof(a)/sizeof(a[0]), .alloc = UINT8_MAX, \
+        .array = _regex_static_new_arr_raw+i, \
+        .elementsz = sizeof(a[0]) \
+    }; \
+    _regex_static_new_at[i] = (regex_automaton){.length = n, .alphabet = _regex_static_new_arr+i};\
+    _regex_static_new_ret[i] = (uint64_t)(_regex_static_new_at+i);\
+    ret->length++;\
+    i++;\
+
 #define _regex_static_new(expr) ({\
     static uint64_t _regex_static_new_ret[sizeof(expr)-1] = {0};\
     static char _regex_static_new_arr_raw[sizeof(expr)-1][UINT8_MAX] = {0};\
     static karray _regex_static_new_arr[sizeof(expr)-1] = {0}; \
     static regex_automaton _regex_static_new_at[sizeof(expr)-1] = {0};\
+    karray *ret = _karray_static(_regex_static_new_ret);\
+    ret->length = 0;\
+    int _curr_at = 0;\
     for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
-            _regex_static_new_arr_raw[_regex_static_new_i][0] = expr[_regex_static_new_i];\
-            _regex_static_new_arr[_regex_static_new_i] = (karray){ \
-                .length = 1, .alloc = UINT8_MAX, \
-                .array = _regex_static_new_arr_raw+_regex_static_new_i, \
-                .elementsz = sizeof(expr[0]) \
-            }; \
-            _regex_static_new_at[_regex_static_new_i] = (regex_automaton){.length = 1, .alphabet = _regex_static_new_arr+_regex_static_new_i};\
-            _regex_static_new_ret[_regex_static_new_i] = (uint64_t)(_regex_static_new_at+_regex_static_new_i);\
+        if(!_regex_static_arr_contains( ((char[]){REGEX_SPECIAL_CHARS}), expr[_regex_static_new_i])) {\
+            _regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i]}),1);\
+	    continue;\
+	}\
+	switch(expr[_regex_static_new_i]){\
+	    case '.':\
+                _regex_static_new_set(_curr_at,((char[]){_REGEX_STATIC_ANY}),1);\
+		break;\
+	    case '?':\
+	        _regex_static_new_at[_curr_at-1].length = REGEX_OPT_LEN;\
+	        break;\
+	    case '*':\
+	        _regex_static_new_at[_curr_at-1].length = REGEX_INF_ZR_LEN;\
+	        break;\
+	    default:\
+	    	\
+		break;\
+	}\
     }\
-    (_karray_static(_regex_static_new_ret));\
+    (ret);\
 })
 #endif
