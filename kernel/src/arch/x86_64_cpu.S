@@ -55,7 +55,14 @@ __memcpy_128b:
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
 #define cpu_registers_xmm0 136
-#define cpu_registers_flags 152
+#define cpu_registers_xmm1 152
+#define cpu_registers_xmm2 168
+#define cpu_registers_xmm3 184
+#define cpu_registers_xmm4 200
+#define cpu_registers_xmm5 216
+#define cpu_registers_xmm6 232
+#define cpu_registers_xmm7 248
+#define cpu_registers_flags 264
 
 //void cpu_registers_save(cpu_registers *regs);
 cpu_registers_save:
@@ -121,6 +128,14 @@ task_cpu_registers_reload:
     mov r14,[rdi+cpu_registers_r14]
     mov r15,[rdi+cpu_registers_r15]
     movdqu xmm0, [rdi+cpu_registers_xmm0]
+    movdqu xmm1, [rdi+cpu_registers_xmm1]
+    movdqu xmm2, [rdi+cpu_registers_xmm2]
+    movdqu xmm3, [rdi+cpu_registers_xmm3]
+    movdqu xmm4, [rdi+cpu_registers_xmm4]
+    movdqu xmm5, [rdi+cpu_registers_xmm5]
+    movdqu xmm6, [rdi+cpu_registers_xmm6]
+    movdqu xmm7, [rdi+cpu_registers_xmm7]
+
     ///restore RFLAGS
     push rax
     mov  rax, [rdi+cpu_registers_flags]

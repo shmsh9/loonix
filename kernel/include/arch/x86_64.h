@@ -21,6 +21,13 @@
         uint64_t r15;
         uint64_t rip;
         uint64_t xmm0[2];
+        uint64_t xmm1[2];
+        uint64_t xmm2[2];
+        uint64_t xmm3[2];
+        uint64_t xmm4[2];
+        uint64_t xmm5[2];
+        uint64_t xmm6[2];
+        uint64_t xmm7[2];
         uint64_t flags;
     }cpu_registers;
     //https://wiki.osdev.org/GDT

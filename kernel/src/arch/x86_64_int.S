@@ -20,7 +20,14 @@
 #define cpu_registers_r15 120
 #define cpu_registers_rip 128
 #define cpu_registers_xmm0 136
-#define cpu_registers_flags 152
+#define cpu_registers_xmm1 152
+#define cpu_registers_xmm2 168
+#define cpu_registers_xmm3 184
+#define cpu_registers_xmm4 200
+#define cpu_registers_xmm5 216
+#define cpu_registers_xmm6 232
+#define cpu_registers_xmm7 248
+#define cpu_registers_flags 264
 .section .data
 
 .macro gen_interrupt_table index
@@ -69,7 +76,15 @@
     mov [rax+cpu_registers_r15],r15
     mov rbx, [rsp+16]                   //old rip stored on the stack by the interrupt
     mov [rax+cpu_registers_rip], rbx
-    movdqu [rax+cpu_registers_xmm0], xmm0 //the only one I use
+    movdqu [rax+cpu_registers_xmm0], xmm0
+    movdqu [rax+cpu_registers_xmm1], xmm1
+    movdqu [rax+cpu_registers_xmm2], xmm2 
+    movdqu [rax+cpu_registers_xmm3], xmm3 
+    movdqu [rax+cpu_registers_xmm4], xmm4 
+    movdqu [rax+cpu_registers_xmm5], xmm5 
+    movdqu [rax+cpu_registers_xmm6], xmm6 
+    movdqu [rax+cpu_registers_xmm7], xmm7 
+
     mov rbx, [rsp+32]                  //old rflags stored on the stack by the interrupt
     mov [rax+cpu_registers_flags], rbx
     /////////////////////////////////////
@@ -150,10 +165,39 @@
     push r15
     sub    rsp, 16
     movdqu [rsp], xmm0
+    sub    rsp, 16
+    movdqu [rsp], xmm1
+    sub    rsp, 16
+    movdqu [rsp], xmm2
+    sub    rsp, 16
+    movdqu [rsp], xmm3
+    sub    rsp, 16
+    movdqu [rsp], xmm4
+    sub    rsp, 16
+    movdqu [rsp], xmm5
+    sub    rsp, 16
+    movdqu [rsp], xmm6
+    sub    rsp, 16
+    movdqu [rsp], xmm7
 .endm
 .macro popad
+    movdqu xmm7, [rsp]
+    add rsp, 16
+    movdqu xmm6, [rsp]
+    add rsp, 16
+    movdqu xmm5, [rsp]
+    add rsp, 16
+    movdqu xmm4, [rsp]
+    add rsp, 16
+    movdqu xmm3, [rsp]
+    add rsp, 16
+    movdqu xmm2, [rsp]
+    add rsp, 16
+    movdqu xmm1, [rsp]
+    add rsp, 16
     movdqu xmm0, [rsp]
     add rsp, 16
+    
     pop r15
     pop r14
     pop r13
