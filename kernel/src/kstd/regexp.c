@@ -206,7 +206,7 @@ karray *regex_new(char *s){
                 }
                 if(alphabet_started){
                     if(s[i] == '-'){
-                        for(int x = s[i-1]; x < s[i+1]+1; x++)
+                        for(char x = REGEX_CHAR_RANGE_START(s[i-1],s[i+1]); x < REGEX_CHAR_RANGE_STOP(s[i-1],s[i+1])+1; x++)
                             karray_push(alphabet_parsed, (uint64_t)x);
                         continue;
                     }

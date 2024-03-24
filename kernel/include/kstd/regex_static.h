@@ -60,7 +60,7 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     i++;\
 
 #define _regex_static_new_push(i,c,n) \
-    _regex_static_new_arr_raw[i][n] = c;\
+    _regex_static_new_arr_raw[i][n++] = c;\
     _regex_static_new_arr[i] = (karray){ \
         .length = n, .alloc = UINT8_MAX, \
         .array = _regex_static_new_arr_raw+i, \
@@ -68,7 +68,6 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     }; \
     _regex_static_new_at[i] = (regex_automaton){.length = 1, .alphabet = _regex_static_new_arr+i};\
     _regex_static_new_ret[i] = (uint64_t)(_regex_static_new_at+i);\
-    n++;\
 
 #define _regex_static_new(expr) ({\
     static uint64_t _regex_static_new_ret[sizeof(expr)-1] = {0};\
@@ -81,53 +80,69 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
         if(!_regex_static_arr_contains( ((char[]){REGEX_SPECIAL_CHARS}), expr[_regex_static_new_i])) {\
             _regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i]}),1);\
-	    continue;\
-	}\
-	switch(expr[_regex_static_new_i]){\
-	    case '.':\
-                _regex_static_new_set(_curr_at,((char[]){_REGEX_STATIC_ANY}),1);\
-		break;\
-	    case '?':\
-	        _regex_static_new_at[_curr_at-1].length = REGEX_OPT_LEN;\
-	        break;\
-	    case '*':\
-	        _regex_static_new_at[_curr_at-1].length = REGEX_INF_ZR_LEN;\
-	        break;\
-	    case '{':{\
-		int lp = 0;\
-		int _x = _regex_static_new_i+1;\
-		for(; _x < sizeof(expr)-1 && expr[_x] != '}'; _x++){\
-		    lp *=10;\
-		    lp += expr[_x] - '0';\
-		}\
-		_regex_static_new_at[_curr_at-1].length = lp;\
-		_regex_static_new_i = _x;\
-		break;\
+	        continue;\
 	    }\
-	    case '[':{\
-	        int _c = 0;\
-		int _x = _regex_static_new_i+1;\
-		for(; _x < sizeof(expr)-1 && expr[_x] != ']'; _x++ ){\
-		    switch(expr[_x]){\
-		        case '-':\
-			    break;\
-			case ',':\
-			    break;\
-			default:\
-			    \
-			    _regex_static_new_push(_curr_at, expr[_x], _c);\
-			    break;\
-		    }\
-		}\
-		_regex_static_new_i = _x;\
-	        ret->length++;\
-		_curr_at++;\
-		break;\
+	    switch(expr[_regex_static_new_i]){\
+	        case '.':\
+                    _regex_static_new_set(_curr_at,((char[]){_REGEX_STATIC_ANY}),1);\
+	    	break;\
+	        case '?':\
+	            _regex_static_new_at[_curr_at-1].length = REGEX_OPT_LEN;\
+	            break;\
+	        case '*':\
+	            _regex_static_new_at[_curr_at-1].length = REGEX_INF_ZR_LEN;\
+	            break;\
+	        case '{':{\
+	    	    int lp = 0;\
+	    	    int _x = _regex_static_new_i+1;\
+	    	    for(; _x < sizeof(expr)-1 && expr[_x] != '}'; _x++){\
+	    	        lp *=10;\
+	    	        lp += expr[_x] - '0';\
+	    	    }\
+	    	    _regex_static_new_at[_curr_at-1].length = lp;\
+	    	    _regex_static_new_i = _x;\
+	    	    break;\
+	        }\
+	        case '[':{\
+	            int _c = 0;\
+	    	    int _x = _regex_static_new_i+1;\
+	    	    for(; _x < sizeof(expr)-1 && expr[_x] != ']'; _x++ ){\
+	    	        switch(expr[_x]){\
+	    	            case '-':{\
+                            int dir = expr[_x-1] < expr[_x+1] ? 1 : -1;\
+                            for(char _j = expr[_x-1]+dir; _j != expr[_x+1]; _j+=dir){\
+                                _regex_static_new_push(_curr_at, _j, _c);\
+                            }\
+                            _regex_static_new_i++;\
+	    	    	        break;\
+                        }\
+	    	    	    case ',':\
+	    	    	        break;\
+	    	    	    default:\
+	    	    	        _regex_static_new_push(_curr_at, expr[_x], _c);\
+	    	    	        break;\
+	    	        }\
+	    	    }\
+	    	    _regex_static_new_i = _x;\
+	            ret->length++;\
+	    	    _curr_at++;\
+	    	    break;\
+	        }\
+            case '\\':\
+                switch(expr[_regex_static_new_i+1]){\
+                    case 's':\
+                        _regex_static_new_set(_curr_at,((char[]){REGEX_WS_CHARS}),1);\
+                        break;\
+                    default:\
+                        _regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i+1]}),1);\
+                        break;\
+                }\
+                _regex_static_new_i++;\
+                break;\
+	        default:\
+	        	\
+	    	break;\
 	    }\
-	    default:\
-	    	\
-		break;\
-	}\
     }\
     (ret);\
 })

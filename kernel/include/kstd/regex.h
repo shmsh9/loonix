@@ -8,6 +8,8 @@
 #define REGEX_SPECIAL_CHARS '{','}','*','?','[', ']','(',')','.','\\','-', ',','$','^'
 #define REGEX_LENGTH_CHARS  '{','}','*','?'
 #define REGEX_WS_CHARS '\r','\t','\n',' '
+#define REGEX_CHAR_RANGE_STOP(a,b) MAX(a,b)
+#define REGEX_CHAR_RANGE_START(a,b) MIN(a,b)
 typedef struct _regex_automaton{
     uint32_t length;
     karray *alphabet;

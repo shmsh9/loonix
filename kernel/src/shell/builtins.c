@@ -277,103 +277,13 @@ int builtins_regex(int argc, char **argv){
             }
             karray_free(r);
         }
+        #define RNEW(exp, s, r) {(uint64_t)exp, (uint64_t)s, (uint64_t)r, (uint64_t)_regex_static_new(exp)}
         uint64_t _static_t[][4] = {
-            {
-                (uint64_t)"abc", 
-                (uint64_t)"a", 
-                (uint64_t)false,
-                (uint64_t)_regex_static_new("abc")
-            },
-            {
-                (uint64_t)"abc", 
-                (uint64_t)"abc", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc")
-            },
-            {
-                (uint64_t)"ab.", 
-                (uint64_t)"abc", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("ab.")
-            },
-            {
-                (uint64_t)"abc?", 
-                (uint64_t)"abc", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc?")
-            },
-            {
-                (uint64_t)"abc?", 
-                (uint64_t)"ab", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc?")
-            },
-            {
-                (uint64_t)"abc*", 
-                (uint64_t)"abcccccc", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc*")
-            },
-            {
-                (uint64_t)"abc*", 
-                (uint64_t)"abczzzzz", 
-                (uint64_t)false,
-                (uint64_t)_regex_static_new("abc*")
-            },
-            {
-                (uint64_t)".*", 
-                (uint64_t)"a", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new(".*")
-            },
-            {
-                (uint64_t)".*", 
-                (uint64_t)"abc", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new(".*")
-            },
-            {
-                (uint64_t)"abc.*", 
-                (uint64_t)"abcdefg", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc.*")
-            },
-            {
-                (uint64_t)"abc.*xyz", 
-                (uint64_t)"abcdefg", 
-                (uint64_t)false,
-                (uint64_t)_regex_static_new("abc.*xyz")
-            },
-            {
-                (uint64_t)"abc.*xyz", 
-                (uint64_t)"abcdefgxyz", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("abc.*xyz")
-            },
-            {
-                (uint64_t)"a{3}", 
-                (uint64_t)"aaa", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("a{3}")
-            },
-            {
-                (uint64_t)"a{3}", 
-                (uint64_t)"aab", 
-                (uint64_t)false,
-                (uint64_t)_regex_static_new("a{3}")
-            },
-            {
-                (uint64_t)"a{3}.", 
-                (uint64_t)"aaab", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("a{3}.")
-            },
-            {
-                (uint64_t)"[a,b,c]", 
-                (uint64_t)"a", 
-                (uint64_t)true,
-                (uint64_t)_regex_static_new("[a,b,c]")
-            },
+            RNEW(VM_FN_DEFINITION, "int strlen(char *a, char *b){ return 0; }", true),
+            RNEW(VM_FN_DEFINITION, "int 1strlen(char *a, char *b){ return 0; }", false),
+            RNEW(VM_UINT_ASSIGNMENT, "  foobar = 100;", true),
+            RNEW(VM_UINT_ASSIGNMENT, "  foobar = \"100;",false),
+            RNEW(VM_STRING_ASSIGNMENT,"  foobar = \"100\";",true)
 
         };
         for(int i = 0; i  < sizeof(_static_t)/sizeof(_static_t[0]); i++){
