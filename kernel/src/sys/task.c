@@ -34,25 +34,9 @@ void task_end_current(){
 void task_end_wait(task *t){
     task_current->waiting_on = t;
     task_pause(task_current);
-    while(task_status_get(t) != task_status_ended){
-        sleep_100(1);
-    }
 }
 task_status task_status_get(task *t){
-    if(!t){
-        return task_status_ended;
-    }
-    task_lock();
-    task *t2 = task_first;
-    while(t2){
-        if(t == t2){
-            task_unlock();
-            return t2->status;
-        }
-        t2 = t2->next;
-    }
-    task_unlock();
-    return task_status_ended;
+    return t ? t->status : task_status_ended;
 }
 void task_lock(){
     interrupt_disable();
@@ -98,6 +82,7 @@ void task_pause(task *t){
         return;
     }
     t->status = task_status_paused;
+    INTERRUPT_TASK_PAUSE();
 }
 void task_resume(task *t){
     if(!t){

@@ -81,6 +81,7 @@
     #define INTERRUPT_NUMBER_SIGINT 2
     #define INTERRUPT_SIGINT() __asm__ __volatile__("int $2")
     #define INTERRUPT_DEBUG() __asm__ __volatile("int $3")
+    #define INTERRUPT_TASK_PAUSE() __asm__ __volatile("int $32")
     #define INTERRUPT_INSTRUCTION "int3"
     #define GET_STACKFRAME(stk) __asm__ __volatile__("mov %%rbp, %0" : "=r"(stk))
     #define CPU_REGISTER_STACK rsp
@@ -158,7 +159,21 @@
         cpu_registers_names__func__[16] = "rip";\
         cpu_registers_names__func__[17] = "xmm0_0";\
         cpu_registers_names__func__[18] = "xmm0_1";\
-        cpu_registers_names__func__[19] = "flags";\
+        cpu_registers_names__func__[19] = "xmm1_0";\
+        cpu_registers_names__func__[20] = "xmm1_1";\
+        cpu_registers_names__func__[21] = "xmm2_0";\
+        cpu_registers_names__func__[22] = "xmm2_1";\
+        cpu_registers_names__func__[23] = "xmm3_0";\
+        cpu_registers_names__func__[24] = "xmm3_1";\
+        cpu_registers_names__func__[25] = "xmm4_0";\
+        cpu_registers_names__func__[26] = "xmm4_1";\
+        cpu_registers_names__func__[27] = "xmm5_0";\
+        cpu_registers_names__func__[28] = "xmm5_1";\
+        cpu_registers_names__func__[29] = "xmm6_0";\
+        cpu_registers_names__func__[30] = "xmm6_1";\
+        cpu_registers_names__func__[31] = "xmm7_0";\
+        cpu_registers_names__func__[32] = "xmm7_1";\
+        cpu_registers_names__func__[33] = "flags";\
         for(uint8_t i = 0; i < sizeof(cpu_registers)/sizeof(uint64_t); i++){\
             kprintf("\t[%s] : 0x%x\n", cpu_registers_names__func__[i],((uint64_t *)regs)[i]);\
         }\
