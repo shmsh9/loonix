@@ -38,13 +38,6 @@
         .alphabet = _karray_static(((char[])a))\
     };\
 })
-#define _regex_static_arr_contains(arr, c) _regex_static_arr_contains_internal(arr, sizeof(arr), c)
-static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c){
-    for(int i = 0; i < l; i++)
-        if(arr[i] == c)
-            return true;
-    return false;
-} 
 #define _regex_static(...) _karray_static( ((uint64_t[]){ __VA_ARGS__ }) )
 #define _regex_static_new_set(i,a,n) \
     for(int _regex_static_new_set_i = 0;_regex_static_new_set_i < sizeof(a)/sizeof(a[0]);_regex_static_new_set_i++)\

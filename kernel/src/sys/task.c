@@ -245,9 +245,8 @@ task *task_get_next(){
 }
 void task_run(void *data, task *t){
     t->fn(data, t);
-    task_end_later(t);
-    while (1){}
-    
+    t->status = task_status_ended;
+    INTERRUPT_TASK_PAUSE();    
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond += task_current ? 1 : task_current->status == task_status_paused ? 0 : 1; //uglross
