@@ -9,7 +9,7 @@ uint8_t shell_get_cursor_char(){
 task *shell_current_subproc = 0x0;
 void shell_sigint(){
     if(shell_current_subproc)
-        task_end_later(shell_current_subproc);
+        task_end(shell_current_subproc);
 }
 
 int shell(){

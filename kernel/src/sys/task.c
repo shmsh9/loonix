@@ -16,20 +16,12 @@ void task_end(task *t){
         case 0x0:
             break;
         default:
-            task_allocation_remove(t);
             t->status = task_status_ended;
             break;
     }
 }
-void task_end_later(task *t){
-    if(!t){
-        KERROR("t == NULL");
-        return;
-    }
-    t->status = task_status_ended;
-}
 void task_end_current(){
-    task_end_later(task_current);
+    task_end(task_current);
 }
 void task_end_wait(task *t){
     task_current->waiting_on = t;
