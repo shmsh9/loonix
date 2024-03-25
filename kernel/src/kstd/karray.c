@@ -8,12 +8,6 @@ void karray_lock(karray *array){
 void karray_unlock(karray *array){
     array->lock--;
 }
-bool karray_contains_str(karray *array, char *e){
-    for(int i = 0; i < array->length; i++)
-        if(!strcmp(((char **)array->array)[i], e))
-            return true;
-    return false;
-}
 void karray_push(karray *array, uint64_t elem){
     karray_lock(array);
     if(array->length+1 > array->alloc){
