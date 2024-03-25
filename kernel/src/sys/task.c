@@ -250,7 +250,7 @@ void task_run(void *data, task *t){
     
 }
 void task_scheduler(){
-    rtc_device_time_since_boot_centisecond++; //uglross
+    rtc_device_time_since_boot_centisecond += task_current ? 1 : task_current->status == task_status_paused ? 0 : 1; //uglross
     task_scheduler_start:
     if(!task_first){
         KPANIC("task_first == NULL");
