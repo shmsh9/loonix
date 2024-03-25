@@ -10,6 +10,17 @@ typedef struct {
     void(*karray_data_free_fn)(void *);
     void *array;
 } karray;
+
+#define _array_len(arr) (sizeof(arr)/sizeof(arr[0]))
+#define _array_contains_1(arr, e) (arr[0] == e)
+#define _array_contains_2(arr, e) (arr[1] == e) || _array_contains_1(arr, e)
+#define _array_contains_3(arr, e) (arr[2] == e) || _array_contains_2(arr, e)
+#define _array_contains_4(arr, e) (arr[2] == e) || _array_contains_3(arr, e)
+#define _array_contains_5(arr, e) (arr[2] == e) || _array_contains_4(arr, e)
+#define _array_contains_6(arr, e) (arr[2] == e) || _array_contains_5(arr, e)
+#define _array_contains_7(arr, e) (arr[2] == e) || _array_contains_6(arr, e)
+#define _array_contains(arr, e, n) _array_contains_##n(arr,e)
+
 #define _karray_contains_fn(arr, e, fn)({\
     bool _karray_contains_return = false;\
     for(int _karray_contains_i = 0; _karray_contains_i < arr->length; _karray_contains_i++){\
@@ -37,6 +48,7 @@ typedef struct {
         .array = arr\
     };\
 })
+
 karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *));
 bool karray_contains_str(karray *array, char *e);
 void karray_free(karray *array);

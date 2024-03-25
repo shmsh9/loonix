@@ -79,7 +79,7 @@ bool regex_match(karray *at, char *s){
 }
 karray *regex_new(char *s){
     karray *ret = karray_new(sizeof(regex_automaton *), (void (*)(void *))regex_automaton_free);
-    karray *whitespace_chars = _karray_static(((char []){ REGEX_WS_CHARS }));
+    char whitespace_chars[] = { REGEX_WS_CHARS };
     karray *alphabet_parsed = karray_new(sizeof(char), NULL);
     uint32_t l = strlen(s);
     for(int i = 0; i < l; i++){
@@ -133,8 +133,8 @@ karray *regex_new(char *s){
             case '\\':
                 switch(s[i+1]){
                     case 's':
-                        for(int c = 0; c < whitespace_chars->length; c++)
-                            karray_push(alphabet_parsed, (uint64_t)((char *)whitespace_chars->array)[c]);
+                        for(int c = 0; c < _array_len(whitespace_chars); c++)
+                            karray_push(alphabet_parsed, (uint64_t)whitespace_chars[c]);
                         karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed));
                         alphabet_parsed = karray_new(sizeof(char), NULL);
                         break;

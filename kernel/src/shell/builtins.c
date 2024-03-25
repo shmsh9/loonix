@@ -317,7 +317,7 @@ int builtins_regex(int argc, char **argv){
 }
 int builtins_arrcmp(int argc, char **argv){
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
-    karray *arr2 = _karray_static(((uint16_t []){0, 1, 0x1337}));
+    uint16_t arr2[] = {0, 1, 0x1337};
     karray *arr3 = karray_new(sizeof(uint32_t), 0x0);
     for(int i = 0; i < 0xffff+1; i++){
         karray_push(arr3, i);
@@ -330,7 +330,7 @@ int builtins_arrcmp(int argc, char **argv){
     );
 
     kprintf("arr2.contains(0x1337) == %s\n",
-        _karray_contains(arr2, 0x1337) ? "true" : "false"
+        _array_contains(arr2, 0x1337, 3) ? "true" : "false"
     );
     kprintf("arr3.contains(0xffff0) == %s\n",
         _karray_contains(arr3, 0xffff0) ? "true" : "false"
