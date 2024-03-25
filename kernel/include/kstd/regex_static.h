@@ -78,10 +78,6 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
     ret->length = 0;\
     int _curr_at = 0;\
     for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
-        if(!_regex_static_arr_contains( ((char[]){REGEX_SPECIAL_CHARS}), expr[_regex_static_new_i])) {\
-            _regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i]}),1);\
-	        continue;\
-	    }\
 	    switch(expr[_regex_static_new_i]){\
 	        case '.':\
                     _regex_static_new_set(_curr_at,((char[]){_REGEX_STATIC_ANY}),1);\
@@ -140,7 +136,7 @@ static inline bool _regex_static_arr_contains_internal(char arr[], int l, char c
                 _regex_static_new_i++;\
                 break;\
 	        default:\
-	        	\
+	        	_regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i]}),1);\
 	    	break;\
 	    }\
     }\
