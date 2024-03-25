@@ -10,10 +10,19 @@ typedef struct {
     void(*karray_data_free_fn)(void *);
     void *array;
 } karray;
-#define _karray_contains(arr, e, fn)({\
+#define _karray_contains_fn(arr, e, fn)({\
     bool _karray_contains_return = false;\
     for(int _karray_contains_i = 0; _karray_contains_i < arr->length; _karray_contains_i++){\
         _karray_contains_return = fn(((typeof(e) *)arr->array)[_karray_contains_i], e);\
+        if(_karray_contains_return)\
+            break;\
+    }\
+    _karray_contains_return;\
+})
+#define _karray_contains(arr, e)({\
+    bool _karray_contains_return = false;\
+    for(int _karray_contains_i = 0; _karray_contains_i < arr->length; _karray_contains_i++){\
+        _karray_contains_return = ((typeof(e) *)arr->array)[_karray_contains_i] == e;\
         if(_karray_contains_return)\
             break;\
     }\

@@ -323,20 +323,20 @@ int builtins_arrcmp(int argc, char **argv){
         karray_push(arr3, i);
     }
     kprintf("arr.contains(\"foo1\") == %s\n",
-        _karray_contains(arr, (char *)"foo1", cmp_str) ? "true" : "false"
+        _karray_contains_fn(arr, (char *)"foo1", cmp_str) ? "true" : "false"
     );
     kprintf("arr.contains(\"bar\") == %s\n",
-        _karray_contains(arr, (char *)"bar", cmp_str) ? "true" : "false"
+        _karray_contains_fn(arr, (char *)"bar", cmp_str) ? "true" : "false"
     );
 
     kprintf("arr2.contains(0x1337) == %s\n",
-        _karray_contains(arr2, 0x1337, cmp_u16) ? "true" : "false"
+        _karray_contains(arr2, 0x1337) ? "true" : "false"
     );
     kprintf("arr3.contains(0xffff0) == %s\n",
-        _karray_contains(arr3, 0xffff0, cmp_u32) ? "true" : "false"
+        _karray_contains(arr3, 0xffff0) ? "true" : "false"
     );
     kprintf("arr3.contains(0xffff) == %s\n",
-        _karray_contains(arr3, 0xffff, cmp_u32) ? "true" : "false"
+        _karray_contains(arr3, 0xffff) ? "true" : "false"
     );
     karray_free(arr3);
 
@@ -345,8 +345,7 @@ int builtins_arrcmp(int argc, char **argv){
             (char)i,
             _karray_contains(
                 _karray_static(((char []){'a', 'b', 'c'})),
-                (char)i,
-                cmp_char
+                (char)i
             ) ? "true" : "false"
         );
 

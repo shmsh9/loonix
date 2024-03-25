@@ -25,18 +25,18 @@ void regex_automaton_debug_print(regex_automaton *r){
 }
 bool _regex_match_inf_opt_at(regex_automaton *a, char **s){
     //KDEBUG("*s == %s", *s);
-    return *(*s) && _karray_contains(a->alphabet, *(*s), cmp_char);
+    return *(*s) && _karray_contains(a->alphabet, *(*s));
 }
 bool _regex_match_opt_at(regex_automaton *a, char **s){
     //KDEBUG("*s == %s", *s);
-    (*s) += _karray_contains(a->alphabet, *(*s), cmp_char);
+    (*s) += _karray_contains(a->alphabet, *(*s));
     return true;
 }
 
 bool _regex_match_fixed_at(regex_automaton *a, char **s){
     for(int i = 0; i < a->length && *(*s); i++){        
         //KDEBUG("*s == %s", *s);
-        if(!_karray_contains(a->alphabet, *(*s), cmp_char))
+        if(!_karray_contains(a->alphabet, *(*s)))
             return false;
         *s += 1;
     }
@@ -82,7 +82,6 @@ karray *regex_new(char *s){
     karray *special_chars = _karray_static(((char []){ REGEX_SPECIAL_CHARS }));
     karray *special_chars_len = _karray_static(((char []){ REGEX_LENGTH_CHARS }));
     karray *whitespace_chars = _karray_static(((char []){ REGEX_WS_CHARS }));
-
     bool alphabet_started = false;
     bool length_parsing = false;
     uint32_t length_parsed = 0;
@@ -97,7 +96,7 @@ karray *regex_new(char *s){
                         case 's':
                             for(int x = 0; x < whitespace_chars->length; x++)
                                 karray_push(alphabet_parsed, ((char *)whitespace_chars->array)[x]);
-                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char)) ){
+                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2])) ){
                                 if(!alphabet_started){
                                     karray_push(
                                         ret,
@@ -111,7 +110,7 @@ karray *regex_new(char *s){
                         //Push escaped char
                         default:
                             karray_push(alphabet_parsed, s[i+1]);
-                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2], cmp_char))){
+                            if(i+1 >= l || (i+2 <= l && !_karray_contains(special_chars_len, s[i+2]))){
                                 if(!alphabet_started){
                                     karray_push(
                                         ret,
@@ -131,7 +130,7 @@ karray *regex_new(char *s){
             case ']':
                 alphabet_started = false;
                 alphabet_is_comma_list = false;
-                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1], cmp_char)) ){
+                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1])) ){
                    karray_push(
                         ret,
                         (uint64_t)regex_automaton_new(1, alphabet_parsed)
@@ -146,7 +145,7 @@ karray *regex_new(char *s){
                         (char)i
                     );
                 }
-                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1], cmp_char)) ){
+                if(i+1 >= l || (i+1 < l && !_karray_contains(special_chars_len, s[i+1]))){
                     if(alphabet_parsed->length != 0){
                         karray_push(
                             ret,
@@ -184,13 +183,13 @@ karray *regex_new(char *s){
                 alphabet_parsed = karray_new(sizeof(char), NULL);
                 continue;
             default:
-                if(!_karray_contains(special_chars, s[i], cmp_char) && !length_parsing && !alphabet_started){
+                if(!_karray_contains(special_chars, s[i]) && !length_parsing && !alphabet_started){
                     karray_push(
                         alphabet_parsed,
                         (uint64_t)s[i]
                     );
 		            //do not push length != 1 alphabet
-                    if(i+1 < l && _karray_contains(special_chars_len, s[i+1], cmp_char))
+                    if(i+1 < l && _karray_contains(special_chars_len, s[i+1]))
 		                continue;
 		            karray_push(
                         ret,
