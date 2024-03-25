@@ -19,13 +19,6 @@ typedef struct {
     }\
     _karray_contains_return;\
 })
-#define _char_array_contains_static(arr, c) _char_array_contains_static_internal(arr, sizeof(arr), c)
-static inline bool _char_array_contains_static_internal(const char arr[], int l, char c){
-    for(int i = 0; i < l; i++)
-        if(arr[i] == c)
-            return true;
-    return false;
-}
 #define _karray_static(arr) ({ \
     &(karray){\
         .elementsz = sizeof(arr[0]),\

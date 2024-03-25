@@ -308,6 +308,7 @@ void task_scheduler(){
         case task_status_wait_io:
             break;
         case task_status_paused:
+            task_current = task_get_next();
             break;
         default:
             KPANIC("task_current (0x%x) :\n\ttask_current->status == %d (unknown)",
