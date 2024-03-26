@@ -303,6 +303,15 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
+        char *expr = "a[b,c,d,e]";
+        //const int start = _regex_static_bracket_start(expr);
+        //const int stop = _regex_static_bracket_stop(expr);
+        char test[] = _regex_static_bracket_comma(expr, _regex_static_bracket_start(expr), 4);
+        kprintf("test[] = { ");
+        for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
+            kprintf("'%c'%s", test[i], i+1 == sizeof(test)/sizeof(test[0]) ? " }\n" : ", " );
+
+
         shell_set_exit_code(-1);
         return -1;
     } 

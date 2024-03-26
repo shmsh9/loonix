@@ -31,6 +31,97 @@
 #define _REGEX_STATIC_ALPHANUM _REGEX_STATIC_ALPHA,_REGEX_STATIC_0_9
 #define _REGEX_STATIC_WS REGEX_WS_CHARS
 
+#define _regex_static_bracket_comma(expr, i, n) { _regex_static_bracket_comma##n(expr,i) }
+#define _regex_static_bracket_comma6(expr, i) expr[i+10], _regex_static_bracket_comma5(expr,i)
+#define _regex_static_bracket_comma5(expr, i) expr[i+8], _regex_static_bracket_comma4(expr,i)
+#define _regex_static_bracket_comma4(expr, i) expr[i+6], _regex_static_bracket_comma3(expr,i)
+#define _regex_static_bracket_comma3(expr, i) expr[i+4], _regex_static_bracket_comma2(expr,i)
+#define _regex_static_bracket_comma2(expr, i) expr[i+2], _regex_static_bracket_comma1(expr,i)
+#define _regex_static_bracket_comma1(expr, i) expr[i]
+
+#define _regex_static_bracket_stop8(expr,r) (expr[8] == ']' ?  8+1 : _regex_static_bracket_stop7(expr, r))
+#define _regex_static_bracket_stop7(expr,r) (expr[7] == ']' ?  7+1 : _regex_static_bracket_stop(expr, r))
+#define _regex_static_bracket_stop6(expr,r) (expr[6] == ']' ?  6+1 : _regex_static_bracket_stop5(expr, r))
+#define _regex_static_bracket_stop5(expr,r) (expr[5] == ']' ?  5+1 : _regex_static_bracket_stop4(expr, r))
+#define _regex_static_bracket_stop4(expr,r) (expr[4] == ']' ?  4+1 : _regex_static_bracket_stop3(expr, r))
+#define _regex_static_bracket_stop3(expr,r) (expr[3] == ']' ?  3+1 : _regex_static_bracket_stop2(expr, r))
+#define _regex_static_bracket_stop2(expr,r) (expr[2] == ']' ?  2+1 : _regex_static_bracket_stop1(expr, r))
+#define _regex_static_bracket_stop1(expr,r) (expr[1] == ']' ?  1+1 : r)
+
+#define _regex_static_bracket_stop(expr)({\
+    uint32_t r = UINT32_MAX;\
+    switch (sizeof(expr)-1){ \
+        case 3: \
+            r = _regex_static_bracket_stop1(expr,r);\
+            break;\
+        case 4:\
+            r = _regex_static_bracket_stop2(expr,r);\
+            break;\
+        case 5:\
+            r = _regex_static_bracket_stop3(expr,r);\
+            break;\
+        case 6:\
+            r = _regex_static_bracket_stop4(expr,r);\
+            break;\
+        case 7:\
+            r = _regex_static_bracket_stop5(expr,r);\
+            break;\
+        case 8:\
+            r = _regex_static_bracket_stop6(expr,r);\
+            break;\
+        case 9:\
+            r = _regex_static_bracket_stop7(expr,r);\
+            break;\
+        case 10:\
+            r = _regex_static_bracket_stop8(expr,r);\
+            break;\
+        default:\
+            break;\
+        }\
+    r;\
+})
+
+#define _regex_static_bracket_start8(expr,r) (expr[8] == '[' ?  8+1 : _regex_static_bracket_start5(expr, r))
+#define _regex_static_bracket_start7(expr,r) (expr[7] == '[' ?  7+1 : _regex_static_bracket_start5(expr, r))
+#define _regex_static_bracket_start6(expr,r) (expr[6] == '[' ?  6+1 : _regex_static_bracket_start5(expr, r))
+#define _regex_static_bracket_start5(expr,r) (expr[5] == '[' ?  5+1 : _regex_static_bracket_start4(expr, r))
+#define _regex_static_bracket_start4(expr,r) (expr[4] == '[' ?  4+1 : _regex_static_bracket_start3(expr, r))
+#define _regex_static_bracket_start3(expr,r) (expr[3] == '[' ?  3+1 : _regex_static_bracket_start2(expr, r))
+#define _regex_static_bracket_start2(expr,r) (expr[2] == '[' ?  2+1 : _regex_static_bracket_start1(expr, r))
+#define _regex_static_bracket_start1(expr,r) (expr[1] == '[' ?  1+1 : r)
+#define _regex_static_bracket_start(expr)({\
+    uint32_t r = UINT32_MAX;\
+    switch (sizeof(expr)-1){ \
+        case 3: \
+            r = _regex_static_bracket_start1(expr,r);\
+            break;\
+        case 4:\
+            r = _regex_static_bracket_start2(expr,r);\
+            break;\
+        case 5:\
+            r = _regex_static_bracket_start3(expr,r);\
+            break;\
+        case 6:\
+            r = _regex_static_bracket_start4(expr,r);\
+            break;\
+        case 7:\
+            r = _regex_static_bracket_start5(expr,r);\
+            break;\
+        case 8:\
+            r = _regex_static_bracket_start6(expr,r);\
+            break;\
+        case 9:\
+            r = _regex_static_bracket_start7(expr,r);\
+            break;\
+        case 10:\
+            r = _regex_static_bracket_start8(expr,r);\
+            break;\
+        default:\
+            break;\
+        }\
+    r;\
+})
+
 #define _regex_dict(...) __VA_ARGS__
 #define _regex_automaton_static(a,l) ({\
     (uint64_t)&(regex_automaton){\
