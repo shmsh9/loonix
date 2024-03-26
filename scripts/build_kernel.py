@@ -16,7 +16,7 @@ def main():
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
                 -Wno-unused-function -Wall -pedantic -Wno-unused-but-set-variable -Wno-gnu-auto-type\
                 -Wno-strict-prototypes -Wno-gnu-statement-expression-from-macro-expansion \
-                -g -O3 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
+                -g -O0 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
         
     ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
 

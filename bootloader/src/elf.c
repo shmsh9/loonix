@@ -172,6 +172,7 @@ uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
 	#ifdef __x86_64__
 		kaddr = (void *)0x0;
 	#endif
+
 	void *prog = kallocaddress(alloc, kaddr);
 	bi->kernelsize = alloc;
 	bi->kernelbase = prog;
@@ -192,6 +193,14 @@ uint64_t loadelf(CHAR16 *filename, bootinfo *bi){
 			filename, alloc , bi->kernelentry, 
 			bi->kernelbase);
 	get_mmap(bi);
+	/*
+    for(int i = 0; i < bi->mmap_size/48; i++){
+        EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)bi->mmap+(i*48));
+        if(desc->Type == EfiConventionalMemory && desc->NumberOfPages > alloc/4096){
+			DEBUG(L"found freemem at 0x%x virt 0x%x", desc->PhysicalStart, desc->VirtualStart)
+        }
+    } 
+	*/
 	bi->uefi_exit_code = SystemTable->BootServices->ExitBootServices(ImageHandle, bi->mmap_key);
 	return fnptr(bi);
 }

@@ -3,20 +3,21 @@ ENTRY(_start)
 
 SECTIONS
 {
-	.text.start 0x1000000 : {
-		crt0.o(.text)
-	}
-	.text : ALIGN(0x1000){
-	__TEXT_START_ = .;
-		*(.text)
-	__TEXT_END_   = .;
+	.text.start : {
+		__TEXT_START_ = .;
+			*(.text)
+		__TEXT_END_   = .;
 	}
 	.data : ALIGN(0x1000){
 	__DATA_START = .;
 		*(.data)
 	__DATA_END   = .;
 	}
-
+	.rodata : ALIGN(0x1000){
+	__RODATA_START = .;
+		*(.rodata)
+	__RODATA_END   = .;
+	}
 	.bss : ALIGN(0x1000){
 	__BSS_START = .;
 		*(.bss)

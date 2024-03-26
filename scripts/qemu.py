@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import os
 import config
-import build_all
 import shutil
 param = config.get_params()
 qemu_memory = "64M"
