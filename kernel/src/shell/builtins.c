@@ -646,7 +646,7 @@ int builtins_testktree(int argc, char **argv){
     ktree_free(t);
     return 0;
 }
-int builtins_testvm(int argc, char **argv){
+const int builtins_testvm(int argc, char **argv){
     char *in[] = {
         "foobar = 100;",
         "F00bar = \"12\";",
@@ -698,79 +698,23 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
-
-struct fnbuiltin _shell_builtins[] = {
-    
-    (struct fnbuiltin){
-        .name = "clear",
-        .ptrfn = builtins_clear,
-    },
-
-    (struct fnbuiltin){
-        .name = "help",
-        .ptrfn = builtins_help,
-    },
-
-    (struct fnbuiltin){
-        .name = "task",
-        .ptrfn = builtins_task,
-    },
-
-    (struct fnbuiltin){
-        .name = "graphics",
-        .ptrfn = builtins_graphics,
-    },
-
-    (struct fnbuiltin){
-        .name = "gol",
-        .ptrfn = builtins_gol,
-    },
-
-    (struct fnbuiltin){
-        .name = "free",
-        .ptrfn = builtins_free,
-    },
-    (struct fnbuiltin){
-        .name = "regex",
-        .ptrfn = builtins_regex,
-    },
-    (struct fnbuiltin){
-        .name = "exitcode",
-        .ptrfn = builtins_get_exit_code,
-    },
-    (struct fnbuiltin){
-        .name = "time",
-        .ptrfn = builtins_time,
-    },
-    (struct fnbuiltin){
-        .name = "arrcmp",
-        .ptrfn = builtins_arrcmp,
-    },
-    (struct fnbuiltin){
-        .name = "testvm",
-        .ptrfn = builtins_testvm,
-    },
-
-    (struct fnbuiltin){
-        .name = "testscroll",
-        .ptrfn = builtins_testscroll,
-    },
-    (struct fnbuiltin){
-        .name = "net",
-        .ptrfn = builtins_net,
-    },
-    (struct fnbuiltin){
-        .name = "poweroff",
-        .ptrfn = builtins_poweroff,
-    },
-
+#define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
+uint64_t _shell_builtins[][2] = {
+    _BUILTIN("help", builtins_help),
+    _BUILTIN("graphics", builtins_graphics),
+    _BUILTIN("gol", builtins_gol),
+    _BUILTIN("arrcmp", builtins_arrcmp),
+    _BUILTIN("testscroll", builtins_testscroll),
+    _BUILTIN("regex", builtins_regex),
+    _BUILTIN("poweroff", builtins_poweroff),
+    _BUILTIN("help", builtins_help),
+    _BUILTIN("testvm", builtins_testvm)
 };
-uint32_t _shell_builtins_size = sizeof(_shell_builtins)/sizeof(_shell_builtins[0]);
-
 int builtins_help(int argc, char **argv){
-    
-    for(int i = 0 ; i < _shell_builtins_size; i++)
-        kprintf("%s\n", _shell_builtins[i].name);
-
+    for(int i = 0 ; i < _builtins_size(); i++)
+        kprintf("%s\n", _shell_builtins[i][_BUILTIN_NAME]);
     return 0;
+}
+inline int _builtins_size(){
+    return _BUILTINS_SIZE;
 }

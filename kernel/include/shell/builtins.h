@@ -7,19 +7,17 @@
 #include <vm/vm.h>
 
 
-struct fnbuiltin {
-    int  (*ptrfn)(int, char **);
-    char *name;
-};
+#define _BUILTIN_NAME 0
+#define _BUILTIN_FN 1
+#define _BUILTINS_SIZE (sizeof(_shell_builtins)/sizeof(_shell_builtins[0]))
+
+extern uint64_t _shell_builtins[][2];
 
 int builtins_clear(int argc, char **argv);
 int builtins_help(int argc, char **argv);
 int builtins_free(int argc, char **argv);
-
-extern struct fnbuiltin _shell_builtins[];
-extern uint32_t _shell_builtins_size;
-
-#define BUILTIN_SIZE sizeof(_shell_builtins)/sizeof(_shell_builtins[0])
+bool bulitins_is_builtin(char *cmd);
+int _builtins_size();
 
 #include <drivers/ahci.h>
 #include <shell/shell.h>

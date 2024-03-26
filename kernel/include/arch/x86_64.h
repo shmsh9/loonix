@@ -181,7 +181,7 @@
     void pic_remap();
     void rtc_install();
     void task_interrupt_enable();
-    void task_cpu_registers_load(volatile cpu_registers *regs, void *fn, void *data, void *t);
+    void task_cpu_registers_load(volatile cpu_registers *regs, void(*fn)(void *, struct _task *), void *data, void *t);
     void task_cpu_registers_reload(volatile cpu_registers *regs);
     void interrupt_enable();
     void interrupt_disable();

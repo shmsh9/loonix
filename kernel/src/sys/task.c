@@ -276,7 +276,7 @@ void task_scheduler(){
             task_current->time_slice_remaining = task_time_total_available >> task_current->time_slice;
             task_cpu_registers_load(
                 task_current->context,
-                (void *)task_run,
+                task_run,
                 task_current->data,
                 task_current
             );

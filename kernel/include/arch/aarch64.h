@@ -106,7 +106,7 @@
     void interrupt_handler_install(void (*fn)(), uint16_t num);
     void init_interrupt_vector_table();
     void interrupt_handler(uint64_t far_el1, uint64_t esr_el1, uint64_t interrupt_type);
-    void task_cpu_registers_load(volatile cpu_registers *regs, void *fn, void *data, void *t);
+    void task_cpu_registers_load(volatile cpu_registers *regs, void(*fn)(void *, struct _task *), void *data, void *t);
     void task_cpu_registers_reload(volatile cpu_registers *regs);
     void cpu_registers_save(volatile cpu_registers *regs);
     void cpu_registers_load(volatile cpu_registers *regs);

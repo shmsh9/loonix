@@ -14,9 +14,8 @@ def main():
                 -target {param['ARCH']}-none-elf -g -O3 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
     if param["CC"] == "gcc":
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
-                -Wno-unused-function -Wall -pedantic -Wno-unused-but-set-variable -Wno-gnu-auto-type\
-                -Wno-strict-prototypes -Wno-gnu-statement-expression-from-macro-expansion \
-                -g -O2 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
+                -Wno-unused-function -Wall -Wno-unused-but-set-variable \
+                -Wno-strict-prototypes -g -O2 -Wno-strict-aliasing -fshort-wchar"
         
     ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
 
