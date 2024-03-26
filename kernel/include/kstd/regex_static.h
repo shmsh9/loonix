@@ -39,41 +39,41 @@
 #define _regex_static_bracket_comma2(expr, i) expr[i+2], _regex_static_bracket_comma1(expr,i)
 #define _regex_static_bracket_comma1(expr, i) expr[i]
 
-#define _regex_static_bracket_stop8(expr,r) (expr[8] == ']' ?  8+1 : _regex_static_bracket_stop7(expr, r))
-#define _regex_static_bracket_stop7(expr,r) (expr[7] == ']' ?  7+1 : _regex_static_bracket_stop(expr, r))
-#define _regex_static_bracket_stop6(expr,r) (expr[6] == ']' ?  6+1 : _regex_static_bracket_stop5(expr, r))
-#define _regex_static_bracket_stop5(expr,r) (expr[5] == ']' ?  5+1 : _regex_static_bracket_stop4(expr, r))
-#define _regex_static_bracket_stop4(expr,r) (expr[4] == ']' ?  4+1 : _regex_static_bracket_stop3(expr, r))
-#define _regex_static_bracket_stop3(expr,r) (expr[3] == ']' ?  3+1 : _regex_static_bracket_stop2(expr, r))
-#define _regex_static_bracket_stop2(expr,r) (expr[2] == ']' ?  2+1 : _regex_static_bracket_stop1(expr, r))
-#define _regex_static_bracket_stop1(expr,r) (expr[1] == ']' ?  1+1 : r)
+#define _regex_static_bracket_count8(expr,i,r) (expr[i+7] != ']' && expr[i+7] != ',' ?  r+1 : _regex_static_bracket_count7(expr,i,r))
+#define _regex_static_bracket_count7(expr,i,r) (expr[i+6] != ']' && expr[i+6] != ',' ?  r+1 : _regex_static_bracket_count6(expr,i,r))
+#define _regex_static_bracket_count6(expr,i,r) (expr[i+5] != ']' && expr[i+5] != ',' ?  r+1 : _regex_static_bracket_count5(expr,i,r))
+#define _regex_static_bracket_count5(expr,i,r) (expr[i+4] != ']' && expr[i+4] != ',' ?  r+1 : _regex_static_bracket_count4(expr,i,r))
+#define _regex_static_bracket_count4(expr,i,r) (expr[i+3] != ']' && expr[i+3] != ',' ?  r+1 : _regex_static_bracket_count3(expr,i,r))
+#define _regex_static_bracket_count3(expr,i,r) (expr[i+2] != ']' && expr[i+2] != ',' ?  r+1 : _regex_static_bracket_count2(expr,i,r))
+#define _regex_static_bracket_count2(expr,i,r) (expr[i+1] != ']' && expr[i+1] != ',' ?  r+1 : _regex_static_bracket_count1(expr,i,r))
+#define _regex_static_bracket_count1(expr,i,r) (expr[i] != ']' && expr[i] != ',' ?  r+1 : r)
 
-#define _regex_static_bracket_stop(expr)({\
+#define _regex_static_bracket_count(expr, i)({\
     uint32_t r = UINT32_MAX;\
     switch (sizeof(expr)-1){ \
         case 3: \
-            r = _regex_static_bracket_stop1(expr,r);\
+            r = _regex_static_bracket_count1(expr,i,r);\
             break;\
         case 4:\
-            r = _regex_static_bracket_stop2(expr,r);\
+            r = _regex_static_bracket_count2(expr,i,r);\
             break;\
         case 5:\
-            r = _regex_static_bracket_stop3(expr,r);\
+            r = _regex_static_bracket_count3(expr,i,r);\
             break;\
         case 6:\
-            r = _regex_static_bracket_stop4(expr,r);\
+            r = _regex_static_bracket_count4(expr,i,r);\
             break;\
         case 7:\
-            r = _regex_static_bracket_stop5(expr,r);\
+            r = _regex_static_bracket_count5(expr,i,r);\
             break;\
         case 8:\
-            r = _regex_static_bracket_stop6(expr,r);\
+            r = _regex_static_bracket_count6(expr,i,r);\
             break;\
         case 9:\
-            r = _regex_static_bracket_stop7(expr,r);\
+            r = _regex_static_bracket_count7(expr,i,r);\
             break;\
         case 10:\
-            r = _regex_static_bracket_stop8(expr,r);\
+            r = _regex_static_bracket_count8(expr,i,r);\
             break;\
         default:\
             break;\
