@@ -35,12 +35,12 @@
 #define _regex_automaton_static(a,l) ({\
     (uint64_t)&(regex_automaton){\
         .length = l,\
-        .alphabet = _karray_static(((char[])a))\
+        .alphabet = _karray_static(((uint8_t[])a))\
     };\
 })
 #define _regex_static(...) _karray_static( ((uint64_t[]){ __VA_ARGS__ }) )
 #define _regex_static_new_set(i,a,n) \
-    for(int _regex_static_new_set_i = 0;_regex_static_new_set_i < sizeof(a)/sizeof(a[0]);_regex_static_new_set_i++)\
+    for(volatile int _regex_static_new_set_i = 0;_regex_static_new_set_i < sizeof(a)/sizeof(a[0]);_regex_static_new_set_i++)\
         _regex_static_new_arr_raw[i][_regex_static_new_set_i] = a[_regex_static_new_set_i];\
     _regex_static_new_arr[i] = (karray){ \
         .length = sizeof(a)/sizeof(a[0]), .alloc = UINT8_MAX, \
@@ -64,7 +64,7 @@
 
 #define _regex_static_new(expr) ({\
     static uint64_t _regex_static_new_ret[sizeof(expr)-1] = {0};\
-    static char _regex_static_new_arr_raw[sizeof(expr)-1][UINT8_MAX] = {0};\
+    static uint8_t _regex_static_new_arr_raw[sizeof(expr)-1][UINT8_MAX] = {0};\
     static karray _regex_static_new_arr[sizeof(expr)-1] = {0}; \
     static regex_automaton _regex_static_new_at[sizeof(expr)-1] = {0};\
     karray *ret = _karray_static(_regex_static_new_ret);\
@@ -73,7 +73,7 @@
     for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
 	    switch(expr[_regex_static_new_i]){\
 	        case '.':\
-                    _regex_static_new_set(_curr_at,((char[]){_REGEX_STATIC_ANY}),1);\
+                    _regex_static_new_set(_curr_at,((uint8_t[]){_REGEX_STATIC_ANY}),1);\
 	    	break;\
 	        case '?':\
 	            _regex_static_new_at[_curr_at-1].length = REGEX_OPT_LEN;\
@@ -99,7 +99,7 @@
 	    	        switch(expr[_x]){\
 	    	            case '-':{\
                             int dir = expr[_x-1] < expr[_x+1] ? 1 : -1;\
-                            for(char _j = expr[_x-1]+dir; _j != expr[_x+1]; _j+=dir){\
+                            for(uint8_t _j = expr[_x-1]+dir; _j != expr[_x+1]; _j+=dir){\
                                 _regex_static_new_push(_curr_at, _j, _c);\
                             }\
                             _regex_static_new_i++;\
@@ -120,16 +120,16 @@
             case '\\':\
                 switch(expr[_regex_static_new_i+1]){\
                     case 's':\
-                        _regex_static_new_set(_curr_at,((char[]){REGEX_WS_CHARS}),1);\
+                        _regex_static_new_set(_curr_at,((uint8_t[]){REGEX_WS_CHARS}),1);\
                         break;\
                     default:\
-                        _regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i+1]}),1);\
+                        _regex_static_new_set(_curr_at,((uint8_t[]){expr[_regex_static_new_i+1]}),1);\
                         break;\
                 }\
                 _regex_static_new_i++;\
                 break;\
 	        default:\
-	        	_regex_static_new_set(_curr_at,((char[]){expr[_regex_static_new_i]}),1);\
+	        	_regex_static_new_set(_curr_at,((uint8_t[]){expr[_regex_static_new_i]}),1);\
 	    	break;\
 	    }\
     }\

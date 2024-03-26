@@ -4,7 +4,10 @@ import glob
 from pathlib import Path
 
 def get_params():
-    CC = "clang"
+    try:
+        CC = os.environ["CC"]
+    except:
+        CC = "clang"
     LD = "lld"
     ARCH_TABLE = {
         "x86_64" : "x86_64",
@@ -39,7 +42,10 @@ def compile_s_files(params, c_flags, s_files):
         flags = " -fPIC"
         if cfg["ARCH"] == "x86_64":
             c_flags += " -masm=intel"
-        r = os.system(f"{params['CC']} {c_flags} {file} -o {os.path.splitext(file)[0]}_s.o")
+        if params["CC"] == "gcc":
+            r = os.system(f"clang {c_flags} {file} -o {os.path.splitext(file)[0]}_s.o")
+        else:
+            r = os.system(f"{params['CC']} {c_flags} {file} -o {os.path.splitext(file)[0]}_s.o")
         if(r != 0):
             exit(r)
 
