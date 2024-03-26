@@ -10,6 +10,7 @@ typedef struct {
     void(*karray_data_free_fn)(void *);
     void *array;
 } karray;
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
 #define _array_len(arr) (sizeof(arr)/sizeof(arr[0]))
 #define _array_contains_1(arr, e)  (arr[0 ] == e)
@@ -36,8 +37,41 @@ typedef struct {
 #define _array_contains_22(arr, e) (arr[21] == e) || _array_contains_21(arr, e)
 #define _array_contains_23(arr, e) (arr[22] == e) || _array_contains_22(arr, e)
 
-#define _array_contains(arr, e, n) _array_contains_##n(arr,e)
-
+#define _array_contains(arr, e)({\
+    bool _r = false;\
+    switch (sizeof(arr)/sizeof(arr[0])){\
+    case 1:\
+        _r = _array_contains_1(arr, e);\
+        break;\
+    case 2: \
+        _r = _array_contains_2(arr, e);\
+        break;\
+    case 3: \
+        _r = _array_contains_3(arr, e);\
+        break;\
+    case 4: \
+        _r = _array_contains_4(arr, e);\
+        break;\
+    case 5: \
+        _r = _array_contains_5(arr, e);\
+        break;\
+    case 6: \
+        _r = _array_contains_6(arr, e);\
+        break;\
+    case 7: \
+        _r = _array_contains_7(arr, e);\
+        break;\
+    case 8: \
+        _r = _array_contains_8(arr, e);\
+        break;\
+    case 9: \
+        _r = _array_contains_9(arr, e);\
+        break;\
+    default: \
+        break;\
+    }\
+    _r;\
+})
 #define _karray_contains_fn(arr, e, fn)({\
     bool _karray_contains_return = false;\
     for(int _karray_contains_i = 0; _karray_contains_i < arr->length; _karray_contains_i++){\
