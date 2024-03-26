@@ -93,7 +93,6 @@ void crt0(bootinfo *bootinfo){
     );
     */
     //task_unlock();
-    KMESSAGE("doppo");
     kmain(bootinfo);
     //BREAKPOINT();
 }

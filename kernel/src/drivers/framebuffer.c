@@ -43,12 +43,9 @@ void framebuffer_device_clear(framebuffer_device *framebuffer, framebuffer_pixel
 }
 
 framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, uint64_t height, uint16_t flags){
-    uintptr_t bad_addresses[] = {0, 0xffffffffffffffff};
-    for(int i = 0; i < sizeof(bad_addresses)/sizeof(bad_addresses[0]); i++){
-        if(address == bad_addresses[i]){
-            KERROR("0x%x is not a valid framebuffer address !", address);
-            return 0x0;
-        }
+    if(!address){
+        KERROR("0x%x is not a valid framebuffer address !", address);
+        return 0x0;
     }
     framebuffer_device *ret = kcalloc(sizeof(framebuffer_device), 1);
     uint64_t size = width*height*sizeof(graphics_pixel);
