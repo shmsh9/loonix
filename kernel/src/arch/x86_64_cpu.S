@@ -82,6 +82,14 @@ cpu_registers_save:
     mov [rdi+cpu_registers_r13],r13
     mov [rdi+cpu_registers_r14],r14
     mov [rdi+cpu_registers_r15],r15
+    movdqu [rdi+cpu_registers_xmm0], xmm0
+    movdqu [rdi+cpu_registers_xmm1], xmm1
+    movdqu [rdi+cpu_registers_xmm2], xmm2
+    movdqu [rdi+cpu_registers_xmm3], xmm3
+    movdqu [rdi+cpu_registers_xmm4], xmm4
+    movdqu [rdi+cpu_registers_xmm5], xmm5
+    movdqu [rdi+cpu_registers_xmm6], xmm6
+    movdqu [rdi+cpu_registers_xmm7], xmm7
     lea rax, [rip]
     mov [rdi+cpu_registers_rip],rax
     ret
