@@ -16,8 +16,10 @@ def main():
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
                 -Wno-unused-function -Wall -Wno-unused-but-set-variable \
                 -Wno-strict-prototypes -g -O2 -Wno-strict-aliasing -fshort-wchar"
-        
-    ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
+    if param["LD"] == "lld":
+        ld_flags = f"-flavor ld -T {target}/src/link{param['ARCH']}.ld"
+    if param["LD"] == "ld":
+        ld_flags = f"-T {target}/src/link{param['ARCH']}.ld"
 
     config.clean_files_glob(f"{target}/src/","*.o")
     config.clean_files_glob(f"{target}/src/","*.elf")

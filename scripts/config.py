@@ -8,7 +8,10 @@ def get_params():
         CC = os.environ["CC"]
     except:
         CC = "clang"
-    LD = "lld"
+    try:
+        LD = os.environ["LD"]
+    except:
+        LD = "lld"
     ARCH_TABLE = {
         "x86_64" : "x86_64",
         "AMD64"  : "x86_64",
