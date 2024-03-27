@@ -303,6 +303,16 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
+        karray *expr = (karray*)_static_t[0][3];
+        karray *matches = regex_match_group(expr, "int strlen(char *a, char *b){ return 0; }");
+        if(matches){
+            for(int i = 0; i < matches->length; i++)
+                KDEBUG("matches[%d] == %s",i, ((char **)matches->array)[i]);
+            karray_free(matches);
+        }
+        else{
+            KDEBUG("regex_match_group(expr, s) == %d", matches);
+        }
         shell_set_exit_code(-1);
         return -1;
     } 

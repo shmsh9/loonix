@@ -42,6 +42,70 @@ bool _regex_match_fixed_at(regex_automaton *a, char **s){
     }
     return true;
 }
+karray * regex_match_group(karray *at, char *s){
+    karray *ret = karray_new(sizeof(char *), kfree);
+    char *curr_s = s;
+    int i = 0;
+    for(; i < at->length && *curr_s; i++){
+        regex_automaton *a = ((regex_automaton **)at->array)[i];
+        switch(a->length){
+            case REGEX_INF_ZR_LEN:{
+                char *sav_currs = curr_s;
+                while(_regex_match_inf_opt_at(a, &curr_s) && *curr_s){
+                    //Check if end of inf loop
+                    if(i+1 < at->length){
+                        char *tmps = curr_s;
+                        regex_automaton *tmpa = ((regex_automaton **)at->array)[i+1];
+                        if(tmpa->length != REGEX_INF_ZR_LEN && tmpa->length != REGEX_OPT_LEN && _regex_match_fixed_at(tmpa, &tmps)){
+                            break;
+                        }
+                    }
+                    curr_s++;
+                }
+                char *match = kmalloc((curr_s - sav_currs)+1);
+                match[curr_s - sav_currs] = 0x0;
+                memcpy(match, sav_currs, curr_s - sav_currs);
+                karray_push(ret, (uint64_t)match);
+                break;
+            }
+            case REGEX_OPT_LEN:{
+                char *sav_currs = curr_s;
+                if(_regex_match_opt_at(a, &curr_s)){
+                    char *match = kmalloc((curr_s - sav_currs)+1);
+                    match[curr_s - sav_currs] = 0x0;
+                    memcpy(match, sav_currs, curr_s - sav_currs);
+                    karray_push(ret, (uint64_t)match);
+                }
+                break;
+            }
+            default:{
+                char *sav_currs = curr_s;
+                if(!_regex_match_fixed_at(a, &curr_s)){
+                    karray_free(ret);
+                    return NULL;
+                }
+                char *match = kmalloc((curr_s - sav_currs)+1);
+                match[curr_s - sav_currs] = 0x0;
+                memcpy(match, sav_currs, curr_s - sav_currs);
+                karray_push(ret, (uint64_t)match);
+                break;
+            }
+        }
+    }
+    for(; i < at->length; i++){
+        regex_automaton *a = ((regex_automaton **)at->array)[i];
+        if(a->length != REGEX_INF_ZR_LEN && a->length != REGEX_OPT_LEN){
+            karray_free(ret);
+            return NULL;
+        }
+    }
+    
+    if(*curr_s && i != at->length){
+        karray_free(ret);
+        return NULL;
+    }
+    return ret;
+}
 bool regex_match(karray *at, char *s){
     char *curr_s = s;
     int i = 0;
