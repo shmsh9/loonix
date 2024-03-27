@@ -3,6 +3,6 @@
     "macros" : [
         {"type" : "string", "content" : "#define _LOOP_UINT(n) _LOOP_UINT_##n(n)"},
         {"type" : "string", "content" : "#define _LOOP_UINT_0(n) n"},
-        {"type" : "eval", "content": "[f'#define _LOOP_UINT_{x}(n) n, _LOOP_UINT_{x-1}(n-1)' for x in range(1,256)]"}
+        {"type" : "eval", "content": "[f'#define _LOOP_UINT_{x}(n) n, _LOOP_UINT_{x-1}(n-1)' for x in range(1, 4096)]"}
     ]
 }

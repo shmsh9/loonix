@@ -1,0 +1,8 @@
+{
+    "filename": "array.h",
+    "macros" : [
+        {"type" : "string", "content" : "#define _array_contains(arr,e,l) _array_contains_##l(arr,e)"},
+        {"type" : "string", "content" : "#define _array_contains_1(arr,e) (arr[0] == e)"},
+        {"type" : "eval", "content": "[f'#define _array_contains_{x}(arr,e) (arr[{x-1}] == e) || _array_contains_{x-1}(arr,e)' for x in range(2, 4096)]"}
+    ]
+}

@@ -336,16 +336,16 @@ int builtins_arrcmp(int argc, char **argv){
         _karray_contains_fn(arr, (char *)"bar", cmp_str) ? "true" : "false"
     );
     kprintf("arr2.contains(0x1337) == %s\n",
-        _array_contains(arr2, 0x1337) ? "true" : "false"
+        _array_contains(arr2, 0x1337, 3) ? "true" : "false"
     );
     kprintf("arr2.contains(2) == %s\n",
-        _array_contains(arr2, 2) ? "true" : "false"
+        _array_contains(arr2, 2,3) ? "true" : "false"
     );
     kprintf("arr2.contains(4) == %s\n",
-        _array_contains(arr2, 4) ? "true" : "false"
+        _array_contains(arr2, 4, 3) ? "true" : "false"
     );
     kprintf("arr2.contains(1) == %s\n",
-        _array_contains(arr2, 1) ? "true" : "false"
+        _array_contains(arr2, 1, 3) ? "true" : "false"
     );
 
     kprintf("arr3.contains(0xffff0) == %s\n",
