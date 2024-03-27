@@ -1,5 +1,22 @@
 #!/usr/bin/python3
 import config
+import json
+
+def preprocess_headers(path):
+    config.clean_files_glob(path,"*.h")
+    for f in config.get_files_glob(path,"*.json"):
+        m = json.load(open(f, "r"))
+        h = open(f"{path}/{m['filename']}", "w")
+        hn = m['filename'].replace('.','_')
+        h.writelines([f"#ifndef _loonix_preprocessed_{hn}\n", f"#define _loonix_preprocessed_{hn}\n"])
+        for x in m['macros']:
+            if x["type"] == "string":
+                h.writelines([x["content"], '\n'])
+            if x["type"] == "eval":
+                h.writelines("\n".join(eval(x["content"])))
+        h.writelines("\n#endif\n")
+        h.close()
+
 def main():
     target = "kernel"
     out_file = f"{target}/kernel.elf"
@@ -23,6 +40,7 @@ def main():
 
     config.clean_files_glob(f"{target}/src/","*.o")
     config.clean_files_glob(f"{target}/src/","*.elf")
+    preprocess_headers(f"{target}/include/preprocessed/")
     config.compile_c_files(param, c_flags, c_files)
     config.compile_s_files(param, c_flags, s_files)
     o_files = config.get_files_glob(f"{target}/src/","*.o")

@@ -316,7 +316,7 @@ int builtins_regex(int argc, char **argv){
     return m ? 0 : -1;
 }
 int builtins_macro(int argc, char **argv){
-    uint8_t test[] = { _LOOP(255) };
+    uint8_t test[] = { _LOOP_UINT(255) };
     kprintf("test[] = { ");
     for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
         kprintf("%d%s", test[i], i+1 == sizeof(test)/sizeof(test[0]) ? " }\n" : ", " );

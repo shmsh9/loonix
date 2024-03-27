@@ -18,3 +18,4 @@ x86_32
 image
 __pycache__
 build
+kernel/include/preprocessed/*.h
