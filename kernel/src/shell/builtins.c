@@ -303,16 +303,6 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
-        char *expr = "a[b,c,d,e]";
-        //const int start = _regex_static_bracket_start(expr);
-        //const int stop = _regex_static_bracket_stop(expr);
-        const int count = _regex_static_bracket_count(expr, _regex_static_bracket_start(expr));
-        char test[] = _regex_static_bracket_comma(expr, _regex_static_bracket_start(expr), 4);
-        kprintf("test[] = { ");
-        for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
-            kprintf("'%c'%s", test[i], i+1 == sizeof(test)/sizeof(test[0]) ? " }\n" : ", " );
-        kprintf("_regex_static_bracket_count(expr, _regex_static_bracket_start(expr)) == %d\n", count);
-
         shell_set_exit_code(-1);
         return -1;
     } 
@@ -324,6 +314,13 @@ int builtins_regex(int argc, char **argv){
     karray_free(aut);
     shell_set_exit_code(m ? 0 : -1);
     return m ? 0 : -1;
+}
+int builtins_macro(int argc, char **argv){
+    uint8_t test[] = { _LOOP(255) };
+    kprintf("test[] = { ");
+    for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
+        kprintf("%d%s", test[i], i+1 == sizeof(test)/sizeof(test[0]) ? " }\n" : ", " );
+    return 0;
 }
 int builtins_arrcmp(int argc, char **argv){
     karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
@@ -727,7 +724,8 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("regex", builtins_regex),
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
-    _BUILTIN("testvm", builtins_testvm)
+    _BUILTIN("testvm", builtins_testvm),
+    _BUILTIN("macro", builtins_macro)
 };
 int builtins_help(int argc, char **argv){
     for(int i = 0 ; i < _builtins_size(); i++)
