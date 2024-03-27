@@ -162,14 +162,17 @@ bool parse_code(uint8_t *in){
         karray *regx = (karray *)grammars[i][1];
         char *expr = (char *)grammars[i][0];
         char *name = (char *)grammars[i][2];
-        if(regex_match(regx, (char *)in)){
+        karray *matches = regex_match_group(regx, (char *)in);
+        if(matches){
             m = true;
             KDEBUG("%s is %s (%s)", in, name, expr);
+            for(int i = 0; i < matches->length; i++){
+                KDEBUG("matches[%d] == ",i, ((regex_match_string **)matches->array)[i]->string);
+            }
+            karray_free(matches);
         }
     }
     if(!m)
         KDEBUG("%s is garbage\n", in);
-    for(int j = 0; j < sizeof(grammars)/sizeof(grammars[0]); j++)
-        karray_free((karray *)grammars[j][1]);
     return m;
 }

@@ -20,7 +20,7 @@
 #define VM_VARIABLE_TO_VARIABLE_ASSIGNMENT "\\s*"VM_VARIABLE_NAME"\\s*=\\s*"VM_VARIABLE_NAME"\\s*"VM_END_SENTENCE
 #define VM_VARIABLE_TO_VARIABLE_DECLARATION "\\s*"VM_TYPE_NAME VM_VARIABLE_TO_VARIABLE_ASSIGNMENT
 
-#define VM_FN_DEFINITION "\\s*"VM_FN_RET_TYPE "\\s*" VM_FN_NAME "\\s*\\(.*\\)\\s*\\{.*\\}"
+#define VM_FN_DEFINITION "\\s*("VM_FN_RET_TYPE")\\s*("VM_FN_NAME")\\s*(\\(.*\\))\\s*\\{.*\\}"
 
 #define VM_STATIC_AUTOMATONS_VARIABLE_NAME \
     _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), \

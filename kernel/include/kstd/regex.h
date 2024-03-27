@@ -12,8 +12,14 @@
 #define REGEX_CHAR_RANGE_START(a,b) MIN(a,b)
 typedef struct _regex_automaton{
     uint32_t length;
+    uint32_t group;
     karray *alphabet;
 } regex_automaton;
+typedef struct _regex_match_string{
+    uint32_t group;
+    char *string;
+    uint32_t length;
+}regex_match_string;
 #include <kstd/regex_static.h>
 void regex_automaton_free(regex_automaton *a);
 void regex_automaton_debug_print(regex_automaton *r);

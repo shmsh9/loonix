@@ -303,11 +303,23 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
-        karray *expr = (karray*)_static_t[0][3];
+        karray *expr = regex_new("\\s*([a-zA-Z,_]{1}[a-zA-Z0-9,_]*)\\s*(\\(.*\\))\\s*(\\{.*\\})");
         karray *matches = regex_match_group(expr, "int strlen(char *a, char *b){ return 0; }");
+        for(int j = 0; j < expr->length; j++)
+            regex_automaton_debug_print(((regex_automaton **)expr->array)[j]);
         if(matches){
-            for(int i = 0; i < matches->length; i++)
-                KDEBUG("matches[%d] == %s",i, ((char **)matches->array)[i]);
+            kprintf("matches->length == %d\n", matches->length);
+            for(int i = 0; i < matches->length; i++){
+                kprintf(
+                    "matches[%d] == ",
+                    i
+                );
+                int j = i;
+                while(j < matches->length && ((regex_match_string **)matches->array)[j]->group == ((regex_match_string **)matches->array)[i]->group)
+                    kprintf("%s", ((regex_match_string **)matches->array)[j++]->string);
+                kprintf("\n");
+                i = j-1;
+            }
             karray_free(matches);
         }
         else{
