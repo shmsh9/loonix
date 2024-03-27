@@ -22,4 +22,62 @@
 
 #define VM_FN_DEFINITION "\\s*"VM_FN_RET_TYPE "\\s*" VM_FN_NAME "\\s*\\(.*\\)\\s*\\{.*\\}"
 
+#define VM_STATIC_AUTOMATONS_VARIABLE_NAME \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHA, '_'}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ALPHANUM, '_'}), REGEX_INF_ZR_LEN) \
+
+
+#define VM_STATIC_AUTOMATONS_TYPE_NAME \
+    VM_STATIC_AUTOMATONS_VARIABLE_NAME , \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({'*'}), REGEX_INF_ZR_LEN)
+
+#define VM_STATIC_AUTOMATONS_FN_NAME VM_STATIC_AUTOMATONS_VARIABLE_NAME
+
+#define VM_STATIC_AUTOMATONS_VARIABLE_DECLARATION \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), \
+    VM_STATIC_AUTOMATONS_TYPE_NAME,\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), \
+    VM_STATIC_AUTOMATONS_VARIABLE_NAME, \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), \
+    _regex_automaton_static(_regex_dict({'='}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN)
+
+#define VM_STATIC_AUTOMATONS_VARIABLE_ASSIGNEMENT \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), \
+    VM_STATIC_AUTOMATONS_VARIABLE_NAME, \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN), \
+    _regex_automaton_static(_regex_dict({'='}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN)
+
+
+#define VM_STATIC_AUTOMATONS_STRING \
+    _regex_automaton_static(_regex_dict({'"'}), 1),\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({'"'}), 1)
+
+#define VM_STATIC_AUTOMATONS_UINT \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_0_9}), 1),\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_0_9}), REGEX_INF_ZR_LEN)
+
+#define VM_STATIC_AUTOMATONS_FN_DECLARATION \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    VM_STATIC_AUTOMATONS_TYPE_NAME ,\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    VM_STATIC_AUTOMATONS_FN_NAME ,\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({'('}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({')'}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({'{'}), 1), \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_ANY}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({'}'}), 1)
+
+
+#define VM_STATIC_AUTOMATONS_END \
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN),\
+    _regex_automaton_static(_regex_dict({';'}), 1),\
+    _regex_automaton_static(_regex_dict({_REGEX_STATIC_WS}), REGEX_INF_ZR_LEN)
+
 #endif

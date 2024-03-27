@@ -92,17 +92,68 @@ bool _map_variables(uint8_t *in, uint64_t in_len){
 
 bool parse_code(uint8_t *in){
     uint64_t grammars[][3] = {
-        {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)regex_new(VM_UINT_ASSIGNMENT), (uint64_t)"VM_UINT_ASSIGNMENT"},
-        {(uint64_t)VM_UINT_DECLARATION, (uint64_t)regex_new(VM_UINT_DECLARATION), (uint64_t)"VM_UINT_DECLARATION"},
+        {
+            (uint64_t)VM_UINT_ASSIGNMENT,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_ASSIGNEMENT,
+                VM_STATIC_AUTOMATONS_UINT,
+                VM_STATIC_AUTOMATONS_END
+            ),
+            (uint64_t)"VM_UINT_ASSIGNMENT"
+        },
+        {
+            (uint64_t)VM_UINT_DECLARATION,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_DECLARATION,
+                VM_STATIC_AUTOMATONS_UINT,
+                VM_STATIC_AUTOMATONS_END
+            ),
+            (uint64_t)"VM_UINT_DECLARATION"
+        },
 
-        {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)regex_new(VM_STRING_ASSIGNMENT), (uint64_t)"VM_STRING_ASSIGNMENT"},
-        {(uint64_t)VM_STRING_DECLARATION, (uint64_t)regex_new(VM_STRING_DECLARATION), (uint64_t)"VM_STRING_DECLARATION"},
-
-
-        {(uint64_t)VM_VARIABLE_TO_VARIABLE_ASSIGNMENT, (uint64_t)regex_new(VM_VARIABLE_TO_VARIABLE_ASSIGNMENT), (uint64_t)"VM_VARIABLE_TO_VARIABLE_ASSIGNMENT"},
-        {(uint64_t)VM_VARIABLE_TO_VARIABLE_DECLARATION, (uint64_t)regex_new(VM_VARIABLE_TO_VARIABLE_DECLARATION), (uint64_t)"VM_VARIABLE_TO_VARIABLE_DECLARATION"},
-
-        {(uint64_t)VM_FN_DEFINITION, (uint64_t)regex_new(VM_FN_DEFINITION), (uint64_t)"VM_FN_DEFINITION"},
+        {
+            (uint64_t)VM_STRING_ASSIGNMENT,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_ASSIGNEMENT,
+                VM_STATIC_AUTOMATONS_STRING,
+                VM_STATIC_AUTOMATONS_END
+            ),
+            (uint64_t)"VM_STRING_ASSIGNMENT"
+        },
+        {
+            (uint64_t)VM_STRING_DECLARATION,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_DECLARATION,
+                VM_STATIC_AUTOMATONS_STRING,
+                VM_STATIC_AUTOMATONS_END
+            ), 
+            (uint64_t)"VM_STRING_DECLARATION"
+        },
+        {
+            (uint64_t)VM_VARIABLE_TO_VARIABLE_ASSIGNMENT, 
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_ASSIGNEMENT,
+                VM_STATIC_AUTOMATONS_VARIABLE_NAME,
+                VM_STATIC_AUTOMATONS_END
+            ), 
+            (uint64_t)"VM_VARIABLE_TO_VARIABLE_ASSIGNMENT"
+        },
+        {
+            (uint64_t)VM_VARIABLE_TO_VARIABLE_DECLARATION,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_VARIABLE_DECLARATION,
+                VM_STATIC_AUTOMATONS_VARIABLE_NAME,
+                VM_STATIC_AUTOMATONS_END
+            ),
+            (uint64_t)"VM_VARIABLE_TO_VARIABLE_DECLARATION"
+        },
+        {
+            (uint64_t)VM_FN_DEFINITION,
+            (uint64_t)_regex_static(
+                VM_STATIC_AUTOMATONS_FN_DECLARATION
+            ),
+            (uint64_t)"VM_FN_DEFINITION"
+        },
 
     };
     bool m = false;
