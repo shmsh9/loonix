@@ -135,19 +135,21 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     return 0;
 }
 
-char *join_strings(char **s, int n){
+char *join_strings(char **s, int n, char j){
     uint32_t *l = kmalloc(sizeof(uint32_t)*n);
     uint32_t sz = 0;
     for(int i = 0; i < n; i++){
         l[i] = strlen(s[i]);
-        sz += l[i];
+        sz += l[i] + (j && i+1 != n ? 1 : 0);
     }
     char *ret = kmalloc(sz+1);
     ret[sz] = 0x0;
     char *ret_curr = ret;
     for(int i = 0; i < n; i++){
         memcpy(ret_curr, s[i], l[i]);
-        ret_curr += l[i];
+        if(j && i+1 != n)
+            ret_curr[l[i]] = j;
+        ret_curr += l[i] + (j ? 1 : 0);
     }
     kfree(l);
     return ret;

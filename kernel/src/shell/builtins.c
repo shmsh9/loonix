@@ -589,12 +589,26 @@ int builtins_testktree(int argc, char **argv){
 int builtins_pythonix(int argc, char **argv){
     if(argc < 2){
         kprintf("usage: %s expression\n", argv[0]);
+        char *test[] = {
+            "foo = 1\n",
+            " foobar = \"baz\"\n"
+        };
+        for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
+            pythonix_parse(test[i]);
         return -1;
     }
-    char *s = join_strings(argv+1, argc-1);
-    KDEBUG("s == %s", s);
-    pythonix_parse(s);
-    kfree(s);
+    if(argc > 2){
+        char *s = join_strings(argv+1, argc-1, ' ');
+        char *s2 = join_strings(((char *[]){ s,"\n" }), 2, 0x0);
+        kfree(s);
+        pythonix_parse(s2);
+        kfree(s2);
+    }
+    else{
+        char *s2 = join_strings(((char *[]){ argv[1],"\n" }), 2, 0x0);
+        pythonix_parse(s2);
+        kfree(s2);
+    }
     return 0;
 }
 int builtins_lspci(int argc, char **argv){
@@ -636,7 +650,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("regex", builtins_regex),
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
-    _BUILTIN("pythonix", builtins_pythonix),
+    _BUILTIN("py", builtins_pythonix),
     _BUILTIN("macro", builtins_macro)
 };
 int builtins_help(int argc, char **argv){
