@@ -2,6 +2,7 @@
 #include <network/net.h>
 #include <kstd/regex.h>
 #include <kstd/cmp.h>
+#include <pythonix/pythonix.h>
 
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
@@ -226,104 +227,6 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
-        uint64_t t[][3] = {
-            {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)"  foobar = 100;", (uint64_t)true},
-            {(uint64_t)VM_UINT_ASSIGNMENT, (uint64_t)"  foobar = abc;", (uint64_t)false},
-            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = \"100\";", (uint64_t)true},
-            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = 100\";", (uint64_t)false},
-            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = \"abc\";", (uint64_t)true},
-            {(uint64_t)VM_STRING_ASSIGNMENT, (uint64_t)"  foobar = 'abc';", (uint64_t)false},
-            {(uint64_t)".*abc", (uint64_t)"  foobar = 'abc';", (uint64_t)false},
-            {(uint64_t)".*abc", (uint64_t)"1234abc", (uint64_t)true},
-            {(uint64_t)".*", (uint64_t)"1234abc", (uint64_t)true},
-            {(uint64_t)"ab?", (uint64_t)"ab", (uint64_t)true},
-            {(uint64_t)"ab?", (uint64_t)"a", (uint64_t)true},
-            {(uint64_t)"ab?", (uint64_t)"ac", (uint64_t)false},
-            {(uint64_t)"[a-z]{3}", (uint64_t)"abc", (uint64_t)true},
-            {(uint64_t)"[a-z]{3}", (uint64_t)"1bc", (uint64_t)false},
-            {(uint64_t)".{3}", (uint64_t)"1bc", (uint64_t)true},
-            {(uint64_t)".{3}", (uint64_t)"1bcd", (uint64_t)false},
-            {(uint64_t)"\\**", (uint64_t)"****", (uint64_t)true},
-            {(uint64_t)"\\**", (uint64_t)"a", (uint64_t)false},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"void * malloc(){ return NULL; }", (uint64_t)true},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen () { return 0; }", (uint64_t)true},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(){return 1;}", (uint64_t)true},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen (){ return 3;}", (uint64_t)true},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** regex_automaton_new(){}", (uint64_t)true},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** __do_not_use(){}", (uint64_t)true},        
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen()", (uint64_t)false},
-            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(char *a, char *b){ return 0; }", (uint64_t)true},
-            {(uint64_t)"[a-z,\\*,0]", (uint64_t)"a", (uint64_t)true},
-            {(uint64_t)"[a-z,\\*,0]", (uint64_t)"ab", (uint64_t)false},
-            {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"ab", (uint64_t)false},
-            {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"a", (uint64_t)true},
-            {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"a", (uint64_t)true},
-            {(uint64_t)"[\\s,\\*,0,a-z]", (uint64_t)"x", (uint64_t)true},
-        };
-        for(int i = 0; i  < sizeof(t)/sizeof(t[0]); i++){
-            char *rx = (char *)t[i][0];
-            karray *r = regex_new(rx);
-            char *s = (char *)(t[i][1]);
-            bool exp = (bool)(t[i][2]);
-            bool ok = regex_match(r,s) == exp;
-            KDEBUG("regex_match(\"%s\", \"%s\") == %s\n\ttest %s",
-                rx,
-                s,
-                exp ? "true" : "false",
-                ok ? "Ok" : "Failed !!!"
-            );
-            if(!ok){
-                for(int j = 0; j < r->length; j++)
-                    regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
-            }
-            if(ok && exp){
-                karray *matches = regex_match_group(r, s);
-                if(matches){
-                    karray *st = regex_group_join(matches);
-                    for(int i = 0; i < st->length; i++)
-                        KDEBUG("matches[%d] == %s",i, ((char **)st->array)[i][0] == 0x0 ? "NULL" : ((char **)st->array)[i])
-                    //karray_free(matches);
-                    //karray_free(st);
-                }
-            }
-            karray_free(r);
-        }
-        #define RNEW(exp, s, r) {(uint64_t)exp, (uint64_t)s, (uint64_t)r, (uint64_t)_regex_static_new(exp)}
-        uint64_t _static_t[][4] = {
-            RNEW(VM_FN_DEFINITION, "int strlen(char *a, char *b){ return 0; }", true),
-            RNEW(VM_FN_DEFINITION, "int 1strlen(char *a, char *b){ return 0; }", false),
-            RNEW(VM_UINT_ASSIGNMENT, "  foobar = 100;", true),
-            RNEW(VM_UINT_ASSIGNMENT, "  foobar = \"100;",false),
-            RNEW(VM_STRING_ASSIGNMENT,"  foobar = \"100\";",true)
-
-        };
-        for(int i = 0; i  < sizeof(_static_t)/sizeof(_static_t[0]); i++){
-            char *rx = (char *)_static_t[i][0];
-            karray *r = (karray *)_static_t[i][3];
-            char *s = (char *)(_static_t[i][1]);
-            bool exp = (bool)(_static_t[i][2]);
-            bool ok = regex_match(r,s) == exp;
-            KDEBUG("_static_regex_match(\"%s\", \"%s\") == %s\n\ttest %s",
-                rx,
-                s,
-                exp ? "true" : "false",
-                ok ? "Ok" : "Failed !!!"
-            );
-            if(!ok){
-                for(int j = 0; j < r->length; j++)
-                    regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
-            }
-            if(ok && exp){
-                karray *matches = regex_match_group(r, s);
-                if(matches){
-                    karray *st = regex_group_join(matches);
-                    for(int i = 0; i < st->length; i++)
-                        KDEBUG("matches[%d] == %s",i, ((char **)st->array)[i][0] == 0x0 ? "NULL" : ((char **)st->array)[i])
-                    //karray_free(matches);
-                    //karray_free(st);
-                }
-            }
-        }
         shell_set_exit_code(-1);
         return -1;
     } 
@@ -683,29 +586,15 @@ int builtins_testktree(int argc, char **argv){
     ktree_free(t);
     return 0;
 }
-const int builtins_testvm(int argc, char **argv){
-    char *in[] = {
-        "foobar = 100;",
-        "F00bar = \"12\";",
-        "\tF00bar = \"12\";",
-        "F00bar    = \"12\";",
-        "char a = b;",
-        "char * a = b;",
-        "a=b;",
-        "char* f = \"foobar\";",
-        "char * f = \"foobar\";",
-        "a = 1;",
-        "int x0 = 0;",
-        "int *x3 = 3;",
-        "char* a=b;",
-        "char *   f =   \"hello\" ;",
-        "void **foobar(){}",
-        "int * strlen () {}",
-
-    };
-    for(int i = 0; i < sizeof(in)/sizeof(in[0]); i++){
-        parse_code((uint8_t *)in[i]);
+int builtins_pythonix(int argc, char **argv){
+    if(argc < 2){
+        kprintf("usage: %s expression\n", argv[0]);
+        return -1;
     }
+    char *s = join_strings(argv+1, argc-1);
+    KDEBUG("s == %s", s);
+    pythonix_parse(s);
+    kfree(s);
     return 0;
 }
 int builtins_lspci(int argc, char **argv){
@@ -747,7 +636,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("regex", builtins_regex),
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
-    _BUILTIN("testvm", builtins_testvm),
+    _BUILTIN("pythonix", builtins_pythonix),
     _BUILTIN("macro", builtins_macro)
 };
 int builtins_help(int argc, char **argv){
