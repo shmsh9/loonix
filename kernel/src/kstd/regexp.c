@@ -58,10 +58,25 @@ bool _regex_match_fixed_at(regex_automaton *a, char **s){
 }
 karray * regex_group_join(karray *g){
     karray *ret = karray_new(sizeof(char *), kfree);
+    int g0_l = 0;
+    for(int i = 0; i < g->length; i++){
+        g0_l += ((regex_match_string **)g->array)[i]->length;
+    }
+    char *g0 = kmalloc(g0_l+1);
+    g0[g0_l] = 0x0;
+    char *g0_curr = g0;
+    for(int i = 0; i < g->length; i++){
+        memcpy(g0_curr, ((regex_match_string **)g->array)[i]->string, ((regex_match_string **)g->array)[i]->length);
+        g0_curr += ((regex_match_string **)g->array)[i]->length;
+    }
+    karray_push(ret, (uint64_t)g0);
+
     for(int i = 0; i < g->length; i++){
         int j = i;
         int group_l = 0;
         int group_sl = 0;
+        if(!((regex_match_string **)g->array)[j]->group)
+            continue;
         while(j < g->length && ((regex_match_string **)g->array)[j]->group == ((regex_match_string **)g->array)[i]->group){
             group_l++;
             group_sl += ((regex_match_string **)g->array)[j]->length;
@@ -194,13 +209,13 @@ karray *regex_new(char *s){
     karray *alphabet_parsed = karray_new(sizeof(char), NULL);
     uint32_t l = strlen(s);
     uint32_t group = 0;
-
+    bool is_group = false;
     for(int i = 0; i < l; i++){
         switch(s[i]){
 	        case '.':
                 for(int c = 0; c < 0x100; c++)
                     karray_push(alphabet_parsed, (uint64_t)c);
-                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, group));
+                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, is_group ? group : 0));
                 alphabet_parsed = karray_new(sizeof(char), NULL);
 	    	break;
 	        case '?':
@@ -239,7 +254,7 @@ karray *regex_new(char *s){
 	    	        }
 	    	    }
 	    	    i = _x;
-                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, group));
+                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, is_group ? group : 0));
                 alphabet_parsed = karray_new(sizeof(char), NULL);
 	    	    break;
 	        }
@@ -248,26 +263,27 @@ karray *regex_new(char *s){
                     case 's':
                         for(int c = 0; c < _array_len(whitespace_chars); c++)
                             karray_push(alphabet_parsed, (uint64_t)whitespace_chars[c]);
-                        karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, group));
+                        karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, is_group ? group : 0));
                         alphabet_parsed = karray_new(sizeof(char), NULL);
                         break;
                     default:
                         karray_push(alphabet_parsed, (uint64_t)s[i+1]);
-                        karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, group));
+                        karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, is_group ? group : 0));
                         alphabet_parsed = karray_new(sizeof(char), NULL);
                         break;
                 }
                 i++;
                 break;
             case '(':
+                is_group = true;
                 group++;
                 break;
             case ')':
-                group++;
+                is_group = false;
                 break;
             default:
                 karray_push(alphabet_parsed, (uint64_t)s[i]);
-                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, group));
+                karray_push(ret, (uint64_t)regex_automaton_new(1, alphabet_parsed, is_group ? group : 0));
                 alphabet_parsed = karray_new(sizeof(char), NULL);
                 break;
         }
