@@ -15,7 +15,7 @@ typedef struct _pythonix_vm{
     khashmap *names;
 }pythonix_vm;
 
-void pythonix_parse(char *s);
 pythonix_vm *pythonix_vm_new();
 void pythonix_vm_free(pythonix_vm *vm);
+void pythonix_interpreter();
 #endif

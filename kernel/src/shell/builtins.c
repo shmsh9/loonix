@@ -587,28 +587,7 @@ int builtins_testktree(int argc, char **argv){
     return 0;
 }
 int builtins_pythonix(int argc, char **argv){
-    if(argc < 2){
-        kprintf("usage: %s expression\n", argv[0]);
-        char *test[] = {
-            "foo = 1\n",
-            " foobar = \"baz\"\n"
-        };
-        for(int i = 0; i < sizeof(test)/sizeof(test[0]); i++)
-            pythonix_parse(test[i]);
-        return -1;
-    }
-    if(argc > 2){
-        char *s = strings_join(argv+1, argc-1, ' ');
-        char *s2 = strings_join(((char *[]){ s,"\n" }), 2, 0x0);
-        kfree(s);
-        pythonix_parse(s2);
-        kfree(s2);
-    }
-    else{
-        char *s2 = strings_join(((char *[]){ argv[1],"\n" }), 2, 0x0);
-        pythonix_parse(s2);
-        kfree(s2);
-    }
+    pythonix_interpreter();
     return 0;
 }
 int builtins_lspci(int argc, char **argv){
