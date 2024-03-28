@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <drivers/pci.h>
 #include <shell/gol.h>
-#include <vm/vm.h>
 
 
 #define _BUILTIN_NAME 0

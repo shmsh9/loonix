@@ -3,7 +3,9 @@
 void pythonix_parse(char *s){
     uint64_t possible[][2] = {
         {(uint64_t)"PYTHONIX_REGEX_ASSIGN_STR", (uint64_t)regex_new(PYTHONIX_REGEX_ASSIGN_STR)},
-        {(uint64_t)"PYTHONIX_REGEX_ASSIGN_INT", (uint64_t)regex_new(PYTHONIX_REGEX_ASSIGN_INT)}
+        {(uint64_t)"PYTHONIX_REGEX_ASSIGN_INT", (uint64_t)regex_new(PYTHONIX_REGEX_ASSIGN_INT)},
+        {(uint64_t)"PYTHONIX_REGEX_PRINT_VAR", (uint64_t)regex_new(PYTHONIX_REGEX_PRINT_VAR)},
+        {(uint64_t)"PYTHONIX_REGEX_PRINT_VAR", (uint64_t)regex_new(PYTHONIX_REGEX_PRINT_VAR)}
     };
     bool m = false;
     for(int i = 0; i < sizeof(possible)/sizeof(possible[0]); i++){

@@ -135,7 +135,7 @@ int memcmp(const void *ptr1, const void *ptr2, uint64_t sz){
     return 0;
 }
 
-char *join_strings(char **s, int n, char j){
+char *strings_join(char **s, int n, char j){
     uint32_t *l = kmalloc(sizeof(uint32_t)*n);
     uint32_t sz = 0;
     for(int i = 0; i < n; i++){
@@ -153,4 +153,11 @@ char *join_strings(char **s, int n, char j){
     }
     kfree(l);
     return ret;
+}
+
+void string_replace(char *s, char c, char r){
+    while(*s){
+        *s = *s == c ? r : *s;
+        s++;
+    }
 }

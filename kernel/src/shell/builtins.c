@@ -598,14 +598,14 @@ int builtins_pythonix(int argc, char **argv){
         return -1;
     }
     if(argc > 2){
-        char *s = join_strings(argv+1, argc-1, ' ');
-        char *s2 = join_strings(((char *[]){ s,"\n" }), 2, 0x0);
+        char *s = strings_join(argv+1, argc-1, ' ');
+        char *s2 = strings_join(((char *[]){ s,"\n" }), 2, 0x0);
         kfree(s);
         pythonix_parse(s2);
         kfree(s2);
     }
     else{
-        char *s2 = join_strings(((char *[]){ argv[1],"\n" }), 2, 0x0);
+        char *s2 = strings_join(((char *[]){ argv[1],"\n" }), 2, 0x0);
         pythonix_parse(s2);
         kfree(s2);
     }
