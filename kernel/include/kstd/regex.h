@@ -25,6 +25,7 @@ void regex_automaton_free(regex_automaton *a);
 void regex_automaton_debug_print(regex_automaton *r);
 karray *regex_new(char *s);
 bool regex_match(karray *at, char *s);
+karray * regex_group_join(karray *g);
 karray * regex_match_group(karray *at, char *s);
 #endif 
 

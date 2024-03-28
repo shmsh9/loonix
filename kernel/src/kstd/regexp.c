@@ -56,6 +56,30 @@ bool _regex_match_fixed_at(regex_automaton *a, char **s){
     }
     return true;
 }
+karray * regex_group_join(karray *g){
+    karray *ret = karray_new(sizeof(char *), kfree);
+    for(int i = 0; i < g->length; i++){
+        int j = i;
+        int group_l = 0;
+        int group_sl = 0;
+        while(j < g->length && ((regex_match_string **)g->array)[j]->group == ((regex_match_string **)g->array)[i]->group){
+            group_l++;
+            group_sl += ((regex_match_string **)g->array)[j]->length;
+            j++;
+        }
+        //KDEBUG("group_sl == %d group_l == %d", group_sl, group_l);
+        char *s = kmalloc(group_sl+1);
+        s[group_sl] = 0x0;
+        char *curr_s = s;
+        for(int k = i; k < j; k++){
+            memcpy(curr_s, ((regex_match_string **)g->array)[k]->string, ((regex_match_string **)g->array)[k]->length);
+            curr_s += ((regex_match_string **)g->array)[k]->length;
+        }
+        karray_push(ret, (uint64_t)s);
+        i = j-1;
+    }
+    return ret;
+}
 karray * regex_match_group(karray *at, char *s){
     karray *ret = karray_new(sizeof(regex_match_string *), (void (*)(void *))regex_match_free);
     char *curr_s = s;

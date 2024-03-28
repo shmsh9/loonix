@@ -252,6 +252,7 @@ int builtins_regex(int argc, char **argv){
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** regex_automaton_new(){}", (uint64_t)true},
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int ** __do_not_use(){}", (uint64_t)true},        
             {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int *strlen()", (uint64_t)false},
+            {(uint64_t)VM_FN_DEFINITION, (uint64_t)"int strlen(char *a, char *b){ return 0; }", (uint64_t)true},
             {(uint64_t)"[a-z,\\*,0]", (uint64_t)"a", (uint64_t)true},
             {(uint64_t)"[a-z,\\*,0]", (uint64_t)"ab", (uint64_t)false},
             {(uint64_t)"[a-z,\\s,\\*,0]", (uint64_t)"ab", (uint64_t)false},
@@ -303,24 +304,18 @@ int builtins_regex(int argc, char **argv){
                     regex_automaton_debug_print(((regex_automaton **)r->array)[j]);
             }
         }
-        karray *expr = regex_new("\\s*([a-zA-Z,_]{1}[a-zA-Z0-9,_]*)\\s*(\\(.*\\))\\s*(\\{.*\\})");
-        karray *matches = regex_match_group(expr, "int strlen(char *a, char *b){ return 0; }");
+        karray *expr = regex_new("\\s*([a-zA-Z,_]{1}[a-zA-Z0-9,_]*\\s*\\**)\\s*([a-zA-Z,_]{1}[a-zA-Z0-9,_]*)\\s*(\\(.*\\))\\s*(\\{.*\\})");
+        karray *matches = regex_match_group(expr, "int strlen(int *a, int *b){ return 3;}");
         for(int j = 0; j < expr->length; j++)
             regex_automaton_debug_print(((regex_automaton **)expr->array)[j]);
         if(matches){
             kprintf("matches->length == %d\n", matches->length);
-            for(int i = 0; i < matches->length; i++){
-                kprintf(
-                    "matches[%d] == ",
-                    i
-                );
-                int j = i;
-                while(j < matches->length && ((regex_match_string **)matches->array)[j]->group == ((regex_match_string **)matches->array)[i]->group)
-                    kprintf("%s", ((regex_match_string **)matches->array)[j++]->string);
-                kprintf("\n");
-                i = j-1;
-            }
+            karray *s = regex_group_join(matches);
+            KDEBUG("s->length == %d", s->length);
+            for(int i = 0; i < s->length; i++)
+                KDEBUG("matches[%d] == %s",i, ((char **)s->array)[i][0] == 0x0 ? "NULL" : ((char **)s->array)[i])
             karray_free(matches);
+            karray_free(s);
         }
         else{
             KDEBUG("regex_match_group(expr, s) == %d", matches);

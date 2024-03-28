@@ -131,7 +131,7 @@
         .array = _regex_static_new_arr_raw+i, \
         .elementsz = sizeof(a[0]) \
     }; \
-    _regex_static_new_at[i] = (regex_automaton){.length = n, .alphabet = _regex_static_new_arr+i};\
+    _regex_static_new_at[i] = (regex_automaton){.length = n, .alphabet = _regex_static_new_arr+i, .group = group};\
     _regex_static_new_ret[i] = (uint64_t)(_regex_static_new_at+i);\
     ret->length++;\
     i++;\
@@ -154,6 +154,7 @@
     karray *ret = _karray_static(_regex_static_new_ret);\
     ret->length = 0;\
     int _curr_at = 0;\
+    uint32_t group = 0;\
     for(int _regex_static_new_i = 0; _regex_static_new_i < sizeof(expr)-1; _regex_static_new_i++){\
 	    switch(expr[_regex_static_new_i]){\
 	        case '.':\
@@ -175,6 +176,12 @@
 	    	    _regex_static_new_at[_curr_at-1].length = lp;\
 	    	    _regex_static_new_i = _x;\
 	    	    break;\
+            case '(':\
+                group++;\
+                break;\
+            case ')':\
+                group++;\
+                break;\
 	        }\
 	        case '[':{\
 	            int _c = 0;\
