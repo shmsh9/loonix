@@ -20,6 +20,12 @@ inline uint8_t tolower(uint8_t c){
     return c;
 }
 inline char *itoa(int64_t v){
+    if(v == 0){
+        char *ret = kmalloc(sizeof(char)*2);
+        ret[1] = 0x0;
+        ret[0] = '0';
+        return ret;
+    }
     int l = v > 0 ? 0 : 1; //account for -;
     int64_t v_tmp = v;
     while(v_tmp){

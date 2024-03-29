@@ -132,9 +132,11 @@ void pythonix_interpreter(){
     karray *in = karray_new(sizeof(char), NULL);
     kprintf(">>> ");
     while(true){
+        vt100_console_update_draw_screen(fb);
         char c = kgetchar_non_blocking();
         while(!c){
             c = kgetchar_non_blocking();
+            vt100_console_update_draw_screen(fb);
         }
         if(c == 0x7f || c == 0x8){
             karray_pop(in, in->length-1);

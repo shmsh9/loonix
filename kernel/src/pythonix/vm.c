@@ -11,7 +11,7 @@ void pythonix_vm_gc(pythonix_vm *vm){
     for(int i = 0; i < l; i++){
         pythonix_type *t = ((pythonix_type **)vm->types->array)[i];
         if(t->_ref_count == 0){
-            KDEBUG("cleaning variable %s (0x%x)", t->_variable_name, t);
+            //KDEBUG("cleaning variable %s (0x%x)", t->_variable_name, t);
             karray_pop(vm->types, i);
             l = vm->types->length;
             i -= 2;

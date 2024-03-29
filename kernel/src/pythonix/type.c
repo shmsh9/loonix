@@ -37,7 +37,6 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
     karray_push(vm->types, (uint64_t)ret);
     khashmap_set(vm->names, vname, (uint64_t)ret);
     if(old){
-        KDEBUG("replacing %s at 0x%x with 0x%x", vname, old, ret);
         old->_ref_count--;
     }
     return ret;
