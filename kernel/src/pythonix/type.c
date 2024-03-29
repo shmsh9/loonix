@@ -2,6 +2,7 @@
 
 void pythonix_method_free(pythonix_method *m){
     kfree(m->name);
+    m->name = 0x0;
     kfree(m);
 }
 void pythonix_type_free(pythonix_type *t){

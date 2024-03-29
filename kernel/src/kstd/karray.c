@@ -9,7 +9,9 @@ void karray_unlock(karray *array){
     array->lock--;
 }
 void karray_clear(karray *array){
+    karray_lock(array);
     array->length = 0;
+    karray_unlock(array);
 }
 void karray_push(karray *array, uint64_t elem){
     karray_lock(array);

@@ -84,6 +84,7 @@ void pythonix_interpreter(){
             }
             kfree(line);
             karray_clear(in);
+            pythonix_vm_gc(vm);
             kprintf(">>> ");
         }
     }

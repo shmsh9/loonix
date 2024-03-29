@@ -10,8 +10,9 @@ void pythonix_vm_gc(pythonix_vm *vm){
     for(int i = 0; i < vm->types->length; i++){
         pythonix_type *t = ((pythonix_type **)vm->types->array)[i];
         if(t->_ref_count == 0){
-            khashmap_set(vm->names, t->_variable_name, 0x0);
-            pythonix_type_free(t);
+            KDEBUG("cleaning variable %s (0x%x)", t->_variable_name, t);
+            karray_pop(vm->types, i);
+            i--;
         }
     }
 }
