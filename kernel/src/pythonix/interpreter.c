@@ -55,8 +55,19 @@ void pythonix_var_add_str(karray *a, pythonix_vm *vm){
 void pythonix_not_impl(karray *a, pythonix_vm *vm){
     kprintf("NotImplError: Function not implemented\n");
 }
+uint64_t pythonix_global_help__str__(pythonix_type *t, void *vm){
+    char *name = strings_join(((char*[]){ t->_variable_name, t->name, "_str__"}), 3, '_');
+    pythonix_type *ret = pythonix_type_str_new(
+        "Type help() for interactive help, or help(object) for help about object.", 
+        name, 
+        (pythonix_vm *)vm
+    );
+    kfree(name);
+    return (uint64_t)ret->_data;
+}
 void pythonix_interpreter_init(pythonix_vm *vm){
-
+    pythonix_type_new("global", "help", vm);
+    pythonix_method_new("__str__", pythonix_global_help__str__);
 }
 void pythonix_interpreter(){
     uint64_t _pythonix_actions_regex[][2] = {
