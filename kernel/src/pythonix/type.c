@@ -42,7 +42,7 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
 uint64_t pythonix_type_method_call(pythonix_type *t, char *m, void *p){
     pythonix_method *method = (pythonix_method *)khashmap_get(t->_methods_hashmap, m);
     if(!method){
-        kprintf("AttributeError: '%s' object has no attribute '%s'", t->name, m);
+        kprintf("AttributeError: '%s' object has no attribute '%s'\n", t->name, m);
         return 0;
     }
     return method->_method(t,p);

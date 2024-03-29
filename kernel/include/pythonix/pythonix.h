@@ -10,6 +10,8 @@
 #define PYTHONIX_PRINT_VAR  3
 #define PYTHONIX_FN_CALL    4
 #define PYTHONIX_FN_DEF     5
+#define PYTHONIX_VAR_ADD_STR    6
+#define PYTHONIX_VAR_ADD_INT    7
 
 typedef struct _pythonix_vm{
     khashmap *names;
