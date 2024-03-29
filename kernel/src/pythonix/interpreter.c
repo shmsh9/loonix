@@ -150,7 +150,11 @@ void pythonix_interpreter(){
             vt100_console_update_draw_screen(fb);
         }
         if(c == 0x7f || c == 0x8){
-            karray_pop(in, in->length-1);
+            if(in->length){
+                karray_pop(in, in->length-1);
+                kprintf("%c", c);
+            }
+            continue;
         }
         c = c == '\r' ? '\n' : c;
         karray_push(in, c);
