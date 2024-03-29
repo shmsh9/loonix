@@ -7,12 +7,14 @@ void pythonix_vm_free(pythonix_vm *vm){
     kfree(vm);
 }
 void pythonix_vm_gc(pythonix_vm *vm){
-    for(int i = 0; i < vm->types->length; i++){
+    int l = vm->types->length;
+    for(int i = 0; i < l; i++){
         pythonix_type *t = ((pythonix_type **)vm->types->array)[i];
         if(t->_ref_count == 0){
-            //KDEBUG("cleaning variable %s (0x%x)", t->_variable_name, t);
+            KDEBUG("cleaning variable %s (0x%x)", t->_variable_name, t);
             karray_pop(vm->types, i);
-            i--;
+            l = vm->types->length;
+            i -= 2;
         }
     }
 }

@@ -14,7 +14,7 @@ void pythonix_type_free(pythonix_type *t){
     kfree(t->_variable_name);
     kfree(t);
 }
-pythonix_method *pythonix_method_new(char *name, uint64_t (*m)(pythonix_type*,void*)){
+pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_type*,void*)){
     pythonix_method *ret = kmalloc(sizeof(pythonix_method));
     *ret = (pythonix_method){
         .name = strdup(name),
@@ -24,8 +24,6 @@ pythonix_method *pythonix_method_new(char *name, uint64_t (*m)(pythonix_type*,vo
 }
 pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
     pythonix_type *old = pythonix_vm_get_type(vm, vname);
-    if(old)
-        old->_ref_count--;
     pythonix_type *ret = kmalloc(sizeof(pythonix_type));
     *ret = (pythonix_type){
         .name = strdup(name),
@@ -33,19 +31,29 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
         ._methods_hashmap = khashmap_new(),
         ._ref_count = 1,
         ._variable_name = strdup(vname),
-        ._free = NULL
+        ._free = NULL,
+        ._vm = vm
     };
     karray_push(vm->types, (uint64_t)ret);
     khashmap_set(vm->names, vname, (uint64_t)ret);
+    if(old){
+        KDEBUG("replacing %s at 0x%x with 0x%x", vname, old, ret);
+        old->_ref_count--;
+    }
     return ret;
 }
-uint64_t pythonix_type_method_call(pythonix_type *t, char *m, void *p){
-    pythonix_method *method = (pythonix_method *)khashmap_get(t->_methods_hashmap, m);
+pythonix_method *pythonix_type_method_get(pythonix_type *t, char *m){
+    pythonix_method *ret = (pythonix_method *)khashmap_get(t->_methods_hashmap, m);
+    return ret;
+}
+
+pythonix_type *pythonix_type_method_call(pythonix_type *self, char *m, void *p){
+    pythonix_method *method = pythonix_type_method_get(self, m);
     if(!method){
-        kprintf("AttributeError: '%s' object has no attribute '%s'\n", t->name, m);
+        kprintf("AttributeError: '%s' object has no attribute '%s'\n", self->name, m);
         return 0;
     }
-    return method->_method(t,p);
+    return method->_method(self,p);
 }
 void pythonix_type_method_add(pythonix_type *t, pythonix_method *m){
     karray_push(

@@ -76,6 +76,11 @@ void karray_pop(karray *array ,uint64_t index){
             }
         }
     }
+    if(index == array->length-1){
+        array->length--;
+        karray_unlock(array);
+        return;
+    }
     for(uint64_t i = index; i < array->length - 1; i++){
         switch (array->elementsz){
             case 1:{

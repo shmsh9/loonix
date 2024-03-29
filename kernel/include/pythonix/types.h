@@ -13,6 +13,7 @@ typedef struct _pythonix_type{
     char *_variable_name;
     uint32_t _ref_count;
     void (*_free)(struct _pythonix_type *);
+    void *_vm;
 }pythonix_type;
 
 typedef struct _pythonix_type_str{
@@ -21,16 +22,18 @@ typedef struct _pythonix_type_str{
 }pythonix_type_str;
 
 typedef struct _pythonix_method{
-    uint64_t (*_method)(pythonix_type *, void *);
+    pythonix_type *(*_method)(pythonix_type *, void *);
     char *name;
 }pythonix_method;
 #include <pythonix/pythonix.h>
 
 void pythonix_method_free(pythonix_method *m);
 void pythonix_type_free(pythonix_type *t);
-pythonix_method *pythonix_method_new(char *name, uint64_t (*m)(pythonix_type*,void*));
+pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_type*,void*));
 pythonix_type *pythonix_type_new(char *name, char *variable_name, pythonix_vm *vm);
-uint64_t pythonix_type_method_call(pythonix_type *t, char *m, void *p);
+pythonix_type *pythonix_type_method_call(pythonix_type *self, char *m, void *p);
+pythonix_method *pythonix_type_method_get(pythonix_type *t, char *m);
+
 void pythonix_type_method_add(pythonix_type *t, pythonix_method *m);
 
 pythonix_type *pythonix_type_int_new(int64_t value, char *vname, pythonix_vm *vm);
