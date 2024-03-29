@@ -153,6 +153,8 @@ void pythonix_interpreter(){
             if(in->length){
                 karray_pop(in, in->length-1);
                 kprintf("%c", c);
+                kprintf(" ");
+                kprintf("%c", c);
             }
             continue;
         }

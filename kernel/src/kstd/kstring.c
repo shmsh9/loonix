@@ -46,9 +46,15 @@ inline char *itoa(int64_t v){
     return str;
 }
 inline int atoi(const char *str){
+    if(str[0] == '0' && str[1] == 0x0){
+        return 0;
+    }
     int ret = 0;
     bool neg = str[0] == '-';
     str += neg;
+    while(*str == '0')
+        str++;
+
     while(*str){
         int c = isdigit(*str);
         if(c == 0 && *str != '0'){
