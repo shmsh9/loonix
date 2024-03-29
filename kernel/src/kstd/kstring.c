@@ -31,7 +31,7 @@ inline char *itoa(int64_t v){
     if(v < 0){
         str[0] = '-';
     }
-    v_tmp = v;
+    v_tmp = v > 0 ? v : v*-1;
     int i = l-1;
     while(v_tmp && i > -1){
         str[i--] = (v_tmp%10) + '0';
@@ -41,6 +41,8 @@ inline char *itoa(int64_t v){
 }
 inline int atoi(const char *str){
     int ret = 0;
+    bool neg = str[0] == '-';
+    str += neg;
     while(*str){
         int c = isdigit(*str);
         if(c == 0 && *str != '0'){
@@ -50,7 +52,7 @@ inline int atoi(const char *str){
         ret += c;
         str++;
     }
-    return ret;
+    return neg ? ret*-1 : ret;
 }
 inline int isdigit(uint8_t c){
     int r = c - '0';
