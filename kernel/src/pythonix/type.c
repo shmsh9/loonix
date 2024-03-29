@@ -14,6 +14,21 @@ void pythonix_type_free(pythonix_type *t){
     kfree(t->_variable_name);
     kfree(t);
 }
+pythonix_type *pythonix_type_copy(pythonix_type *t, void *p){
+    char *variable_name = (char *)p;
+    if(!t->_copy){
+        pythonix_type *copy = pythonix_type_new(
+            t->name,
+            variable_name,
+            (pythonix_vm *)t->_vm
+        );
+        copy->_data = t->_data;
+        return copy;
+    }
+    else{
+        return t->_copy(t,variable_name);
+    }
+}
 pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_type*,void*)){
     pythonix_method *ret = kmalloc(sizeof(pythonix_method));
     *ret = (pythonix_method){
@@ -32,8 +47,10 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
         ._ref_count = 1,
         ._variable_name = strdup(vname),
         ._free = NULL,
-        ._vm = vm
+        ._vm = vm,
+        ._copy = NULL
     };
+    pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type_copy));
     karray_push(vm->types, (uint64_t)ret);
     khashmap_set(vm->names, vname, (uint64_t)ret);
     if(old){

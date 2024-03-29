@@ -31,6 +31,17 @@ pythonix_type *pythonix_type_str__str__(pythonix_type *self, void *d){
     kfree(str);
     return ret;
 }
+pythonix_type *pythonix_type_str__copy__(pythonix_type *self, void *d){
+    char *copy_name = (char *)d;
+    pythonix_type_str *s = ((pythonix_type_str *)self->_data);
+    pythonix_type *copy = pythonix_type_str_new(
+        s->data,
+        copy_name,
+        (pythonix_vm *)self->_vm
+    );
+    return copy;
+}
+
 pythonix_type *pythonix_type_str_new(char *value, char *vname, pythonix_vm *vm){
     pythonix_type *ret = pythonix_type_new(PYTHONIX_TYPE_NAME_STR, vname, vm);
     pythonix_type_str *str = kmalloc(sizeof(pythonix_type_str));
@@ -42,6 +53,7 @@ pythonix_type *pythonix_type_str_new(char *value, char *vname, pythonix_vm *vm){
     ret->_data = (void *)str;
     pythonix_type_method_add(ret, pythonix_method_new("__str__", pythonix_type_str__str__));
     pythonix_type_method_add(ret, pythonix_method_new("__add__", pythonix_type_str__add__));
+    pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type_str__copy__));
 
     return ret;
 }

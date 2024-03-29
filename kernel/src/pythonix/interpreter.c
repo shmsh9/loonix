@@ -5,7 +5,18 @@ void pythonix_assign_int(karray *a, pythonix_vm *vm){
     pythonix_type_int_new(value, name, vm);
 }
 void pythonix_assign_var(karray *a, pythonix_vm *vm){
-    //KDEBUG("called with a == 0x%x", a);
+    char *name = ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_VAR_NAME_GROUP];
+    char *value =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_VAR_VAL_GROUP];
+    pythonix_type *t2 = pythonix_vm_get_type(vm, value);
+    if(!t2){
+        kprintf("NameError: name '%s' is not defined\n", value);
+        return;
+    }
+    pythonix_type_method_call(
+        t2,
+        "__copy__",
+        (void *)name
+    );
 }
 void pythonix_assign_str(karray *a, pythonix_vm *vm){
     char *name = ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_NAME_GROUP];
@@ -115,7 +126,7 @@ void pythonix_interpreter(){
     uint64_t _pythonix_actions_pointers[sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0])] = {
         [PYTHONIX_ASSIGN_STR ]=(uint64_t)pythonix_assign_str,
         [PYTHONIX_ASSIGN_INT ]=(uint64_t)pythonix_assign_int,
-        [PYTHONIX_ASSIGN_VAR ]=(uint64_t)pythonix_not_impl,
+        [PYTHONIX_ASSIGN_VAR ]=(uint64_t)pythonix_assign_var,
         [PYTHONIX_VAR_ADD_INT]=(uint64_t)pythonix_var_add_int,
         [PYTHONIX_VAR_ADD_STR]=(uint64_t)pythonix_var_add_str,
         [PYTHONIX_PRINT_VAR  ]=(uint64_t)pythonix_print_var,

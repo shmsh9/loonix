@@ -13,6 +13,7 @@ typedef struct _pythonix_type{
     char *_variable_name;
     uint32_t _ref_count;
     void (*_free)(struct _pythonix_type *);
+    struct _pythonix_type *(*_copy)(struct _pythonix_type *, char *);
     void *_vm;
 }pythonix_type;
 
