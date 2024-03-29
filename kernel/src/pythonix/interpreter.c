@@ -1,11 +1,8 @@
 #include <pythonix/pythonix.h>
 void pythonix_assign_int(karray *a, pythonix_vm *vm){
-    //KDEBUG("called with a == 0x%x", a);
-    khashmap_set(
-        vm->names,
-        ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_NAME_GROUP],
-        atoi(((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_VAL_GROUP])
-    );
+    int64_t value = atoi(((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_VAL_GROUP]);
+    char *name =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_NAME_GROUP];
+    pythonix_type_int_new(value, name, vm);
 }
 void pythonix_assign_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
@@ -15,12 +12,15 @@ void pythonix_assign_str(karray *a, pythonix_vm *vm){
 }
 void pythonix_print_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
-    kprintf("%d\n", 
-        khashmap_get(
-            vm->names, 
-            ((char **)a->array)[PYTHONIX_REGEX_PRINT_VAR_NAME_GROUP]
-        )
-    );
+    char *name = ((char **)a->array)[PYTHONIX_REGEX_PRINT_VAR_NAME_GROUP];
+    pythonix_type *t = pythonix_vm_get_type(vm, name);
+    if(!t){
+        kprintf("NameError: name '%s' is not defined\n", name);
+        return;
+    }
+    pythonix_type_str *str = (pythonix_type_str *)pythonix_type_method_call(t, "__str__", (void *)vm);
+    if(str)
+        kprintf("%s", str);
 }
 void pythonix_not_impl(karray *a, pythonix_vm *vm){
     KDEBUG("called with a == 0x%x", a);
@@ -48,8 +48,9 @@ void pythonix_interpreter(){
     kprintf(">>> ");
     while(true){
         char c = kgetchar_non_blocking();
-        while(!c)
+        while(!c){
             c = kgetchar_non_blocking();
+        }
         c = c == '\r' ? '\n' : c;
         karray_push(in, c);
         kprintf("%c", c);
