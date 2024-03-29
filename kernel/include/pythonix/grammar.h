@@ -3,7 +3,7 @@
 
 #define PYTHONIX_REGEX_INT "-?[0-9]{1}[0-9]*"
 #define PYTHONIX_REGEX_STR "[\",\'].*[\",\']"
-#define PYTHONIX_REGEX_VAR_NAME "[a-zA-Z,_]{1}[a-zA-Z0-9,_]*"
+#define PYTHONIX_REGEX_VAR_NAME "[a-zA-Z,_]{1}[a-zA-Z0-9,_,.]*"
 #define PYTHONIX_REGEX_FN_NAME PYTHONIX_REGEX_VAR_NAME
 
 #define PYTHONIX_REGEX_VAR_ADD "("PYTHONIX_REGEX_VAR_NAME")\\s*+=\\s*"

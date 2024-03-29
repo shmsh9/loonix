@@ -16,4 +16,5 @@ void memcpy(void *dst, const void *src, uint64_t sz);
 uint64_t B_to_8B(uint8_t b);
 char *strings_join(char **s, int n, char j);
 void string_replace(char *s, char c, char r);
+char *string_remove(char *s, char c);
 #endif

@@ -176,7 +176,20 @@ char *strings_join(char **s, int n, char j){
     kfree(l);
     return ret;
 }
-
+char *string_remove(char *s, char c){
+    int l = strlen(s);
+    int sz = l;
+    for(int i = 0; i < l; i++)
+        sz = s[i] == c ? sz-1 : sz;
+    char *ret = kmalloc(sz+1);
+    char *curr_ret = ret;
+    ret[sz] = 0x0;
+    for(int i = 0; i < l; i++){
+        if(s[i] != c)
+            *curr_ret++ = s[i];
+    }
+    return ret;
+}
 void string_replace(char *s, char c, char r){
     while(*s){
         *s = *s == c ? r : *s;

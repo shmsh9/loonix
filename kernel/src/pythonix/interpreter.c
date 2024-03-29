@@ -8,9 +8,13 @@ void pythonix_assign_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
 }
 void pythonix_assign_str(karray *a, pythonix_vm *vm){
-    char *name =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_NAME_GROUP];
+    char *name = ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_NAME_GROUP];
     char *value =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_VAL_GROUP];
-    pythonix_type_str_new(value, name, vm);
+    char *n1 = string_remove(value, '\'');
+    char *n2 = string_remove(n1, '"');
+    kfree(n1);
+    pythonix_type_str_new(n2, name, vm);
+    kfree(n2);
 }
 void pythonix_print_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
@@ -24,20 +28,6 @@ void pythonix_print_var(karray *a, pythonix_vm *vm){
     if(str)
         kprintf("%s\n", str->data);
 }
-void pythonix_var_add_int(karray *a, pythonix_vm *vm){
-    char *name =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_INT_NAME_GROUP];
-    char *value =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_INT_VAL_GROUP];
-    pythonix_type *t = pythonix_vm_get_type(vm, name);
-    if(!t){
-        kprintf("NameError: name '%s' is not defined\n", name);
-        return;
-    }
-    char *tmps = strings_join((char*[]){name, "_add_", value}, 2, '_');
-    pythonix_type *i = pythonix_type_int_new(atoi(value), tmps, vm);
-    pythonix_type_method_call(t, "__add__", (void *)i);
-    i->_ref_count--;
-
-}
 void pythonix_var_add_str(karray *a, pythonix_vm *vm){
     char *name =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_STR_NAME_GROUP];
     char *value =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_STR_VAL_GROUP];
@@ -46,11 +36,28 @@ void pythonix_var_add_str(karray *a, pythonix_vm *vm){
         kprintf("NameError: name '%s' is not defined\n", name);
         return;
     }
-    char *tmps = strings_join((char*[]){name, "_add_", value}, 2, '_');
-    pythonix_type *s = pythonix_type_str_new(value, tmps, vm);
-    pythonix_type_method_call(t, "__add__", (void *)s);
+    char *n1 = string_remove(value, '\'');
+    char *n2 = string_remove(n1, '"');
+    kfree(n1);
+    char *tmps = strings_join((char*[]){name, "_add_", value}, 3, '_');
+    pythonix_type *i = pythonix_type_str_new(n2, tmps, vm);
+    kfree(n2);
     kfree(tmps);
-    s->_ref_count--;
+    pythonix_type_method_call(t, "__add__", (void *)i);
+    i->_ref_count--;
+}
+void pythonix_var_add_int(karray *a, pythonix_vm *vm){
+    char *name =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_INT_NAME_GROUP];
+    char *value =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_INT_VAL_GROUP];
+    pythonix_type *t = pythonix_vm_get_type(vm, name);
+    if(!t){
+        kprintf("NameError: name '%s' is not defined\n", name);
+        return;
+    }
+    char *tmps = strings_join((char*[]){name, "_add_", value}, 3, '_');
+    pythonix_type *i = pythonix_type_int_new(atoi(value), tmps, vm);
+    pythonix_type_method_call(t, "__add__", (void *)i);
+    i->_ref_count--;
 }
 void pythonix_not_impl(karray *a, pythonix_vm *vm){
     kprintf("NotImplError: Function not implemented\n");
@@ -66,8 +73,8 @@ uint64_t pythonix_global_help__str__(pythonix_type *t, void *vm){
     return (uint64_t)ret->_data;
 }
 void pythonix_interpreter_init(pythonix_vm *vm){
-    pythonix_type_new("global", "help", vm);
-    pythonix_method_new("__str__", pythonix_global_help__str__);
+    pythonix_type *help = pythonix_type_new("global", "help", vm);
+    pythonix_type_method_add(help, pythonix_method_new("__str__", pythonix_global_help__str__));
 }
 void pythonix_interpreter(){
     uint64_t _pythonix_actions_regex[][2] = {
@@ -92,7 +99,7 @@ void pythonix_interpreter(){
     };
     kprint(
         "Pythonix 0.0.1 on loonix\n"
-        "Type \"help\", \"copyright\", \"credits\" or \"license\" for more information."
+        "Type \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n"
     );
     pythonix_vm *vm = pythonix_vm_new();
     pythonix_interpreter_init(vm);
