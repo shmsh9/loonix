@@ -19,6 +19,26 @@ inline uint8_t tolower(uint8_t c){
         return c + 32;
     return c;
 }
+inline char *itoa(int64_t v){
+    int l = v > 0 ? 0 : 1; //account for -;
+    int64_t v_tmp = v;
+    while(v_tmp){
+        v_tmp /= 10;
+        l++;
+    }
+    char *str = kmalloc(sizeof(char)*(l+1));
+    str[l] = 0x0;
+    if(v < 0){
+        str[0] = '-';
+    }
+    v_tmp = v;
+    int i = l-1;
+    while(v_tmp && i > -1){
+        str[i--] = (v_tmp%10) + '0';
+        v_tmp /= 10;
+    }
+    return str;
+}
 inline int atoi(const char *str){
     int ret = 0;
     while(*str){

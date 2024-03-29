@@ -6,6 +6,7 @@
 int strlen(const char *str);
 int strcmp(const char *str1, const char *str2);
 int atoi(const char *str);
+char *itoa(int64_t v);
 uint8_t toupper(uint8_t c);
 uint8_t tolower(uint8_t c);
 int isdigit(uint8_t c);
