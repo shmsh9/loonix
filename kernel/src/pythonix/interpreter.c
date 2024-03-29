@@ -8,7 +8,9 @@ void pythonix_assign_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
 }
 void pythonix_assign_str(karray *a, pythonix_vm *vm){
-    //KDEBUG("called with a == 0x%x", a);
+    char *name =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_NAME_GROUP];
+    char *value =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_VAL_GROUP];
+    pythonix_type_str_new(value, name, vm);
 }
 void pythonix_print_var(karray *a, pythonix_vm *vm){
     //KDEBUG("called with a == 0x%x", a);
@@ -20,7 +22,7 @@ void pythonix_print_var(karray *a, pythonix_vm *vm){
     }
     pythonix_type_str *str = (pythonix_type_str *)pythonix_type_method_call(t, "__str__", (void *)vm);
     if(str)
-        kprintf("%s", str);
+        kprintf("%s\n", str->data);
 }
 void pythonix_not_impl(karray *a, pythonix_vm *vm){
     KDEBUG("called with a == 0x%x", a);
