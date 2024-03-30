@@ -28,8 +28,9 @@ pythonix_type *pythonix_type_str__mul__(pythonix_type *self, void *d){
         if(n < 0){
             return self;
         }
+        pythonix_type *cp = pythonix_type_method_call(self, "__copy__", PYTHONIX_VAR_NAME_ANON);
         for(int i = 0; i < n; i++)
-            pythonix_type_str__add__str((pythonix_type_str *)self->_data,(pythonix_type_str *)self->_data);
+            pythonix_type_str__add__str((pythonix_type_str *)self->_data,(pythonix_type_str *)cp->_data);
         return self;
     }
     kprintf("TypeError: unsupported operand type(s) for +: '%s' and '%s'\n", self->name, t2->name);

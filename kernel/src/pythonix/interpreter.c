@@ -1,15 +1,4 @@
 #include <pythonix/pythonix.h>
-void pythonix_print_var(karray *a, pythonix_vm *vm){
-    char *name = ((char **)a->array)[PYTHONIX_REGEX_PRINT_VAR_NAME_GROUP];
-    pythonix_type *t = pythonix_vm_get_type(vm, name);
-    if(!t){
-        kprintf("NameError: name '%s' is not defined\n", name);
-        return;
-    }
-    pythonix_type *str = pythonix_type_method_call(t, "__str__", (void *)vm);
-    if(str && !strcmp(PYTHONIX_TYPE_NAME_STR, str->name))
-        kprintf("%s\n", ((pythonix_type_str *)(str->_data))->data);
-}
 pythonix_type *pythonix_not_impl(karray *a, pythonix_vm *vm){
     kprintf("NotImplError: Function not implemented\n");
     return 0x0;
@@ -47,14 +36,20 @@ uint64_t _pythonix_obj_identify_regex[][3] = {
 };
 pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
     for(int i = 0; i < sizeof(_pythonix_obj_identify_regex)/sizeof(_pythonix_obj_identify_regex[0]); i++){
-        if(!_pythonix_obj_identify_regex[i][0])
+        if(!_pythonix_obj_identify_regex[i][0]){
             _pythonix_obj_identify_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_obj_identify_regex[i][1]);
+        }
         karray *exp = (karray *)_pythonix_obj_identify_regex[i][0];
         if(regex_match(exp, val)){
             karray *matches = regex_match_group(exp, val);
-            if(matches){
+            if(matches && matches->length){
+                KDEBUG("received '%s'", val);
+                for(int j = 0; j < matches->length; j++)
+                    KDEBUG("matches[%d] '%s' (group %d)", j,((regex_match_string **)matches->array)[j]->string,  ((regex_match_string **)matches->array)[j]->group);
                 karray *groups = regex_group_join(matches);
+                KDEBUG("'%s' matched %s", ((char **)groups->array)[0],_pythonix_obj_identify_regex[i][1]);
                 pythonix_type *t = ((pythonix_type *(*)(karray *a, pythonix_vm *vm))_pythonix_obj_identify_regex[i][2])(groups, vm);
+                //please fixxx
                 karray_free(groups);
                 karray_free(matches);
                 return t;
@@ -62,9 +57,19 @@ pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
             else{
                 KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
             }
+
         }
     }
     return 0x0;
+}
+void pythonix_print_var(karray *a, pythonix_vm *vm){
+    char *name = ((char **)a->array)[PYTHONIX_REGEX_PRINT_VAR_NAME_GROUP];
+    pythonix_type *t = pythonix_obj_identify(name, vm);
+    if(!t)
+        return;
+    pythonix_type *str = pythonix_type_method_call(t, "__str__", (void *)vm);
+    if(str && !strcmp(PYTHONIX_TYPE_NAME_STR, str->name))
+        kprintf("%s\n", ((pythonix_type_str *)(str->_data))->data);
 }
 void pythonix_op_find(uint64_t regex[][3], uint32_t l, char *line, pythonix_vm *vm){
     bool m = false;
@@ -74,7 +79,7 @@ void pythonix_op_find(uint64_t regex[][3], uint32_t l, char *line, pythonix_vm *
         karray *exp = (karray *)regex[i][0];
         if(regex_match(exp, line)){
             karray *matches = regex_match_group(exp, line);
-            if(matches){
+            if(matches && matches->length){
                 if(m){
                     KDEBUG("matched more than once regex[%d]", i);
                 }
@@ -100,8 +105,9 @@ void pythonix_assign_any(karray *a, pythonix_vm *vm){
     //no need to check for the validity if group(1) when assigning
     //just create it if it is null
     pythonix_type *t2 = pythonix_obj_identify(((char **)a->array)[2], vm);
-    if(t2)
+    if(t2){
         pythonix_type_method_call(t2, "__copy__", ((char **)a->array)[1]);
+    }
 }
 void pythonix_var_operator_x(karray *a, char *method, pythonix_vm *vm){
     pythonix_type *t = pythonix_obj_identify(((char **)a->array)[1], vm);

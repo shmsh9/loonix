@@ -43,8 +43,9 @@ bool _regex_match_inf_opt_at(regex_automaton *a, char **s){
 }
 bool _regex_match_opt_at(regex_automaton *a, char **s){
     //KDEBUG("*s == %s", *s);
-    (*s) += _karray_contains(a->alphabet, *(*s));
-    return true;
+    bool ok = _karray_contains(a->alphabet, *(*s));
+    (*s) += ok;
+    return ok;
 }
 
 bool _regex_match_fixed_at(regex_automaton *a, char **s){
@@ -82,7 +83,6 @@ karray * regex_group_join(karray *g){
             group_sl += ((regex_match_string **)g->array)[j]->length;
             j++;
         }
-        //KDEBUG("group_sl == %d group_l == %d", group_sl, group_l);
         char *s = kmalloc(group_sl+1);
         s[group_sl] = 0x0;
         char *curr_s = s;
@@ -104,7 +104,9 @@ karray * regex_match_group(karray *at, char *s){
         switch(a->length){
             case REGEX_INF_ZR_LEN:{
                 char *sav_currs = curr_s;
+                bool is = false;
                 while(_regex_match_inf_opt_at(a, &curr_s) && *curr_s){
+                    is = true;
                     //Check if end of inf loop
                     if(i+1 < at->length){
                         char *tmps = curr_s;
@@ -115,13 +117,15 @@ karray * regex_match_group(karray *at, char *s){
                     }
                     curr_s++;
                 }
-                char *match = kmalloc((curr_s - sav_currs)+1);
-                match[curr_s - sav_currs] = 0x0;
-                memcpy(match, sav_currs, curr_s - sav_currs);
-                karray_push(
-                    ret, 
-                    (uint64_t)regex_match_string_new(match,a->group, curr_s - sav_currs)
-                );
+                if(is){
+                    char *match = kmalloc((curr_s - sav_currs)+1);
+                    match[curr_s - sav_currs] = 0x0;
+                    memcpy(match, sav_currs, curr_s - sav_currs);
+                    karray_push(
+                        ret, 
+                        (uint64_t)regex_match_string_new(match,a->group, curr_s - sav_currs)
+                    );
+                }
                 break;
             }
             case REGEX_OPT_LEN:{
@@ -146,6 +150,7 @@ karray * regex_match_group(karray *at, char *s){
                 char *match = kmalloc((curr_s - sav_currs)+1);
                 match[curr_s - sav_currs] = 0x0;
                 memcpy(match, sav_currs, curr_s - sav_currs);
+                KDEBUG("pushing %s (g %d)",match,a->group);
                 karray_push(
                     ret, 
                     (uint64_t)regex_match_string_new(match,a->group, curr_s - sav_currs)

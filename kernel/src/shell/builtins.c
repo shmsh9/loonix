@@ -227,6 +227,13 @@ int builtins_regex(int argc, char **argv){
             "usage: %s expression string to match\n", 
             argv[0]
         );
+        karray *rx = regex_new("\\s*([a-zA-Z,_]{1}[a-zA-Z0-9,_]*)\\s*");
+        karray *g = regex_match_group(rx, "_azerty12337");
+        for(int i = 0; i < rx->length; i++)
+            regex_automaton_debug_print(((regex_automaton **)rx->array)[i]);
+        for(int j = 0; j < g->length; j++)
+            KDEBUG("matches[%d] '%s' (group %d)", j,((regex_match_string **)g->array)[j]->string,  ((regex_match_string **)g->array)[j]->group);
+
         shell_set_exit_code(-1);
         return -1;
     } 
