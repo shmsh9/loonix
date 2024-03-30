@@ -28,7 +28,7 @@ pythonix_type *pythonix_obj_identify_method(karray *groups, pythonix_vm *vm){
 }
 
 uint64_t _pythonix_obj_identify_regex[][3] = {
-    {0, (uint64_t)"\\s*("PYTHONIX_REGEX_STR")\\s*",        (uint64_t)pythonix_obj_identify_str},
+    {0, (uint64_t)"\\s*[',\"](.*)[',\"]\\s*",              (uint64_t)pythonix_obj_identify_str},
     {0, (uint64_t)"\\s*("PYTHONIX_REGEX_INT")\\s*",        (uint64_t)pythonix_obj_identify_int},
     {0, (uint64_t)"\\s*("PYTHONIX_REGEX_VAR_NAME")\\s*",   (uint64_t)pythonix_obj_identify_var},
     {0, (uint64_t)"\\s*("PYTHONIX_REGEX_VAR_NAME")\\s*.\\s*("PYTHONIX_REGEX_METHOD_NAME")\\s*\\((.*)\\)\\s*",(uint64_t)pythonix_obj_identify_method},
