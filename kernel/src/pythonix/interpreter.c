@@ -66,10 +66,13 @@ pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
                 //please fixxx
                 karray_free(groups);
                 karray_free(matches);
+                karray_free((karray *)_pythonix_obj_identify_regex[i][0]);
                 return t;
             }
             else{
                 KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
+                KDEBUG("%s && %s", _pythonix_obj_identify_regex[i][1], val);
+                return 0x0;
             }
 
         }
@@ -126,17 +129,19 @@ void pythonix_var_operator_any(karray *a, pythonix_vm *vm){
     pythonix_var_operator_x(a,op[(int)((char**)a->array)[2][0]],vm);
 }
 void pythonix_method_call(karray *a, pythonix_vm *vm){
-    char *name =  ((char **)a->array)[PYTHONIX_REGEX_METHOD_CALL_VAR_NAME_GROUP];
-    char *method =  ((char **)a->array)[PYTHONIX_REGEX_METHOD_CALL_METHOD_NAME_GROUP];
-    pythonix_type *t = pythonix_vm_get_type(vm, name);
-    if(!t){
-        kprintf("NameError: name '%s' is not defined\n", name);
+    if(a->length < 2){
+        KERROR("a->length < 2");
         return;
     }
-    pythonix_type *t2 = (pythonix_type *)pythonix_type_method_call(t, method, (void *)vm);
+    char *name =  ((char **)a->array)[PYTHONIX_REGEX_METHOD_CALL_VAR_NAME_GROUP];
+    char *method =  ((char **)a->array)[PYTHONIX_REGEX_METHOD_CALL_METHOD_NAME_GROUP];
+    pythonix_type *t = pythonix_obj_identify(name, vm);
+    if(!t){
+        return;
+    }
+    pythonix_type *t2 = (pythonix_type *)pythonix_type_method_call(t, method, 0x0);
     if(!strcmp(t->name, PYTHONIX_TYPE_NAME_STR) && !strcmp(method, "__str__")){
         kprintf("%s\n", ((pythonix_type_str *)(t2->_data))->data);
-        t2->_ref_count--;
         return;
     }
     if(t2){
@@ -144,9 +149,7 @@ void pythonix_method_call(karray *a, pythonix_vm *vm){
         if(has_str){
             pythonix_type *str = (pythonix_type *)pythonix_type_method_call(t2, "__str__", 0x0);
             kprintf("%s\n", ((pythonix_type_str *)(str->_data))->data);
-            str->_ref_count--;
         }
-        t2->_ref_count--;
     }
 }
 pythonix_type *pythonix_global_help__str__(pythonix_type *t, void *vm){
@@ -223,6 +226,8 @@ void pythonix_interpreter(){
                     }
                     else{
                         KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
+                        KDEBUG("%s && %s", _pythonix_actions_regex[i][1], line ? line : "NULL");
+
                     }
                 }
             }
