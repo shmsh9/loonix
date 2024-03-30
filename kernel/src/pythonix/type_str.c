@@ -21,7 +21,20 @@ pythonix_type *pythonix_type_str__add__(pythonix_type *self, void *d){
     kprintf("TypeError: unsupported operand type(s) for +: '%s' and '%s'\n", self->name, t2->name);
     return 0x0;
 }
-
+pythonix_type *pythonix_type_str__mul__(pythonix_type *self, void *d){
+    pythonix_type *t2 = (pythonix_type *)d;
+    if(!strcmp(t2->name, PYTHONIX_TYPE_NAME_INT)){
+        int64_t n = (int64_t)t2->_data-1;
+        if(n < 0){
+            return self;
+        }
+        for(int i = 0; i < n; i++)
+            pythonix_type_str__add__str((pythonix_type_str *)self->_data,(pythonix_type_str *)self->_data);
+        return self;
+    }
+    kprintf("TypeError: unsupported operand type(s) for +: '%s' and '%s'\n", self->name, t2->name);
+    return 0x0;
+}
 pythonix_type *pythonix_type_str__str__(pythonix_type *self, void *d){
     pythonix_type *cp = pythonix_type_method_call(self, "__copy__", (void *)PYTHONIX_VAR_NAME_ANON);
     pythonix_type *ret = pythonix_type_str_new("'", PYTHONIX_VAR_NAME_ANON, (pythonix_vm *)self->_vm);
@@ -53,5 +66,7 @@ pythonix_type *pythonix_type_str_new(char *value, char *vname, pythonix_vm *vm){
     ret->_str = pythonix_type_str__str__;
 
     pythonix_type_method_add(ret, pythonix_method_new("__add__", pythonix_type_str__add__));
+    pythonix_type_method_add(ret, pythonix_method_new("__mul__", pythonix_type_str__mul__));
+
     return ret;
 }
