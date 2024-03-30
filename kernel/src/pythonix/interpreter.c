@@ -3,31 +3,54 @@ pythonix_type *pythonix_not_impl(karray *a, pythonix_vm *vm){
     kprintf("NotImplError: Function not implemented\n");
     return 0x0;
 }
-pythonix_type *pythonix_obj_identify_str(char *varname, char *value, pythonix_vm *vm){
-    char *n1 = string_remove(value, '\'');
-    char *n2 = string_remove(n1, '"');
-    kfree(n1);
-    pythonix_type *ret = pythonix_type_str_new(n2, PYTHONIX_VAR_NAME_ANON, vm);
-    kfree(n2);
-    return ret;
+pythonix_type *pythonix_obj_identify_str(karray *groups, pythonix_vm *vm){
+    return pythonix_type_str_new(((char **)groups->array)[1], PYTHONIX_VAR_NAME_ANON, vm);
 }
-pythonix_type *pythonix_obj_identify_int(char *var, pythonix_vm *vm){
-    return 0x0;
+pythonix_type *pythonix_obj_identify_int(karray *groups, pythonix_vm *vm){
+    return pythonix_type_int_new(atoi(((char **)groups->array)[1]), PYTHONIX_VAR_NAME_ANON, vm);
 }
-pythonix_type *pythonix_obj_identify_var(char *var, pythonix_vm *vm){
-    return 0x0;
+pythonix_type *pythonix_obj_identify_var(karray *groups, pythonix_vm *vm){
+    pythonix_type *t = pythonix_vm_get_type(vm, ((char **)groups->array)[1]);
+    if(!t){
+        kprintf("NameError: name '%s' is not defined\n", ((char **)groups->array)[1]);
+        return 0x0;
+    }
+    return pythonix_type_method_call(t, "__copy__", (void *)PYTHONIX_VAR_NAME_ANON);
+}
+pythonix_type *pythonix_obj_identify_method(karray *groups, pythonix_vm *vm){
+    pythonix_type *t = pythonix_vm_get_type(vm, ((char **)groups->array)[1]);
+    if(!t){
+        kprintf("NameError: name '%s' is not defined\n", ((char **)groups->array)[1]);
+        return 0x0;
+    }
+    pythonix_type *t2 = pythonix_type_method_call(t, ((char **)groups->array)[2], 0x0);
+    return t2;
 }
 
 uint64_t _pythonix_obj_identify_regex[][3] = {
-    {0, (uint64_t)PYTHONIX_REGEX_INT, (uint64_t)pythonix_obj_identify_str},
-    {0, (uint64_t)PYTHONIX_REGEX_STR, (uint64_t)pythonix_obj_identify_int},
-    {0, (uint64_t)PYTHONIX_REGEX_VAR_NAME, (uint64_t)pythonix_obj_identify_var},
-    {0, (uint64_t)".*", (uint64_t)pythonix_not_impl}
+    {0, (uint64_t)"\\s*("PYTHONIX_REGEX_STR")\\s*",        (uint64_t)pythonix_obj_identify_str},
+    {0, (uint64_t)"\\s*("PYTHONIX_REGEX_INT")\\s*",        (uint64_t)pythonix_obj_identify_int},
+    {0, (uint64_t)"\\s*("PYTHONIX_REGEX_VAR_NAME")\\s*",   (uint64_t)pythonix_obj_identify_var},
+    {0, (uint64_t)"\\s*("PYTHONIX_REGEX_VAR_NAME")\\s*.\\s*("PYTHONIX_REGEX_METHOD_NAME")\\s*\\((.*)\\)\\s*",(uint64_t)pythonix_obj_identify_method},
+    {0, (uint64_t)".*",(uint64_t)pythonix_not_impl}
 };
 pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
     for(int i = 0; i < sizeof(_pythonix_obj_identify_regex)/sizeof(_pythonix_obj_identify_regex[0]); i++){
-        if(!_pythonix_obj_identify_regex[i][0]){
+        if(!_pythonix_obj_identify_regex[i][0])
             _pythonix_obj_identify_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_obj_identify_regex[i][1]);
+        karray *exp = (karray *)_pythonix_obj_identify_regex[i][0];
+        if(regex_match(exp, val)){
+            karray *matches = regex_match_group(exp, val);
+            if(matches){
+                karray *groups = regex_group_join(matches);
+                pythonix_type *t = ((pythonix_type *(*)(karray *a, pythonix_vm *vm))_pythonix_obj_identify_regex[i][2])(groups, vm);
+                karray_free(groups);
+                karray_free(matches);
+                return t;
+            }
+            else{
+                KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
+            }
         }
     }
     return 0x0;
@@ -61,49 +84,15 @@ void pythonix_op_find(uint64_t regex[][3], uint32_t l, char *line, pythonix_vm *
     //for(int i = 0; i < l; i++)
     //    karray_free((karray *)regex[i]);
 }
-void pythonix_assign_int(karray *a, pythonix_vm *vm){
-    int64_t value = atoi(((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_VAL_GROUP]);
-    char *name =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_INT_NAME_GROUP];
-    pythonix_type_int_new(value, name, vm);
-}
-void pythonix_assign_var(karray *a, pythonix_vm *vm){
-    char *name = ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_VAR_NAME_GROUP];
-    char *value =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_VAR_VAL_GROUP];
-    pythonix_type *t2 = pythonix_vm_get_type(vm, value);
-    if(!t2){
-        kprintf("NameError: name '%s' is not defined\n", value);
-        return;
-    }
-    pythonix_type_method_call(
-        t2,
-        "__copy__",
-        (void *)name
-    );
-}
-void pythonix_assign_str(karray *a, pythonix_vm *vm){
-    char *name = ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_NAME_GROUP];
-    char *value =  ((char **)a->array)[PYTHONIX_REGEX_ASSIGN_STR_VAL_GROUP];
-    char *n1 = string_remove(value, '\'');
-    char *n2 = string_remove(n1, '"');
-    kfree(n1);
-    pythonix_type_str_new(n2, name, vm);
-    kfree(n2);
-}
-uint64_t _pythonix_assign_actions_regex[][3] = {
-    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_STR, (uint64_t)pythonix_assign_str},
-    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_INT, (uint64_t)pythonix_assign_int},
-    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_VAR, (uint64_t)pythonix_assign_var}
-};
+
 void pythonix_assign_any(karray *a, pythonix_vm *vm){
-    pythonix_op_find(
-        _pythonix_assign_actions_regex,
-        sizeof(_pythonix_assign_actions_regex)/sizeof(_pythonix_assign_actions_regex[0]),
-        ((char **)a->array)[0],
-        vm
-    );
+    //no need to check for the validity if group(1) when assigning
+    //just create it if it is null
+    pythonix_type *t2 = pythonix_obj_identify(((char **)a->array)[2], vm);
+    if(t2)
+        pythonix_type_method_call(t2, "__copy__", ((char **)a->array)[1]);
 }
 void pythonix_print_var(karray *a, pythonix_vm *vm){
-    //KDEBUG("called with a == 0x%x", a);
     char *name = ((char **)a->array)[PYTHONIX_REGEX_PRINT_VAR_NAME_GROUP];
     pythonix_type *t = pythonix_vm_get_type(vm, name);
     if(!t){
