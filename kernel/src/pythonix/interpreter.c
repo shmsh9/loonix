@@ -103,7 +103,7 @@ void pythonix_assign_any(karray *a, pythonix_vm *vm){
     if(t2)
         pythonix_type_method_call(t2, "__copy__", ((char **)a->array)[1]);
 }
-void pythonix_var_operator_add(karray *a, pythonix_vm *vm){
+void pythonix_var_operator_x(karray *a, char *method, pythonix_vm *vm){
     pythonix_type *t = pythonix_obj_identify(((char **)a->array)[1], vm);
     if(!t){
         kprintf("NameError: name '%s' is not defined\n", ((char **)a->array)[1]);        
@@ -114,21 +114,17 @@ void pythonix_var_operator_add(karray *a, pythonix_vm *vm){
         kprintf("NameError: name '%s' is not defined\n", ((char **)a->array)[3]);        
         return;
     }
-    pythonix_type_method_call(t, "__add__", (void *)t2);
+    pythonix_type_method_call(t, method, (void *)t2);
 }
-void pythonix_var_operator_mul(karray *a, pythonix_vm *vm){
 
-}
 void pythonix_var_operator_any(karray *a, pythonix_vm *vm){
-    switch (((char**)a->array)[2][0]){
-        case '+':
-            pythonix_var_operator_add(a, vm);
-            break;
-
-        default:
-            pythonix_not_impl(a, vm);
-            break;
-    }
+    char *op[] = {
+        ['+']="__add__",
+        ['-']="__sub__",
+        ['*']="__mul__",
+        ['/']="__div__",
+    };
+    pythonix_var_operator_x(a,op[(int)((char**)a->array)[2][0]],vm);
 }
 void pythonix_method_call(karray *a, pythonix_vm *vm){
     char *name =  ((char **)a->array)[PYTHONIX_REGEX_METHOD_CALL_VAR_NAME_GROUP];
