@@ -11,10 +11,11 @@ void pythonix_type_free(pythonix_type *t){
     karray_free(t->_methods);
     khashmap_free(t->_methods_hashmap);
     kfree(t->name);
-    kfree(t->_variable_name);
+    if(t->_variable_name)
+        kfree(t->_variable_name);
     kfree(t);
 }
-pythonix_type *pythonix_type_copy(pythonix_type *t, void *p){
+pythonix_type *pythonix_type__copy__(pythonix_type *t, void *p){
     char *variable_name = (char *)p;
     if(!t->_copy){
         pythonix_type *copy = pythonix_type_new(
@@ -29,6 +30,22 @@ pythonix_type *pythonix_type_copy(pythonix_type *t, void *p){
         return t->_copy(t,variable_name);
     }
 }
+pythonix_type *pythonix_type__str__(pythonix_type *t, void *p){
+    if(!t->_str){
+        char *s = strings_join((char *[]){"<",t->name,">"},3,0x0);
+        pythonix_type *str = pythonix_type_str_new(
+            t->name,
+            PYTHONIX_VAR_NAME_ANON,
+            (pythonix_vm *)t->_vm
+        );
+        kfree(s);
+        return str;
+    }
+    else{
+        return t->_str(t,p);
+    }
+}
+
 pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_type*,void*)){
     pythonix_method *ret = kmalloc(sizeof(pythonix_method));
     *ret = (pythonix_method){
@@ -38,23 +55,26 @@ pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_ty
     return ret;
 }
 pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
-    pythonix_type *old = pythonix_vm_get_type(vm, vname);
     pythonix_type *ret = kmalloc(sizeof(pythonix_type));
     *ret = (pythonix_type){
         .name = strdup(name),
         ._methods = karray_new(sizeof(pythonix_method *), (void (*)(void *))pythonix_method_free),
         ._methods_hashmap = khashmap_new(),
-        ._ref_count = 1,
-        ._variable_name = strdup(vname),
+        ._ref_count = vname == PYTHONIX_VAR_NAME_ANON ? 0 : 1,
+        ._variable_name = vname == PYTHONIX_VAR_NAME_ANON ? vname : strdup(vname),
         ._free = NULL,
         ._vm = vm,
-        ._copy = NULL
+        ._copy = NULL,
+        ._str = NULL
     };
-    pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type_copy));
+    pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type__copy__));
+    pythonix_type_method_add(ret, pythonix_method_new("__str__", pythonix_type__str__));
     karray_push(vm->types, (uint64_t)ret);
-    khashmap_set(vm->names, vname, (uint64_t)ret);
-    if(old){
-        old->_ref_count--;
+    if(ret->_variable_name){
+        pythonix_type *old = pythonix_vm_get_type(vm, ret->_variable_name);
+        if(old)
+            old->_ref_count--;
+        khashmap_set(vm->names, ret->_variable_name, (uint64_t)ret);
     }
     return ret;
 }

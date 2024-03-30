@@ -23,12 +23,10 @@ pythonix_type *pythonix_type_str__add__(pythonix_type *self, void *d){
 }
 
 pythonix_type *pythonix_type_str__str__(pythonix_type *self, void *d){
-    pythonix_type_str *self_str = (pythonix_type_str *)self->_data;
-    char *name = strings_join(((char*[]){ self->_variable_name, "_str__"}), 2, '_');
-    char *str = strings_join(((char*[]){ "'", self_str->data, "'"}), 3, 0x0);
-    pythonix_type *ret = pythonix_type_str_new(str, name, (pythonix_vm *)self->_vm);
-    kfree(name);
-    kfree(str);
+    pythonix_type *cp = pythonix_type_method_call(self, "__copy__", (void *)PYTHONIX_VAR_NAME_ANON);
+    pythonix_type *ret = pythonix_type_str_new("'", PYTHONIX_VAR_NAME_ANON, (pythonix_vm *)self->_vm);
+    pythonix_type_method_call(ret, "__add__", (void *)cp);
+    pythonix_type_method_call(ret, "__add__", (void *)pythonix_type_str_new("'", PYTHONIX_VAR_NAME_ANON, (pythonix_vm *)self->_vm));
     return ret;
 }
 pythonix_type *pythonix_type_str__copy__(pythonix_type *self, void *d){
@@ -51,9 +49,9 @@ pythonix_type *pythonix_type_str_new(char *value, char *vname, pythonix_vm *vm){
     };
     ret->_free = pythonix_type_str_free;
     ret->_data = (void *)str;
-    pythonix_type_method_add(ret, pythonix_method_new("__str__", pythonix_type_str__str__));
-    pythonix_type_method_add(ret, pythonix_method_new("__add__", pythonix_type_str__add__));
-    pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type_str__copy__));
+    ret->_copy = pythonix_type_str__copy__;
+    ret->_str = pythonix_type_str__str__;
 
+    pythonix_type_method_add(ret, pythonix_method_new("__add__", pythonix_type_str__add__));
     return ret;
 }

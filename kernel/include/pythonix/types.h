@@ -3,6 +3,8 @@
 
 #define PYTHONIX_TYPE_NAME_INT "int"
 #define PYTHONIX_TYPE_NAME_STR "str"
+#define PYTHONIX_VAR_NAME_ANON  0x0
+
 #include <kstd/karray.h>
 #include <kstd/khashmap.h>
 typedef struct _pythonix_type{
@@ -13,7 +15,8 @@ typedef struct _pythonix_type{
     char *_variable_name;
     uint32_t _ref_count;
     void (*_free)(struct _pythonix_type *);
-    struct _pythonix_type *(*_copy)(struct _pythonix_type *, char *);
+    struct _pythonix_type *(*_copy)(struct _pythonix_type *, void*);
+    struct _pythonix_type *(*_str)(struct _pythonix_type *, void*);
     void *_vm;
 }pythonix_type;
 

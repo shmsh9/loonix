@@ -1,8 +1,38 @@
 #include <pythonix/pythonix.h>
-void pythonix_not_impl(karray *a, pythonix_vm *vm){
+pythonix_type *pythonix_not_impl(karray *a, pythonix_vm *vm){
     kprintf("NotImplError: Function not implemented\n");
+    return 0x0;
 }
-void inline static pythonix_op_find(uint64_t actions[], uint64_t regex[][2], uint32_t l, char *line, pythonix_vm *vm){
+pythonix_type *pythonix_obj_identify_str(char *varname, char *value, pythonix_vm *vm){
+    char *n1 = string_remove(value, '\'');
+    char *n2 = string_remove(n1, '"');
+    kfree(n1);
+    pythonix_type *ret = pythonix_type_str_new(n2, PYTHONIX_VAR_NAME_ANON, vm);
+    kfree(n2);
+    return ret;
+}
+pythonix_type *pythonix_obj_identify_int(char *var, pythonix_vm *vm){
+    return 0x0;
+}
+pythonix_type *pythonix_obj_identify_var(char *var, pythonix_vm *vm){
+    return 0x0;
+}
+
+uint64_t _pythonix_obj_identify_regex[][3] = {
+    {0, (uint64_t)PYTHONIX_REGEX_INT, (uint64_t)pythonix_obj_identify_str},
+    {0, (uint64_t)PYTHONIX_REGEX_STR, (uint64_t)pythonix_obj_identify_int},
+    {0, (uint64_t)PYTHONIX_REGEX_VAR_NAME, (uint64_t)pythonix_obj_identify_var},
+    {0, (uint64_t)".*", (uint64_t)pythonix_not_impl}
+};
+pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
+    for(int i = 0; i < sizeof(_pythonix_obj_identify_regex)/sizeof(_pythonix_obj_identify_regex[0]); i++){
+        if(!_pythonix_obj_identify_regex[i][0]){
+            _pythonix_obj_identify_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_obj_identify_regex[i][1]);
+        }
+    }
+    return 0x0;
+}
+void pythonix_op_find(uint64_t regex[][3], uint32_t l, char *line, pythonix_vm *vm){
     bool m = false;
     for(int i = 0; i < l; i++){
         if(!regex[i][0])
@@ -16,7 +46,7 @@ void inline static pythonix_op_find(uint64_t actions[], uint64_t regex[][2], uin
                 }
                 m = true;
                 karray *groups = regex_group_join(matches);
-                ((void(*)(karray *a, pythonix_vm *vm))actions[i])(groups, vm);
+                ((void(*)(karray *a, pythonix_vm *vm))regex[i][2])(groups, vm);
                 karray_free(groups);
                 karray_free(matches);
                 return;
@@ -59,19 +89,13 @@ void pythonix_assign_str(karray *a, pythonix_vm *vm){
     pythonix_type_str_new(n2, name, vm);
     kfree(n2);
 }
-uint64_t _pythonix_assign_actions_regex[][2] = {
-    [PYTHONIX_ASSIGN_STR ]= {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_STR},
-    [PYTHONIX_ASSIGN_INT ]= {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_INT},
-    [PYTHONIX_ASSIGN_VAR ]= {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_VAR}
+uint64_t _pythonix_assign_actions_regex[][3] = {
+    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_STR, (uint64_t)pythonix_assign_str},
+    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_INT, (uint64_t)pythonix_assign_int},
+    {0, (uint64_t)PYTHONIX_REGEX_ASSIGN_VAR, (uint64_t)pythonix_assign_var}
 };
 void pythonix_assign_any(karray *a, pythonix_vm *vm){
-    uint64_t _pythonix_assign_actions_pointers[sizeof(_pythonix_assign_actions_regex)/sizeof(_pythonix_assign_actions_regex[0])] = {
-        [PYTHONIX_ASSIGN_STR ]=(uint64_t)pythonix_assign_str,
-        [PYTHONIX_ASSIGN_INT ]=(uint64_t)pythonix_assign_int,
-        [PYTHONIX_ASSIGN_VAR ]=(uint64_t)pythonix_assign_var,
-    };
     pythonix_op_find(
-        _pythonix_assign_actions_pointers, 
         _pythonix_assign_actions_regex,
         sizeof(_pythonix_assign_actions_regex)/sizeof(_pythonix_assign_actions_regex[0]),
         ((char **)a->array)[0],
@@ -101,12 +125,9 @@ void pythonix_var_add_str(karray *a, pythonix_vm *vm){
     char *n1 = string_remove(value, '\'');
     char *n2 = string_remove(n1, '"');
     kfree(n1);
-    char *tmps = strings_join((char*[]){name, "_add_", value}, 3, '_');
-    pythonix_type *i = pythonix_type_str_new(n2, tmps, vm);
+    pythonix_type *i = pythonix_type_str_new(n2, PYTHONIX_VAR_NAME_ANON, vm);
     kfree(n2);
-    kfree(tmps);
     pythonix_type_method_call(t, "__add__", (void *)i);
-    i->_ref_count--;
 }
 void pythonix_var_add_int(karray *a, pythonix_vm *vm){
     char *name =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_INT_NAME_GROUP];
@@ -121,41 +142,45 @@ void pythonix_var_add_int(karray *a, pythonix_vm *vm){
     pythonix_type_method_call(t, "__add__", (void *)i);
     i->_ref_count--;
 }
-uint64_t _pythonix_var_operator_add_actions_regex[][2] = {
-    [PYTHONIX_VAR_OPERATOR_ADD_STR ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_STR)},
-    [PYTHONIX_VAR_OPERATOR_ADD_INT ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_INT)},
-    [PYTHONIX_VAR_OPERATOR_ADD_VAR ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_VAR)}
+void pythonix_var_add_var(karray *a, pythonix_vm *vm){
+    char *name =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_VAR_NAME_GROUP];
+    char *value =  ((char **)a->array)[PYTHONIX_REGEX_VAR_ADD_VAR_VAL_GROUP];
+    pythonix_type *t = pythonix_vm_get_type(vm, name);
+    if(!t){
+        kprintf("NameError: name '%s' is not defined\n", name);
+        return;
+    }
+    pythonix_type *t2 = pythonix_vm_get_type(vm, value);
+    if(!t2){
+        kprintf("NameError: name '%s' is not defined\n", name);
+        return;
+    }
+    pythonix_type_method_call(t,"__add__", t2);
+}
+uint64_t _pythonix_var_operator_add_actions_regex[][3] = {
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_STR),(uint64_t)pythonix_var_add_str},
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_INT),(uint64_t)pythonix_var_add_int},
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_ADD_VAR),(uint64_t)pythonix_var_add_var}
 };
 void pythonix_var_operator_add(karray *a, pythonix_vm *vm){
-    uint64_t _pythonix_var_operator_add_actions_pointers[sizeof(_pythonix_var_operator_add_actions_regex)/sizeof(_pythonix_var_operator_add_actions_regex[0])] = {
-        [PYTHONIX_VAR_OPERATOR_ADD_STR ]=(uint64_t)pythonix_var_add_str,
-        [PYTHONIX_VAR_OPERATOR_ADD_INT ]=(uint64_t)pythonix_var_add_int,
-        [PYTHONIX_VAR_OPERATOR_ADD_VAR ]=(uint64_t)pythonix_not_impl,
-    };
     pythonix_op_find(
-        _pythonix_var_operator_add_actions_pointers, 
         _pythonix_var_operator_add_actions_regex,
         sizeof(_pythonix_var_operator_add_actions_regex)/sizeof(_pythonix_var_operator_add_actions_regex[0]),
         ((char **)a->array)[0],
         vm
     );
+}
+void pythonix_var_operator_mul(karray *a, pythonix_vm *vm){
 
 }
-uint64_t _pythonix_var_operator_actions_regex[][2] = {
-    [PYTHONIX_VAR_OPERATOR_ADD ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_ADD)},
-    [PYTHONIX_VAR_OPERATOR_SUB ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_SUB)},
-    [PYTHONIX_VAR_OPERATOR_MUL ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_MUL)},
-    [PYTHONIX_VAR_OPERATOR_DIV ]= {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_DIV)}
+uint64_t _pythonix_var_operator_actions_regex[][3] = {
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_ADD), (uint64_t)pythonix_var_operator_add,},
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_SUB), (uint64_t)pythonix_not_impl,},
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_MUL), (uint64_t)pythonix_not_impl,},
+    {0, (uint64_t)(PYTHONIX_REGEX_VAR_OPERATOR_DIV), (uint64_t)pythonix_not_impl}
 };
 void pythonix_var_operator_any(karray *a, pythonix_vm *vm){
-    uint64_t _pythonix_var_operator_actions_pointers[sizeof(_pythonix_var_operator_actions_regex)/sizeof(_pythonix_var_operator_actions_regex[0])] = {
-        [PYTHONIX_VAR_OPERATOR_ADD ]=(uint64_t)pythonix_var_operator_add,
-        [PYTHONIX_VAR_OPERATOR_SUB ]=(uint64_t)pythonix_not_impl,
-        [PYTHONIX_VAR_OPERATOR_MUL ]=(uint64_t)pythonix_not_impl,
-        [PYTHONIX_VAR_OPERATOR_DIV ]=(uint64_t)pythonix_not_impl
-    };
     pythonix_op_find(
-        _pythonix_var_operator_actions_pointers, 
         _pythonix_var_operator_actions_regex,
         sizeof(_pythonix_var_operator_actions_regex)/sizeof(_pythonix_var_operator_actions_regex[0]),
         ((char **)a->array)[0],
@@ -202,25 +227,16 @@ void pythonix_interpreter_init(pythonix_vm *vm){
     pythonix_type *help = pythonix_type_new("global", "help", vm);
     pythonix_type_method_add(help, pythonix_method_new("__str__", pythonix_global_help__str__));
 }
+uint64_t _pythonix_actions_regex[][3] = {
+    {0x0, (uint64_t)PYTHONIX_REGEX_ASSIGN_ANY, (uint64_t)pythonix_assign_any},
+    {0x0, (uint64_t)PYTHONIX_REGEX_PRINT_VAR, (uint64_t)pythonix_print_var},
+    {0x0, (uint64_t)PYTHONIX_REGEX_FN_CALL, (uint64_t)pythonix_not_impl},
+    {0x0, (uint64_t)PYTHONIX_REGEX_FN_DEF, (uint64_t)pythonix_not_impl},
+    {0x0, (uint64_t)PYTHONIX_REGEX_METHOD_CALL, (uint64_t)pythonix_method_call},
+    {0x0, (uint64_t)PYTHONIX_REGEX_VAR_OPERATOR_ANY, (uint64_t)pythonix_var_operator_any}
+
+};
 void pythonix_interpreter(){
-    uint64_t _pythonix_actions_regex[] = {
-        [PYTHONIX_ASSIGN_ANY      ]=(uint64_t)regex_new(PYTHONIX_REGEX_ASSIGN_ANY),
-        [PYTHONIX_PRINT_VAR       ]=(uint64_t)regex_new(PYTHONIX_REGEX_PRINT_VAR),
-        [PYTHONIX_FN_CALL         ]=(uint64_t)regex_new(PYTHONIX_REGEX_FN_CALL),
-        [PYTHONIX_FN_DEF          ]=(uint64_t)regex_new(PYTHONIX_REGEX_FN_DEF),
-        [PYTHONIX_METHOD_CALL     ]=(uint64_t)regex_new(PYTHONIX_REGEX_METHOD_CALL),
-        [PYTHONIX_VAR_OPERATOR_ANY]=(uint64_t)regex_new(PYTHONIX_REGEX_VAR_OPERATOR_ANY),
-
-    };
-    uint64_t _pythonix_actions_pointers[sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0])] = {
-        [PYTHONIX_ASSIGN_ANY       ]=(uint64_t)pythonix_assign_any,
-        [PYTHONIX_PRINT_VAR        ]=(uint64_t)pythonix_print_var,
-        [PYTHONIX_FN_CALL          ]=(uint64_t)pythonix_not_impl,
-        [PYTHONIX_FN_DEF           ]=(uint64_t)pythonix_not_impl,
-        [PYTHONIX_METHOD_CALL      ]=(uint64_t)pythonix_method_call,
-        [PYTHONIX_VAR_OPERATOR_ANY ]=(uint64_t)pythonix_var_operator_any
-
-    };
     kprint(
         "Pythonix 0.0.1 on loonix\n"
         "Type \"help\", \"copyright\", \"credits\" or \"license\" for more information.\n"
@@ -252,33 +268,12 @@ void pythonix_interpreter(){
             char *line = kmalloc(sizeof(char)*(in->length+1));
             line[in->length] = 0x0;
             memcpy(line, in->array, in->length);
-            bool m = false;
-            for(int i = 0; i < sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0]); i++){
-                karray *exp = (karray *)_pythonix_actions_regex[i];
-                if(regex_match(exp, line)){
-                    karray *matches = regex_match_group(exp, line);
-                    if(matches){
-                        karray *groups = regex_group_join(matches);
-                        if(m){
-                            KDEBUG("error line matched more than once", 0x0);
-                            for(int j = 0; j < groups->length; j++)
-                                KDEBUG("groups[%d] == %s", j, ((char **)groups->array)[j]);
-                        }
-                        ((void(*)(karray *a, pythonix_vm *vm))_pythonix_actions_pointers[i])(groups, vm);
-                        karray_free(groups);
-                        karray_free(matches);
-                        m = true;
-                    }
-                    else{
-                        KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
-                    }
-                }
-            }
-            if(!m){
-                kprintf("error invalid syntax : %s", line);
-                //for(int i = 0; i < in->length; i++)
-                //    KDEBUG("in[%d] == %c",i,((char *)in->array)[i]);
-            }
+            pythonix_op_find(
+                _pythonix_actions_regex, 
+                sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0]), 
+                line, 
+                vm
+            );
             kfree(line);
             karray_clear(in);
             pythonix_vm_gc(vm);
