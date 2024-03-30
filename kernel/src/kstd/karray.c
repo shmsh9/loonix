@@ -135,6 +135,10 @@ karray *karray_new(uint8_t elementsz, void(*karray_data_free_fn)(void *)){
     return ret;
 }
 void karray_free(karray *array){
+    if(!array){
+        KERROR("array == NULL");
+        return;
+    }
     karray_lock(array);
     if(array->karray_data_free_fn){
         switch (array->elementsz){

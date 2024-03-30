@@ -58,7 +58,7 @@ bool _regex_match_fixed_at(regex_automaton *a, char **s){
     return true;
 }
 karray * regex_group_join(karray *g){
-    karray *ret = karray_new(sizeof(char *), kfree);
+    karray *ret = karray_new(sizeof(char **), kfree);
     int g0_l = 0;
     for(int i = 0; i < g->length; i++){
         g0_l += ((regex_match_string **)g->array)[i]->length;
@@ -150,7 +150,6 @@ karray * regex_match_group(karray *at, char *s){
                 char *match = kmalloc((curr_s - sav_currs)+1);
                 match[curr_s - sav_currs] = 0x0;
                 memcpy(match, sav_currs, curr_s - sav_currs);
-                KDEBUG("pushing %s (g %d)",match,a->group);
                 karray_push(
                     ret, 
                     (uint64_t)regex_match_string_new(match,a->group, curr_s - sav_currs)

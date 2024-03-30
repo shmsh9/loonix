@@ -3,7 +3,7 @@ ENTRY(_start)
 
 SECTIONS
 {
-	.text.start : {
+	.text.start 0x1000000 : {
 		__TEXT_START_ = .;
 			*(.text)
 		__TEXT_END_   = .;

@@ -27,5 +27,6 @@ karray *regex_new(char *s);
 bool regex_match(karray *at, char *s);
 karray * regex_group_join(karray *g);
 karray * regex_match_group(karray *at, char *s);
+void regex_match_free(regex_match_string *m);
 #endif 
 
