@@ -1,23 +1,31 @@
 #include <pythonix/types.h>
 
 void pythonix_method_free(pythonix_method *m){
-    kfree(m->name);
-    m->name = 0x0;
-    kfree(m);
+    if(m){
+        if(m->name)
+            kfree(m->name);
+        kfree(m);
+    }
 }
 pythonix_type * pythonix_type__del__(pythonix_type *t, void *n){
     if(t->_free)
         t->_free(t);
-    kfree(t->_data);
-    karray_free(t->_methods);
-    khashmap_free(t->_methods_hashmap);
-    kfree(t->name);
+    if(t->_methods)
+        karray_free(t->_methods);
+    if(t->_methods_hashmap)
+        khashmap_free(t->_methods_hashmap);
+    if(t->name)
+        kfree(t->name);
     if(t->_variable_name)
         kfree(t->_variable_name);
     kfree(t);
     return NULL;
 }
 pythonix_type *pythonix_type__copy__(pythonix_type *t, void *p){
+    if(!t){
+        KERROR("t == NULL");
+        return NULL;
+    }
     if(!t->_copy){
         pythonix_type *copy = pythonix_type_new(
             t->name,
@@ -32,7 +40,15 @@ pythonix_type *pythonix_type__copy__(pythonix_type *t, void *p){
     }
 }
 pythonix_type *pythonix_type__str__(pythonix_type *t, void *p){
+    if(!t){
+        KERROR("t == NULL");
+        return NULL;
+    }
     if(!t->_str){
+        if(!t->name){
+            KERROR("t->name == NULL");
+            return NULL;
+        }
         char *s = strings_join((char *[]){"<",t->name,">"},3,0x0);
         pythonix_type *str = pythonix_type_str_new(
             t->name,
@@ -56,7 +72,12 @@ pythonix_method *pythonix_method_new(char *name, pythonix_type* (*m)(pythonix_ty
     return ret;
 }
 pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
+    if(!vm){
+        KERROR("vm == NULL");
+        return NULL;
+    }
     pythonix_type *ret = kmalloc(sizeof(pythonix_type));
+    KDEBUG("%s (%s 0x%x)", vname ? vname : "NULL", name, ret);
     *ret = (pythonix_type){
         .name = strdup(name),
         ._methods = karray_new(sizeof(pythonix_method *), (void (*)(void *))pythonix_method_free),
@@ -78,7 +99,6 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
             old->_ref_count--;
         khashmap_set(vm->names, ret->_variable_name, (uint64_t)ret);
     }
-    KDEBUG("%s (%s 0x%x)", vname ? vname : "NULL", name, ret);
     return ret;
 }
 pythonix_method *pythonix_type_method_get(pythonix_type *t, char *m){
@@ -87,6 +107,10 @@ pythonix_method *pythonix_type_method_get(pythonix_type *t, char *m){
 }
 
 pythonix_type *pythonix_type_method_call(pythonix_type *self, char *m, void *p){
+    if(!self){
+        KERROR("self == NULL");
+        return NULL;
+    }
     pythonix_method *method = pythonix_type_method_get(self, m);
     if(!method){
         kprintf("AttributeError: '%s' object has no attribute '%s'\n", self->name, m);

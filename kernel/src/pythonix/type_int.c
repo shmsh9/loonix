@@ -57,6 +57,10 @@ pythonix_type *pythonix_type_int__copy__(pythonix_type *self, void *d){
 }
 pythonix_type *pythonix_type_int_new(int64_t value, char *vname, pythonix_vm *vm){
     pythonix_type *ret = pythonix_type_new(PYTHONIX_TYPE_NAME_INT, vname, vm);
+    if(!ret){
+        KERROR("ret == NULL");
+        return NULL;
+    }
     ret->_str = pythonix_type_int__str__;
     ret->_copy = pythonix_type_int__copy__;
     pythonix_type_method_add(ret, pythonix_method_new("__add__", pythonix_type_int__add__));

@@ -5,6 +5,10 @@ void pythonix_type_str_free(pythonix_type *t){
     kfree(s->data);
 }
 void pythonix_type_str__add__str(pythonix_type_str *self, pythonix_type_str *t2){
+    if(!self){
+        KERROR("self == NULL");
+        return;
+    }
     char *s = strings_join((char *[]){self->data, t2->data}, 2, 0x0);
     kfree(self->data);
     self->data = s;
@@ -36,6 +40,10 @@ pythonix_type *pythonix_type_str__mul__(pythonix_type *self, void *d){
     return 0x0;
 }
 pythonix_type *pythonix_type_str__str__(pythonix_type *self, void *d){
+    if(!self){
+        KERROR("self == NULL");
+        return NULL;
+    }
     pythonix_type_str *s = (pythonix_type_str *)self->_data;
     char *tmp = kmalloc(s->length+3);
     tmp[0] = '\'';
@@ -46,7 +54,11 @@ pythonix_type *pythonix_type_str__str__(pythonix_type *self, void *d){
     kfree(tmp);
     return ret;
 }
-pythonix_type *pythonix_type_str__copy__(pythonix_type *self, void *d){
+pythonix_type *pythonix_type_str__copy__(pythonix_type *self, void *d){    
+    if(!self){
+        KERROR("self == NULL");
+        return NULL;
+    }
     pythonix_type_str *s = ((pythonix_type_str *)self->_data);
     pythonix_type *copy = pythonix_type_str_new(
         s->data,
@@ -58,6 +70,10 @@ pythonix_type *pythonix_type_str__copy__(pythonix_type *self, void *d){
 
 pythonix_type *pythonix_type_str_new(char *value, char *vname, pythonix_vm *vm){
     pythonix_type *ret = pythonix_type_new(PYTHONIX_TYPE_NAME_STR, vname, vm);
+    if(!ret){
+        KERROR("ret == NULL");
+        return NULL;
+    }
     pythonix_type_str *str = kmalloc(sizeof(pythonix_type_str));
     *str = (pythonix_type_str){
         .data = strdup(value),

@@ -594,10 +594,10 @@ int builtins_testktree(int argc, char **argv){
     return 0;
 }
 int builtins_pythonix(int argc, char **argv){
-    pythonix_interpreter();
+    //pythonix_interpreter();
     pythonix_vm *v = pythonix_vm_new();
-    pythonix_type_str_new("foo", "foobar", v);
     
+    pythonix_type_str_new("foo", "foobar", v);
     pythonix_type *s = pythonix_type_method_call(pythonix_vm_get_type(v, "foobar"), "__str__", NULL);
     KDEBUG("%s", ((pythonix_type_str *)s->_data)->data);
     pythonix_vm_debug_print(v);
