@@ -13,7 +13,7 @@ typedef struct _pythonix_type{
     khashmap *_methods_hashmap;
     char *name;
     char *_variable_name;
-    uint32_t _ref_count;
+    int32_t _ref_count;
     void (*_free)(struct _pythonix_type *);
     struct _pythonix_type *(*_copy)(struct _pythonix_type *, void*);
     struct _pythonix_type *(*_str)(struct _pythonix_type *, void*);

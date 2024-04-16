@@ -5,29 +5,30 @@ void pythonix_method_free(pythonix_method *m){
     m->name = 0x0;
     kfree(m);
 }
-void pythonix_type_free(pythonix_type *t){
+pythonix_type * pythonix_type__del__(pythonix_type *t, void *n){
     if(t->_free)
         t->_free(t);
+    kfree(t->_data);
     karray_free(t->_methods);
     khashmap_free(t->_methods_hashmap);
     kfree(t->name);
     if(t->_variable_name)
         kfree(t->_variable_name);
     kfree(t);
+    return NULL;
 }
 pythonix_type *pythonix_type__copy__(pythonix_type *t, void *p){
-    char *variable_name = (char *)p;
     if(!t->_copy){
         pythonix_type *copy = pythonix_type_new(
             t->name,
-            variable_name,
+            (char *)p,
             (pythonix_vm *)t->_vm
         );
         copy->_data = t->_data;
         return copy;
     }
     else{
-        return t->_copy(t,variable_name);
+        return t->_copy(t,p);
     }
 }
 pythonix_type *pythonix_type__str__(pythonix_type *t, void *p){
@@ -69,6 +70,7 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
     };
     pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type__copy__));
     pythonix_type_method_add(ret, pythonix_method_new("__str__", pythonix_type__str__));
+    pythonix_type_method_add(ret, pythonix_method_new("__del__", pythonix_type__del__));
     karray_push(vm->types, (uint64_t)ret);
     if(ret->_variable_name){
         pythonix_type *old = pythonix_vm_get_type(vm, ret->_variable_name);
@@ -76,6 +78,7 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
             old->_ref_count--;
         khashmap_set(vm->names, ret->_variable_name, (uint64_t)ret);
     }
+    KDEBUG("%s (%s 0x%x)", vname ? vname : "NULL", name, ret);
     return ret;
 }
 pythonix_method *pythonix_type_method_get(pythonix_type *t, char *m){

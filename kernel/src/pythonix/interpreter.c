@@ -52,11 +52,13 @@ pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
         {0, (uint64_t)"\\s*("PYTHONIX_REGEX_VAR_NAME")\\s*.\\s*("PYTHONIX_REGEX_METHOD_NAME")\\s*\\((.*)\\)\\s*",(uint64_t)pythonix_obj_identify_method},
         {0, (uint64_t)".*",(uint64_t)pythonix_not_impl}
     };
+    int regx_len = sizeof(_pythonix_obj_identify_regex)/sizeof(_pythonix_obj_identify_regex[0]);
 
-    for(int i = 0; i < sizeof(_pythonix_obj_identify_regex)/sizeof(_pythonix_obj_identify_regex[0]); i++){
-        if(!_pythonix_obj_identify_regex[i][0]){
-            _pythonix_obj_identify_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_obj_identify_regex[i][1]);
-        }
+    for(int j = 0; j < regx_len; j ++)
+        _pythonix_obj_identify_regex[j][0] = (uint64_t)regex_new((char *)_pythonix_obj_identify_regex[j][1]);;
+
+    for(int i = 0; i < regx_len; i++){
+
         karray *exp = (karray *)_pythonix_obj_identify_regex[i][0];
         if(regex_match(exp, val)){
             karray *matches = regex_match_group(exp, val);
@@ -66,17 +68,22 @@ pythonix_type *pythonix_obj_identify(char *val, pythonix_vm *vm){
                 //please fixxx
                 karray_free(groups);
                 karray_free(matches);
-                karray_free((karray *)_pythonix_obj_identify_regex[i][0]);
+                for(int j = 0; j < regx_len; j ++)
+                    karray_free((karray *)_pythonix_obj_identify_regex[j][0]);
                 return t;
             }
             else{
                 KERROR("regex_match(exp, s) == true && regex_match_groups(exp, s) == NULL");
                 KDEBUG("%s && %s", _pythonix_obj_identify_regex[i][1], val);
+                for(int j = 0; j < regx_len; j ++)
+                    karray_free((karray *)_pythonix_obj_identify_regex[j][0]);
                 return 0x0;
             }
 
         }
     }
+    for(int j = 0; j < regx_len; j ++)
+        karray_free((karray *)_pythonix_obj_identify_regex[j][0]);
     return 0x0;
 }
 void pythonix_print_var(karray *a, pythonix_vm *vm){
@@ -100,20 +107,19 @@ void pythonix_assign_any(karray *a, pythonix_vm *vm){
         KERROR("a->length < 2");
         return;
     }
-    pythonix_type *t2 = pythonix_obj_identify(((char **)a->array)[2], vm);
-    if(t2){
-        pythonix_type_method_call(t2, "__copy__", ((char **)a->array)[1]);
+    pythonix_type *t = pythonix_obj_identify(((char **)a->array)[2], vm);
+    if(t){
+        KDEBUG("t.__copy__ (0x%x) on %s", t, ((char **)a->array)[1]);
+        pythonix_type_method_call(t, "__copy__", ((char **)a->array)[1]);
     }
 }
 void pythonix_var_operator_x(karray *a, char *method, pythonix_vm *vm){
     pythonix_type *t = pythonix_obj_identify(((char **)a->array)[1], vm);
     if(!t){
-        kprintf("NameError: name '%s' is not defined\n", ((char **)a->array)[1]);        
         return;
     }
     pythonix_type *t2 = pythonix_obj_identify(((char **)a->array)[3], vm);
     if(!t2){
-        kprintf("NameError: name '%s' is not defined\n", ((char **)a->array)[3]);        
         return;
     }
     pythonix_type_method_call(t, method, (void *)t2);
@@ -153,17 +159,25 @@ void pythonix_method_call(karray *a, pythonix_vm *vm){
     }
 }
 pythonix_type *pythonix_global_help__str__(pythonix_type *t, void *vm){
-    char *name = strings_join(((char*[]){ t->_variable_name, t->name, "_str__"}), 3, '_');
-    pythonix_type *ret = pythonix_type_str_new(
+    return pythonix_type_str_new(
         "Type help() for interactive help, or help(object) for help about object.", 
-        name, 
+        PYTHONIX_VAR_NAME_ANON, 
         (pythonix_vm *)vm
     );
-    kfree(name);
-    return ret;
+}
+bool pythonix_interpreter_quitted = false;
+pythonix_type *pythonix_interpreter_quit(pythonix_type *t, void *vm){
+    pythonix_interpreter_quitted = true;
+    return pythonix_type_str_new(
+        "Use quit() or Ctrl-Z plus Return to exit", 
+        PYTHONIX_VAR_NAME_ANON, 
+        (pythonix_vm *)vm
+    );
 }
 void pythonix_interpreter_init(pythonix_vm *vm){
     pythonix_type *help = pythonix_type_new("global", "help", vm);
+    pythonix_type *quit = pythonix_type_new("global", "quit", vm);
+    pythonix_type_method_add(quit, pythonix_method_new("__str__", pythonix_interpreter_quit));
     pythonix_type_method_add(help, pythonix_method_new("__str__", pythonix_global_help__str__));
 }
 void pythonix_interpreter(){
@@ -175,6 +189,9 @@ void pythonix_interpreter(){
         {0x0, (uint64_t)PYTHONIX_REGEX_METHOD_CALL, (uint64_t)pythonix_method_call},
         {0x0, (uint64_t)PYTHONIX_REGEX_VAR_OPERATOR_ANY, (uint64_t)pythonix_var_operator_any}
     };
+    int regx_len = sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0]);
+    for(int i = 0; i < regx_len; i++)
+        _pythonix_actions_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_actions_regex[i][1]);
 
     kprint(
         "Pythonix 0.0.1 on loonix\n"
@@ -184,7 +201,7 @@ void pythonix_interpreter(){
     pythonix_interpreter_init(vm);
     karray *in = karray_new(sizeof(char), NULL);
     kprintf(">>> ");
-    while(true){
+    while(true && !pythonix_interpreter_quitted){
         vt100_console_update_draw_screen(fb);
         char c = kgetchar_non_blocking();
         while(!c){
@@ -206,11 +223,10 @@ void pythonix_interpreter(){
         if(c == '\n'){
             char *line = kmalloc(sizeof(char)*(in->length+1));
             line[in->length] = 0x0;
-            memcpy(line, in->array, in->length);
+            for(int i = 0; i < in->length; i++)
+                line[i] = ((char *)in->array)[i];
             bool m = false;
-            for(int i = 0; i < sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0]); i++){
-                if(!_pythonix_actions_regex[i][0])
-                    _pythonix_actions_regex[i][0] = (uint64_t)regex_new((char *)_pythonix_actions_regex[i][1]);
+            for(int i = 0; i < regx_len; i++){
                 karray *exp = (karray *)_pythonix_actions_regex[i][0];
                 if(regex_match(exp, line)){
                     karray *matches = regex_match_group(exp, line);
@@ -236,11 +252,16 @@ void pythonix_interpreter(){
 
             kfree(line);
             karray_clear(in);
-            //pythonix_vm_gc(vm);
+            pythonix_vm_gc(vm);
             kprintf(">>> ");
         }
     }
+    pythonix_interpreter_quitted = false;
     pythonix_vm_free(vm);
-    for(int i = 0; i < sizeof(_pythonix_actions_regex)/sizeof(_pythonix_actions_regex[0]); i++)
-        karray_free((karray *)_pythonix_actions_regex[i]);
+    karray_free(in);
+
+    for(int i = 0; i < regx_len; i++)
+        karray_free((karray *)_pythonix_actions_regex[i][0]);
+    
+    kprint("\n");
 }

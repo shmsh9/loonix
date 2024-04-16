@@ -48,10 +48,9 @@ pythonix_type *pythonix_type_int__str__(pythonix_type *self, void *d){
     return ret;
 }
 pythonix_type *pythonix_type_int__copy__(pythonix_type *self, void *d){
-    char *copy_name = (char *)d;
     pythonix_type *copy = pythonix_type_int_new(
         (int64_t)self->_data,
-        copy_name,
+        (char *)d,
         (pythonix_vm *)self->_vm
     );
     return copy;

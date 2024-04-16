@@ -34,4 +34,5 @@ pythonix_type *pythonix_vm_get_type(pythonix_vm *vm, char *name);
 void pythonix_vm_free(pythonix_vm *vm);
 void pythonix_interpreter();
 void pythonix_vm_gc(pythonix_vm *vm);
+void pythonix_vm_debug_print(pythonix_vm *vm);
 #endif
