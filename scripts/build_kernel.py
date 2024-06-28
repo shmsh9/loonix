@@ -35,9 +35,9 @@ def main():
                 -Wno-unused-function -Wall -Wno-unused-but-set-variable \
                 -Wno-strict-prototypes -g -O2 -Wno-strict-aliasing -fshort-wchar"
     if param["LD"] == "lld":
-        ld_flags = f" -flavor ld -T {target}/src/link{param['ARCH']}.ld -L./{target}/rs/ {' '.join(['-l:'+x.name.replace('.rs','.a') for x in rs_files])}"
+        ld_flags = f" -flavor ld -T {target}/src/link{param['ARCH']}.ld -allow-multiple-definition -L./{target}/rs/ {' '.join(['-l:'+x.name.replace('.rs','.a') for x in rs_files])}"
     if param["LD"] == "ld":
-        ld_flags = f" -T {target}/src/link{param['ARCH']}.ld -L./{target}/rs/ {' '.join(['-l:'+x.name.replace('.rs','.a') for x in rs_files])}"
+        ld_flags = f" -T {target}/src/link{param['ARCH']}.ld -allow-multiple-definition -L./{target}/rs/ {' '.join(['-l:'+x.name.replace('.rs','.a') for x in rs_files])}"
 
     config.clean_files_glob(f"{target}/src/","*.o")
     config.clean_files_glob(f"{target}/src/","*.elf")
@@ -48,6 +48,6 @@ def main():
     o_files = config.get_files_glob(f"{target}/src/","*.o")
     config.link_o_files(param, ld_flags, o_files, f"-o {out_file}")
     config.clean_files_glob(f"{target}/src/","*.o")
-    config.clean_files_glob(f"{target}/src/","*.a")
+    config.clean_files_glob(f"{target}/rs/","*.a")
 
 main()

@@ -634,12 +634,6 @@ int builtins_pythonix(int argc, char **argv){
     pythonix_vm_free(v);
     return 0;
 }
-extern void do_crazy_stuff();
-int builtins_rs(int argc, char**argv){
-    do_crazy_stuff();
-    kprintf("\nhello world! %x %s\n", 0x1337, "foobar");
-    return 0;
-}
 int builtins_lspci(int argc, char **argv){
     for(int i = 0; i < pci_devices->length; i++){
         char *padding_bus, *padding_slot;
@@ -669,12 +663,17 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
+extern void shell_rs();
+int shell_(int argc, char **argv){
+    shell_rs();
+    return 0;
+}
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
+    _BUILTIN("shell", shell_),
     _BUILTIN("graphics", builtins_graphics),
     _BUILTIN("gol", builtins_gol),
-    _BUILTIN("rs", builtins_rs),
     _BUILTIN("free", builtins_free),
     _BUILTIN("arrcmp", builtins_arrcmp),
     _BUILTIN("testscroll", builtins_testscroll),
