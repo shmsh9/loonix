@@ -663,15 +663,9 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
-extern void shell_rs();
-int shell_(int argc, char **argv){
-    shell_rs();
-    return 0;
-}
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
-    _BUILTIN("shell", shell_),
     _BUILTIN("graphics", builtins_graphics),
     _BUILTIN("gol", builtins_gol),
     _BUILTIN("free", builtins_free),

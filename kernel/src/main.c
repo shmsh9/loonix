@@ -8,7 +8,7 @@ uint64_t kmain(bootinfo *bootinfo){
 	kprint("Welcome to l00n1x !\n");
 	//while(1){
 		task_new(
-			(int (*)(void *, task *))shell, 
+			(int (*)(void *, task *))shell_rs, 
 			0x0, 
 			"shell",
 			task_priority_high
