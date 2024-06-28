@@ -23,9 +23,7 @@ static ALLOCATOR: CAlloc = CAlloc;
 
 #[panic_handler]
 fn panic(_info: &core::panic::PanicInfo) -> ! {
-    unsafe{
-        "rust panic!!!!\n".chars().for_each(|c| kputc(c as u8));
-    }
+    kernel_print(format!("rust panic!!!!").as_str());
     loop {}
 }
 
@@ -35,6 +33,7 @@ extern "C"{
     fn kfree(ptr: *mut u8);
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
+    fn vt100_set_cursor_char(c : u8);
     static fb : u64;
 }
 #[allow(unused_macros)]
@@ -46,6 +45,7 @@ macro_rules! c_str {
 
 pub fn kernel_putc(c : char){
     unsafe {
+        vt100_set_cursor_char(c as u8);
         kputc(c as u8);
     }
 }

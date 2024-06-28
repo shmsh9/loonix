@@ -9,13 +9,14 @@ use core::alloc::{GlobalAlloc, Layout};
 use alloc::{vec::Vec,format,string::String};
 use core::ffi::CStr;
 
-const PROMPT : &str = "sh3w4x $> ";
+const PROMPT : &str = "sh3w4x_rs $> ";
 
+#[allow(unreachable_code)]
 #[no_mangle]
-pub extern "C" fn shell_rs(){
-    libkstd::kernel_print("[rust version]\n");
+pub extern "C" fn shell_rs() -> i64 {
     libkstd::kernel_print(PROMPT);
     let mut cmd = Vec::new();
+    let mut cmdlinepos = 0u32;
     loop {
         let c = libkstd::kernel_getchar_async();
         match c {
@@ -28,16 +29,40 @@ pub extern "C" fn shell_rs(){
                 libkstd::kernel_print(format!("\n{}", PROMPT).as_str());
             },
             0x7f | 0x08 /*Backspace*/ => {
-                cmd.pop();
+                if cmd.len() > 0{
+                    cmd.pop();
+                    if cmdlinepos >= 1{
+                        cmdlinepos -= 1;
+                    }
+                    if cmdlinepos == 0{
+                        libkstd::kernel_print("\x1b[1D \x1b[1D");
+                    }
+                    else{
+                        libkstd::kernel_print(format!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
+                            cmdlinepos+1,
+                            String::from_utf8(cmd.clone()).unwrap(),
+                            cmd.len(),
+                            cmdlinepos
+                        ).as_str());
+                    }    
+                }
             },
-            0x3 /*^C*/ => {
+            0x03 /*^C*/ => {
 
+            },
+            0x0c /*^L*/ => {
+                cmdlinepos = 0;
+                cmd.clear();
+                libkstd::kernel_print("\x1b[2J\x1b[H");
+                libkstd::kernel_print(PROMPT);
             },
             _    => {
                 libkstd::kernel_putc(c as char);
+                cmdlinepos += 1;
                 cmd.push(c);
             }
         }
     }
+    return 0;
 }
 

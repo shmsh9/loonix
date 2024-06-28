@@ -1,11 +1,7 @@
 #include <shell/shell.h>
 
-uint8_t shell_cursor_char = ' ';
 int shell_exit_code = 0;
 
-uint8_t shell_get_cursor_char(){
-    return shell_cursor_char;
-}
 task *shell_current_subproc = 0x0;
 void shell_sigint(){
     if(shell_current_subproc)
@@ -25,7 +21,7 @@ int shell(){
     int cmdlinepos = 0;
     while(1){
         int oldpos = cmdlinepos == 0 ? 0 : cmdlinepos -1;
-        shell_cursor_char = cmdline[oldpos] == 0x0 ? ' ' : cmdline[oldpos];
+        vt100_set_cursor_char(cmdline[oldpos] == 0x0 ? ' ' : cmdline[oldpos]);
         c = kgetchar_non_blocking();
         switch(c){
             //no input at the time
