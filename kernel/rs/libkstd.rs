@@ -1,5 +1,5 @@
-#![no_std]
-#![no_main]
+#![cfg_attr(not(doc), no_main)]
+#![cfg_attr(not(doc), no_std)]
 #![feature(c_variadic)]
 
 extern crate alloc;
@@ -33,6 +33,9 @@ extern "C"{
     fn kputc(s: u8);
     fn kmalloc(sz: usize) -> *mut u8;
     fn kfree(ptr: *mut u8);
+    fn kgetchar_non_blocking() -> u8;
+    fn vt100_console_update_draw_screen(fb : u64);
+    static fb : u64;
 }
 #[allow(unused_macros)]
 macro_rules! c_str {
@@ -41,9 +44,22 @@ macro_rules! c_str {
     }
 }
 
-fn kernel_putc(c : char){
+pub fn kernel_putc(c : char){
     unsafe {
         kputc(c as u8);
+    }
+}
+pub fn kernel_print(s : &str){
+    s.chars().for_each(|c| kernel_putc(c));
+}
+pub fn kernel_vt100_update(){
+    unsafe{
+        vt100_console_update_draw_screen(fb);
+    }
+}
+pub fn kernel_getchar_async() -> u8{
+    unsafe{
+        return kgetchar_non_blocking();
     }
 }
 #[no_mangle]
