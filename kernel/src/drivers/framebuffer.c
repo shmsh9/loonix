@@ -64,7 +64,7 @@ framebuffer_device *framebuffer_device_new(uintptr_t address, uint64_t width, ui
             KERROR("not enough memory for double buffering");
         }
         else{
-            KDEBUG("double buffer at 0x%x", double_buffer);
+            //KDEBUG("double buffer at 0x%x", double_buffer);
             ret->double_buffer = double_buffer;
         }
     }

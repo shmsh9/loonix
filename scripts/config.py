@@ -38,6 +38,13 @@ def compile_c_files(params, c_flags, c_files):
         r = os.system(f"{params['CC']} {file} {c_flags} -o {os.path.splitext(file)[0]}.o")
         if(r != 0):
             exit(r)
+def compile_rs_files(params, rs_files):
+    for file in rs_files:
+        print(f"[CC] {file}")
+        r = os.system(f"rustc {file} --target={params['ARCH']}-unknown-none --crate-type=staticlib -o {os.path.splitext(file)[0]}.a")
+        if(r != 0):
+            exit(r)
+
 def compile_s_files(params, c_flags, s_files):
     for file in s_files:
         print(f"[CC] {file}")

@@ -7,7 +7,7 @@ void pythonix_method_free(pythonix_method *m){
         kfree(m);
     }
 }
-pythonix_type * pythonix_type__del__(pythonix_type *t, void *n){
+void pythonix_type_free(pythonix_type *t){
     if(t->_free)
         t->_free(t);
     if(t->_methods)
@@ -19,7 +19,6 @@ pythonix_type * pythonix_type__del__(pythonix_type *t, void *n){
     if(t->_variable_name)
         kfree(t->_variable_name);
     kfree(t);
-    return NULL;
 }
 pythonix_type *pythonix_type__copy__(pythonix_type *t, void *p){
     if(!t){
@@ -77,13 +76,18 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
         return NULL;
     }
     pythonix_type *ret = kmalloc(sizeof(pythonix_type));
+    if(!ret){
+        KERROR("ret == NULL");
+        return NULL;
+    }
     KDEBUG("%s (%s 0x%x)", vname ? vname : "NULL", name, ret);
+
     *ret = (pythonix_type){
         .name = strdup(name),
         ._methods = karray_new(sizeof(pythonix_method *), (void (*)(void *))pythonix_method_free),
         ._methods_hashmap = khashmap_new(),
         ._ref_count = vname == PYTHONIX_VAR_NAME_ANON ? 0 : 1,
-        ._variable_name = vname == PYTHONIX_VAR_NAME_ANON ? vname : strdup(vname),
+        ._variable_name = vname == PYTHONIX_VAR_NAME_ANON ? PYTHONIX_VAR_NAME_ANON : strdup(vname),
         ._free = NULL,
         ._vm = vm,
         ._copy = NULL,
@@ -91,13 +95,14 @@ pythonix_type *pythonix_type_new(char *name, char *vname, pythonix_vm *vm){
     };
     pythonix_type_method_add(ret, pythonix_method_new("__copy__", pythonix_type__copy__));
     pythonix_type_method_add(ret, pythonix_method_new("__str__", pythonix_type__str__));
-    pythonix_type_method_add(ret, pythonix_method_new("__del__", pythonix_type__del__));
     karray_push(vm->types, (uint64_t)ret);
-    if(ret->_variable_name){
-        pythonix_type *old = pythonix_vm_get_type(vm, ret->_variable_name);
-        if(old)
+    if(vname){
+        pythonix_type *old = pythonix_vm_get_type(vm, vname);
+        if(old){
             old->_ref_count--;
-        khashmap_set(vm->names, ret->_variable_name, (uint64_t)ret);
+            KDEBUG("replacing var %s (0x%x) with %s (0x%x)", old->_variable_name, old, ret->_variable_name,ret)
+        }
+        khashmap_set(vm->names, vname, (uint64_t)ret);
     }
     return ret;
 }

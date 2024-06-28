@@ -3,7 +3,7 @@ import os
 import config
 import shutil
 param = config.get_params()
-qemu_memory = "64M"
+qemu_memory = "128M"
 if param['ARCH'] == "x86_64":
     qemu_flags = "-M q35"
     qemu = "qemu-system-x86_64"

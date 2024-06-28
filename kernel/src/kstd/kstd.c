@@ -38,7 +38,7 @@ char kgetchar_non_blocking(){
         return ret;
     return 0;
 }
-void kprintf(const char *fmt, ...){
+/* void kprintf(const char *fmt, ...){
     if(!fmt){
         KERROR("fmt == NULL");
         return;
@@ -100,6 +100,8 @@ void kprintf(const char *fmt, ...){
     }
     __builtin_va_end(arg);
 }
+*/
+
 void kprinthex(void *ptr, uint64_t n){
     #define KPRINTHEX_PADDING(n) (n < 0x10 ? "0":"")
     if(!ptr)
@@ -146,6 +148,7 @@ void *kmalloc(uint64_t b){
             }
         }
     }
+    KDEBUG("last allocation slot was not free", 0x0);
     for(int i = 0; i < kalloc_list_last; i++){
         if(kalloc_list[i].ptr == 0){
             kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
@@ -285,7 +288,10 @@ void kfree(void *p){
     }
     /*
     if(task_current && kalloc_list[ptrindex].task != task_current){
-        KERROR("kalloc_list[ptrindex].task != task_current");
+        KERROR("kalloc_list[ptrindex].task (%s) != task_current (%s)", 
+            kalloc_list[ptrindex].task->name,
+            task_current->name
+        );
         task_unlock();
         return;
     }

@@ -8,14 +8,14 @@ void kheap_init(kheap *heap){
 }
 void kheap_add_blocks(kheap *heap, uintptr_t mem, uint64_t nblock){
     heap->n_block = nblock - ((HEAP_HEADER_SIZE*nblock)/HEAP_BLOCK_SIZE);
-    KDEBUG("using %d blocks for header",  ((HEAP_HEADER_SIZE*nblock)/HEAP_BLOCK_SIZE));
-    KDEBUG("adding %d MB at 0x%x", BYTES_TO_MB(heap->n_block*HEAP_BLOCK_SIZE), mem);
+    //KDEBUG("using %d blocks for header",  ((HEAP_HEADER_SIZE*nblock)/HEAP_BLOCK_SIZE));
+    //KDEBUG("adding %d MB at 0x%x", BYTES_TO_MB(heap->n_block*HEAP_BLOCK_SIZE), mem);
     uintptr_t heap_header_address = mem;
     uintptr_t heap_memory_address = heap_header_address+(HEAP_HEADER_SIZE*nblock);
     heap->header = (uint8_t *)heap_header_address;
     heap->memory = (uint8_t *)heap_memory_address;
     memset(heap->header, 0, HEAP_HEADER_SIZE*nblock);
-    KDEBUG("heap->header : 0x%x heap->memory : 0x%x, heap->n_block : %d", heap->header, heap->memory, heap->n_block);
+    //KDEBUG("heap->header : 0x%x heap->memory : 0x%x, heap->n_block : %d", heap->header, heap->memory, heap->n_block);
     heap->free_memory = heap->n_block * HEAP_BLOCK_SIZE;
 }
 bool get_bit(uint8_t field, uint8_t bit){

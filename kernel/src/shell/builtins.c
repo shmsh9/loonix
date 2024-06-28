@@ -594,9 +594,9 @@ int builtins_testktree(int argc, char **argv){
     return 0;
 }
 int builtins_pythonix(int argc, char **argv){
-    //pythonix_interpreter();
+    pythonix_interpreter();
     pythonix_vm *v = pythonix_vm_new();
-    
+    /*
     pythonix_type_str_new("foo", "foobar", v);
     pythonix_type *s = pythonix_type_method_call(pythonix_vm_get_type(v, "foobar"), "__str__", NULL);
     KDEBUG("%s", ((pythonix_type_str *)s->_data)->data);
@@ -620,8 +620,24 @@ int builtins_pythonix(int argc, char **argv){
     KDEBUG("%s", ((pythonix_type_str *)s->_data)->data);
     pythonix_vm_debug_print(v);
     pythonix_vm_gc(v);
+    */
+    for(int i = 0; i < 3; i++){
+        pythonix_type_str_new("foo", "foobar", v);
+        pythonix_type_method_call(pythonix_vm_get_type(v, "foobar"), "__str__", NULL);
+        pythonix_type_method_call(pythonix_vm_get_type(v, "foobar"), "__copy__", "xor");
 
+        pythonix_vm_gc(v);
+        pythonix_vm_debug_print(v);
+        kprint("\n\n");
+
+    }
     pythonix_vm_free(v);
+    return 0;
+}
+extern void do_crazy_stuff();
+int builtins_rs(int argc, char**argv){
+    do_crazy_stuff();
+    kprintf("\nhello world! %x %s\n", 0x1337, "foobar");
     return 0;
 }
 int builtins_lspci(int argc, char **argv){
@@ -658,6 +674,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
     _BUILTIN("graphics", builtins_graphics),
     _BUILTIN("gol", builtins_gol),
+    _BUILTIN("rs", builtins_rs),
     _BUILTIN("free", builtins_free),
     _BUILTIN("arrcmp", builtins_arrcmp),
     _BUILTIN("testscroll", builtins_testscroll),

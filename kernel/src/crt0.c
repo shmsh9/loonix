@@ -19,6 +19,7 @@ acpi_table *acpi_tables = 0x0;
 
 void crt0(bootinfo *bootinfo){
     //Heap allocation not allowed until said otherwise
+    //This includes calling kprintf()
     task_lock();
 
     //temp stack serial obj
@@ -32,7 +33,6 @@ void crt0(bootinfo *bootinfo){
         .wait_tx = serial_x86_device_wait_tx,
         .char_in = 0
     };
-
     runtime_services = bootinfo->RuntimeServices;
     if(bootinfo->uefi_exit_code)
         KPANIC("uefi_exit_code returned 0x%x", bootinfo->uefi_exit_code);
@@ -42,23 +42,26 @@ void crt0(bootinfo *bootinfo){
     EFI_MEMORY_DESCRIPTOR *largest_mem_block = mmap_find_largest_block(&mmap);
     if(!largest_mem_block)
         KPANIC("no available memory found !");
-
+    /*
     KDEBUG("largest mem block : 0x%x %dMB (%d pages)", 
             largest_mem_block->PhysicalStart,
             BYTES_TO_MB(largest_mem_block->NumberOfPages*HEAP_BLOCK_SIZE),
             largest_mem_block->NumberOfPages
     );
+    */
     uintptr_t ram_addr = largest_mem_block->PhysicalStart;
     uint64_t ram_pages_n = largest_mem_block->NumberOfPages;
     if(ram_addr == (uintptr_t)bootinfo->kernelbase || ram_addr <= (uintptr_t)bootinfo->kernelbase+bootinfo->kernelsize){
-        KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
+        //KDEBUG("protecting kernel also at 0x%x", bootinfo->kernelbase);
         ram_addr += bootinfo->kernelsize+NEWMEM_HACK_UGLY_OFFSET;
         //ram_pages_n -= (bootinfo->kernelsize+HACK_UGLY_OFFSET / HEAP_BLOCK_SIZE)+1;
     }
+
     kheap_init(&heap);
     kheap_add_blocks(&heap, ram_addr, ram_pages_n);
     kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
+
     //It is allowed to do heap allocations after this line
     //!\ contiguous memory is needed
     fb = framebuffer_device_new(

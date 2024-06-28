@@ -3,6 +3,7 @@
 void pythonix_type_str_free(pythonix_type *t){
     pythonix_type_str *s = (pythonix_type_str *)t->_data;
     kfree(s->data);
+    kfree(t->_data);
 }
 void pythonix_type_str__add__str(pythonix_type_str *self, pythonix_type_str *t2){
     if(!self){

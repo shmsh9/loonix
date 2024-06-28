@@ -17,11 +17,17 @@ void pythonix_vm_gc(pythonix_vm *vm){
     int l = vm->types->length;
     for(int i = l-1; i >= 0; i--){
         pythonix_type *t = ((pythonix_type **)vm->types->array)[i];
+        if(!t){
+            KERROR("t == NULL");
+            continue;
+        }
         if(t->_ref_count <= 0){
             KDEBUG("%s (%s 0x%x) vm[%d]", t->_variable_name ? t->_variable_name : "NULL", t->name, t, i);
-            if(khashmap_get(vm->names, t->_variable_name) == (uint64_t)t)
+            if(khashmap_get(vm->names, t->_variable_name) == (uint64_t)t){
+                KDEBUG("setting %s == NULL", t->_variable_name ? t->_variable_name : "NULL");
                 khashmap_set(vm->names, t->_variable_name, 0x0);
-            pythonix_type_method_call(t, "__del__", NULL);
+            }
+            pythonix_type_free(t);
             karray_pop(vm->types, i);
         }
     }
