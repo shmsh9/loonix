@@ -1,5 +1,4 @@
-#![cfg_attr(not(doc), no_main)]
-#![cfg_attr(not(doc), no_std)]
+#![cfg_attr(not(doc),no_std)]
 #![feature(c_variadic)]
 
 extern crate alloc;
@@ -22,11 +21,71 @@ static ALLOCATOR: CAlloc = CAlloc;
 
 
 #[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
-    kernel_print(format!("rust panic!!!!").as_str());
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    kernel_print(format!("rust panic :\n").as_str());
+    kernel_print(format!("{:?}", info).as_str());
     loop {}
 }
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! c_str {
+    ($a:expr) => {
+        format!("{}\0", $a).as_ptr()
+    }
+}
 
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! kernel_print_fmt {
+    ( $x:expr, $( $e:expr ),* ) => (
+        libkstd::kernel_print(format!($x,  $( $e ),* ).as_str())
+    )
+}
+
+#[allow(dead_code)]
+#[derive(Debug)]
+#[repr(C)]
+pub enum TaskPriority{
+    TaskPriorityHigh,
+    TaskPriorityMedium,
+    TaskPriorityLow,
+    TaskPrioritySleep,
+    TaskPriorityNull
+}
+#[allow(dead_code)]
+#[derive(Debug)]
+#[repr(C)]
+pub enum TaskStatus{
+    TaskStatusEnded,
+    TaskStatusRunning,
+    TaskStatusCreated,
+    TaskStatusWaitIO,
+    TaskStatusPaused
+}
+#[allow(dead_code)]
+#[derive(Debug)]
+#[repr(C)]
+pub struct Task<'a>{
+    next : &'a Task<'a>,
+    prev : &'a Task<'a>,
+    cpu_registers : [u64;26], //changeme Arch agnostic
+    stack_start : u64,
+    stack_end: u64,
+    task_status: TaskStatus,
+    pub name : *const u8,
+    data : u64,
+    time_slice : u32,
+    time_slice_remaining : i32,
+    priority : TaskPriority,
+    waiting_on : &'a Task<'a>
+}
+impl Task<'_>{
+    pub fn new(f : extern "C" fn (u64, &Task) -> i64, data : u64, name : &str, p : TaskPriority) -> &Task{
+        unsafe{
+            task_new(f, data, c_str!(name), p)
+        }
+    }
+}
 extern "C"{
     fn kputc(s: u8);
     fn kmalloc(sz: usize) -> *mut u8;
@@ -34,13 +93,8 @@ extern "C"{
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
     fn vt100_set_cursor_char(c : u8);
+    fn task_new(f : extern "C" fn (u64, &Task) -> i64, data : u64, name : *const u8, p: TaskPriority)-> &'static Task<'static>;
     static fb : u64;
-}
-#[allow(unused_macros)]
-macro_rules! c_str {
-    ($a:expr) => {
-        (concat!($a,"\0")).as_ptr()
-    }
 }
 
 pub fn kernel_putc(c : char){

@@ -1,16 +1,18 @@
-#![cfg_attr(not(doc), no_main)]
-#![cfg_attr(not(doc), no_std)]
+#![cfg_attr(not(doc),no_std)]
 #![feature(c_variadic)]
 
 extern crate alloc;
 mod libkstd;
 
-use core::alloc::{GlobalAlloc, Layout};
-use alloc::{vec::Vec,format,string::String};
-use core::ffi::CStr;
+use alloc::{vec::{Vec},format,string::String};
 
 const PROMPT : &str = "sh3w4x_rs $> ";
 
+#[no_mangle]
+pub extern "C" fn foo(_data : u64, _t : &libkstd::Task) -> i64 {
+    libkstd::kernel_print("\nhello from foo()");
+    return -1;
+}
 #[allow(unreachable_code)]
 #[no_mangle]
 pub extern "C" fn shell_rs() -> i64 {
@@ -23,10 +25,16 @@ pub extern "C" fn shell_rs() -> i64 {
             0    => libkstd::kernel_vt100_update(),
             0x0a | 0x0d => {
                 if cmd.len() > 0 {
-                    libkstd::kernel_print(format!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap()).as_str());
+                    let _t = libkstd::Task::new(
+                        foo,
+                        0x0,
+                        "foo",
+                        libkstd::TaskPriority::TaskPriorityLow
+                    );
+                    kernel_print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());
                     cmd.clear();
                 }
-                libkstd::kernel_print(format!("\n{}", PROMPT).as_str());
+                kernel_print_fmt!("\n{}", PROMPT);
             },
             0x7f | 0x08 /*Backspace*/ => {
                 if cmd.len() > 0{
@@ -38,12 +46,12 @@ pub extern "C" fn shell_rs() -> i64 {
                         libkstd::kernel_print("\x1b[1D \x1b[1D");
                     }
                     else{
-                        libkstd::kernel_print(format!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
+                        kernel_print_fmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
                             cmdlinepos+1,
                             String::from_utf8(cmd.clone()).unwrap(),
                             cmd.len(),
                             cmdlinepos
-                        ).as_str());
+                        );
                     }    
                 }
             },
