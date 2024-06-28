@@ -9,8 +9,12 @@ use alloc::{vec::{Vec},format,string::String};
 const PROMPT : &str = "sh3w4x_rs $> ";
 
 #[no_mangle]
-pub extern "C" fn foo(_data : u64, _t : &libkstd::Task) -> i64 {
-    libkstd::kernel_print("\nhello from foo()");
+pub extern "C" fn foo(_data : *const u8, t : *const libkstd::Task) -> i64 {
+    unsafe{
+        kernel_print_fmt!("\nhello from {}()\n", rs_str!((*t).name));
+        let d = (*t).data;
+        kernel_print_fmt!("t.data == {:?}\n", d);
+    }
     return -1;
 }
 #[allow(unreachable_code)]
@@ -25,16 +29,18 @@ pub extern "C" fn shell_rs() -> i64 {
             0    => libkstd::kernel_vt100_update(),
             0x0a | 0x0d => {
                 if cmd.len() > 0 {
-                    let _t = libkstd::Task::new(
+                    libkstd::Task::new(
                         foo,
-                        0x0,
+                        core::ptr::null(),
                         "foo",
                         libkstd::TaskPriority::TaskPriorityLow
                     );
                     kernel_print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());
                     cmd.clear();
+    
                 }
                 kernel_print_fmt!("\n{}", PROMPT);
+            
             },
             0x7f | 0x08 /*Backspace*/ => {
                 if cmd.len() > 0{

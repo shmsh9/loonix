@@ -5,6 +5,7 @@ extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::CStr;
+
 use alloc::{format};
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
@@ -31,6 +32,15 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
 macro_rules! c_str {
     ($a:expr) => {
         format!("{}\0", $a).as_ptr()
+    }
+}
+#[allow(unused_macros)]
+#[macro_export]
+macro_rules! rs_str {
+    ($a:expr) => {
+        core::ffi::CStr::from_ptr($a)
+            .to_str()
+            .unwrap()
     }
 }
 
@@ -63,24 +73,24 @@ pub enum TaskStatus{
     TaskStatusPaused
 }
 #[allow(dead_code)]
-#[derive(Debug)]
-#[repr(C)]
-pub struct Task<'a>{
-    next : &'a Task<'a>,
-    prev : &'a Task<'a>,
-    cpu_registers : [u64;26], //changeme Arch agnostic
-    stack_start : u64,
-    stack_end: u64,
-    task_status: TaskStatus,
-    pub name : *const u8,
-    data : u64,
+#[repr(C,packed)]
+pub struct Task{
+    pub next : *const Task,
+    pub prev : *const Task,
+    cpu_registers : *const u64,
+    r#fn : extern "C" fn (*const u8, *const Task) -> i64,
+    stack_start : *const u64,
+    stack_end: *const u64,
+    pub name : *const i8,
+    pub task_status: TaskStatus,
+    pub data : *const u8,
     time_slice : u32,
     time_slice_remaining : i32,
-    priority : TaskPriority,
-    waiting_on : &'a Task<'a>
+    pub priority : TaskPriority,
+    pub waiting_on : *const Task
 }
-impl Task<'_>{
-    pub fn new(f : extern "C" fn (u64, &Task) -> i64, data : u64, name : &str, p : TaskPriority) -> &Task{
+impl Task{
+    pub fn new(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : &str, p : TaskPriority) ->  * const Task{
         unsafe{
             task_new(f, data, c_str!(name), p)
         }
@@ -93,7 +103,7 @@ extern "C"{
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
     fn vt100_set_cursor_char(c : u8);
-    fn task_new(f : extern "C" fn (u64, &Task) -> i64, data : u64, name : *const u8, p: TaskPriority)-> &'static Task<'static>;
+    fn task_new(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     static fb : u64;
 }
 
