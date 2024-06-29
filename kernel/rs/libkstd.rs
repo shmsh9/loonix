@@ -1,4 +1,5 @@
-#![cfg_attr(not(doc),no_std)]
+#![allow(unused_attributes)]
+#![no_std]
 #![feature(c_variadic)]
 
 extern crate alloc;
@@ -127,7 +128,7 @@ pub fn kernel_getchar_async() -> u8{
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn kprintf(fmt: *const i8, mut args : ...){
+pub unsafe extern "C" fn kprintf(fmt: *const i8, mut args : ... ){
     let mut fmt = CStr::from_ptr(fmt).to_str().unwrap().chars();
     while let Some(c) = fmt.next() {
         match c {

@@ -1,4 +1,4 @@
-#![cfg_attr(not(doc),no_std)]
+#![no_std]
 #![feature(c_variadic)]
 
 extern crate alloc;
