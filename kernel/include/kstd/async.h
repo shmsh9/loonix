@@ -22,13 +22,13 @@ async ASYNC_TASK_TABLE[ASYNC_TASK_TABLE_SZ] = {0};
 uint32_t ASYNC_TASK_TABLE_I = 0;
 
 #define ASYNC_RUN()\
-    bool finished = false;\
+    bool finished = 0;\
     while(!finished){ \
-        finished = true;\
+        finished = 1;\
         for(int i = 0; i < ASYNC_TASK_TABLE_SZ; i++){ \
             if(ASYNC_TASK_TABLE[i].curr_state != ASYNC_TASK_TABLE[i].final_state && ASYNC_TASK_TABLE[i].fn){\
                 ASYNC_TASK_TABLE[i] = ASYNC_TASK_TABLE[i].fn(ASYNC_TASK_TABLE[i], ASYNC_TASK_TABLE[i].payload); \
-                finished = false; \
+                finished = 0; \
             } \
         } \
     }
@@ -74,5 +74,6 @@ uint32_t ASYNC_TASK_TABLE_I = 0;
     ASYNC_AWAIT(t) \
     expr
 
+#define ASYNC_FN(name, payload, body) async name(async state, payload){ ASYNC_BODY( body ) }
 
 #endif
