@@ -29,10 +29,10 @@ pub extern "C" fn shell_rs() -> i64 {
             0    => libkstd::kernel_vt100_update(),
             0x0a | 0x0d => {
                 if cmd.len() > 0 {
-                    libkstd::Task::new(
-                        foo,
+                    libkstd::Task::new_unsafe(
+                        libkstd::asynct,
                         core::ptr::null(),
-                        "foo",
+                        "asynct",
                         libkstd::TaskPriority::TaskPriorityLow
                     );
                     kernel_print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());

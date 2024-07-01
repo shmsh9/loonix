@@ -15,6 +15,7 @@
 #include <kstd/ktree.h>
 #include <kstd/khashmap.h>
 #include <sys/task.h>
+#include <kstd/async.h>
 
 #define KERNEL_DEBUG
 #define BREAKPOINT() __asm__ __volatile__ ("1: "JUMP_INSTRUCTION" 1b")
@@ -122,6 +123,7 @@ void memcpy(void *dst, const void *src, uint64_t sz);
 int memcmp(const void *ptr1, const void *ptr2, uint64_t sz);
 char kgetchar();
 char kgetchar_non_blocking();
+ASYNC_FN_H(kgetchar_async, char *out);
 void kputc(uint8_t c);
 int32_t kalloc_find_ptr_alloc(const void *ptr);
 void *kmalloc(uint64_t b);

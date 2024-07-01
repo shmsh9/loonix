@@ -26,6 +26,13 @@ char kgetchar(){
         return serial_device_readchar(serial);
     return 0;
 }
+ASYNC_FN(kgetchar_async, char *out, {
+    char c = kgetchar_non_blocking();
+    if(!c)
+        ASYNC_YIELD();
+    *out = c;
+    ASYNC_OVER();
+})
 char kgetchar_non_blocking(){
     char ret = 0;
     if(ps2)

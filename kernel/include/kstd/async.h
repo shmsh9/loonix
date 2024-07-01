@@ -21,6 +21,9 @@ typedef struct _async_state {
 async ASYNC_TASK_TABLE[ASYNC_TASK_TABLE_SZ] = {0};
 uint32_t ASYNC_TASK_TABLE_I = 0;
 
+#define ASYNC_CLEAN()\
+    memset(ASYNC_TASK_TABLE, 0, sizeof(ASYNC_TASK_TABLE[0])*ASYNC_TASK_TABLE_SZ); \
+    ASYNC_TASK_TABLE_I = 0;
 #define ASYNC_RUN()\
     bool finished = 0;\
     while(!finished){ \
@@ -31,7 +34,8 @@ uint32_t ASYNC_TASK_TABLE_I = 0;
                 finished = 0; \
             } \
         } \
-    }
+    } \
+    ASYNC_CLEAN();
 #define ASYNC_CALL(f, p)({ \
     if(ASYNC_TASK_TABLE_I+1 < ASYNC_TASK_TABLE_SZ){ \
         ASYNC_TASK_TABLE_I++;\
@@ -43,19 +47,21 @@ uint32_t ASYNC_TASK_TABLE_I = 0;
             .waiting_task = -1 \
         }; \
     }else{\
-        kprintf("Error ASYNC_TASK_TABLE Overflow\n");\
+        KERROR("ASYNC_TASK_TABLE overflow\n");\
     }\
     ASYNC_TASK_TABLE_I; \
 })
 #define ASYNC_YIELD() return state
+#define ASYNC_OVER()\
+    state.waiting_task = -1;\
+    state.curr_state = -1;\
+    return state;
 #define ASYNC_BODY(statements) \
     switch(state.curr_state){ \
         case 0: \
         statements \
     }\
-    state.curr_state = -1;\
-    state.waiting_task = -1;\
-    ASYNC_YIELD();
+    ASYNC_OVER();
 #define ASYNC_AWAIT_L(t,l) \
     state.waiting_task = t; \
     state.curr_state = l; \
@@ -73,7 +79,6 @@ uint32_t ASYNC_TASK_TABLE_I = 0;
 #define ASYNC_AWAIT_THEN(t, expr) \
     ASYNC_AWAIT(t) \
     expr
-
-#define ASYNC_FN(name, payload, body) async name(async state, payload){ ASYNC_BODY( body ) }
-
+#define ASYNC_FN_H(name, payload) async name(async state, payload)
+#define ASYNC_FN(name, payload, body) ASYNC_FN_H(name, payload){ ASYNC_BODY( body ) }
 #endif

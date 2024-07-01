@@ -93,6 +93,11 @@ pub struct Task{
 impl Task{
     pub fn new(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : &str, p : TaskPriority) ->  * const Task{
         unsafe{
+            task_new_rs(f, data, c_str!(name), p)
+        }
+    }
+    pub fn new_unsafe(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : &str, p : TaskPriority) ->  * const Task{
+        unsafe{
             task_new(f, data, c_str!(name), p)
         }
     }
@@ -104,10 +109,11 @@ extern "C"{
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
     fn vt100_set_cursor_char(c : u8);
-    fn task_new(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
+    fn task_new_rs(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
+    fn task_new(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
+    pub fn asynct(p : *const u8, t : *const Task) -> i64; 
     static fb : u64;
 }
-
 pub fn kernel_putc(c : char){
     unsafe {
         vt100_set_cursor_char(c as u8);

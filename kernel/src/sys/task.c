@@ -90,6 +90,9 @@ void task_allocation_add(kheap_allocated_block *b){
     b->task = task_branchless[task_new_memory_allocation];
     task_unlock();
 }
+task *task_new_rs(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
+    return task_new(fn, data, name, priority);
+}
 task *task_new(int(*fn)(void *, task *), void *data, char *name, task_priority priority){
     if(!fn){
         KERROR("fn == 0x0");

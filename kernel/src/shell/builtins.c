@@ -127,45 +127,67 @@ int builtins_testmemcpy(int argc, char **argv){
     kprintf("foo = %s\n", foo);
     return 0;
 }
+ASYNC_FN(async_graphics_render, void *p[5], {
+	framebuffer_device_clear(fb, 
+        &(graphics_pixel){
+            .Red = 0xbf,
+            .Green = 0x01,
+            .Blue = 0x9f
+        }
+    );
+	framebuffer_device_draw_sprite_slow(
+        fb,
+        *((int32_t *)p[1]), 
+        *((int32_t *)p[2]), 
+        ((graphics_sprite *)p[0])
+    );
+    framebuffer_device_update(fb);
+})
 
+ASYNC_FN(async_graphics, void *p[5], {
+    ASYNC_AWAIT(ASYNC_CALL(kgetchar_async, p[4]));
+    switch (*(char *)p[4]){
+        case 0x1b:
+            *((bool *)p[3]) = false;            
+            break;
+        case 'W':
+        case 'w':
+            *((int32_t *)p[2]) -= 1;
+            break;
+        case 'A':
+        case 'a':
+            *((int32_t *)p[1]) -= 1;
+            break;
+        case 'S':
+        case 's':
+             *((int32_t *)p[2]) += 1;
+            break;
+        case 'D':
+        case 'd':
+            *((int32_t *)p[1]) += 1;
+            break;
+        default:
+            break;
+    }
+    ASYNC_AWAIT(ASYNC_CALL(async_graphics_render, p));
+})
 int builtins_graphics(int argc, char **argv){
-	#include <graphics/tux.png.h>
-	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
+    #include <graphics/tux.png.h>
+    graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
     int32_t tux_x = fb->width/2 - tux->width/2;
     int32_t tux_y = fb->height/2 - tux->height/2;
-    while(1){
-        char serial_char = serial_device_readchar_non_blocking(serial);
-        if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){
-            KMESSAGE("Exit");
-            break;
-        }
-        if(ps2_key_is_pressed(PS2_KEY_W) || tolower(serial_char) == 'w'){
-                tux_y--;
-        }
-        if(ps2_key_is_pressed(PS2_KEY_A) || tolower(serial_char) == 'a'){
-                tux_x--;
-        }
-        if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
-                tux_y++;
-        }
-        if(ps2_key_is_pressed(PS2_KEY_D) || tolower(serial_char) == 'd'){
-                tux_x++;
-        }
-
-	    framebuffer_device_clear(fb, 
-            &(graphics_pixel){
-                .Red = 0xbf,
-                .Green = 0x01,
-                .Blue = 0x9f
-            }
-        );
-	    framebuffer_device_draw_sprite_slow(
-            fb,
-            tux_x, 
-            tux_y, 
-            tux
-        );
-        framebuffer_device_update(fb);
+    bool async_graphics_run = true;
+    char async_graphics_c = 0x0;
+    void *payload[5] = {
+        (void *)tux,
+        (void *)&tux_x,
+        (void *)&tux_y,
+        (void *)&async_graphics_run,
+        (void *)&async_graphics_c
+    };
+    while(async_graphics_run){
+        ASYNC_CALL(async_graphics, payload);
+        ASYNC_RUN();
     }
     graphics_sprite_static_free(tux);
     framebuffer_device_clear(
