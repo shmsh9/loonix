@@ -28,7 +28,7 @@ uint32_t ASYNC_TASK_TABLE_I = 0;
     bool finished = 0;\
     while(!finished){ \
         finished = 1;\
-        for(int i = 0; i < ASYNC_TASK_TABLE_SZ; i++){ \
+        for(int i = 0; i < ASYNC_TASK_TABLE_I+1; i++){ \
             if(ASYNC_TASK_TABLE[i].curr_state != ASYNC_TASK_TABLE[i].final_state && ASYNC_TASK_TABLE[i].fn){\
                 ASYNC_TASK_TABLE[i] = ASYNC_TASK_TABLE[i].fn(ASYNC_TASK_TABLE[i], ASYNC_TASK_TABLE[i].payload); \
                 finished = 0; \

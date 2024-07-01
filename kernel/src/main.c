@@ -69,7 +69,7 @@ uint64_t kmain(bootinfo *bootinfo){
 	);
 	*/
 	task_new(
-		(int (*)(void *, task *))shell_rs, 
+		(int (*)(void *, task *))shell, 
 		0x0, 
 		"shell",
 		task_priority_high
