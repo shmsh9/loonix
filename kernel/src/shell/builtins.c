@@ -28,13 +28,19 @@ int builtins_time(int argc, char **argv){
 int builtins_testvec(int argc, char **argv){
     vec v0 = vec_new(char);
     vec v1 = vec_new(uint16_t);
+    vec v2 = vec_new_static(char, {'a', 'b', 'c'});
+    vec v3 = vec_new_static(uint16_t, {1,2,3,4,5});
+    vec v4 = vec_new_static(uint64_t, {(uint64_t)"foo", (uint64_t)"bar", (uint64_t)"baz"});
 
     for(char i = '0'; i < 127; i++)
         vec_push(v0, i);
     for(int i = 0; i < 0xfff; i++)
         vec_push(v1, i);
     vec_print_char(v0);
-    vec_print(v1);
+    vec_print_uint(v1);
+    vec_print_char(v2);
+    vec_print_uint(v3);
+    vec_print_str(v4);
     vec_free(v0);
     vec_free(v1);
     return 0;

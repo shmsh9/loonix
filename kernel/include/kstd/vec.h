@@ -23,6 +23,15 @@ typedef void* vec_ptr;
     };\
     ret;\
 })
+#define _vec_new_static(t, arr)({ \
+    vec_t_def(t);\
+    &(vec_t(t)){\
+        ._array = arr,\
+        .length = sizeof(arr)/sizeof(arr[0]),\
+        ._alloc = 0\
+    };\
+})
+#define vec_new_static(T,...) _vec_new_static(T, ((T[])__VA_ARGS__))
 #define vec_cast(V,T)({\
     vec_t_def(T);\
     vec_t(T) *ret = (vec_t(T)*)V;\
@@ -67,14 +76,12 @@ typedef void* vec_ptr;
     _vec_iter_i == v->length-1;\
 })
 #define vec_ptr_is_last(v,t) vec_iter_is_last(vec_cast(v,t))
-#define vec_print(v) \
+#define vec_print_fmt(v,fmt) \
     kprintf(TO_STR(v)" : {");\
     vec_iter(v, e, {\
-        kprintf("%d%s", e, vec_iter_is_last(v) ? "}\n":", ");\
+        kprintf(fmt"%s", e, vec_iter_is_last(v) ? "}\n":", ");\
     });
-#define vec_print_char(v) \
-    kprintf(TO_STR(v)" : {");\
-    vec_iter(v, e, {\
-        kprintf("'%c'%s", e, vec_iter_is_last(v) ? "}\n":", ");\
-    });
+#define vec_print_uint(v) vec_print_fmt(v, "%d")
+#define vec_print_char(v) vec_print_fmt(v, "'%c'")
+#define vec_print_str(v) vec_print_fmt(v, TO_STR(%s))
 #endif
