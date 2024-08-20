@@ -61,11 +61,10 @@ typedef void* vec_ptr;
     }
 #define vec_ptr_iter(v,t,e,fn) vec_iter(vec_cast(v,t), e, fn)
 #define vec_free(v) kfree(v->_array); kfree(v)
-#define vec_map(v,t,e,t2,e2,fn)({\
-    vec ret = vec_new(t2);\
+#define vec_map(v,t,e,fn)({\
+    vec ret = vec_new(t);\
     vec_ptr_iter(v,t,e, {\
-        t2 e2 = 0x0;\
-        fn;\
+        t e2 = fn;\
         vec_push(ret, e2);\
     });\
     ret;\
@@ -76,6 +75,26 @@ typedef void* vec_ptr;
     _vec_iter_i == v->length-1;\
 })
 #define vec_ptr_is_last(v,t) vec_iter_is_last(vec_cast(v,t))
+#define vec_contains(v, e)({\
+    bool ret = false;\
+    vec_iter(v, x, { \
+        if( x == e){\
+            ret = true;\
+            break;\
+        }\
+    })\
+    ret;\
+})
+#define vec_where(v,t,e,fn)({ \
+    vec ret = vec_new(t);\
+    vec_iter(v,e, { \
+        bool r = fn;\
+        if(r){\
+            vec_push(ret, e);\
+        }\
+    });\
+    ret;\
+})
 #define vec_print_fmt(v,fmt) \
     kprintf(TO_STR(v)" : {");\
     vec_iter(v, e, {\

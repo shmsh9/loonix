@@ -28,11 +28,11 @@ def main():
     if param["CC"] == "clang":
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
                 -Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable -Wno-gnu-auto-type\
-                -Wno-strict-prototypes -Wno-gnu-statement-expression-from-macro-expansion \
+                -Wno-strict-prototypes -Wno-gnu-statement-expression-from-macro-expansion -Wno-unused-variable \
                 -target {param['ARCH']}-none-elf -g -O3 -Wno-microsoft-static-assert -Wno-microsoft-enum-value -fshort-wchar"
     if param["CC"] == "gcc":
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
-                -Wno-unused-function -Wall -Wno-unused-but-set-variable \
+                -Wno-unused-function -Wall -Wno-unused-but-set-variable -Wno-unused-variable \
                 -Wno-strict-prototypes -g -O2 -Wno-strict-aliasing -fshort-wchar"
     if param["LD"] == "lld":
         ld_flags = f" -flavor ld -T {target}/src/link{param['ARCH']}.ld -allow-multiple-definition -L./{target}/rs/ {' '.join(['-l:'+x.name.replace('.rs','.a') for x in rs_files])}"

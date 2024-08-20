@@ -39,6 +39,14 @@ int builtins_testvec(int argc, char **argv){
     vec_print_char(v0);
     vec_print_uint(v1);
     vec_print_char(v2);
+    vec not_v3 = vec_map(v3, uint16_t, x, {
+        ~x
+    });
+    vec v1_s = vec_where(v1, uint16_t, n, {
+        n >= 3 && n <= 100
+    });
+    vec_print_uint(v1_s);
+    vec_print_uint(not_v3);
     vec_print_uint(v3);
     vec_print_str(v4);
     vec_free(v0);
