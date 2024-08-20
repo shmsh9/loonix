@@ -61,6 +61,7 @@ typedef void* vec_ptr;
     }
 #define vec_ptr_iter(v,t,e,fn) vec_iter(vec_cast(v,t), e, fn)
 #define vec_free(v) kfree(v->_array); kfree(v)
+#define vec_free_obj(v) vec_iter(v, e, { kfree((void *)e); }); vec_free(v);
 #define vec_map(v,t,e,fn)({\
     vec ret = vec_new(t);\
     vec_ptr_iter(v,t,e, {\

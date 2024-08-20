@@ -31,11 +31,16 @@ int builtins_testvec(int argc, char **argv){
     vec v2 = vec_new_static(char, {'a', 'b', 'c'});
     vec v3 = vec_new_static(uint16_t, {1,2,3,4,5});
     vec v4 = vec_new_static(uint64_t, {(uint64_t)"foo", (uint64_t)"bar", (uint64_t)"baz"});
+    vec v5 = vec_new(uint64_t);
 
     for(char i = '0'; i < 127; i++)
         vec_push(v0, i);
-    for(int i = 0; i < 0xfff; i++)
+    for(int i = 0; i < 0xfff; i++){
         vec_push(v1, i);
+    }
+    vec_iter(v3, _, {
+        vec_push(v5, (uint64_t)strdup("foo"));
+    })
     vec_print_char(v0);
     vec_print_uint(v1);
     vec_print_char(v2);
@@ -45,12 +50,22 @@ int builtins_testvec(int argc, char **argv){
     vec v1_s = vec_where(v1, uint16_t, n, {
         n >= 3 && n <= 100
     });
+    vec strs = vec_where(v4, uint64_t, s, { !strcmp((char *)s, "foo") });
+    kprintf("vec_contains(v0, 0x0) == %s\n", vec_contains(v0, 0x0) ? "true":"false");
+    kprintf("vec_contains(v0, 'a') == %s\n", vec_contains(v0, 'a') ? "true":"false");
+
     vec_print_uint(v1_s);
     vec_print_uint(not_v3);
     vec_print_uint(v3);
     vec_print_str(v4);
+    vec_print_str(strs);
+    vec_print_str(v5);
     vec_free(v0);
     vec_free(v1);
+    vec_free(v1_s);
+    vec_free(strs);
+    vec_free(not_v3);
+    vec_free_obj(v5);
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
