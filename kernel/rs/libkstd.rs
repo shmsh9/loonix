@@ -156,6 +156,10 @@ pub unsafe extern "C" fn kprintf(fmt: *const i8, mut args : ... ){
                             .chars()
                             .for_each(|x| kernel_putc(x));
                     }
+                    'c' => {
+                        let c = args.arg::<u8>();
+                        kernel_putc(c as char);
+                    }
                     _ => ()
                 }
             },

@@ -2,6 +2,7 @@
 #include <network/net.h>
 #include <kstd/regex.h>
 #include <kstd/cmp.h>
+#include <kstd/vec.h>
 #include <pythonix/pythonix.h>
 
 int builtins_clear(int argc, char **argv){
@@ -22,6 +23,20 @@ int builtins_time(int argc, char **argv){
     uint64_t t2 = cpu_get_tick();
     uint64_t s2 = getuptime100s();
     kprintf("\nticks   \t%d\nseconds \t%d\n", t2-t1, (s2-s1)/100);
+    return 0;
+}
+int builtins_testvec(int argc, char **argv){
+    vec v0 = vec_new(char);
+    vec v1 = vec_new(uint16_t);
+
+    for(char i = '0'; i < 127; i++)
+        vec_push(v0, i);
+    for(int i = 0; i < 0xfff; i++)
+        vec_push(v1, i);
+    vec_print_char(v0);
+    vec_print(v1);
+    vec_free(v0);
+    vec_free(v1);
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
@@ -692,6 +707,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("gol", builtins_gol),
     _BUILTIN("free", builtins_free),
     _BUILTIN("arrcmp", builtins_arrcmp),
+    _BUILTIN("vec", builtins_testvec),
     _BUILTIN("testscroll", builtins_testscroll),
     _BUILTIN("regex", builtins_regex),
     _BUILTIN("poweroff", builtins_poweroff),
