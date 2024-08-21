@@ -10,7 +10,7 @@
 #define VEC_BASE_SZ 8
 typedef void* vec_ptr;
 #define vec auto
-#define vec_t(T) struct _vec_##T
+#define vec_t(T) struct _vec_generic
 #define vec_t_def(T) \
     vec_t(T){\
         T* _array;\
