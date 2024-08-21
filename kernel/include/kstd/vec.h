@@ -64,7 +64,7 @@ typedef void* vec_ptr;
         typeof(v->_array[0]) e = vec_get(v, i); \
         fn \
     }
-#define vec_ptr_iter(v,t,e,fn) vec_iter(vec_cast(v,t), e, fn)
+#define _vec_ptr_iter(v,t,e,fn) vec_iter(vec_cast(v,t), e, fn)
 #define vec_free(v) _VEC_FREE(v->_array); _VEC_FREE(v)
 #define vec_free_obj(v) vec_iter(v, e, { kfree((void *)e); }); vec_free(v);
 #define vec_map(v,e,fn)({\
@@ -78,16 +78,14 @@ typedef void* vec_ptr;
 })
 #define vec_map_t(v,e,t,fn)({\
     vec ret = vec_new(t);\
-    vec_ptr_iter(v,t,e, {\
+    _vec_ptr_iter(v,t,e, {\
         t e2 = fn;\
         vec_push(ret, e2);\
     });\
     ret;\
 })
 #define vec_iter_next(v) vec_get(v, _vec_iter_i+1)
-#define vec_ptr_iter_next(v, t) vec_get(vec_cast(v,t), _vec_iter_i+1)
 #define vec_iter_is_last(v)({ _vec_iter_i == v->length-1; })
-#define vec_ptr_is_last(v,t) vec_iter_is_last(vec_cast(v,t))
 #define vec_contains(v, e)({\
     bool ret = false;\
     vec_iter(v, x, { \
