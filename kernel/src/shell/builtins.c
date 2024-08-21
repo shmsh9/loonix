@@ -38,19 +38,15 @@ int builtins_testvec(int argc, char **argv){
     for(int i = 0; i < 0xfff; i++){
         vec_push(v1, i);
     }
-    vec_iter(v3, _, {
+    vec_iter(v0, _, {
         vec_push(v5, (uint64_t)strdup("foo"));
     })
     vec_print_char(v0);
     vec_print_uint(v1);
     vec_print_char(v2);
-    vec not_v3 = vec_map(v3, uint16_t, x, {
-        ~x
-    });
-    vec v1_s = vec_where(v1, uint16_t, n, {
-        n >= 3 && n <= 100
-    });
-    vec strs = vec_where(v4, uint64_t, s, { !strcmp((char *)s, "foo") });
+    vec not_v3 = vec_map(v3, x, { ~x });
+    vec v1_s = vec_where(v1, n, { n >= 3 && n <= 100 });
+    vec strs = vec_where(v4, s, { !strcmp((char *)s, "foo") });
     kprintf("vec_contains(v0, 0x0) == %s\n", vec_contains(v0, 0x0) ? "true":"false");
     kprintf("vec_contains(v0, 'a') == %s\n", vec_contains(v0, 'a') ? "true":"false");
 
