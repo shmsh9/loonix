@@ -61,6 +61,7 @@ typedef void* vec_ptr;
 #define vec_iter(v,e,fn) \
     for(int i = 0; i < v->length; i++){ \
         int _vec_iter_i = i; \
+        auto _vec_iter_v = v;\
         typeof(v->_array[0]) e = vec_get(v, i); \
         fn \
     }
@@ -84,8 +85,8 @@ typedef void* vec_ptr;
     });\
     ret;\
 })
-#define vec_iter_next(v) vec_get(v, _vec_iter_i+1)
-#define vec_iter_is_last(v)({ _vec_iter_i == v->length-1; })
+#define vec_iter_next() vec_get(_vec_iter_v, _vec_iter_i+1)
+#define vec_iter_is_last()({ _vec_iter_i == _vec_iter_v->length-1; })
 #define vec_contains(v, e)({\
     bool ret = false;\
     vec_iter(v, x, { \
@@ -110,7 +111,7 @@ typedef void* vec_ptr;
 #define vec_print_fmt(v,fmt) \
     kprintf(TO_STR(v)" : {");\
     vec_iter(v, e, {\
-        kprintf(fmt"%s", e, vec_iter_is_last(v) ? "}\n":", ");\
+        kprintf(fmt"%s", e, vec_iter_is_last() ? "}\n":", ");\
     });
 #define vec_print_uint(v) vec_print_fmt(v, "%d")
 #define vec_print_char(v) vec_print_fmt(v, "'%c'")
