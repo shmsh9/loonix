@@ -52,7 +52,7 @@ typedef void* vec_ptr;
         v->_array[v->length++] = e;\
     }
 #define vec_get(v,i)({\
-    typeof(v->_array[0]) ret = 0x0;\
+    typeof(v->_array[0]) ret = {};\
     if(v->length > i){\
         ret = v->_array[i];\
     }\
