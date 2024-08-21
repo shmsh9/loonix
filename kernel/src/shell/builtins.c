@@ -30,8 +30,8 @@ int builtins_testvec(int argc, char **argv){
     vec v1 = vec_new(uint16_t);
     vec v2 = vec_new_static(char, {'a', 'b', 'c'});
     vec v3 = vec_new_static(uint16_t, {1,2,3,4,5});
-    vec v4 = vec_new_static(uint64_t, {(uint64_t)"foo", (uint64_t)"bar", (uint64_t)"baz"});
-    vec v5 = vec_new(uint64_t);
+    vec v4 = vec_new_static(char *, {"foo", "bar", "baz"});
+    vec v5 = vec_new(char *);
 
     for(char i = '0'; i < 127; i++)
         vec_push(v0, i);
@@ -39,14 +39,14 @@ int builtins_testvec(int argc, char **argv){
         vec_push(v1, i);
     }
     vec_iter(v0, _, {
-        vec_push(v5, (uint64_t)strdup("foo"));
+        vec_push(v5, strdup("foo"));
     })
     vec_print_char(v0);
     vec_print_uint(v1);
     vec_print_char(v2);
     vec not_v3 = vec_map(v3, x, { ~x });
     vec v1_s = vec_where(v1, n, { n >= 3 && n <= 100 });
-    vec strs = vec_where(v4, s, { !strcmp((char *)s, "foo") });
+    vec strs = vec_where(v4, s, { !strcmp(s, "foo") });
     kprintf("vec_contains(v0, 0x0) == %s\n", vec_contains(v0, 0x0) ? "true":"false");
     kprintf("vec_contains(v0, 'a') == %s\n", vec_contains(v0, 'a') ? "true":"false");
 
