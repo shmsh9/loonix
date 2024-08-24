@@ -1,6 +1,7 @@
 #ifndef KSTRING_H_
 #define KSTRING_H_
 #include <stdint.h>
+#include <kstd/vec.h>
 #include <kstd/kstd.h>
 
 int strlen(const char *str);

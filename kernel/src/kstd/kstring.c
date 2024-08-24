@@ -88,6 +88,17 @@ char *strdup(const char *str){
     memcpy(ret, str, l+1);
     return ret;
 }
+char *_strdup(const char *str){
+    vec v = vec_new(char);
+    while(*str){
+        vec_push(v, *str);
+	str++;
+    }
+    vec_push(v, 0x0);
+    char *ret = v->_array;
+    kfree(v);
+    return ret;
+}
 void memset(void *ptr, uint8_t b, uint64_t sz){
     if(!ptr){
         KERROR("ptr == NULL");
