@@ -211,7 +211,7 @@ ASYNC_FN(async_graphics, void *p[5], {
     }
     ASYNC_AWAIT(ASYNC_CALL(async_graphics_render, p));
 })
-int builtins_graphics(int argc, char **argv){
+int builtins_graphics_async(int argc, char **argv){
     #include <graphics/tux.png.h>
     graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
     int32_t tux_x = fb->width/2 - tux->width/2;
@@ -228,6 +228,59 @@ int builtins_graphics(int argc, char **argv){
     while(async_graphics_run){
         ASYNC_CALL(async_graphics, payload);
         ASYNC_RUN();
+    }
+    graphics_sprite_static_free(tux);
+    framebuffer_device_clear(
+        fb,
+        &(graphics_pixel){
+            .Red = 0x00,
+            .Green = 0x00,
+            .Blue = 0x00,
+            .Alpha = 0xff
+        }
+    );
+    framebuffer_device_update(fb);
+    return 0;
+}
+
+int builtins_graphics(int argc, char **argv){
+	#include <graphics/tux.png.h>
+	graphics_sprite *tux = graphics_sprite_static_new(216, 256, TUX_PIXELS);
+    int32_t tux_x = fb->width/2 - tux->width/2;
+    int32_t tux_y = fb->height/2 - tux->height/2;
+    while(1){
+        char serial_char = serial_device_readchar_non_blocking(serial);
+        if(ps2_key_is_pressed(PS2_KEY_ESCAPE) || serial_char == 0x1b){
+            KMESSAGE("Exit");
+            break;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_W) || tolower(serial_char) == 'w'){
+                tux_y--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_A) || tolower(serial_char) == 'a'){
+                tux_x--;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_S) || tolower(serial_char) == 's'){
+                tux_y++;
+        }
+        if(ps2_key_is_pressed(PS2_KEY_D) || tolower(serial_char) == 'd'){
+                tux_x++;
+        }
+
+	    framebuffer_device_clear(fb, 
+            &(graphics_pixel){
+                .Red = 0xbf,
+                .Green = 0x01,
+                .Blue = 0x9f
+            }
+        );
+	    framebuffer_device_draw_sprite_slow(
+            fb,
+            tux_x, 
+            tux_y, 
+            tux
+        );
+        framebuffer_device_update(fb);
     }
     graphics_sprite_static_free(tux);
     framebuffer_device_clear(
@@ -728,6 +781,7 @@ int builtins_lspci(int argc, char **argv){
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
+    _BUILTIN("agraphics", builtins_graphics_async),
     _BUILTIN("graphics", builtins_graphics),
     _BUILTIN("gol", builtins_gol),
     _BUILTIN("free", builtins_free),
