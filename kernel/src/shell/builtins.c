@@ -781,6 +781,7 @@ int builtins_lspci(int argc, char **argv){
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
+    _BUILTIN("time", builtins_time),
     _BUILTIN("agraphics", builtins_graphics_async),
     _BUILTIN("graphics", builtins_graphics),
     _BUILTIN("gol", builtins_gol),

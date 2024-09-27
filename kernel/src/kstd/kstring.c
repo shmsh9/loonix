@@ -105,7 +105,7 @@ void memset(void *ptr, uint8_t b, uint64_t sz){
         return;
     }
     uint8_t *cp_ptr = (uint8_t *)ptr;
-    while (sz % 16){
+    while (sz % __FASTEST_MEMSET_ALIGN){
         *cp_ptr++ = b;
         sz--;
     }
@@ -132,7 +132,7 @@ void memcpy(void *dst, const void *src, uint64_t sz){
     uint8_t *cp_dst = (uint8_t *)dst;
     uint8_t *cp_src = (uint8_t *)src;
 
-    while (sz % 16){
+    while (sz % __FASTEST_MEMCPY_ALIGN){
         *cp_dst++ = *cp_src++;
         sz--;
     }

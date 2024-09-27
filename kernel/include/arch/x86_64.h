@@ -203,8 +203,10 @@
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_64b(dst, src, sz);
     #define __FASTEST_MEMSET(ptr, b, sz) __memset_64b(ptr, B_to_8B(b), sz);
     */
+    #define __FASTEST_MEMCPY_ALIGN 16
     #define __FASTEST_MEMCPY(dst, src, sz) __memcpy_128b(dst, src, sz)
 
+    #define __FASTEST_MEMSET_ALIGN 16
     #define __FASTEST_MEMSET(ptr, b, sz) {\
         uint64_t _fastest_memset_src[2] = {B_to_8B(b), B_to_8B(b)};\
         __memset_128b(ptr, _fastest_memset_src, sz);\
