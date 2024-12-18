@@ -12,6 +12,7 @@
 #define FS_MAGIC 0xa1b2e5ff
 #define FS_BLOCK_SZ 4096
 #define FS_BITMAP_SZ 8
+#define FS_ENTRY_NAME_MAX_SZ 256
 
 typedef enum {
     fs_entry_type_file,
@@ -20,14 +21,16 @@ typedef enum {
 
 typedef struct __attribute__((packed)) {
     fs_entry_type type;
-    char name[256];
+    char name[FS_ENTRY_NAME_MAX_SZ];
     uint64_t next_entry;
+    uint64_t parent_entry;
     void *data;
 }fs_entry;
 
 typedef struct __attribute__((packed)) {
     fs_entry entry;
     uint64_t first_child;
+    uint64_t last_child;
 } fs_dir_entry;
 
 typedef struct __attribute__((packed)) {
