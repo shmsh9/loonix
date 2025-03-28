@@ -26,42 +26,6 @@ int builtins_time(int argc, char **argv){
     return 0;
 }
 int builtins_testvec(int argc, char **argv){
-    vec v0 = vec_new(char);
-    vec v1 = vec_new(uint16_t);
-    vec v2 = vec_new_static(char, {'a', 'b', 'c'});
-    vec v3 = vec_new_static(uint16_t, {1,2,3,4,5});
-    vec v4 = vec_new_static(char *, {"foo", "bar", "baz"});
-    vec v5 = vec_new(char *);
-
-    for(char i = '0'; i < 127; i++)
-        vec_push(v0, i);
-    for(int i = 0; i < 0xfff; i++){
-        vec_push(v1, i);
-    }
-    vec_iter(v0, _, {
-        vec_push(v5, strdup("foo"));
-    })
-    vec_print_char(v0);
-    vec_print_uint(v1);
-    vec_print_char(v2);
-    vec not_v3 = vec_map(v3, x, { ~x });
-    vec v1_s = vec_where(v1, n, { n >= 3 && n <= 100 });
-    vec strs = vec_where(v4, s, { !strcmp(s, "foo") });
-    kprintf("vec_contains(v0, 0x0) == %s\n", vec_contains(v0, 0x0) ? "true":"false");
-    kprintf("vec_contains(v0, 'a') == %s\n", vec_contains(v0, 'a') ? "true":"false");
-
-    vec_print_uint(v1_s);
-    vec_print_uint(not_v3);
-    vec_print_uint(v3);
-    vec_print_str(v4);
-    vec_print_str(strs);
-    vec_print_str(v5);
-    vec_free(v0);
-    vec_free(v1);
-    vec_free(v1_s);
-    vec_free(strs);
-    vec_free(not_v3);
-    vec_free_obj(v5);
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
@@ -369,49 +333,6 @@ int builtins_macro(int argc, char **argv){
     return 0;
 }
 int builtins_arrcmp(int argc, char **argv){
-    karray *arr = _karray_static(((char *[]){"foo", "bar", "baz"}));
-    uint16_t arr2[] = {0, 1, 0x1337};
-    karray *arr3 = karray_new(sizeof(uint32_t), 0x0);
-    for(int i = 0; i < 0xffff+1; i++){
-        karray_push(arr3, i);
-    }
-    kprintf("arr.contains(\"foo1\") == %s\n",
-        _karray_contains_fn(arr, (char *)"foo1", cmp_str) ? "true" : "false"
-    );
-    kprintf("arr.contains(\"bar\") == %s\n",
-        _karray_contains_fn(arr, (char *)"bar", cmp_str) ? "true" : "false"
-    );
-    kprintf("arr2.contains(0x1337) == %s\n",
-        _array_contains(arr2, 0x1337, 3) ? "true" : "false"
-    );
-    kprintf("arr2.contains(2) == %s\n",
-        _array_contains(arr2, 2,3) ? "true" : "false"
-    );
-    kprintf("arr2.contains(4) == %s\n",
-        _array_contains(arr2, 4, 3) ? "true" : "false"
-    );
-    kprintf("arr2.contains(1) == %s\n",
-        _array_contains(arr2, 1, 3) ? "true" : "false"
-    );
-
-    kprintf("arr3.contains(0xffff0) == %s\n",
-        _karray_contains(arr3, 0xffff0) ? "true" : "false"
-    );
-    kprintf("arr3.contains(0xffff) == %s\n",
-        _karray_contains(arr3, 0xffff) ? "true" : "false"
-    );
-    karray_free(arr3);
-
-    for(char i = 'a'; i < 'h'; i++){
-        kprintf("arr.contains('%c') == %s\n",
-            (char)i,
-            _karray_contains(
-                _karray_static(((char []){'a', 'b', 'c'})),
-                (char)i
-            ) ? "true" : "false"
-        );
-
-    }
     return 0;
 }
 
