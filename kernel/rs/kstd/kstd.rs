@@ -118,7 +118,9 @@ extern "C"{
     fn task_new_rs(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_new(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_end_current();
+    pub fn interrupt_handler_install(f: unsafe extern "C" fn(), n: u16 );
     pub fn task_end_wait(t: *const Task);
+    pub fn task_end(t: *const Task);
     fn __print_stacktrace(); 
     
     static fb : u64;

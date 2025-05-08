@@ -36,12 +36,19 @@ extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
         return ret.into(); 
     }
 }
+static mut current_subproc : *const kstd::Task = 0x0 as *const kstd::Task;
+unsafe extern "C" fn sigint(){
+    kstd::task_end(current_subproc);
+}
 #[allow(unreachable_code)]
 #[no_mangle]
 pub extern "C" fn shell_rs() -> i64 {
     kstd::print(PROMPT);
     let mut cmd = Vec::new();
     let mut cmdlinepos = 0u32;
+    unsafe {
+        kstd::interrupt_handler_install(sigint,2); //SIGINT
+    }
     loop {
         let c = kstd::getchar_async();
         match c {
@@ -57,14 +64,14 @@ pub extern "C" fn shell_rs() -> i64 {
                                 argc: 0,
                                 argv: &[&s_cmd]
                             };
-                            let t = kstd::Task::new_unsafe(
-                                shell_exec,
-                                &a as *const Args as *const u8,
-                                &s_cmd,
-                                kstd::TaskPriority::TaskPriorityLow
-                            );
                             unsafe{
-                                kstd::task_end_wait(t);
+                                current_subproc = kstd::Task::new_unsafe(
+                                    shell_exec,
+                                    &a as *const Args as *const u8,
+                                    &s_cmd,
+                                    kstd::TaskPriority::TaskPriorityLow
+                                );
+                                kstd::task_end_wait(current_subproc);
                             }
                         },
                         None => {
