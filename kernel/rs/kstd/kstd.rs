@@ -106,6 +106,7 @@ impl Task{
             task_new(f, data, c_str!(name), p)
         }
     }
+
 }
 extern "C"{
     fn kputc(s: u8);
@@ -117,6 +118,7 @@ extern "C"{
     fn task_new_rs(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_new(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_end_current();
+    pub fn task_end_wait(t: *const Task);
     fn __print_stacktrace(); 
     
     static fb : u64;

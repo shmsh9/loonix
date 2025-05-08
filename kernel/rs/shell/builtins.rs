@@ -1,24 +1,42 @@
+use format;
 
-use alloc::string::ToString;
-use String;
-const BUILTINS : [Builtin; 0] = [
-
+const BUILTINS : [Builtin; 2] = [
+    Builtin::new("graphics", builtins_graphics),
+    Builtin::new("help", help)
 ];
 
-extern "C" help(argc: i32, argv: *const *const u8) -> i32{
-    
+extern "C" {
+    fn builtins_graphics(argc: i32, argv: *const *const u8) -> i32;
 }
+
+
 #[derive(Debug)]
 #[repr(C)]
-struct Builtin{
-    name: String,
-    function: *const extern "C" fn(argc: i32, argv: *const *const u8) -> i32
+pub struct Builtin <'a> {
+    pub name: &'a str,
+    pub function: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32
 }
-impl Builtin{
-    fn new(n: &str, f : *const extern "C" fn(i32, *const *const u8)) -> Builtin {
+impl Builtin<'static>{
+    const fn new(n: &'static str, f : unsafe extern "C" fn(i32, *const *const u8) -> i32) -> Builtin<'static> {
         return Builtin {
-            name: n.to_string(),
+            name: n,
             function: f
         };
     }
+}
+
+unsafe extern "C" fn help(_argc: i32, _argv: *const *const u8) -> i32{
+    for i in 0..BUILTINS.len(){
+        kstd::print_fmt!("{}\n", BUILTINS[i].name);
+    }
+    return 0; 
+}
+
+pub fn get(n: &str) -> Option<&Builtin>{
+    for i in 0..BUILTINS.len(){
+        if n == BUILTINS[i].name{
+            return Some(&BUILTINS[i])
+        }
+    }
+    return None;
 }

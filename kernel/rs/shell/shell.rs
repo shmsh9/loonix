@@ -22,37 +22,55 @@ pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
     }
     return -1;
 }
+#[derive(Debug)]
+struct Args<'a>{
+    f: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32,
+    argc: i32,
+    argv: &'a [&'a str]
+}
+extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
+    let a = args as *const Args;
+    unsafe {
+        let b = a.read_unaligned();
+        let ret = (b.f)(b.argc, 0 as *const *const u8); 
+        return ret.into(); 
+    }
+}
 #[allow(unreachable_code)]
 #[no_mangle]
 pub extern "C" fn shell_rs() -> i64 {
     kstd::print(PROMPT);
     let mut cmd = Vec::new();
     let mut cmdlinepos = 0u32;
-    let mut btns : Vec<String> = Vec::new();
     loop {
         let c = kstd::getchar_async();
         match c {
             0    => kstd::vt100_update(),
             0x0a | 0x0d => {
-                kstd::print("\n");
                 if cmd.len() > 0 {
+                    kstd::print("\n");
                     let s_cmd = String::from_utf8(cmd.clone()).unwrap();
-                    for e in 0..btns.len(){
-                        if s_cmd == btns[e]{
-                            kstd::print("Hey!");
-                            break;
-
-                        }
-                    }
-                    //print_fmt!("-sh3w4x: {}: command not found", s_cmd)
-                            /*
-                            kstd::Tsk::new_unsafe(
-                                kstd::asynct,
-                                core::ptr::null(),
-                                "asynct",
+                    match builtins::get(&s_cmd){
+                        Some(f) => {
+                            let a = Args {
+                                f: f.function,
+                                argc: 0,
+                                argv: &[&s_cmd]
+                            };
+                            let t = kstd::Task::new_unsafe(
+                                shell_exec,
+                                &a as *const Args as *const u8,
+                                &s_cmd,
                                 kstd::TaskPriority::TaskPriorityLow
                             );
-                            */
+                            unsafe{
+                                kstd::task_end_wait(t);
+                            }
+                        },
+                        None => {
+                            print_fmt!("-sh3w4x: {}: command not found", s_cmd);
+                        }
+                    }
                     cmd.clear();
                 }
                 print_fmt!("\n{}", PROMPT);
