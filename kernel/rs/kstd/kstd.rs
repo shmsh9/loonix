@@ -23,8 +23,14 @@ static ALLOCATOR: CAlloc = CAlloc;
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    print(format!("rust panic :\n").as_str());
-    print(format!("{:?}", info).as_str());
+    if let Some(location) = info.location() {
+        print(format!("{}:{}\n", location.file(), location.line()).as_str());
+    }
+    print(format!("{}\n", info.message()).as_str());
+    unsafe { 
+        __print_stacktrace();
+        task_end_current(); 
+    }
     loop {}
 }
 #[allow(unused_macros)]
@@ -110,8 +116,14 @@ extern "C"{
     fn vt100_set_cursor_char(c : u8);
     fn task_new_rs(f : extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_new(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
-    pub fn asynct(p : *const u8, t : *const Task) -> i64; 
+    fn task_end_current();
+    fn __print_stacktrace(); 
+
+    pub fn asynct(p : *const u8, t : *const Task) -> i64;
+    
+    
     static fb : u64;
+
 }
 pub fn putc(c : char){
     unsafe {

@@ -2,6 +2,18 @@
 uint64_t kalloc_list_alloc = KALLOC_LIST_START_ALLOC;
 uint64_t kalloc_list_last = 0;
 
+#define STACKTRACE() {\
+    struct stackframe *_stacktrace_stk_var = {0};\
+    GET_STACKFRAME(_stacktrace_stk_var);\
+    kprint("stacktrace : \n");\
+    for(uint8_t i = 0; _stacktrace_stk_var && i < STACK_TRACE_NMAX; i++){\
+        kprintf("\t[%d] : 0x%x\n", i, _stacktrace_stk_var->instruction_pointer);\
+        _stacktrace_stk_var = _stacktrace_stk_var->frame;\
+    }\
+}
+void __print_stacktrace(){
+	STACKTRACE();	
+}
 __attribute__((noreturn))
 void __stack_chk_fail(void){
     KPANIC("0x%x", __stack_chk_guard);

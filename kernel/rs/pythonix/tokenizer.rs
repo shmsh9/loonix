@@ -374,7 +374,7 @@ pub fn tokenize(s: &str) -> Vec<String>{
 }
 #[no_mangle]
 pub extern "C" fn _tknz(_argc: i32, _argv: *const *const u8) -> i32{
-    kstd::print_fmt!("{:?}", tokenize("a=1"));
+    let  _ = tokenize("a=1");
     return 0;
 }
 
