@@ -5,8 +5,8 @@ extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::CStr;
+use alloc::format;
 
-use alloc::{format};
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {

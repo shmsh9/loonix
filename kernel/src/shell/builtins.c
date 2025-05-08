@@ -699,6 +699,7 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
+extern int _tknz(int argc, char **argv);
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
@@ -714,7 +715,8 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
     _BUILTIN("py", builtins_pythonix),
-    _BUILTIN("macro", builtins_macro)
+    _BUILTIN("macro", builtins_macro),
+    _BUILTIN("tknz", _tknz)
 };
 int builtins_help(int argc, char **argv){
     for(int i = 0 ; i < _builtins_size(); i++)

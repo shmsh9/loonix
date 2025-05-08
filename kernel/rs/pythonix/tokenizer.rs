@@ -1,3 +1,14 @@
+#![no_std]
+
+extern crate kstd;
+extern crate alloc;
+use alloc::{
+    string::{String,ToString},
+    vec::Vec,
+    format
+};
+use core::fmt::{Error, Formatter, Debug};
+
 #[allow(non_camel_case_types)]
 #[derive(PartialEq,Clone)]
 pub enum TokenType{
@@ -361,4 +372,10 @@ pub fn tokenize(s: &str) -> Vec<String>{
 	}
 	return ret;
 }
+#[no_mangle]
+pub extern "C" fn _tknz(_argc: i32, _argv: *const *const u8) -> i32{
+    kstd::print_fmt!("{:?}", tokenize("a=1"));
+    return 0;
+}
+
 
