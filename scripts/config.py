@@ -49,7 +49,7 @@ def compile_rs_files(params, rs_files, std):
             n = f"{p}/{n}"
             r = os.system(f"rustc {file} --target={params['ARCH']}-unknown-none --crate-type=rlib -o {n}")
         if(r != 0):
-            exit(r)
+            exit(-1)
 
 def compile_s_files(params, c_flags, s_files):
     for file in s_files:

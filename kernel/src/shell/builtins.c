@@ -716,13 +716,12 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
     _BUILTIN("py", builtins_pythonix),
     _BUILTIN("macro", builtins_macro),
-    _BUILTIN("tknz", _tknz)
+    _BUILTIN("tknz", _tknz),
 };
 int builtins_help(int argc, char **argv){
-    for(int i = 0 ; i < _builtins_size(); i++)
+    for(int i = 0 ; i < _builtins_size; i++)
         kprintf("%s\n", _shell_builtins[i][_BUILTIN_NAME]);
     return 0;
 }
-inline int _builtins_size(){
-    return _BUILTINS_SIZE;
-}
+int _builtins_size = sizeof(_shell_builtins)/sizeof(_shell_builtins[0]);
+

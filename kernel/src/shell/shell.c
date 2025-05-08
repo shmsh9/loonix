@@ -289,7 +289,7 @@ int shell_exec(char cmdline[CMDLINE_MAX]){
         return 0;
     int argc = 0;
     char **argv = shell_parse_args2(cmdline, &argc);
-    for(int i = 0 ; i < _builtins_size(); i++){
+    for(int i = 0 ; i < _builtins_size; i++){
         if(!strcmp((char *)_shell_builtins[i][_BUILTIN_NAME], argv[0])){
             shell_args_wrapped *argw = kmalloc(sizeof(shell_args_wrapped));
             *argw = (shell_args_wrapped){

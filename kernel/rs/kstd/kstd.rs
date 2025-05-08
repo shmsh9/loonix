@@ -118,9 +118,6 @@ extern "C"{
     fn task_new(f : unsafe extern "C" fn (*const u8, *const Task) -> i64, data : *const u8, name : *const u8, p: TaskPriority)-> *const Task;
     fn task_end_current();
     fn __print_stacktrace(); 
-
-    pub fn asynct(p : *const u8, t : *const Task) -> i64;
-    
     
     static fb : u64;
 

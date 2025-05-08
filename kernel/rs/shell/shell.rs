@@ -3,12 +3,16 @@
 
 extern crate alloc;
 extern crate kstd;
+pub mod builtins;
+
 use kstd::{print_fmt, rs_str};
 
 use alloc::{vec::{Vec},format,string::String};
-
 const PROMPT : &str = "sh3w4x_rs $> ";
 
+
+extern "C" {
+}
 #[no_mangle]
 pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
     unsafe{
@@ -24,21 +28,32 @@ pub extern "C" fn shell_rs() -> i64 {
     kstd::print(PROMPT);
     let mut cmd = Vec::new();
     let mut cmdlinepos = 0u32;
+    let mut btns : Vec<String> = Vec::new();
     loop {
         let c = kstd::getchar_async();
         match c {
             0    => kstd::vt100_update(),
             0x0a | 0x0d => {
+                kstd::print("\n");
                 if cmd.len() > 0 {
-                    kstd::Task::new_unsafe(
-                        kstd::asynct,
-                        core::ptr::null(),
-                        "asynct",
-                        kstd::TaskPriority::TaskPriorityLow
-                    );
-                    print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());
+                    let s_cmd = String::from_utf8(cmd.clone()).unwrap();
+                    for e in 0..btns.len(){
+                        if s_cmd == btns[e]{
+                            kstd::print("Hey!");
+                            break;
+
+                        }
+                    }
+                    //print_fmt!("-sh3w4x: {}: command not found", s_cmd)
+                            /*
+                            kstd::Tsk::new_unsafe(
+                                kstd::asynct,
+                                core::ptr::null(),
+                                "asynct",
+                                kstd::TaskPriority::TaskPriorityLow
+                            );
+                            */
                     cmd.clear();
-    
                 }
                 print_fmt!("\n{}", PROMPT);
             
