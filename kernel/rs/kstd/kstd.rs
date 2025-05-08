@@ -1,7 +1,6 @@
 #![allow(unused_attributes)]
 #![no_std]
 #![feature(c_variadic)]
-
 extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
@@ -24,8 +23,8 @@ static ALLOCATOR: CAlloc = CAlloc;
 
 #[panic_handler]
 fn panic(info: &core::panic::PanicInfo) -> ! {
-    kernel_print(format!("rust panic :\n").as_str());
-    kernel_print(format!("{:?}", info).as_str());
+    print(format!("rust panic :\n").as_str());
+    print(format!("{:?}", info).as_str());
     loop {}
 }
 #[allow(unused_macros)]
@@ -47,9 +46,9 @@ macro_rules! rs_str {
 
 #[allow(unused_macros)]
 #[macro_export]
-macro_rules! kernel_print_fmt {
+macro_rules! print_fmt {
     ( $x:expr, $( $e:expr ),* ) => (
-        libkstd::kernel_print(format!($x,  $( $e ),* ).as_str())
+        kstd::print(format!($x,  $( $e ),* ).as_str())
     )
 }
 
@@ -114,21 +113,21 @@ extern "C"{
     pub fn asynct(p : *const u8, t : *const Task) -> i64; 
     static fb : u64;
 }
-pub fn kernel_putc(c : char){
+pub fn putc(c : char){
     unsafe {
         vt100_set_cursor_char(c as u8);
         kputc(c as u8);
     }
 }
-pub fn kernel_print(s : &str){
-    s.chars().for_each(|c| kernel_putc(c));
+pub fn print(s : &str){
+    s.chars().for_each(|c| putc(c));
 }
-pub fn kernel_vt100_update(){
+pub fn vt100_update(){
     unsafe{
         vt100_console_update_draw_screen(fb);
     }
 }
-pub fn kernel_getchar_async() -> u8{
+pub fn getchar_async() -> u8{
     unsafe{
         return kgetchar_non_blocking();
     }
@@ -143,27 +142,27 @@ pub unsafe extern "C" fn kprintf(fmt: *const i8, mut args : ... ){
                 match c {
                     'x' => {
                         let n = format!("{:x}", args.arg::<u64>());
-                        n.chars().for_each(|x| kernel_putc(x));
+                        n.chars().for_each(|x| putc(x));
                     },
                     'd' => {
                         let n = format!("{}", args.arg::<u64>());
-                        n.chars().for_each(|x| kernel_putc(x));
+                        n.chars().for_each(|x| putc(x));
                     }
                     's' => {
                         let s = args.arg::<*const i8>();
                         CStr::from_ptr(s).to_str()
                             .unwrap()
                             .chars()
-                            .for_each(|x| kernel_putc(x));
+                            .for_each(|x| putc(x));
                     }
                     'c' => {
                         let c = args.arg::<u8>();
-                        kernel_putc(c as char);
+                        putc(c as char);
                     }
                     _ => ()
                 }
             },
-            _ => kernel_putc(c)
+            _ => putc(c)
         }
     }
 }

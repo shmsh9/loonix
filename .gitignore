@@ -1,4 +1,5 @@
 *.a
+*.rlib
 *.d
 *.elf
 *.o
@@ -19,3 +20,4 @@ image
 __pycache__
 build
 kernel/include/preprocessed/*.h
+*.swp

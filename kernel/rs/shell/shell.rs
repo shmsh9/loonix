@@ -2,44 +2,45 @@
 #![feature(c_variadic)]
 
 extern crate alloc;
-mod libkstd;
+extern crate kstd;
+use kstd::{print_fmt, rs_str};
 
 use alloc::{vec::{Vec},format,string::String};
 
 const PROMPT : &str = "sh3w4x_rs $> ";
 
 #[no_mangle]
-pub extern "C" fn foo(_data : *const u8, t : *const libkstd::Task) -> i64 {
+pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
     unsafe{
-        kernel_print_fmt!("\nhello from {}()\n", rs_str!((*t).name));
+        print_fmt!("\nhello from {}()\n", rs_str!((*t).name));
         let d = (*t).data;
-        kernel_print_fmt!("t.data == {:?}\n", d);
+        print_fmt!("t.data == {:?}\n", d);
     }
     return -1;
 }
 #[allow(unreachable_code)]
 #[no_mangle]
 pub extern "C" fn shell_rs() -> i64 {
-    libkstd::kernel_print(PROMPT);
+    kstd::print(PROMPT);
     let mut cmd = Vec::new();
     let mut cmdlinepos = 0u32;
     loop {
-        let c = libkstd::kernel_getchar_async();
+        let c = kstd::getchar_async();
         match c {
-            0    => libkstd::kernel_vt100_update(),
+            0    => kstd::vt100_update(),
             0x0a | 0x0d => {
                 if cmd.len() > 0 {
-                    libkstd::Task::new_unsafe(
-                        libkstd::asynct,
+                    kstd::Task::new_unsafe(
+                        kstd::asynct,
                         core::ptr::null(),
                         "asynct",
-                        libkstd::TaskPriority::TaskPriorityLow
+                        kstd::TaskPriority::TaskPriorityLow
                     );
-                    kernel_print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());
+                    print_fmt!("\n-sh3w4x: {}: command not found", String::from_utf8(cmd.clone()).unwrap());
                     cmd.clear();
     
                 }
-                kernel_print_fmt!("\n{}", PROMPT);
+                print_fmt!("\n{}", PROMPT);
             
             },
             0x7f | 0x08 /*Backspace*/ => {
@@ -49,10 +50,10 @@ pub extern "C" fn shell_rs() -> i64 {
                         cmdlinepos -= 1;
                     }
                     if cmdlinepos == 0{
-                        libkstd::kernel_print("\x1b[1D \x1b[1D");
+                        kstd::print("\x1b[1D \x1b[1D");
                     }
                     else{
-                        kernel_print_fmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
+                        print_fmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
                             cmdlinepos+1,
                             String::from_utf8(cmd.clone()).unwrap(),
                             cmd.len(),
@@ -67,11 +68,11 @@ pub extern "C" fn shell_rs() -> i64 {
             0x0c /*^L*/ => {
                 cmdlinepos = 0;
                 cmd.clear();
-                libkstd::kernel_print("\x1b[2J\x1b[H");
-                libkstd::kernel_print(PROMPT);
+                kstd::print("\x1b[2J\x1b[H");
+                kstd::print(PROMPT);
             },
             _    => {
-                libkstd::kernel_putc(c as char);
+                kstd::putc(c as char);
                 cmdlinepos += 1;
                 cmd.push(c);
             }
