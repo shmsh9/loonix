@@ -1,5 +1,5 @@
 use format;
-
+use Vec;
 const BUILTINS : [Builtin; 7] = [
     Builtin::new("graphics", builtins_graphics),
     Builtin::new("testscroll", builtins_testscroll),
@@ -47,9 +47,12 @@ unsafe extern "C" fn args(argc: i32, argv: *const *const u8) -> i32{
     return 0;
 }
 unsafe extern "C" fn help(_argc: i32, _argv: *const *const u8) -> i32{
-    for i in 0..BUILTINS.len(){
-        kstd::printfmt!("{}\n", BUILTINS[i].name);
-    }
+    kstd::print(
+        &BUILTINS.iter()
+            .map(|b| b.name)
+            .collect::<Vec<&str>>()
+            .join("\n")
+    );
     return 0; 
 }
 

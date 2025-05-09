@@ -13,7 +13,7 @@ use alloc::{
 };
 use core::ffi::{c_void};
 
-const PROMPT : &str = "sh3w4x_rs $> ";
+const PROMPT : &str = "sh3w4x $> ";
 
 
 extern "C" {
