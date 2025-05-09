@@ -143,7 +143,7 @@ void kprinthex(void *ptr, uint64_t n){
     }
     kprint("\n");
 }
-void *kmalloc(uint64_t b){
+void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint64_t) ){
     task_lock();
     if(!b){
         KERROR("b == 0");
@@ -152,7 +152,7 @@ void *kmalloc(uint64_t b){
     }
     for(int i = kalloc_list_last; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
@@ -170,7 +170,7 @@ void *kmalloc(uint64_t b){
     KDEBUG("last allocation slot was not free", 0x0);
     for(int i = 0; i < kalloc_list_last; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
@@ -189,7 +189,7 @@ void *kmalloc(uint64_t b){
     //If no more alloc list
     uint64_t kalloc_list_alloc_new = kalloc_list_alloc*2;
     uint64_t kalloc_list_alloc_old = kalloc_list_alloc;
-    kheap_allocated_block tmp = kheap_get_free_mem2(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
+    kheap_allocated_block tmp = allocator(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
     if(!tmp.ptr){
         KERROR("not enough memory to realloc kalloc_list !");
         task_unlock();
@@ -205,7 +205,7 @@ void *kmalloc(uint64_t b){
     kalloc_list = (kheap_allocated_block *)tmp.ptr;
     for(int i = kalloc_list_alloc_old; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = kheap_get_free_mem2(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b);
             kalloc_list[i] = block;
             if(block.ptr){
                 task_allocation_add(kalloc_list+i);
@@ -222,6 +222,12 @@ void *kmalloc(uint64_t b){
     KERROR("kmalloc failed even after resizing");
     task_unlock();
     return 0x0;
+}
+void *kmalloc_aligned(uint64_t b){
+	return _kmalloc(b, kheap_get_free_aligned);
+}
+void *kmalloc(uint64_t b){
+	return _kmalloc(b, kheap_get_free_mem2);
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
     if(!ptr){

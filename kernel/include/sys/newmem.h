@@ -49,6 +49,7 @@ void kheap_set_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_b
 void kheap_unset_used_bytes2(kheap *heap, uint64_t start_bitfield, uint8_t start_bit, uint64_t size);
 void kheap_free_mem2(kheap *heap, kheap_allocated_block *k);
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size);
+kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size);
 void kheap_debug_print2(kheap *heap);
 EFI_MEMORY_DESCRIPTOR * mmap_find_largest_block(mmap *mmap);
 void mmap_debug_print(mmap *mmap);

@@ -78,6 +78,36 @@ void kheap_free_mem2(kheap *heap, kheap_allocated_block *k){
     kheap_unset_used_bytes2(heap, k->bitfield, k->bit, k->size);
     heap->free_memory += k->size;
 }
+kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
+    if(!heap->header || !heap->memory){
+        KERROR("heap is not initialized");
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+    uint64_t available_mem = heap->n_block * HEAP_BLOCK_SIZE;
+    if(size > available_mem){
+        KERROR("%d bytes exceeds total memory available (%d bytes)", size, available_mem);
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+    if(size > heap->free_memory){
+        KERROR("%d bytes exceeds free memory available (%d bytes)", size, heap->free_memory);
+        return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    }
+	uint64_t bitfield = kheap_last_free_mem_bitfield;
+	if(bitfield == 0){
+		kheap_last_free_mem_bitfield = heap->header[bitfield++];	
+		kheap_set_used_bytes2(heap, bitfield, 0, size);
+		heap->free_memory -= size;
+		return (kheap_allocated_block){
+				.block = 0x0,
+				.bitfield = bitfield,
+				.bit = 0,
+				.size = size,
+				.ptr = (uintptr_t)heap->memory+(bitfield*8)
+		};
+	}
+    KERROR("not enough free mem to allocate aligned %d bytes", size);
+    return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+}
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
     if(!heap->header || !heap->memory){
         KERROR("heap is not initialized");
