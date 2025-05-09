@@ -23,7 +23,7 @@ pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
 struct Args<'a>{
     f: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32,
     argc: i32,
-    argv: &'a [&'a str]
+    argv: &'a [*const u8]
 }
 extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
     let a = args as *const Args;
@@ -59,7 +59,7 @@ pub extern "C" fn shell_rs() -> i64 {
                             let a = Args {
                                 f: f.function,
                                 argc: 1,
-                                argv: &[&s_cmd]
+                                argv: &[kstd::c_str!(s_cmd)]
                             };
                             unsafe{
                                 CURRENT_SUBPROC = kstd::Task::new_unsafe(
