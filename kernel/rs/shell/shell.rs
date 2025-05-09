@@ -33,6 +33,12 @@ extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
         return ret.into(); 
     }
 }
+fn parse_args(cmd: &str) -> Vec<String>{
+    return cmd.split(" ")
+        .filter(|s| *s != "")
+        .map(|s| format!("{}", s))
+        .collect();
+}
 static mut CURRENT_SUBPROC : *const kstd::Task = 0x0 as *const kstd::Task;
 unsafe extern "C" fn sigint(){
     kstd::task_end(CURRENT_SUBPROC);
@@ -54,14 +60,18 @@ pub extern "C" fn shell_rs() -> i64 {
                 if cmd.len() > 0 {
                     kstd::print("\n");
                     let s_cmd = String::from_utf8(cmd.clone()).unwrap();
-                    match builtins::get(&s_cmd){
+                    let argv = parse_args(&s_cmd);
+                    match builtins::get(&argv[0]){
                         Some(f) => {
-                            let a = Args {
-                                f: f.function,
-                                argc: 1,
-                                argv: &[kstd::c_str!(s_cmd)]
-                            };
                             unsafe{
+                                let c_args : Vec<*const u8> = argv.iter()
+                                    .map(|s| kstd::c_str!(s))
+                                    .collect();
+                                let a = Args {
+                                    f: f.function,
+                                    argc: argv.len() as i32,
+                                    argv: &c_args
+                                };
                                 CURRENT_SUBPROC = kstd::Task::new_unsafe(
                                     shell_exec,
                                     &a as *const Args as *const u8,
