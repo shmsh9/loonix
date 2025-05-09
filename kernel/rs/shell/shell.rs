@@ -1,11 +1,17 @@
 #![no_std]
 #![feature(c_variadic)]
-
+#![feature(box_as_ptr)]
 extern crate alloc;
 extern crate kstd;
 pub mod builtins;
 
-use alloc::{vec::{Vec},format,string::String};
+use alloc::{
+    vec::{Vec},
+    format,string::String,
+    boxed::Box
+};
+use core::ffi::{c_void};
+
 const PROMPT : &str = "sh3w4x_rs $> ";
 
 
@@ -20,12 +26,13 @@ pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
     }
     return -1;
 }
+#[repr(C)]
 struct Args<'a>{
     f: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32,
     argc: i32,
     argv: &'a [*const u8]
 }
-extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
+extern "C" fn shell_exec(args: *mut c_void, _t: *const kstd::Task) -> i64 {
     let a = args as *const Args;
     unsafe {
         let b = a.read_unaligned();
@@ -33,10 +40,10 @@ extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
         return ret.into(); 
     }
 }
-fn parse_args(cmd: &str) -> Vec<String>{
+fn parse_args(cmd: &str) -> Vec<&str>{
     return cmd.split(" ")
         .filter(|s| *s != "")
-        .map(|s| format!("{}", s))
+        .map(|s| s)
         .collect();
 }
 static mut CURRENT_SUBPROC : *const kstd::Task = 0x0 as *const kstd::Task;
@@ -64,17 +71,14 @@ pub extern "C" fn shell_rs() -> i64 {
                     match builtins::get(&argv[0]){
                         Some(f) => {
                             unsafe{
-                                let c_args : Vec<*const u8> = argv.iter()
-                                    .map(|s| kstd::c_str!(s))
-                                    .collect();
-                                let a = Args {
+                                let a = Box::new(Args {
                                     f: f.function,
-                                    argc: argv.len() as i32,
-                                    argv: &c_args
-                                };
+                                    argc: 0,
+                                    argv: &[]
+                                });
                                 CURRENT_SUBPROC = kstd::Task::new_unsafe(
                                     shell_exec,
-                                    &a as *const Args as *const u8,
+                                    Box::as_ptr(&a) as *mut c_void,
                                     &s_cmd,
                                     kstd::TaskPriority::TaskPriorityLow
                                 );

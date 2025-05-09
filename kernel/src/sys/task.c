@@ -177,12 +177,14 @@ void task_free(task *t){
     if(!t)
         return;
     /*
-    KMESSAGE(
-        "freeing task %s (0x%x)",
+	KMESSAGE(
+        "freeing task %s (0x%x) stack_end: %x ctxt: %x",
         t->name,
-        t
+        t,
+		t->stack_end,
+		t->context
     );
-    */
+	*/
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);

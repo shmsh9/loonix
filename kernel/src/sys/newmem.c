@@ -125,6 +125,10 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
 }
 kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
+	if(!heap){
+		KERROR("heap == NULL");
+        return (kheap_allocated_block){0, 0, 0 ,0, 0};
+	}
     if(!heap->header || !heap->memory){
         KERROR("heap is not initialized");
         return  (kheap_allocated_block){0, 0, 0 ,0, 0};

@@ -57,7 +57,7 @@ char kgetchar_non_blocking(){
         return ret;
     return 0;
 }
-/* void kprintf(const char *fmt, ...){
+void _c_kprintf(const char *fmt, ...){
     if(!fmt){
         KERROR("fmt == NULL");
         return;
@@ -119,7 +119,6 @@ char kgetchar_non_blocking(){
     }
     __builtin_va_end(arg);
 }
-*/
 
 void kprinthex(void *ptr, uint64_t n){
     #define KPRINTHEX_PADDING(n) (n < 0x10 ? "0":"")
@@ -311,7 +310,6 @@ void kfree(void *p){
         task_unlock();
         return;
     }
-    /*
     if(task_current && kalloc_list[ptrindex].task != task_current){
         KERROR("kalloc_list[ptrindex].task (%s) != task_current (%s)", 
             kalloc_list[ptrindex].task->name,
@@ -320,7 +318,6 @@ void kfree(void *p){
         task_unlock();
         return;
     }
-    */
     kheap_free_mem2(&heap, &kalloc_list[ptrindex]);
     kalloc_list[ptrindex] = (kheap_allocated_block){
         .bit = 0,
@@ -330,5 +327,5 @@ void kfree(void *p){
         .size = 0,
         .task = 0
     };
-    task_unlock();
+	task_unlock();
 }
