@@ -7,8 +7,9 @@ pub mod builtins;
 
 use alloc::{
     vec::{Vec},
-    format,string::String,
-    boxed::Box
+    format,
+    string::String,
+    ffi::CString
 };
 use core::ffi::{c_void};
 
@@ -33,10 +34,11 @@ struct Args<'a>{
     argv: &'a [*const u8]
 }
 extern "C" fn shell_exec(args: *mut c_void, _t: *const kstd::Task) -> i64 {
+    kstd::printfmt!("shell_exec args @{:?}\n", args);
     let a = args as *const Args;
     unsafe {
-        let b = a.read_unaligned();
-        let ret = (b.f)(b.argc, b.argv.as_ptr() as *const *const u8); 
+        let b : *const Args = a;
+        let ret = ((*b).f)((*b).argc, (*b).argv.as_ptr() as *const *const u8); 
         return ret.into(); 
     }
 }
@@ -71,18 +73,19 @@ pub extern "C" fn shell_rs() -> i64 {
                     match builtins::get(&argv[0]){
                         Some(f) => {
                             unsafe{
-                                let a = Box::new(Args {
+                                let mut a = Args {
                                     f: f.function,
                                     argc: 0,
-                                    argv: &[]
-                                });
-                                CURRENT_SUBPROC = kstd::Task::new_unsafe(
+                                    argv: &[kstd::c_str!(argv[0])]
+                                };
+                                let t = kstd::Task::new_unsafe(
                                     shell_exec,
-                                    Box::as_ptr(&a) as *mut c_void,
+                                    &mut a as *mut _ as *mut c_void,
                                     &s_cmd,
                                     kstd::TaskPriority::TaskPriorityLow
                                 );
-                                kstd::task_end_wait(CURRENT_SUBPROC);
+                                CURRENT_SUBPROC = t;
+                                kstd::task_end_wait(t);
                             }
                         },
                         None => {

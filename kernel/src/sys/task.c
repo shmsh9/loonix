@@ -174,8 +174,9 @@ void task_priority_set(task *t, task_priority p){
     }
 }
 void task_free(task *t){
-    if(!t)
+    if(!t){
         return;
+	}
     /*
 	KMESSAGE(
         "freeing task %s (0x%x) stack_end: %x ctxt: %x",
@@ -185,6 +186,8 @@ void task_free(task *t){
 		t->context
     );
 	*/
+	task *save = task_current;
+	task_current = 0x0;
     kfree(t->stack_end);
     kfree(t->context);
     kfree(t->name);
@@ -193,6 +196,7 @@ void task_free(task *t){
         t->next->prev = t->prev;
         t->prev->next = t->next;
         kfree(t);
+		task_current = save;
         return;
     }
     //t was the first task
@@ -200,6 +204,7 @@ void task_free(task *t){
         t->next->prev = 0x0;
         task_first = t->next;
         kfree(t);
+		task_current = save;
         return;
     }
     //t was the last task
@@ -207,13 +212,14 @@ void task_free(task *t){
         t->prev->next = 0x0;
         task_last = t->prev;
         kfree(t);
+		task_current = save;
         return;
     }
     task_last = 0x0;
     task_first = 0x0;
     task_current = 0x0;
     kfree(t);
-    KMESSAGE("No more tasks need to reload shell");
+    KPANIC("No more tasks need to reload shell");
 }
 
 void task_debug_print(){

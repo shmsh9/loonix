@@ -100,6 +100,10 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
 	uint64_t aligned_bytes = 0;
 	uint64_t start_bit = 0;
     for(uint64_t bitfield = start_bitfield; bitfield < header_size; bitfield++){
+		if(((uint64_t)heap->memory+(start_bitfield*8)+start_bit) % 8 != 0){
+			start_bitfield = bitfield+1;
+			aligned_bytes = 0;	
+		}
 		if(heap->header[bitfield] == 0){
 			aligned_bytes += 8;
 			if(aligned_bytes >= size){

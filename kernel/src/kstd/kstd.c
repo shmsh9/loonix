@@ -226,7 +226,7 @@ void *kmalloc_aligned(uint64_t b){
 	return _kmalloc(b, kheap_get_free_aligned);
 }
 void *kmalloc(uint64_t b){
-	return _kmalloc(b, kheap_get_free_mem2);
+	return _kmalloc(b, kheap_get_free_aligned);
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
     if(!ptr){
@@ -310,11 +310,9 @@ void kfree(void *p){
         task_unlock();
         return;
     }
+	
     if(task_current && kalloc_list[ptrindex].task != task_current){
-        KERROR("kalloc_list[ptrindex].task (%s) != task_current (%s)", 
-            kalloc_list[ptrindex].task->name,
-            task_current->name
-        );
+        _c_kprintf("task %s tried to free mem from task %s!!!!\n", task_current->name, kalloc_list[ptrindex].task->name);
         task_unlock();
         return;
     }
