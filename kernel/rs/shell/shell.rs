@@ -54,7 +54,7 @@ unsafe extern "C" fn sigint(){
 #[no_mangle]
 pub extern "C" fn shell_rs() -> i64 {
     kstd::print(PROMPT);
-    let mut cmd = Vec::new();
+    let mut cmd = String::new();
     let mut cmdlinepos = 0u32;
     unsafe {
         kstd::interrupt_handler_install(sigint,2); //SIGINT
@@ -66,8 +66,7 @@ pub extern "C" fn shell_rs() -> i64 {
             0x0a | 0x0d => {
                 if cmd.len() > 0 {
                     kstd::print("\n");
-                    let s_cmd = String::from_utf8(cmd.clone()).unwrap();
-                    let argv = parse_args(&s_cmd);
+                    let argv = parse_args(&cmd);
                     match builtins::get(&argv[0]){
                         Some(f) => {
                             let c_argv : Vec<CString> = argv.iter()
@@ -85,14 +84,14 @@ pub extern "C" fn shell_rs() -> i64 {
                                 CURRENT_SUBPROC = kstd::Task::new_unsafe(
                                     shell_exec,
                                     &mut a as *mut _ as *mut c_void,
-                                    &s_cmd,
+                                    &cmd,
                                     kstd::TaskPriority::TaskPriorityLow
                                 );
                                 kstd::task_end_wait(CURRENT_SUBPROC);
                             }
                         },
                         None => {
-                            kstd::printfmt!("-sh3w4x: {}: command not found", s_cmd);
+                            kstd::printfmt!("-sh3w4x: {}: command not found", cmd);
                         }
                     }
                     cmd.clear();
@@ -112,7 +111,7 @@ pub extern "C" fn shell_rs() -> i64 {
                     else{
                         kstd::printfmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
                             cmdlinepos+1,
-                            String::from_utf8(cmd.clone()).unwrap(),
+                            cmd,
                             cmd.len(),
                             cmdlinepos
                         );
@@ -134,7 +133,7 @@ pub extern "C" fn shell_rs() -> i64 {
             _ => {
                 kstd::putc(c as char);
                 cmdlinepos += 1;
-                cmd.push(c);
+                cmd.push(c as char);
             }
         }
     }
