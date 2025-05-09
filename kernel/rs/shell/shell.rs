@@ -3,7 +3,7 @@
 #![feature(box_as_ptr)]
 extern crate alloc;
 extern crate kstd;
-pub mod builtins;
+mod builtins;
 
 use alloc::{
     vec::{Vec},

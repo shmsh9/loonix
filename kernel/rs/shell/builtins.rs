@@ -1,11 +1,12 @@
 use format;
 
-const BUILTINS : [Builtin; 6] = [
+const BUILTINS : [Builtin; 7] = [
     Builtin::new("graphics", builtins_graphics),
     Builtin::new("testscroll", builtins_testscroll),
     Builtin::new("args", args),
     Builtin::new("cargs", builtins_testargs),
     Builtin::new("free", builtins_free),
+    Builtin::new("poweroff", builtins_poweroff),
     Builtin::new("help", help)
 ];
 extern "C" {
@@ -13,6 +14,8 @@ extern "C" {
     fn builtins_testscroll(argc: i32, argv: *const *const u8) -> i32;
     fn builtins_testargs(argc: i32, argv: *const *const u8) -> i32;
     fn builtins_free(argc: i32, argv: *const *const u8) -> i32;
+    fn builtins_poweroff(argc: i32, argv: *const *const u8) -> i32;
+
 }
 
 
