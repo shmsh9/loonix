@@ -7,6 +7,7 @@ use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::{CStr, c_void};
 use alloc::ffi::CString;
 use alloc::format;
+pub mod task;
 
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
@@ -30,7 +31,7 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     print(format!("{}\n", info.message()).as_str());
     unsafe { 
         __print_stacktrace();
-        task_end_current(); 
+        task::task_end_current(); 
     }
     loop {}
 }
@@ -55,56 +56,6 @@ macro_rules! printfmt {
     )
 }
 
-#[allow(dead_code)]
-#[derive(Debug)]
-#[repr(C)]
-pub enum TaskPriority{
-    TaskPriorityHigh,
-    TaskPriorityMedium,
-    TaskPriorityLow,
-    TaskPrioritySleep,
-    TaskPriorityNull
-}
-#[allow(dead_code)]
-#[derive(Debug)]
-#[repr(C)]
-pub enum TaskStatus{
-    TaskStatusEnded,
-    TaskStatusRunning,
-    TaskStatusCreated,
-    TaskStatusWaitIO,
-    TaskStatusPaused
-}
-#[allow(dead_code)]
-#[repr(C,packed)]
-pub struct Task{
-    pub next : *const Task,
-    pub prev : *const Task,
-    cpu_registers : *const u64,
-    r#fn : extern "C" fn (*const c_void, *const Task) -> i64,
-    stack_start : *const u64,
-    stack_end: *const u64,
-    pub name : *const i8,
-    pub task_status: TaskStatus,
-    pub data : *const c_void,
-    time_slice : u32,
-    time_slice_remaining : i32,
-    pub priority : TaskPriority,
-    pub waiting_on : *const Task
-}
-impl Task{
-    pub fn new(f : extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : &str, p : TaskPriority) ->  * const Task{
-        unsafe{
-            task_new_rs(f, data, c_str(name).as_ptr(), p)
-        }
-    }
-    pub fn new_unsafe(f : unsafe extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : &str, p : TaskPriority) ->  * const Task{
-        unsafe{
-            task_new(f, data, c_str(name).as_ptr(), p)
-        }
-    }
-
-}
 extern "C"{
     fn kputc(s: u8);
     fn kmalloc_aligned(sz: usize)-> *mut u8;
@@ -113,12 +64,7 @@ extern "C"{
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
     fn vt100_set_cursor_char(c : u8);
-    fn task_new_rs(f : extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const i8, p: TaskPriority)-> *const Task;
-    fn task_new(f : unsafe extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const i8, p: TaskPriority)-> *const Task;
-    fn task_end_current();
     pub fn interrupt_handler_install(f: unsafe extern "C" fn(), n: u16 );
-    pub fn task_end_wait(t: *const Task);
-    pub fn task_end(t: *const Task);
     fn __print_stacktrace(); 
     static fb : u64;
 
