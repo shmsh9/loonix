@@ -110,7 +110,7 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
 						.bitfield = start_bitfield,
 						.bit = 0,
 						.size = size,
-						.ptr = (uintptr_t)heap->memory+(bitfield*8)
+						.ptr = (uintptr_t)heap->memory+(start_bitfield*8)
 				};
 
 			}
