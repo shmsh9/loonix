@@ -98,7 +98,8 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
 
 	uint64_t start_bitfield = kheap_last_free_mem_bitfield;
 	uint64_t aligned_bytes = 0;
-    for(uint64_t bitfield = kheap_last_free_mem_bitfield; bitfield < header_size; bitfield++){
+	uint64_t start_bit = 0;
+    for(uint64_t bitfield = start_bitfield; bitfield < header_size; bitfield++){
 		if(heap->header[bitfield] == 0){
 			aligned_bytes++;
 			if(aligned_bytes >= size){
@@ -108,9 +109,9 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
 				return (kheap_allocated_block){
 						.block = 0x0,
 						.bitfield = start_bitfield,
-						.bit = 0,
-						.size = size,
-						.ptr = (uintptr_t)heap->memory+(start_bitfield*8)
+						.bit = start_bit,
+						.size = aligned_bytes,
+						.ptr = (uintptr_t)heap->memory+(start_bitfield*8)+start_bit
 				};
 
 			}
@@ -219,7 +220,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
             kheap_set_used_bytes2(heap, start_bitfield, start_bit, aligned_bytes);
             heap->free_memory -= size;
             kheap_last_free_mem_bitfield = start_bitfield;
-            return (kheap_allocated_block){
+			return (kheap_allocated_block){
                 .block = 0x0,
                 .bitfield = start_bitfield,
                 .bit = start_bit,
