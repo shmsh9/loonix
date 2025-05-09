@@ -1,8 +1,9 @@
 use format;
 
-const BUILTINS : [Builtin; 3] = [
+const BUILTINS : [Builtin; 4] = [
     Builtin::new("graphics", builtins_graphics),
     Builtin::new("testscroll", builtins_testscroll),
+    Builtin::new("args", args),
     Builtin::new("help", help)
 ];
 
@@ -30,9 +31,15 @@ impl Builtin<'static>{
     }
 }
 
+unsafe extern "C" fn args(argc: i32, argv: *const *const u8) -> i32{
+    for i in 0..argc as usize{
+        kstd::printfmt!("argv[{}]: {:?}\n", i, argv.add(i));
+    }
+    return 0;
+}
 unsafe extern "C" fn help(_argc: i32, _argv: *const *const u8) -> i32{
     for i in 0..BUILTINS.len(){
-        kstd::print_fmt!("{}\n", BUILTINS[i].name);
+        kstd::printfmt!("{}\n", BUILTINS[i].name);
     }
     return 0; 
 }

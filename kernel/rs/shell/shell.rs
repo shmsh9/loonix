@@ -5,8 +5,6 @@ extern crate alloc;
 extern crate kstd;
 pub mod builtins;
 
-use kstd::{print_fmt, rs_str};
-
 use alloc::{vec::{Vec},format,string::String};
 const PROMPT : &str = "sh3w4x_rs $> ";
 
@@ -16,13 +14,12 @@ extern "C" {
 #[no_mangle]
 pub extern "C" fn foo(_data : *const u8, t : *const kstd::Task) -> i64 {
     unsafe{
-        print_fmt!("\nhello from {}()\n", rs_str!((*t).name));
+        kstd::printfmt!("\nhello from {}()\n", kstd::rs_str!((*t).name));
         let d = (*t).data;
-        print_fmt!("t.data == {:?}\n", d);
+        kstd::printfmt!("t.data == {:?}\n", d);
     }
     return -1;
 }
-#[derive(Debug)]
 struct Args<'a>{
     f: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32,
     argc: i32,
@@ -32,13 +29,13 @@ extern "C" fn shell_exec(args: *const u8, _t: *const kstd::Task) -> i64 {
     let a = args as *const Args;
     unsafe {
         let b = a.read_unaligned();
-        let ret = (b.f)(b.argc, 0 as *const *const u8); 
+        let ret = (b.f)(b.argc, b.argv.as_ptr() as *const *const u8); 
         return ret.into(); 
     }
 }
-static mut current_subproc : *const kstd::Task = 0x0 as *const kstd::Task;
+static mut CURRENT_SUBPROC : *const kstd::Task = 0x0 as *const kstd::Task;
 unsafe extern "C" fn sigint(){
-    kstd::task_end(current_subproc);
+    kstd::task_end(CURRENT_SUBPROC);
 }
 #[allow(unreachable_code)]
 #[no_mangle]
@@ -61,26 +58,26 @@ pub extern "C" fn shell_rs() -> i64 {
                         Some(f) => {
                             let a = Args {
                                 f: f.function,
-                                argc: 0,
+                                argc: 1,
                                 argv: &[&s_cmd]
                             };
                             unsafe{
-                                current_subproc = kstd::Task::new_unsafe(
+                                CURRENT_SUBPROC = kstd::Task::new_unsafe(
                                     shell_exec,
                                     &a as *const Args as *const u8,
                                     &s_cmd,
                                     kstd::TaskPriority::TaskPriorityLow
                                 );
-                                kstd::task_end_wait(current_subproc);
+                                kstd::task_end_wait(CURRENT_SUBPROC);
                             }
                         },
                         None => {
-                            print_fmt!("-sh3w4x: {}: command not found", s_cmd);
+                            kstd::printfmt!("-sh3w4x: {}: command not found", s_cmd);
                         }
                     }
                     cmd.clear();
                 }
-                print_fmt!("\n{}", PROMPT);
+                kstd::printfmt!("\n{}", PROMPT);
             
             },
             0x7f | 0x08 /*Backspace*/ => {
@@ -93,7 +90,7 @@ pub extern "C" fn shell_rs() -> i64 {
                         kstd::print("\x1b[1D \x1b[1D");
                     }
                     else{
-                        print_fmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
+                        kstd::printfmt!("\x1b[{}D{} \x1b[1D\x1b[{}D\x1b[{}C",
                             cmdlinepos+1,
                             String::from_utf8(cmd.clone()).unwrap(),
                             cmd.len(),
@@ -106,7 +103,7 @@ pub extern "C" fn shell_rs() -> i64 {
                 kstd::print(" ^C");
                 cmd.clear();
                 cmdlinepos = 0;
-                print_fmt!("\n{}", PROMPT);
+                kstd::printfmt!("\n{}", PROMPT);
             },
             0x0c /*^L*/ => {
                 cmdlinepos = 0;

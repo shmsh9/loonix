@@ -52,7 +52,7 @@ macro_rules! rs_str {
 
 #[allow(unused_macros)]
 #[macro_export]
-macro_rules! print_fmt {
+macro_rules! printfmt {
     ( $x:expr, $( $e:expr ),* ) => (
         kstd::print(format!($x,  $( $e ),* ).as_str())
     )
@@ -122,7 +122,6 @@ extern "C"{
     pub fn task_end_wait(t: *const Task);
     pub fn task_end(t: *const Task);
     fn __print_stacktrace(); 
-    
     static fb : u64;
 
 }
