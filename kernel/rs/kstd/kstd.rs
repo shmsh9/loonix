@@ -5,6 +5,7 @@ extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::{CStr, c_void};
+use alloc::ffi::CString;
 use alloc::format;
 
 struct CAlloc;
@@ -33,12 +34,8 @@ fn panic(info: &core::panic::PanicInfo) -> ! {
     }
     loop {}
 }
-#[allow(unused_macros)]
-#[macro_export]
-macro_rules! c_str {
-    ($a:expr) => {
-        format!("{}\0", $a).as_ptr()
-    }
+pub fn c_str(s: &str) -> CString {
+    return CString::new(s).unwrap(); 
 }
 #[allow(unused_macros)]
 #[macro_export]
@@ -98,12 +95,12 @@ pub struct Task{
 impl Task{
     pub fn new(f : extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : &str, p : TaskPriority) ->  * const Task{
         unsafe{
-            task_new_rs(f, data, c_str!(name), p)
+            task_new_rs(f, data, c_str(name).as_ptr(), p)
         }
     }
     pub fn new_unsafe(f : unsafe extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : &str, p : TaskPriority) ->  * const Task{
         unsafe{
-            task_new(f, data, c_str!(name), p)
+            task_new(f, data, c_str(name).as_ptr(), p)
         }
     }
 
@@ -116,8 +113,8 @@ extern "C"{
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);
     fn vt100_set_cursor_char(c : u8);
-    fn task_new_rs(f : extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const u8, p: TaskPriority)-> *const Task;
-    fn task_new(f : unsafe extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const u8, p: TaskPriority)-> *const Task;
+    fn task_new_rs(f : extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const i8, p: TaskPriority)-> *const Task;
+    fn task_new(f : unsafe extern "C" fn (*mut c_void, *const Task) -> i64, data : *mut c_void, name : *const i8, p: TaskPriority)-> *const Task;
     fn task_end_current();
     pub fn interrupt_handler_install(f: unsafe extern "C" fn(), n: u16 );
     pub fn task_end_wait(t: *const Task);
