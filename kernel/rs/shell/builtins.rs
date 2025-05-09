@@ -1,12 +1,14 @@
 use format;
 
-const BUILTINS : [Builtin; 2] = [
+const BUILTINS : [Builtin; 3] = [
     Builtin::new("graphics", builtins_graphics),
+    Builtin::new("testscroll", builtins_testscroll),
     Builtin::new("help", help)
 ];
 
 extern "C" {
     fn builtins_graphics(argc: i32, argv: *const *const u8) -> i32;
+    fn builtins_testscroll(argc: i32, argv: *const *const u8) -> i32;
 }
 
 
@@ -17,7 +19,10 @@ pub struct Builtin <'a> {
     pub function: unsafe extern "C" fn(argc: i32, argv: *const *const u8) -> i32
 }
 impl Builtin<'static>{
-    const fn new(n: &'static str, f : unsafe extern "C" fn(i32, *const *const u8) -> i32) -> Builtin<'static> {
+    const fn new(
+        n: &'static str, 
+        f : unsafe extern "C" fn(i32, *const *const u8) -> i32) -> Builtin<'static> {
+
         return Builtin {
             name: n,
             function: f
