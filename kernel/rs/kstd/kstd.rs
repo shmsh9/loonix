@@ -10,7 +10,7 @@ use alloc::format;
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        kmalloc(layout.size())
+        kmalloc_aligned(layout.size())
     }
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         kfree(ptr);
@@ -110,7 +110,8 @@ impl Task{
 }
 extern "C"{
     fn kputc(s: u8);
-    fn kmalloc(sz: usize) -> *mut u8;
+    fn kmalloc_aligned(sz: usize)-> *mut u8;
+    //fn kmalloc(sz: usize) -> *mut u8;
     fn kfree(ptr: *mut u8);
     fn kgetchar_non_blocking() -> u8;
     fn vt100_console_update_draw_screen(fb : u64);

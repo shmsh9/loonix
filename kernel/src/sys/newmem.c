@@ -92,18 +92,33 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
         KERROR("%d bytes exceeds free memory available (%d bytes)", size, heap->free_memory);
         return  (kheap_allocated_block){0, 0, 0 ,0, 0};
     }
-	uint64_t bitfield = kheap_last_free_mem_bitfield;
-	if(bitfield == 0){
-		kheap_last_free_mem_bitfield = heap->header[bitfield++];	
-		kheap_set_used_bytes2(heap, bitfield, 0, size);
-		heap->free_memory -= size;
-		return (kheap_allocated_block){
-				.block = 0x0,
-				.bitfield = bitfield,
-				.bit = 0,
-				.size = size,
-				.ptr = (uintptr_t)heap->memory+(bitfield*8)
-		};
+    uint64_t header_size = HEAP_HEADER_SIZE*heap->n_block;
+    if(kheap_last_free_mem_bitfield > header_size)
+        KPANIC("somebody fucked up the stack :(");
+
+	uint64_t start_bitfield = kheap_last_free_mem_bitfield;
+	uint64_t aligned_bytes = 0;
+    for(uint64_t bitfield = kheap_last_free_mem_bitfield; bitfield < header_size; bitfield++){
+		if(heap->header[bitfield] == 0){
+			aligned_bytes++;
+			if(aligned_bytes >= size){
+				kheap_last_free_mem_bitfield = bitfield++;
+				kheap_set_used_bytes2(heap, start_bitfield, 0, size);
+				heap->free_memory -= size;
+				return (kheap_allocated_block){
+						.block = 0x0,
+						.bitfield = start_bitfield,
+						.bit = 0,
+						.size = size,
+						.ptr = (uintptr_t)heap->memory+(bitfield*8)
+				};
+
+			}
+		}
+		else{
+			start_bitfield = bitfield+1;
+			aligned_bytes = 0;	
+		}
 	}
     KERROR("not enough free mem to allocate aligned %d bytes", size);
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
