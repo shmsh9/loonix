@@ -34,10 +34,8 @@ struct Args<'a>{
     argv: &'a [*const u8]
 }
 extern "C" fn shell_exec(args: *mut c_void, _t: *const kstd::Task) -> i64 {
-    kstd::printfmt!("shell_exec args @{:?}\n", args);
-    let a = args as *const Args;
     unsafe {
-        let b : *const Args = a;
+        let b : *const Args = args as *const Args;
         let ret = ((*b).f)((*b).argc, (*b).argv.as_ptr() as *const *const u8); 
         return ret.into(); 
     }
@@ -72,20 +70,25 @@ pub extern "C" fn shell_rs() -> i64 {
                     let argv = parse_args(&s_cmd);
                     match builtins::get(&argv[0]){
                         Some(f) => {
+                            let c_argv : Vec<CString> = argv.iter()
+                                .map(|s| CString::new(*s).unwrap())
+                                .collect();
+                            let c_argv_ptr : Vec<*const u8> = c_argv.iter()
+                                .map(|s| s.as_ptr() as *const u8)
+                                .collect();
                             unsafe{
                                 let mut a = Args {
                                     f: f.function,
-                                    argc: 0,
-                                    argv: &[kstd::c_str!(argv[0])]
+                                    argc: c_argv.len() as i32,
+                                    argv: &c_argv_ptr
                                 };
-                                let t = kstd::Task::new_unsafe(
+                                CURRENT_SUBPROC = kstd::Task::new_unsafe(
                                     shell_exec,
                                     &mut a as *mut _ as *mut c_void,
                                     &s_cmd,
                                     kstd::TaskPriority::TaskPriorityLow
                                 );
-                                CURRENT_SUBPROC = t;
-                                kstd::task_end_wait(t);
+                                kstd::task_end_wait(CURRENT_SUBPROC);
                             }
                         },
                         None => {
