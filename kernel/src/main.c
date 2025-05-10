@@ -1,5 +1,4 @@
 #include <kernel.h>
-#include <kstd/async.h>
 
 
 uint64_t kmain(bootinfo *bootinfo){

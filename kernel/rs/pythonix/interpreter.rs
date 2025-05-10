@@ -285,6 +285,7 @@ impl Context{
 		return ret;
 	}
 }
+/*
 fn subexpr_len(tokens: &[Token]) -> usize{
 	let mut i = 0;
 	let mut open = 1;
@@ -299,6 +300,7 @@ fn subexpr_len(tokens: &[Token]) -> usize{
 	return i;
 	
 }
+*/
 fn call_len(tokens: &[Token]) -> usize{
 	let mut i = 2;
 	let mut open = 1;
