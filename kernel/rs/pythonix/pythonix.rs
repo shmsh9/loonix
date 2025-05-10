@@ -6,7 +6,7 @@ pub mod tokenizer;
 pub mod interpreter;
 pub mod builtins;
 pub mod tests;
-
+pub mod hashmap;
 #[no_mangle]
 pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     //tests::tests();
