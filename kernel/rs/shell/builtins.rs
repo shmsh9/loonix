@@ -7,7 +7,7 @@ const BUILTINS : [Builtin; 8] = [
     Builtin::new("args", args),
     Builtin::new("cargs", builtins_testargs),
     Builtin::new("free", builtins_free),
-    Builtin::new("pythonix", pythonix_rs),
+    Builtin::new("py", pythonix_rs),
     Builtin::new("poweroff", builtins_poweroff),
     Builtin::new("help", help)
 ];

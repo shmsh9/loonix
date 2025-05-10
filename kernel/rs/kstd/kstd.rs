@@ -7,6 +7,7 @@ use core::alloc::{GlobalAlloc, Layout};
 use core::ffi::{CStr, c_void};
 use alloc::ffi::CString;
 use alloc::format;
+use alloc::string::String;
 pub mod task;
 
 struct CAlloc;
@@ -86,6 +87,23 @@ pub fn vt100_update(){
 pub fn getchar_async() -> u8{
     unsafe{
         return kgetchar_non_blocking();
+    }
+}
+pub fn readline() -> String{
+    let mut ret = String::new();
+    loop{
+        let c = getchar_async(); 
+        match c{
+            0x0 => vt100_update(),
+            0x0a | 0x0d => {
+                putc('\n');
+                return ret;
+            },
+            _ => {
+                ret.push(c as char);
+                putc(c as char);
+            }
+        }
     }
 }
 #[no_mangle]
