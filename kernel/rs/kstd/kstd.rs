@@ -95,6 +95,12 @@ pub fn readline() -> String{
         let c = getchar_async(); 
         match c{
             0x0 => vt100_update(),
+            0x7f | 0x08 /*Backspace*/ => {
+                if ret.len() > 0 {
+                    ret.pop();
+                    print("\x1b[1D \x1b[1D");
+                } 
+            },
             0x0a | 0x0d => {
                 putc('\n');
                 return ret;
