@@ -16,7 +16,7 @@ use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 #[derive(Debug)]
 pub struct Context{
     pub state: BTreeMap<PyType,PyType>,
-	builtins: BTreeMap<&'static str, fn(&PyType) -> PyType>
+	pub builtins: BTreeMap<&'static str, fn(&PyType) -> PyType>
 }
 impl Context{
     pub fn new() -> Context{
@@ -484,8 +484,21 @@ pub fn eval_expression_type(tokens: &[Token]) -> ExpressionType{
 	}
 	return ExpressionType::garbage;
 }
+
+fn hash_str(s: &str) -> u64 {
+    let mut h : [u8;8] = [0;8];
+    let mut j = 0;
+    for i in 0..s.len(){
+        if j == 8{
+            j = 0;
+        }
+        h[j] ^= s.chars().nth(i).unwrap() as u8 + i as u8;
+        j += 1;
+    }
+    return u64::from_le_bytes(h);
+}
 #[allow(non_camel_case_types)]
-#[derive(Debug,Clone,PartialEq,Eq,PartialOrd,Ord)]
+#[derive(Debug,Clone,PartialEq,Eq,PartialOrd)]
 pub enum PyType{
 	str(String),
 	int(i64),
@@ -494,6 +507,36 @@ pub enum PyType{
     op(char),
 	paren(char),
 	None
+}
+impl Ord for PyType{
+    fn cmp(&self, other: &PyType) -> core::cmp::Ordering{
+        match self {
+            PyType::int(i) => {
+                match other {
+                    PyType::int(i2) => {
+                        return i.cmp(&i2); 
+                    },
+                    PyType::str(s) => {
+                        return hash_str(s).cmp(&(*i as u64));
+                    }
+                    _ => panic!("Cannot Ord {:?}", self),
+                }
+            },
+            PyType::str(s) => {
+                match other {
+                    PyType::int(i) => {
+                        return hash_str(s).cmp(&(*i as u64));
+                    },
+                    PyType::str(s2) => {
+                        return hash_str(s).cmp(&hash_str(s2));
+                    }
+                    _ => panic!("Cannot Ord {:?}", self),
+                }
+
+            },
+            _ => panic!("Cannot Ord {:?}", self)
+        }
+    }
 }
 impl Hash for PyType{
 	fn hash<H: Hasher>(&self, state: &mut H){

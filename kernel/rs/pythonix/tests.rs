@@ -10,7 +10,6 @@ pub fn tests(){
 	assert_eq!(PyType::from("'abcdefg''"), None);
 	assert_eq!(ExpressionType::assign, eval_expression_type(&parse(&tokenize("a=1"))));
 	assert_eq!(PyType::dict(BTreeMap::new()), PyType::dict(BTreeMap::new()));
-
 	let mut ctxt = Context::new();
     ctxt.execute("a = [1]+[2]");
 	assert_eq!(ctxt.state.get(&PyType::str("a".into())), Some(

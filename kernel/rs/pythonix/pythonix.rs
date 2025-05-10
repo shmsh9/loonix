@@ -17,8 +17,10 @@ pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
         if cmd == "quit()"{
             break;
         }
-        ctxt.execute(&cmd); 
+        if cmd != ""{
+            ctxt.execute(&cmd);
+        }
         kstd::print("\n>>> ");
-    }    
+    }
     return 0;
 }
