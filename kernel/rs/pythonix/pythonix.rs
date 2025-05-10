@@ -8,7 +8,9 @@ pub mod tokenizer;
 pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     kstd::printfmt!(
         "{:?}",
-        tokenizer::tokenize("a=1")
+        tokenizer::parse(
+            &tokenizer::tokenize("a=1")
+        )
     );
     return 0;
 }
