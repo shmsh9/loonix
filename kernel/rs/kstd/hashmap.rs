@@ -3,12 +3,26 @@ use core::marker::PhantomData;
 pub trait Hash{
    fn hash(&self) -> u64; 
 }
+impl Hash for &str{
+    fn hash(&self) -> u64{
+        let mut h : [u8;8] = [0;8];
+        let mut j = 0;
+        for i in 0..self.len(){
+            if j == 8{
+                j = 0;
+            }
+            h[j] ^= self.chars().nth(i).unwrap() as u8 + i as u8;
+            j += 1;
+        }
+        return u64::from_le_bytes(h);
+    } 
+}
 #[derive(Debug)]
-pub struct HashMap<'a,T,K: Hash>{
+pub struct HashMap<'a,K: Hash,T>{
     root: Option<Node<'a, T>>,
     _useless: PhantomData<K>
 }
-impl<'a,T,K: Hash> HashMap<'a,T,K>{
+impl<'a,K: Hash,T> HashMap<'a,K,T>{
     pub fn new() -> Self{
         Self{
             root: None,
@@ -28,6 +42,11 @@ impl<'a,T,K: Hash> HashMap<'a,T,K>{
             None => self.root = Some(Node::new(h,v)),
             Some(n) => n.insert(h,v)
         }   
+    }
+    pub fn from(v: &[(K,T)]) -> HashMap<K,T>{
+        let mut ret = HashMap::new();
+        v.iter().for_each(|e| ret.insert(&e.0, &e.1));
+        return ret;
     } 
 }
 

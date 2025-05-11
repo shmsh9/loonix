@@ -541,18 +541,7 @@ impl Ord for PyType{
 impl hashmap::Hash for PyType{
     fn hash(&self) -> u64{
         match self{
-            PyType::str(s) => {
-                let mut h : [u8;8] = [0;8];
-                let mut j = 0;
-                for i in 0..s.len(){
-                    if j == 8{
-                        j = 0;
-                    }
-                    h[j] ^= s.chars().nth(i).unwrap() as u8 + i as u8;
-                    j += 1;
-                }
-                return u64::from_le_bytes(h);
-            },
+            PyType::str(s) => return s.as_str().hash(),
             PyType::int(i) => return *i as u64,
             _ => panic!("cannot hash value {:?}", self)
         }
