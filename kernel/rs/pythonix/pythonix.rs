@@ -6,19 +6,10 @@ pub mod tokenizer;
 pub mod interpreter;
 pub mod builtins;
 pub mod tests;
-use kstd::hashmap::HashMap;
-use interpreter::PyType;
-use alloc::string::ToString;
+
 #[no_mangle]
 pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
-    //tests::tests();
-    let t = [
-        (PyType::int(123), PyType::str("a".to_string())),
-        (PyType::str("foobar".to_string()), PyType::None)
-    ];
-    let h = PyType::dict(HashMap::from(t));
-    kstd::printfmt!("{}\n", h);
-   
+    tests::tests();
     let mut ctxt = interpreter::Context::new();
     kstd::print(">>> ");
     loop{

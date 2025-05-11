@@ -114,7 +114,6 @@ pub fn tests(){
             ]))
         ]))
     );
-    /*
 	ctxt.execute("a = {\"a\" : [{\"a\": \"b\"}]}");
 	assert_eq!(
         ctxt.state.get(&PyType::str("a".into())), 
@@ -264,5 +263,5 @@ pub fn tests(){
         ctxt.state.get(&PyType::str("a".into())).unwrap(),
         &PyType::list(vec![PyType::int(2),PyType::int(2)])
     );
-    */
+    kstd::print("\n!all tests passed!\n");
 }
