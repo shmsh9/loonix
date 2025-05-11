@@ -12,7 +12,7 @@ use alloc::string::ToString;
 #[no_mangle]
 pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     //tests::tests();
-    /*
+    
     let t : &[(PyType,PyType)] = &[
         (PyType::int(123), PyType::str("a".to_string())),
         (PyType::str("foobar".to_string()), PyType::None)
@@ -21,7 +21,7 @@ pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     t.iter().for_each(|e| h.insert(&e.0, &e.1));
     kstd::printfmt!("{:?}\n", h);
     t.iter().for_each(|e| kstd::printfmt!("h[{}] == {:?}\n", e.0, h.get(&e.0)));
-    */
+   
     let mut ctxt = interpreter::Context::new();
     kstd::print(">>> ");
     loop{

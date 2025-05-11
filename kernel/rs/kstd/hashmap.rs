@@ -43,7 +43,7 @@ impl<'a,K: Hash,T> HashMap<'a,K,T>{
             Some(n) => n.insert(h,v)
         }   
     }
-    pub fn from(v: &'static [(K,T)]) -> HashMap<'a, K,T>{
+    pub fn from(v: &'a [(K,T)]) -> HashMap<'a, K,T>{
         let mut ret = HashMap::new();
         v.iter().for_each(|e| ret.insert(&e.0, &e.1));
         return ret;
@@ -68,7 +68,8 @@ impl<'a,T> Node<'a,T>{
     }
     fn insert(&mut self, k: u64, v: &'a T){
         if k == self.key {
-            self.value = v
+            self.value = v;
+            return;
         }
         if k < self.key{
             match &mut self.left{
