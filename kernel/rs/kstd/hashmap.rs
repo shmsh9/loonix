@@ -43,13 +43,12 @@ impl<'a,K: Hash,T> HashMap<'a,K,T>{
             Some(n) => n.insert(h,v)
         }   
     }
-    pub fn from(v: &[(K,T)]) -> HashMap<K,T>{
+    pub fn from(v: &'static [(K,T)]) -> HashMap<'a, K,T>{
         let mut ret = HashMap::new();
         v.iter().for_each(|e| ret.insert(&e.0, &e.1));
         return ret;
     } 
 }
-
 #[derive(Debug)]
 struct Node<'a, T>{
     key: u64,

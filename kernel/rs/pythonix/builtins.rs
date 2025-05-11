@@ -2,14 +2,14 @@ use interpreter::PyType;
 use core::convert::TryInto;
 use alloc::string::{ToString,String};
 use alloc::vec::Vec;
-use alloc::collections::BTreeMap;
+use kstd::hashmap::HashMap;
 macro_rules! bltn {
 	($name:ident) => {
 		$name as fn(&PyType) -> PyType
 	}	
 }
-pub fn get_builtins() -> BTreeMap<&'static str, fn(&PyType)->PyType >{
-	return BTreeMap::from([
+pub fn get_builtins() -> HashMap<'static, &'static str, fn(&PyType)->PyType >{
+	return HashMap::from(&[
 		("sum", bltn!(sum)),
 		("len", bltn!(len)),
 		("range", bltn!(range)),

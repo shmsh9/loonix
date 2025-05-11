@@ -9,12 +9,13 @@ use alloc::vec;
 use format;
 use builtins;
 use kstd::hashmap;
+use kstd::hashmap::HashMap;
 use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 
 #[derive(Debug)]
 pub struct Context{
     pub state: BTreeMap<PyType,PyType>,
-	pub builtins: BTreeMap<&'static str, fn(&PyType) -> PyType>
+	pub builtins: HashMap<'static, &'static str, fn(&PyType) -> PyType>
 }
 impl Context{
     pub fn new() -> Context{
@@ -102,7 +103,7 @@ impl Context{
 		t[0] = Token::new(TokenType::list_start, &"[");
 		t[i-2] = Token::new(TokenType::list_start, &"]");
 		let args = &self.eval_expression(&t)[0];
-		let f = self.builtins.get(tokens[0].value.as_str());
+		let f = self.builtins.get(&tokens[0].value.as_str());
 		match f {
 			Some(f) => return (f(args),i),
 			None => {
