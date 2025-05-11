@@ -1,25 +1,30 @@
 use alloc::boxed::Box;
 use interpreter::PyType;
-struct HashMap<'a>{
+#[derive(Debug)]
+pub struct HashMap<'a>{
     root: Option<Node<'a>>
 }
-
-impl HashMap<'_>{
-    fn get(&self, k: PyType) -> Option<&PyType>{
+impl<'a> HashMap<'a>{
+    pub fn new() -> Self{
+        Self{
+            root: None
+        }
+    }
+    pub fn get(&self, k: &PyType) -> Option<&PyType>{
         let h = HashMap::hash(k);
         match &self.root{
             Some(n) => return n.get(h),
             None => return None
         }
     }
-    fn insert(&mut self, k: PyType, v: PyType){
+    pub fn insert(&mut self, k: &PyType, v: &'a PyType){
         let h = HashMap::hash(k);
-        match &self.root{
+        match &mut self.root{
             None => self.root = Some(Node::new(h,v)),
             Some(n) => n.insert(h,v)
         }   
     } 
-    fn hash(k: PyType) -> u64{
+    fn hash(k: &PyType) -> u64{
         match k{
             PyType::str(s) => {
                 let mut h : [u8;8] = [0;8];
@@ -33,21 +38,22 @@ impl HashMap<'_>{
                 }
                 return u64::from_le_bytes(h);
             },
-            PyType::int(i) => return i as u64,
+            PyType::int(i) => return *i as u64,
             _ => panic!("cannot hash value {:?}", k)
         }
     }
 }
 
+#[derive(Debug)]
 struct Node<'a>{
     key: u64,
-    value: PyType,
+    value: &'a PyType,
     left: Option<Box<Node<'a>>>,
-    right: Option<Box<Node<'a>>>
+    right: Option<Box<Node<'a>>> 
 }
 
-impl<'a> Node<'_>{
-    fn new(k: u64, v: PyType) -> Node<'a>{
+impl<'a> Node<'a>{
+    fn new(k: u64, v: &'a PyType) -> Node<'a>{
         return Node{
             key: k,
             value: v,
@@ -55,10 +61,22 @@ impl<'a> Node<'_>{
             right: None
         }
     }
-    fn insert(&mut self, k: u64, v: PyType){
+    fn insert(&mut self, k: u64, v: &'a PyType){
         if k == self.key {
             self.value = v
-        } 
+        }
+        if k < self.key{
+            match &mut self.left{
+                Some(l) => l.insert(k,v),
+                None => self.left = Some(Box::new(Node::new(k, v)))
+            }
+        }
+        else{
+            match &mut self.right{
+                Some(r) => r.insert(k,v),
+                None => self.right = Some(Box::new(Node::new(k,v)))
+            }
+        }
     }
     fn get(&self, k: u64) -> Option<&PyType>{
         if k == self.key{
