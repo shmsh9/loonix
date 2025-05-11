@@ -699,6 +699,8 @@ int builtins_lspci(int argc, char **argv){
     }
     return 0;
 }
+//RS fn
+extern int pythonix_rs(int, char**);
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
 uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
@@ -713,7 +715,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("regex", builtins_regex),
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
-    _BUILTIN("py", builtins_pythonix),
+    _BUILTIN("py", pythonix_rs),
     _BUILTIN("macro", builtins_macro)
 };
 int builtins_help(int argc, char **argv){

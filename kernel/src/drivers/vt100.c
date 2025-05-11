@@ -202,6 +202,7 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             c
                         );
                         vt100_console_increase_x(fb);
+						vt100_set_cursor_char(c);
                         break;
                 }
                 break;
