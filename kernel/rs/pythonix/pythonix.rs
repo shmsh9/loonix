@@ -17,8 +17,7 @@ pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
         (PyType::int(123), PyType::str("a".to_string())),
         (PyType::str("foobar".to_string()), PyType::None)
     ];
-    let mut h = HashMap::from(t);
-    t.iter().for_each(|e| h.insert(&e.0, &e.1));
+    let h = HashMap::from(t);
     kstd::printfmt!("{:?}\n", h);
     t.iter().for_each(|e| kstd::printfmt!("h[{}] == {:?}\n", e.0, h.get(&e.0)));
    
