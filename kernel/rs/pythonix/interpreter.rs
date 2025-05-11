@@ -1,7 +1,6 @@
 use core::primitive::str;
 use core::ops::{Add,Sub,Mul};
 use alloc::collections::BTreeMap;
-use core::hash::{Hash,Hasher};
 use alloc::fmt::{Formatter,Error,Display};
 use core::convert::{TryFrom,TryInto};
 use alloc::string::{String,ToString};
@@ -9,8 +8,7 @@ use alloc::vec::Vec;
 use alloc::vec;
 use format;
 use builtins;
-//pub mod tokenizer;
-//pub mod tests;
+use kstd::hashmap;
 use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 
 #[derive(Debug)]
@@ -540,14 +538,25 @@ impl Ord for PyType{
         }
     }
 }
-impl Hash for PyType{
-	fn hash<H: Hasher>(&self, state: &mut H){
-		match self {
-			PyType::str(s) => s.hash(state),
-			PyType::int(i) => i.hash(state),
-			_ => panic!("cannot hash object {:?}", {self})
-		}
-	}	
+impl hashmap::Hash for PyType{
+    fn hash(&self) -> u64{
+        match self{
+            PyType::str(s) => {
+                let mut h : [u8;8] = [0;8];
+                let mut j = 0;
+                for i in 0..s.len(){
+                    if j == 8{
+                        j = 0;
+                    }
+                    h[j] ^= s.chars().nth(i).unwrap() as u8 + i as u8;
+                    j += 1;
+                }
+                return u64::from_le_bytes(h);
+            },
+            PyType::int(i) => return *i as u64,
+            _ => panic!("cannot hash value {:?}", self)
+        }
+    }
 }
 impl Display for PyType{
 	fn fmt(&self, f: &mut Formatter<'_>) -> Result<(),  Error>{

@@ -9,6 +9,7 @@ use alloc::ffi::CString;
 use alloc::format;
 use alloc::string::String;
 pub mod task;
+pub mod hashmap;
 
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {

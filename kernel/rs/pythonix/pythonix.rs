@@ -6,8 +6,7 @@ pub mod tokenizer;
 pub mod interpreter;
 pub mod builtins;
 pub mod tests;
-pub mod hashmap;
-use hashmap::HashMap;
+use kstd::hashmap::HashMap;
 use interpreter::PyType;
 use alloc::string::ToString;
 #[no_mangle]
