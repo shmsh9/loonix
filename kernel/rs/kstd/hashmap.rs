@@ -19,9 +19,9 @@ impl Hash for &str{
         return u64::from_le_bytes(h);
     } 
 }
-#[derive(Debug)]
+#[derive(Debug,Eq,PartialEq,Clone)]
 pub struct HashMap<K: Hash+Borrow<K>, V: Borrow<V>>{
-    root: Option<Node<K,V>>
+    root: Option<Box<Node<K,V>>>
 }
 impl<K: Hash+Borrow<K>, V: Borrow<V> > HashMap<K,V>{
     pub fn new() -> Self{
@@ -39,7 +39,7 @@ impl<K: Hash+Borrow<K>, V: Borrow<V> > HashMap<K,V>{
     pub fn insert(&mut self, k: K, v: V){
         let h = k.hash();
         match &mut self.root{
-            None => self.root = Some(Node::new(h,k,v)),
+            None => self.root = Some(Box::new(Node::new(h,k,v))),
             Some(n) => n.insert(h,k,v)
         }   
     }
@@ -66,7 +66,8 @@ impl<K: Hash, V> HashMap<K,V>{
         } 
     }
 }
-#[derive(Debug)]
+
+#[derive(Debug,Eq,PartialEq,Clone)]
 struct Node<K: Borrow<K>, V: Borrow<V>>{
     hash: u64,
     key: K,

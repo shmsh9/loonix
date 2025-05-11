@@ -10,7 +10,6 @@ use builtins;
 use alloc::boxed::Box;
 use kstd::hashmap;
 use kstd::hashmap::HashMap;
-use alloc::collections::BTreeMap;
 use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 
 #[derive(Debug)]
@@ -160,10 +159,10 @@ impl Context{
 	}
 	fn eval_dict(&self, tokens: &[Token]) -> (PyType, usize){
 		if tokens[0].r#type == TokenType::dict_stop{
-			return (PyType::dict(BTreeMap::new()), 2)
+			return (PyType::dict(HashMap::new()), 2)
 		}
 		let j = dict_len(&tokens);
-		let mut h : BTreeMap<PyType,PyType> = BTreeMap::new();
+		let mut h : HashMap<PyType,PyType> = HashMap::new();
         let mut ev = Vec::<PyType>::new();
         let mut i = 0;
         let mut curr = Vec::<Token>::new();
@@ -500,45 +499,15 @@ fn hash_str(s: &str) -> u64 {
     return u64::from_le_bytes(h);
 }
 #[allow(non_camel_case_types)]
-#[derive(Debug,Clone,PartialEq,Eq,PartialOrd)]
+#[derive(Debug,Clone,PartialEq,Eq)]
 pub enum PyType{
 	str(String),
 	int(i64),
 	list(Vec<PyType>),
-	dict(BTreeMap<PyType,PyType>),
+	dict(HashMap<PyType,PyType>),
     op(char),
 	paren(char),
 	None
-}
-impl Ord for PyType{
-    fn cmp(&self, other: &PyType) -> core::cmp::Ordering{
-        match self {
-            PyType::int(i) => {
-                match other {
-                    PyType::int(i2) => {
-                        return i.cmp(&i2); 
-                    },
-                    PyType::str(s) => {
-                        return hash_str(s).cmp(&(*i as u64));
-                    }
-                    _ => panic!("Cannot Ord {:?}", self),
-                }
-            },
-            PyType::str(s) => {
-                match other {
-                    PyType::int(i) => {
-                        return hash_str(s).cmp(&(*i as u64));
-                    },
-                    PyType::str(s2) => {
-                        return hash_str(s).cmp(&hash_str(s2));
-                    }
-                    _ => panic!("Cannot Ord {:?}", self),
-                }
-
-            },
-            _ => panic!("Cannot Ord {:?}", self)
-        }
-    }
 }
 impl hashmap::Hash for PyType{
     fn hash(&self) -> u64{
@@ -562,7 +531,7 @@ impl Display for PyType{
 				return write!(f, "[{}]", s);
 			},
 			PyType::dict(d) => {
-				let s = d.into_iter()
+				let s = d.to_vec().iter()
 					.map(|(k,v)| format!("{}: {}", k, v) )
 					.collect::<Vec<String>>()
 					.join(", ");
