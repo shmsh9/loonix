@@ -51,8 +51,8 @@ impl<K: Hash+Borrow<K>, V: Borrow<V> > HashMap<K,V>{
     } 
 }
 
-impl<K: Hash+Clone, V: Clone> HashMap<K,V>{
-    pub fn from(v: &[(K,V)]) -> HashMap<K,V>{
+impl<K: Hash+Clone, V: Clone, const N: usize> From <[(K,V) ;N]> for HashMap<K,V>{
+    fn from(v: [(K,V); N]) -> HashMap<K,V>{
         let mut ret = HashMap::new();
         v.iter().for_each(|e| ret.insert(e.0.clone(), e.1.clone()));
         return ret;

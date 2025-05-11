@@ -1,16 +1,15 @@
 use alloc::vec;
-use alloc::collections::BTreeMap;
+use kstd::hashmap::HashMap;
 use tokenizer::{tokenize,parse};
 use interpreter::{PyType, Context, ExpressionType, eval_expression_type};
 
 pub fn tests(){
-    /*
 	assert_eq!(PyType::from("'abcdefg'"), Some(PyType::str("abcdefg".into())));
 	assert_eq!(PyType::from("\"abcdefg\""), Some(PyType::str("abcdefg".into())));
 	assert_eq!(PyType::from("123"), Some(PyType::int(123)));
 	assert_eq!(PyType::from("'abcdefg''"), None);
 	assert_eq!(ExpressionType::assign, eval_expression_type(&parse(&tokenize("a=1"))));
-	assert_eq!(PyType::dict(BTreeMap::new()), PyType::dict(BTreeMap::new()));
+	assert_eq!(PyType::dict(HashMap::new()), PyType::dict(HashMap::new()));
 	let mut ctxt = Context::new();
     ctxt.execute("a = [1]+[2]");
 	assert_eq!(ctxt.state.get(&PyType::str("a".into())), Some(
@@ -21,17 +20,17 @@ pub fn tests(){
 	ctxt.execute("a = 1");
 	assert_eq!(
 		ctxt.state,
-		BTreeMap::from([
+		HashMap::from([
 			(PyType::str("a".into()), PyType::int(1))
 		])
 	);
 	ctxt.execute("a = {\"b\": []}");
 	assert_eq!(
 		ctxt.state,
-		BTreeMap::from([
+		HashMap::from([
 			(PyType::str("a".into()), 
 			PyType::dict(
-				BTreeMap::from([
+				HashMap::from([
 					(PyType::str("b".into()), PyType::list(vec![]))
 				])
 			))
@@ -40,13 +39,13 @@ pub fn tests(){
 	ctxt.execute("a = {'b': [], 'c': [1,2,3,{}]}");
 	assert_eq!(
 		ctxt.state,
-		BTreeMap::from([
+		HashMap::from([
 			(PyType::str("a".into()), 
 			PyType::dict(
-				BTreeMap::from([
+				HashMap::from([
 					(PyType::str("b".into()), PyType::list(vec![])),
 					(PyType::str("c".into()), PyType::list(vec![
-						PyType::int(1), PyType::int(2), PyType::int(3), PyType::dict(BTreeMap::new())
+						PyType::int(1), PyType::int(2), PyType::int(3), PyType::dict(HashMap::new())
 					]))
 			
 				])
@@ -77,10 +76,10 @@ pub fn tests(){
 	assert_eq!(
         ctxt.state.get(&PyType::str("a".into())), 
         Some(&PyType::dict(
-            BTreeMap::from([
+            HashMap::from([
                 (PyType::str("abcd".into()), PyType::str("efg".into())),
                 (PyType::str("xyz".into()), PyType::list(vec![
-                    PyType::dict(BTreeMap::new()), PyType::int(2), PyType::int(3)
+                    PyType::dict(HashMap::new()), PyType::int(2), PyType::int(3)
                 ])),
 
             ])
@@ -106,22 +105,23 @@ pub fn tests(){
 	assert_eq!(
         ctxt.state.get(&PyType::str("a".into())), 
         Some(&PyType::list(vec![
-            PyType::dict(BTreeMap::from([
+            PyType::dict(HashMap::from([
                 (PyType::str("b".into()),
-                    PyType::dict(BTreeMap::from([
+                    PyType::dict(HashMap::from([
                         (PyType::str("c".into()), PyType::int(1))
                     ]))
                 )
             ]))
         ]))
     );
+    /*
 	ctxt.execute("a = {\"a\" : [{\"a\": \"b\"}]}");
 	assert_eq!(
         ctxt.state.get(&PyType::str("a".into())), 
-        Some(&PyType::dict(BTreeMap::from([
+        Some(&PyType::dict(HashMap::from([
 			(PyType::str("a".into()), 
 			PyType::list(vec![
-				PyType::dict(BTreeMap::from([
+				PyType::dict(HashMap::from([
 					(PyType::str("a".into()), PyType::str("b".into()))
 				]))
 			]))
@@ -215,7 +215,7 @@ pub fn tests(){
 		ctxt.execute("[len(\"a\"*99),{sum(1,3): sum(1,3)}]"),
 		PyType::list(vec![
 			PyType::int(99),
-			PyType::dict(BTreeMap::from([(PyType::int(4),PyType::int(4))]))
+			PyType::dict(HashMap::from([(PyType::int(4),PyType::int(4))]))
 		])
 	);
 	assert_eq!(
@@ -224,7 +224,7 @@ pub fn tests(){
 	);
 	assert_eq!(
 		ctxt.execute("{len('a')+sum([1,1+1,3,4])+len(\"b\"): 0}"),
-		PyType::dict(BTreeMap::from([(PyType::int(12), PyType::int(0))]))
+		PyType::dict(HashMap::from([(PyType::int(12), PyType::int(0))]))
 	);
 	assert_eq!(
 		ctxt.execute("range(0,0xa)"),

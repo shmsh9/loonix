@@ -9,7 +9,7 @@ macro_rules! bltn {
 	}	
 }
 pub fn get_builtins() -> HashMap<&'static str, fn(&PyType)->PyType >{
-	return HashMap::from(&[
+	return HashMap::from([
 		("sum", bltn!(sum)),
 		("len", bltn!(len)),
 		("range", bltn!(range)),
