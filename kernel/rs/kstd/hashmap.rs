@@ -1,5 +1,6 @@
 use alloc::boxed::Box;
-use core::marker::PhantomData;
+use alloc::vec::Vec;
+use alloc::vec;
 pub trait Hash{
    fn hash(&self) -> u64; 
 }
@@ -106,6 +107,18 @@ impl<K: Clone, V: Clone> Node<K,V>{
             None => return None
         }
     }
+    fn get_child(&self) -> Vec<(K,V)>{
+        let mut ret = vec![(self.key.clone(), self.value.clone())];
+        match &self.left{
+            Some(l) => ret.append(&mut l.get_child()),
+            None => ()
+        }
+        match &self.right{
+            Some(r) => ret.append(&mut r.get_child()),
+            None => ()
+        }
+        return ret;
+    }
 }
 impl<K: Clone, V: Clone> Node<K,V>{
     fn get_mut(&mut self, h: u64) -> Option<&mut V>{
@@ -121,6 +134,16 @@ impl<K: Clone, V: Clone> Node<K,V>{
         match &mut self.right{
             Some(ref mut r) => return r.get_mut(h),
             None => return None
+        }
+    }
+}
+impl<K: Hash+Clone,V: Clone> core::iter::IntoIterator for HashMap<K,V>{
+    type Item = (K,V);
+    type IntoIter = alloc::vec::IntoIter::<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter{
+        match self.root{
+            Some(r) => return r.get_child().into_iter(),
+            None => return vec![].into_iter()
         }
     }
 }
