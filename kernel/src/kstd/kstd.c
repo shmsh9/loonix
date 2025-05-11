@@ -57,7 +57,7 @@ char kgetchar_non_blocking(){
         return ret;
     return 0;
 }
-void _c_kprintf(const char *fmt, ...){
+void kprintf(const char *fmt, ...){
     if(!fmt){
         KERROR("fmt == NULL");
         return;
@@ -312,7 +312,7 @@ void kfree(void *p){
     }
 	
     if(task_current && kalloc_list[ptrindex].task != task_current){
-        _c_kprintf("task %s tried to free mem from task %s!!!!\n", task_current->name, kalloc_list[ptrindex].task->name);
+        kprintf("task %s tried to free mem from task %s!!!!\n", task_current->name, kalloc_list[ptrindex].task->name);
         task_unlock();
         return;
     }

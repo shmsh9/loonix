@@ -114,7 +114,7 @@ pub fn readline() -> String{
     }
 }
 #[no_mangle]
-pub unsafe extern "C" fn kprintf(fmt: *const i8, mut args : ... ){
+pub unsafe extern "C" fn _rs_kprintf(fmt: *const i8, mut args : ... ){
     let mut fmt = CStr::from_ptr(fmt).to_str().unwrap().chars();
     while let Some(c) = fmt.next() {
         match c {
