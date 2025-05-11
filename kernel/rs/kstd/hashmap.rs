@@ -18,11 +18,11 @@ impl Hash for &str{
     } 
 }
 #[derive(Debug)]
-pub struct HashMap<'a,K: Hash,T>{
-    root: Option<Node<'a, T>>,
+pub struct HashMap<K: Hash,T: Clone>{
+    root: Option<Node<T>>,
     _useless: PhantomData<K>
 }
-impl<'a,K: Hash,T> HashMap<'a,K,T>{
+impl<K: Hash,T: Clone> HashMap<K,T>{
     pub fn new() -> Self{
         Self{
             root: None,
@@ -36,39 +36,39 @@ impl<'a,K: Hash,T> HashMap<'a,K,T>{
             None => return None
         }
     }
-    pub fn insert(&mut self, k: &K, v: &'a T){
+    pub fn insert(&mut self, k: &K, v: &T){
         let h = k.hash();
         match &mut self.root{
             None => self.root = Some(Node::new(h,v)),
             Some(n) => n.insert(h,v)
         }   
     }
-    pub fn from(v: &'a [(K,T)]) -> HashMap<'a, K,T>{
+    pub fn from(v: &[(K,T)]) -> HashMap<K,T>{
         let mut ret = HashMap::new();
         v.iter().for_each(|e| ret.insert(&e.0, &e.1));
         return ret;
     } 
 }
 #[derive(Debug)]
-struct Node<'a, T>{
+struct Node<T: Clone>{
     key: u64,
-    value: &'a T,
-    left: Option<Box<Node<'a,T>>>,
-    right: Option<Box<Node<'a,T>>> 
+    value: T,
+    left: Option<Box<Node<T>>>,
+    right: Option<Box<Node<T>>> 
 }
 
-impl<'a,T> Node<'a,T>{
-    fn new(k: u64, v: &'a T) -> Node<'a,T>{
+impl<T: Clone> Node<T>{
+    fn new(k: u64, v: &T) -> Node<T>{
         return Node{
             key: k,
-            value: v,
+            value: v.clone(),
             left: None,
             right: None
         }
     }
-    fn insert(&mut self, k: u64, v: &'a T){
+    fn insert(&mut self, k: u64, v: &T){
         if k == self.key {
-            self.value = v;
+            self.value = v.clone();
             return;
         }
         if k < self.key{

@@ -8,7 +8,7 @@ macro_rules! bltn {
 		$name as fn(&PyType) -> PyType
 	}	
 }
-pub fn get_builtins() -> HashMap<'static, &'static str, fn(&PyType)->PyType >{
+pub fn get_builtins() -> HashMap<&'static str, fn(&PyType)->PyType >{
 	return HashMap::from(&[
 		("sum", bltn!(sum)),
 		("len", bltn!(len)),

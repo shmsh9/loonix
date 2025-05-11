@@ -15,7 +15,7 @@ use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 #[derive(Debug)]
 pub struct Context{
     pub state: BTreeMap<PyType,PyType>,
-	pub builtins: HashMap<'static, &'static str, fn(&PyType) -> PyType>
+	pub builtins: HashMap<&'static str, fn(&PyType) -> PyType>
 }
 impl Context{
     pub fn new() -> Context{
