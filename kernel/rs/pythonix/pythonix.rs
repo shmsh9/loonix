@@ -19,7 +19,7 @@ pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     ];
     let h = HashMap::from(t);
     t.iter().for_each(|e| kstd::printfmt!("h[{}] == {:?}\n", e.0, h.get(&e.0)));
-    kstd::printfmt!("{:?}\n", h.into_iter());
+    kstd::printfmt!("{:?}\n", h.to_vec());
    
     let mut ctxt = interpreter::Context::new();
     kstd::print(">>> ");

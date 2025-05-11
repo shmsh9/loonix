@@ -1,6 +1,7 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use alloc::vec;
+use alloc::borrow::Borrow;
 pub trait Hash{
    fn hash(&self) -> u64; 
 }
@@ -19,10 +20,10 @@ impl Hash for &str{
     } 
 }
 #[derive(Debug)]
-pub struct HashMap<K: Hash+Clone, V: Clone>{
+pub struct HashMap<K: Hash+Borrow<K>, V: Borrow<V>>{
     root: Option<Node<K,V>>
 }
-impl<K: Hash+Clone, V: Clone> HashMap<K,V>{
+impl<K: Hash+Borrow<K>, V: Borrow<V> > HashMap<K,V>{
     pub fn new() -> Self{
         Self{
             root: None
@@ -35,17 +36,12 @@ impl<K: Hash+Clone, V: Clone> HashMap<K,V>{
             None => return None
         }
     }
-    pub fn insert(&mut self, k: &K, v: &V){
+    pub fn insert(&mut self, k: K, v: V){
         let h = k.hash();
         match &mut self.root{
             None => self.root = Some(Node::new(h,k,v)),
             Some(n) => n.insert(h,k,v)
         }   
-    }
-    pub fn from(v: &[(K,V)]) -> HashMap<K,V>{
-        let mut ret = HashMap::new();
-        v.iter().for_each(|e| ret.insert(&e.0, &e.1));
-        return ret;
     }
     pub fn get_mut(&mut self, k: &K) -> Option<&mut V>{
         match &mut self.root{
@@ -54,8 +50,24 @@ impl<K: Hash+Clone, V: Clone> HashMap<K,V>{
         }
     } 
 }
+
+impl<K: Hash+Clone, V: Clone> HashMap<K,V>{
+    pub fn from(v: &[(K,V)]) -> HashMap<K,V>{
+        let mut ret = HashMap::new();
+        v.iter().for_each(|e| ret.insert(e.0.clone(), e.1.clone()));
+        return ret;
+    }
+}
+impl<K: Hash, V> HashMap<K,V>{
+    pub fn to_vec(&self) -> Vec<(&K,&V)>{
+        match &self.root{
+            Some(r) => return r.get_child(),
+            None => return vec![]
+        } 
+    }
+}
 #[derive(Debug)]
-struct Node<K: Clone, V: Clone>{
+struct Node<K: Borrow<K>, V: Borrow<V>>{
     hash: u64,
     key: K,
     value: V,
@@ -63,20 +75,20 @@ struct Node<K: Clone, V: Clone>{
     right: Option<Box<Node<K,V>>> 
 }
 
-impl<K: Clone, V: Clone> Node<K,V>{
-    fn new(h: u64, key: &K, v: &V) -> Node<K,V>{
+impl<K: Borrow<K>, V: Borrow<V>> Node<K,V>{
+    fn new(h: u64, key: K, v: V) -> Node<K,V>{
         return Node{
             hash: h,
-            key: key.clone(),
-            value: v.clone(),
+            key: key,
+            value: v,
             left: None,
             right: None
-        }
+         }
     }
-    fn insert(&mut self, h: u64, k: &K, v: &V){
+    fn insert(&mut self, h: u64, k: K, v: V){
         if h == self.hash {
-            self.value = v.clone();
-            self.key = k.clone();
+            self.value = v;
+            self.key = k;
             return;
         }
         if h < self.hash{
@@ -107,8 +119,8 @@ impl<K: Clone, V: Clone> Node<K,V>{
             None => return None
         }
     }
-    fn get_child(&self) -> Vec<(K,V)>{
-        let mut ret = vec![(self.key.clone(), self.value.clone())];
+    fn get_child(&self) -> Vec<(&K,&V)>{
+        let mut ret = vec![(&self.key, &self.value)];
         match &self.left{
             Some(l) => ret.append(&mut l.get_child()),
             None => ()
@@ -120,7 +132,7 @@ impl<K: Clone, V: Clone> Node<K,V>{
         return ret;
     }
 }
-impl<K: Clone, V: Clone> Node<K,V>{
+impl<K,V> Node<K,V>{
     fn get_mut(&mut self, h: u64) -> Option<&mut V>{
         if h == self.hash{
             return Some(&mut self.value);
@@ -134,16 +146,6 @@ impl<K: Clone, V: Clone> Node<K,V>{
         match &mut self.right{
             Some(ref mut r) => return r.get_mut(h),
             None => return None
-        }
-    }
-}
-impl<K: Hash+Clone,V: Clone> core::iter::IntoIterator for HashMap<K,V>{
-    type Item = (K,V);
-    type IntoIter = alloc::vec::IntoIter::<Self::Item>;
-    fn into_iter(self) -> Self::IntoIter{
-        match self.root{
-            Some(r) => return r.get_child().into_iter(),
-            None => return vec![].into_iter()
         }
     }
 }

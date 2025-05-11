@@ -33,19 +33,19 @@ impl Context{
                 let p = calc(&mut self.eval_expression(&tokens[2..tokens.len()]));
 				match tokens[1].value.as_str() {
 					"=" => {
-						self.state.insert(&var,&p);
+						self.state.insert(var,p);
 					},
 					"+=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(&var,&(val+p));
+						self.state.insert(var,val+p);
 					},
 					"-=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(&var,&(val-p));
+						self.state.insert(var,val-p);
 					},
                     "*=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(&var,&(val*p));
+						self.state.insert(var,val*p);
                     },
 					_ => panic!("unimpl operator {:?}", tokens[1])
 				}
