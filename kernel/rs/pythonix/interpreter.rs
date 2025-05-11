@@ -1,6 +1,5 @@
 use core::primitive::str;
 use core::ops::{Add,Sub,Mul};
-use alloc::collections::BTreeMap;
 use alloc::fmt::{Formatter,Error,Display};
 use core::convert::{TryFrom,TryInto};
 use alloc::string::{String,ToString};
@@ -8,19 +7,20 @@ use alloc::vec::Vec;
 use alloc::vec;
 use format;
 use builtins;
+use alloc::boxed::Box;
 use kstd::hashmap;
 use kstd::hashmap::HashMap;
 use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 
 #[derive(Debug)]
 pub struct Context{
-    pub state: BTreeMap<PyType,PyType>,
+    pub state: HashMap<PyType,PyType>,
 	pub builtins: HashMap<&'static str, fn(&PyType) -> PyType>
 }
 impl Context{
     pub fn new() -> Context{
         Context{
-            state: BTreeMap::new(),
+            state: HashMap::new(),
 			builtins: builtins::get_builtins()
         }
     }
@@ -32,19 +32,19 @@ impl Context{
                 let p = calc(&mut self.eval_expression(&tokens[2..tokens.len()]));
 				match tokens[1].value.as_str() {
 					"=" => {
-						self.state.insert(var, p);
+						self.state.insert(&var, &p);
 					},
 					"+=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(var,val+p);
+						self.state.insert(&var,&(val+p));
 					},
 					"-=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(var,val-p);
+						self.state.insert(&var,&(val-p));
 					},
                     "*=" => {
 						let val = self.eval_expression(&tokens[0..1])[0].clone();
-						self.state.insert(var,val*p);
+						self.state.insert(&var,&(val*p));
                     },
 					_ => panic!("unimpl operator {:?}", tokens[1])
 				}
@@ -159,10 +159,10 @@ impl Context{
 	}
 	fn eval_dict(&self, tokens: &[Token]) -> (PyType, usize){
 		if tokens[0].r#type == TokenType::dict_stop{
-			return (PyType::dict(BTreeMap::new()), 2)
+			return (PyType::dict(HashMap::new()), 2)
 		}
 		let j = dict_len(&tokens);
-		let mut h : BTreeMap<PyType,PyType> = BTreeMap::new();
+		let mut h : HashMap<PyType,PyType> = HashMap::new();
         let mut ev = Vec::<PyType>::new();
         let mut i = 0;
         let mut curr = Vec::<Token>::new();
@@ -207,8 +207,8 @@ impl Context{
         }
         for i in (0..ev.len()).step_by(2){
             h.insert(
-                ev[i].clone(),
-                ev[i+1].clone()
+                &ev[i],
+                &ev[i+1]
             );
         }
 		return (PyType::dict(h), j+1);
@@ -504,7 +504,7 @@ pub enum PyType{
 	str(String),
 	int(i64),
 	list(Vec<PyType>),
-	dict(BTreeMap<PyType,PyType>),
+	dict(HashMap<PyType,Box<PyType>>),
     op(char),
 	paren(char),
 	None

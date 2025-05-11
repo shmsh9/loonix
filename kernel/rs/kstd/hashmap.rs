@@ -47,6 +47,12 @@ impl<K: Hash,T: Clone> HashMap<K,T>{
         let mut ret = HashMap::new();
         v.iter().for_each(|e| ret.insert(&e.0, &e.1));
         return ret;
+    }
+    pub fn get_mut(&mut self, k: &K) -> Option<&mut T>{
+        match &mut self.root{
+            Some(ref mut r) => return r.get_mut(k.hash()),
+            None => return None
+        }
     } 
 }
 #[derive(Debug)]
@@ -96,6 +102,23 @@ impl<T: Clone> Node<T>{
         }
         match &self.right{
             Some(r) => return r.get(k),
+            None => return None
+        }
+    }
+}
+impl<T: Clone> Node<T>{
+    fn get_mut(&mut self, k: u64) -> Option<&mut T>{
+        if k == self.key{
+            return Some(&mut self.value);
+        }
+        if k < self.key{
+            match &mut self.left{
+                Some(ref mut l) => return l.get_mut(k),
+                None => return None
+            }
+        }
+        match &mut self.right{
+            Some(ref mut r) => return r.get_mut(k),
             None => return None
         }
     }
