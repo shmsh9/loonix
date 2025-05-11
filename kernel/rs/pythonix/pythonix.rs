@@ -9,7 +9,6 @@ pub mod tests;
 use kstd::hashmap::HashMap;
 use interpreter::PyType;
 use alloc::string::ToString;
-use alloc::vec;
 #[no_mangle]
 pub extern "C" fn pythonix_rs(_argc: i32, _argv: *const *const u8) -> i32 {
     //tests::tests();
