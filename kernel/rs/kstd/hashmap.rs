@@ -1,7 +1,6 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use alloc::vec;
-use alloc::borrow::Borrow;
 pub trait Hash{
    fn hash(&self) -> u64; 
 }
@@ -20,10 +19,10 @@ impl Hash for &str{
     } 
 }
 #[derive(Debug,Eq,PartialEq,Clone)]
-pub struct HashMap<K: Hash+Borrow<K>, V: Borrow<V>>{
+pub struct HashMap<K: Hash, V >{
     root: Option<Box<Node<K,V>>>
 }
-impl<K: Hash+Borrow<K>, V: Borrow<V> > HashMap<K,V>{
+impl<K: Hash, V  > HashMap<K,V>{
     pub fn new() -> Self{
         Self{
             root: None
@@ -68,7 +67,7 @@ impl<K: Hash, V> HashMap<K,V>{
 }
 
 #[derive(Debug,Eq,PartialEq,Clone)]
-struct Node<K: Borrow<K>, V: Borrow<V>>{
+struct Node<K , V >{
     hash: u64,
     key: K,
     value: V,
@@ -76,7 +75,7 @@ struct Node<K: Borrow<K>, V: Borrow<V>>{
     right: Option<Box<Node<K,V>>> 
 }
 
-impl<K: Borrow<K>, V: Borrow<V>> Node<K,V>{
+impl<K , V > Node<K,V>{
     fn new(h: u64, key: K, v: V) -> Node<K,V>{
         return Node{
             hash: h,
