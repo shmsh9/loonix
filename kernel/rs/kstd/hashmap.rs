@@ -19,10 +19,10 @@ impl Hash for &str{
     } 
 }
 #[derive(Debug,Eq,PartialEq,Clone)]
-pub struct HashMap<K: Hash, V >{
+pub struct HashMap<K: Hash, V>{
     root: Option<Box<Node<K,V>>>
 }
-impl<K: Hash, V  > HashMap<K,V>{
+impl<K: Hash, V> HashMap<K,V>{
     pub fn new() -> Self{
         Self{
             root: None
@@ -67,7 +67,7 @@ impl<K: Hash, V> HashMap<K,V>{
 }
 
 #[derive(Debug,Eq,PartialEq,Clone)]
-struct Node<K , V >{
+struct Node<K, V>{
     hash: u64,
     key: K,
     value: V,
@@ -75,7 +75,7 @@ struct Node<K , V >{
     right: Option<Box<Node<K,V>>> 
 }
 
-impl<K , V > Node<K,V>{
+impl<K, V> Node<K,V>{
     fn new(h: u64, key: K, v: V) -> Node<K,V>{
         return Node{
             hash: h,
