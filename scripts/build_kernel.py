@@ -26,7 +26,7 @@ def main():
     s_files = config.get_files_glob(f"{target}/src/", f"{param['ARCH']}*.S")
     rs_files = [ 
         x for x in config.get_files_glob(f"{target}/rs/","*.rs")
-        if x.name[0:-3] == str(x).split("/")[-2]
+        if x.name[0:-3] == str(x).replace("\\","/").split("/")[-2]
     ]
     if param["CC"] == "clang":
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=gnu2x \
