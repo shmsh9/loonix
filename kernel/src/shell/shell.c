@@ -51,9 +51,8 @@ int shell(){
                 break;
             case 0x0c:
                 builtins_clear(0, 0x0);
-                memset(cmdline, 0, CMDLINE_MAX);
-                cmdlinepos = 0;
                 kprint(SHELL_PROMPT);
+				kprint(cmdline);
                 break;
             //Backspace
             case 0x7f:
@@ -102,7 +101,7 @@ int shell(){
                 }
                 break;
             default:
-                if( (cmdlinepos < CMDLINE_MAX - 1)){
+                if((cmdlinepos < CMDLINE_MAX - 1)){
                     if(c != 0x0){
                         cmdline[cmdlinepos] = c;
                         cmdlinepos++;

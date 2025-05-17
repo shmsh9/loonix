@@ -125,10 +125,8 @@ pub extern "C" fn shell_rs() -> i64 {
                 kstd::printfmt!("\n{}", PROMPT);
             },
             0x0c /*^L*/ => {
-                cmdlinepos = 0;
-                cmd.clear();
                 kstd::print("\x1b[2J\x1b[H");
-                kstd::print(PROMPT);
+                kstd::printfmt!("{}{}", PROMPT, cmd);
             },
             _ => {
                 kstd::putc(c as char);
