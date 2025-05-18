@@ -26,7 +26,7 @@ pub struct HashMap<K: Hash, V>{
     root: Option<Box<Node<K,V>>>
 }
 impl<K: Hash, V> HashMap<K,V>{
-    pub fn new() -> Self{
+    pub const fn new() -> Self{
         Self{
             root: None
         }
@@ -59,6 +59,18 @@ impl<K: Hash+Clone, V: Clone, const N: usize> From <[(K,V) ;N]> for HashMap<K,V>
         v.iter().for_each(|e| ret.insert(e.0.clone(), e.1.clone()));
         return ret;
     }
+}
+impl<K: const Hash, V> HashMap<&K,&V> where for<'a> &'a K: Hash{
+    const fn _from(v: &[(K,V)]) -> HashMap<&K,&V>{
+        let ret = HashMap::new();
+        let i = 0;
+        while i < v.len(){
+            let _h = v[i].0.hash();
+            //ret.root = Some(Node::new(h, &v[i].0, &v[i].1).into());
+            break;
+        }
+        return ret;
+    } 
 }
 impl<K: Hash, V> HashMap<K,V>{
     pub fn to_vec(&self) -> Vec<(&K,&V)>{
