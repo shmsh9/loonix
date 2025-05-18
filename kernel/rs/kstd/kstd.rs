@@ -1,6 +1,7 @@
 #![allow(unused_attributes)]
 #![no_std]
 #![feature(c_variadic)]
+#![feature(const_trait_impl)]
 extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};

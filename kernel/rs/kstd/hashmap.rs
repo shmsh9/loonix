@@ -1,19 +1,22 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use alloc::vec;
+#[const_trait]
 pub trait Hash{
-   fn hash(&self) -> u64; 
+    fn hash(&self) -> u64; 
 }
-impl Hash for &str{
+impl const Hash for &str{
     fn hash(&self) -> u64{
         let mut h : [u8;8] = [0;8];
         let mut j = 0;
-        for i in 0..self.len(){
+        let mut i = 0;
+        while i < self.len(){
             if j == 8{
                 j = 0;
             }
-            h[j] ^= self.chars().nth(i).unwrap() as u8 + i as u8;
+            h[j] ^= self.as_bytes()[i] + i as u8;
             j += 1;
+            i += 1;
         }
         return u64::from_le_bytes(h);
     } 
