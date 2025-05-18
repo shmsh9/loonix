@@ -5,17 +5,17 @@ use alloc::vec::Vec;
 use kstd::hashmap::HashMap;
 macro_rules! bltn {
 	($name:ident) => {
-		$name as fn(&PyType) -> PyType
+		(stringify!($name),$name as fn(&PyType) -> PyType)
 	}	
 }
 pub fn get_builtins() -> HashMap<&'static str, fn(&PyType)->PyType >{
 	return HashMap::from([
-		("sum", bltn!(sum)),
-		("len", bltn!(len)),
-		("range", bltn!(range)),
-		("str", bltn!(str)),
-		("int", bltn!(int)),
-		("fmt", bltn!(fmt)),
+        bltn!(sum),
+        bltn!(len),
+        bltn!(int),
+        bltn!(str),
+        bltn!(fmt),
+        bltn!(range)
 	]);
 }
 fn fmt(args: &PyType) -> PyType{
