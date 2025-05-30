@@ -10,5 +10,7 @@ bitmap_font bitmap_font_new();
 void font8x8_draw_framebuffer(bitmap_font font, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c);
 void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c);
 void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c);
+void bitmap_font_16x16_draw_color_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c, graphics_pixel fg, graphics_pixel bg);
+void bitmap_font_8x8_draw_color_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c, graphics_pixel fg, graphics_pixel bg);
 #endif
 

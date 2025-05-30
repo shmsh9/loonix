@@ -116,8 +116,8 @@ void gol_tick(uint8_t *cells, uint8_t rand){
 }
 int builtins_gol(int argc, char **argv){
     kprintf("Lame Game Of Life :\nWASD to move\nSpace do spawn cell\nP to start/stop generation\nR to generate random cells\nX to kill random cells\n");
-    char c = kgetchar();
-    /*
+	char c = kgetchar();
+	/*
     task *entropy = task_new(
         gol_entropy,
         (void *)(uint64_t)c,

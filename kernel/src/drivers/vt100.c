@@ -1,5 +1,5 @@
 #include <drivers/vt100.h>
-
+#include <graphics/graphics.h>
 uint64_t vt100_console_escaping_value = 0;
 uint8_t  vt100_console_font_width = 8;
 uint8_t  vt100_console_font_height = 8;
@@ -18,21 +18,21 @@ bitmap_font vt100_console_bitmap_font = {0};
 uint8_t vt100_cursor_state = VT100_CURSOR_OFF;
 uint8_t vt100_cursor_current_char = ' ';
 
-void (*vt100_console_font_drawing_function)(char **, framebuffer_device *,uint64_t, uint64_t, uint8_t);
+void (*vt100_console_font_drawing_function)(char **, framebuffer_device *,uint64_t, uint64_t, uint8_t, graphics_pixel, graphics_pixel);
 void vt100_set_cursor_char(uint8_t c){
     vt100_cursor_current_char = c;
 }
 void vt100_console_init(framebuffer_device *fb){
     vt100_console_bitmap_font = bitmap_font_new();
     if(fb->width >= 1920){
-        vt100_console_font_drawing_function = bitmap_font_16x16_draw_framebuffer;
+        vt100_console_font_drawing_function = bitmap_font_16x16_draw_color_framebuffer;
         vt100_console_font_width = 16;
         vt100_console_font_height = 16;
         vt100_console_font_y_spacing = 4;
         vt100_console_font_x_spacing = 0;
     }
     else{
-        vt100_console_font_drawing_function = bitmap_font_8x8_draw_framebuffer;
+        vt100_console_font_drawing_function = bitmap_font_8x8_draw_color_framebuffer;
         vt100_console_font_width = 8;
         vt100_console_font_height = 8;
         vt100_console_font_y_spacing = 4;
@@ -51,8 +51,10 @@ void vt100_console_update_draw_screen(framebuffer_device *fb){
                         fb,
                         vt100_console_current_x-vt100_console_font_width,
                         vt100_console_current_y,
-                        0x0
-                    );
+                        vt100_cursor_current_char,
+						GRAPHICS_PIXEL_BLACK,
+						GRAPHICS_PIXEL_WHITE
+                   );
                     vt100_console_cursor_drawed = true;
                 }
                 if(vt100_cursor_state == VT100_CURSOR_LAST_FRAME){
@@ -61,7 +63,10 @@ void vt100_console_update_draw_screen(framebuffer_device *fb){
                         fb,
                         vt100_console_current_x-vt100_console_font_width,
                         vt100_console_current_y,
-                        vt100_cursor_current_char
+                        vt100_cursor_current_char,
+						GRAPHICS_PIXEL_WHITE,
+						GRAPHICS_PIXEL_BLACK
+					
                     );
                     vt100_cursor_state = VT100_CURSOR_OFF;
                     vt100_console_cursor_drawed = false;
@@ -156,7 +161,10 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                     fb,
                     vt100_console_current_x-vt100_console_font_width,
                     vt100_console_current_y,
-                    vt100_cursor_current_char
+                    vt100_cursor_current_char,
+					GRAPHICS_PIXEL_WHITE,
+					GRAPHICS_PIXEL_BLACK
+
                 );
 
             }
@@ -199,8 +207,10 @@ void vt100_console_putchar(framebuffer_device *fb, uint8_t c){
                             fb,
                             vt100_console_current_x,
                             vt100_console_current_y,
-                            c
-                        );
+                            c,
+							GRAPHICS_PIXEL_WHITE,
+							GRAPHICS_PIXEL_BLACK
+                       );
                         vt100_console_increase_x(fb);
 						vt100_set_cursor_char(c);
                         break;

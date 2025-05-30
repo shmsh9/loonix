@@ -17,28 +17,16 @@ void bitmap_font_free(bitmap_font font){
     kfree(font);
     font = NULL;
 }
-void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
+void bitmap_font_16x16_draw_color_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c, graphics_pixel fg, graphics_pixel bg){
     if(!font16x16)
         return;
     if(c >= 128 || c < 0){
         KERROR("c is out of ascii range");
         return;
     }
-    graphics_pixel px_fg = (graphics_pixel){
-        .Red = 0xff, 
-        .Green = 0xff, 
-        .Blue = 0xff, 
-        .Alpha = 0xff
-    };
-    graphics_pixel px_bg = (graphics_pixel){
-        .Red = 0x00, 
-        .Green = 0x00, 
-        .Blue = 0x00, 
-        .Alpha = 0xff
-    };
     graphics_pixel *px_branchless[2] = {
-        &px_bg,
-        &px_fg
+        &bg,
+        &fg
     };
     uint64_t curr_y = y;
     uint64_t curr_x = x;
@@ -69,29 +57,18 @@ void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_devic
         }
         curr_y += 2;
     }
+
 }
-void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
+void bitmap_font_8x8_draw_color_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c, graphics_pixel fg, graphics_pixel bg){
     if(!font8x8)
         return;
     if(c >= 128 || c < 0){
         KERROR("c is out of ascii range");
         return;
     }
-    graphics_pixel px_fg = (graphics_pixel){
-        .Red = 0xff, 
-        .Green = 0xff, 
-        .Blue = 0xff, 
-        .Alpha = 0xff
-    };
-    graphics_pixel px_bg = (graphics_pixel){
-        .Red = 0x00, 
-        .Green = 0x00, 
-        .Blue = 0x00, 
-        .Alpha = 0xff
-    };
     graphics_pixel *px_branchless[2] = {
-        &px_bg,
-        &px_fg
+        &bg,
+        &fg
     };
     uint64_t curr_y = y;
     uint64_t curr_x = x;
@@ -157,3 +134,9 @@ void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *f
     }
 }
 
+void bitmap_font_16x16_draw_framebuffer(bitmap_font font16x16, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
+	bitmap_font_16x16_draw_color_framebuffer(font16x16, fb, x, y, c, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK);
+}
+void bitmap_font_8x8_draw_framebuffer(bitmap_font font8x8, framebuffer_device *fb, uint64_t x, uint64_t y, uint8_t c){
+	bitmap_font_8x8_draw_color_framebuffer(font8x8, fb, x, y, c, GRAPHICS_PIXEL_WHITE, GRAPHICS_PIXEL_BLACK);
+}
