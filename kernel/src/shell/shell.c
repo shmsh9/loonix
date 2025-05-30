@@ -103,8 +103,7 @@ int shell(){
             default:
                 if((cmdlinepos < CMDLINE_MAX - 1)){
                     if(c != 0x0){
-                        cmdline[cmdlinepos] = c;
-                        cmdlinepos++;
+                        cmdline[cmdlinepos++] = c;
                         if(c < 32)
                             kprintf("0x%x", (uint64_t)c);
                         else

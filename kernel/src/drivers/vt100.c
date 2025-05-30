@@ -7,6 +7,7 @@ uint8_t  vt100_console_font_y_spacing = 4;
 uint8_t  vt100_console_font_x_spacing = 0;
 uint64_t vt100_console_current_x = 0;
 uint64_t vt100_console_current_y = 2;
+uint64_t vt100_console_cursor_x = 0;
 uint64_t vt100_console_tab_size = 9;
 uint64_t vt100_console_last_draw_timer = 0;
 uint64_t vt100_console_last_draw_offset = 0;
@@ -49,23 +50,24 @@ void vt100_console_update_draw_screen(framebuffer_device *fb){
                     vt100_console_font_drawing_function(
                         vt100_console_bitmap_font,
                         fb,
-                        vt100_console_current_x-vt100_console_font_width,
+                        vt100_console_current_x,
                         vt100_console_current_y,
-                        vt100_cursor_current_char,
-						GRAPHICS_PIXEL_BLACK,
-						GRAPHICS_PIXEL_WHITE
+                        0x0,
+						GRAPHICS_PIXEL_WHITE,
+						GRAPHICS_PIXEL_BLACK
                    );
+					vt100_console_cursor_x = vt100_console_current_x;
                     vt100_console_cursor_drawed = true;
                 }
                 if(vt100_cursor_state == VT100_CURSOR_LAST_FRAME){
                     vt100_console_font_drawing_function(
                         vt100_console_bitmap_font,
                         fb,
-                        vt100_console_current_x-vt100_console_font_width,
+                        vt100_console_cursor_x,
                         vt100_console_current_y,
-                        vt100_cursor_current_char,
-						GRAPHICS_PIXEL_WHITE,
-						GRAPHICS_PIXEL_BLACK
+                        0x0,
+						GRAPHICS_PIXEL_BLACK,
+						GRAPHICS_PIXEL_WHITE
 					
                     );
                     vt100_cursor_state = VT100_CURSOR_OFF;
