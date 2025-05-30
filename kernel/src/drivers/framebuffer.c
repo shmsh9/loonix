@@ -123,15 +123,20 @@ void framebuffer_device_draw_sprite_fast(framebuffer_device *framebuffer, int64_
     }
 }
 void framebuffer_device_scroll_down(framebuffer_device *framebuffer, uint64_t y){
-    if(!framebuffer)
+    if(!framebuffer){
         return;
-    //uint64_t pixels_to_scroll = framebuffer->width * y;
-    for(uint8_t j = 0; j < y; j++){
-        for(uint64_t i = 0; i < (framebuffer->width*framebuffer->height)-framebuffer->width; i+= framebuffer->width){
-            void *previous_line = (void *)(framebuffer->dst+i);
-            void *next_line = (void *)(framebuffer->dst+i+framebuffer->width);
-            memcpy(previous_line, next_line, framebuffer->width*sizeof(graphics_pixel));
-        }
-    }
-    framebuffer_last_draw_pixel_tick = cpu_get_tick();
+	}
+   	uint8_t *end_fb = (uint8_t*)framebuffer->dst + framebuffer->width*framebuffer->height*sizeof(graphics_pixel);
+	uint64_t row_size = sizeof(graphics_pixel)*framebuffer->width;
+	memcpy(
+		framebuffer->dst, 
+		framebuffer->dst+(y*framebuffer->width), 
+		framebuffer->width*framebuffer->height*sizeof(graphics_pixel) - (y*framebuffer->width*sizeof(graphics_pixel))
+	);
+   	memset(
+		end_fb - (row_size*y),
+		0x00,
+		row_size*y
+	);
+	framebuffer_last_draw_pixel_tick = cpu_get_tick();
 }
