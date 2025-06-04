@@ -516,30 +516,7 @@ int builtins_net(int argc, char **argv){
     return 0;
 }
 int builtins_ahci(int argc, char **argv){
-    ahci_controller *cont = ahci_controller_new();
-    ahci_controller_probe_ports(cont); 
-    if(!cont)
-        return -1;
-    ahci_device *dev0 = ahci_device_new(cont, 0);
-    if(!dev0){
-        kfree(cont);
-        return -1;
-    }
-    char buff[512] = {0};
-    ahci_device_read(
-        dev0,
-        0,
-        0,
-        512,
-        (uint64_t *)&buff
-    );
-    /*
-    ahci_device_send_command(dev0, 0);
-    ahci_device_free(dev0);
-    ahci_controller_free(cont);
-    */
-    return 0;
-
+	return 0;
 }
 int builtins_karray_pop(int argc, char **argv){
     karray *k = karray_new(sizeof(uint64_t), NULL);
@@ -717,7 +694,8 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
     _BUILTIN("py", pythonix_rs),
-    _BUILTIN("macro", builtins_macro)
+    _BUILTIN("macro", builtins_macro),
+    _BUILTIN("ahci", builtins_ahci)
 };
 int builtins_help(int argc, char **argv){
     for(int i = 0 ; i < _builtins_size; i++)
