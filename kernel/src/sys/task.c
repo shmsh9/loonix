@@ -249,7 +249,7 @@ task *task_get_next(){
 void task_run(void *data, task *t){
     t->fn(data, t);
     t->status = task_status_ended;
-    INTERRUPT_TASK_PAUSE();    
+    while(true);
 }
 void task_scheduler(){
     rtc_device_time_since_boot_centisecond += task_current ? 
