@@ -5,7 +5,7 @@
 extern crate alloc;
 
 use core::alloc::{GlobalAlloc, Layout};
-use core::ffi::{CStr, c_void};
+use core::ffi::{c_void};
 use alloc::ffi::CString;
 use alloc::format;
 use alloc::string::String;
@@ -111,40 +111,6 @@ pub fn readline() -> String{
                 ret.push(c as char);
                 putc(c as char);
             }
-        }
-    }
-}
-#[no_mangle]
-pub unsafe extern "C" fn _rs_kprintf(fmt: *const i8, mut args : ... ){
-    let mut fmt = CStr::from_ptr(fmt).to_str().unwrap().chars();
-    while let Some(c) = fmt.next() {
-        match c {
-            '%' => {
-                let c = fmt.next().unwrap();
-                match c {
-                    'x' => {
-                        let n = format!("{:x}", args.arg::<u64>());
-                        n.chars().for_each(|x| putc(x));
-                    },
-                    'd' => {
-                        let n = format!("{}", args.arg::<u64>());
-                        n.chars().for_each(|x| putc(x));
-                    }
-                    's' => {
-                        let s = args.arg::<*const i8>();
-                        CStr::from_ptr(s).to_str()
-                            .unwrap()
-                            .chars()
-                            .for_each(|x| putc(x));
-                    }
-                    'c' => {
-                        let c = args.arg::<u8>();
-                        putc(c as char);
-                    }
-                    _ => ()
-                }
-            },
-            _ => putc(c)
         }
     }
 }
