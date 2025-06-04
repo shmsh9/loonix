@@ -59,7 +59,7 @@ void crt0(bootinfo *bootinfo){
 
     kheap_init(&heap);
     kheap_add_blocks(&heap, ram_addr, ram_pages_n);
-    kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC);
+    kalloc_list_block = kheap_get_free_mem2(&heap, sizeof(kheap_allocated_block)*KALLOC_LIST_START_ALLOC, 0);
     kalloc_list = (kheap_allocated_block *)kalloc_list_block.ptr;
 
     //It is allowed to do heap allocations after this line

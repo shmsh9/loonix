@@ -78,7 +78,7 @@ void kheap_free_mem2(kheap *heap, kheap_allocated_block *k){
     kheap_unset_used_bytes2(heap, k->bitfield, k->bit, k->size);
     heap->free_memory += k->size;
 }
-kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
+kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size, uint64_t align){
 	if(!heap){
         KERROR("heap == NULL");
         return  (kheap_allocated_block){0, 0, 0 ,0, 0};
@@ -132,7 +132,7 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size){
     KERROR("not enough free mem to allocate aligned %d bytes", size);
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
 }
-kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size){
+kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t _align){
 	if(!heap){
 		KERROR("heap == NULL");
         return (kheap_allocated_block){0, 0, 0 ,0, 0};

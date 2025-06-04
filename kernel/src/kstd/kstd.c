@@ -142,7 +142,7 @@ void kprinthex(void *ptr, uint64_t n){
     }
     kprint("\n");
 }
-void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint64_t) ){
+void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint64_t, uint64_t), uint64_t align){
     task_lock();
     if(!b){
         KERROR("b == 0");
@@ -151,7 +151,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
     }
     for(int i = kalloc_list_last; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = allocator(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b, align);
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
@@ -169,7 +169,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
     KDEBUG("last allocation slot was not free", 0x0);
     for(int i = 0; i < kalloc_list_last; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = allocator(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b, align);
             kalloc_list[i] = block;
             if(block.ptr){
                 kalloc_list_last = i;
@@ -188,7 +188,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
     //If no more alloc list
     uint64_t kalloc_list_alloc_new = kalloc_list_alloc*2;
     uint64_t kalloc_list_alloc_old = kalloc_list_alloc;
-    kheap_allocated_block tmp = allocator(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block));
+    kheap_allocated_block tmp = allocator(&heap, kalloc_list_alloc_new*sizeof(kheap_allocated_block),align);
     if(!tmp.ptr){
         KERROR("not enough memory to realloc kalloc_list !");
         task_unlock();
@@ -204,7 +204,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
     kalloc_list = (kheap_allocated_block *)tmp.ptr;
     for(int i = kalloc_list_alloc_old; i < kalloc_list_alloc; i++){
         if(kalloc_list[i].ptr == 0){
-            kheap_allocated_block block = allocator(&heap, b);
+            kheap_allocated_block block = allocator(&heap, b, align);
             kalloc_list[i] = block;
             if(block.ptr){
                 task_allocation_add(kalloc_list+i);
@@ -222,11 +222,11 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
     task_unlock();
     return 0x0;
 }
-void *kmalloc_aligned(uint64_t b){
-	return _kmalloc(b, kheap_get_free_aligned);
+void *kmalloc_aligned(uint64_t b, uint64_t align){
+	return _kmalloc(b, kheap_get_free_aligned, align);
 }
 void *kmalloc(uint64_t b){
-	return _kmalloc(b, kheap_get_free_aligned);
+	return _kmalloc(b, kheap_get_free_mem2, 0);
 }
 int32_t kalloc_find_ptr_alloc(const void *ptr){
     if(!ptr){

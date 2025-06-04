@@ -15,7 +15,7 @@ pub mod hashmap;
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
     unsafe fn alloc(&self, layout: Layout) -> *mut u8 {
-        kmalloc_aligned(layout.size())
+        kmalloc_aligned(layout.size(), layout.align())
     }
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: Layout) {
         kfree(ptr);
@@ -61,7 +61,7 @@ macro_rules! printfmt {
 
 extern "C"{
     fn kputc(s: u8);
-    fn kmalloc_aligned(sz: usize) -> *mut u8;
+    fn kmalloc_aligned(sz: usize, align: usize) -> *mut u8;
     //fn kmalloc(sz: usize) -> *mut u8;
     fn kfree(ptr: *mut u8);
     fn kgetchar_non_blocking() -> u8;
