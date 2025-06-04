@@ -26,6 +26,7 @@ int builtins_time(int argc, char **argv){
     return 0;
 }
 int builtins_testvec(int argc, char **argv){
+	void *a[4] = {0};
     return 0;
 }
 int builtins_testkarray(int argc, char **argv){
