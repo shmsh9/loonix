@@ -127,13 +127,13 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size, uint64_
         }
         else{
 			start_bitfield = bitfield+1;
-			aligned_bytes = 0;      
+			aligned_bytes = 0;
        }
     }
 	if(kheap_last_free_mem_bitfield != 0){
 		kheap_last_free_mem_bitfield = 0;
 		return kheap_get_free_aligned(heap, size, align);
-	}	
+	}
     KERROR("not enough free mem to allocate aligned %d bytes", size);
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
 }
@@ -184,7 +184,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t _
         }
         if(aligned_bytes == size){
             /*
-            KDEBUG("found %d bytes free at block : 0x%x bitfield : %d bit : %d", 
+            KDEBUG("found %d bytes free at block : 0x%x bitfield : %d bit : %d",
             aligned_bytes, heap->memory+(start_bitfield*8)+start_bit,
             start_bitfield,
             start_bit);
@@ -205,7 +205,7 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t _
 		KMESSAGE("recursion");
 		kheap_last_free_mem_bitfield = 0;
 		return kheap_get_free_mem2(heap, size, _align);
-	}	
+	}
     KERROR("not enough free mem to allocate %d bytes", size);
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
 
@@ -264,12 +264,12 @@ void mmap_debug_print(mmap *mmap){
         EFI_MEMORY_DESCRIPTOR *desc = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)mmap->mmap+(i*MMAP_ELEMENT_SIZE));
         kprintf("mmap[%d]\n0x%x (%d KB)\nattributes 0x%x\n%s",
             (uint64_t)i,
-            desc->PhysicalStart, 
+            desc->PhysicalStart,
             BYTES_TO_KB(desc->NumberOfPages*HEAP_BLOCK_SIZE),
             desc->Attribute,
             desc->Type < efi_memory_types_count ? efi_memory_types[desc->Type] : "TYPE_NOT_FOUND"
             );
-    } 
+    }
 }
 
 mmap mmap_new(bootinfo *bootinfo){
@@ -300,7 +300,8 @@ EFI_MEMORY_DESCRIPTOR * mmap_find_largest_block(mmap *mmap){
             ret = desc;
             largest_mem = desc->NumberOfPages;
         }
-    } 
-   return ret; 
+    }
+   return ret;
 }
+
 
