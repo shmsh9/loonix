@@ -104,40 +104,54 @@ kheap_allocated_block kheap_get_free_aligned(kheap *heap, uint64_t size, uint64_
 	uint64_t aligned_bytes = 0;
 	uint64_t start_bit = 0;
     for(uint64_t bitfield = start_bitfield; bitfield < header_size; bitfield++){
-		if((((uint64_t)heap->memory+(start_bitfield*8)+start_bit) & (align-1)) != 0){
-			start_bitfield = bitfield+1;
+		while((((uint64_t)heap->memory+(start_bitfield*8)+start_bit) & (align-1)) != 0){
 			aligned_bytes = 0;
-			continue;
+			if (start_bit+1 > 8){
+				start_bit = 0;
+				start_bitfield++;
+				bitfield = start_bitfield;
+				if(start_bitfield == header_size){
+					start_bitfield--;
+					break;	
+				}
+			}
+			else{
+				start_bit++;
+			}
+			
 		}
-		if(heap->header[bitfield] == 0){
-        	aligned_bytes += 8;
-        	if(aligned_bytes >= size){
-				kheap_last_free_mem_bitfield = bitfield++;
-                kheap_set_used_bytes2(heap, start_bitfield, 0, size);
-                heap->free_memory -= size;
-                return (kheap_allocated_block){
-                       .block = 0x0,
-                       .bitfield = start_bitfield,
-                       .bit = start_bit,
-                       .size = size,
-                       .ptr = (uintptr_t)heap->memory+(start_bitfield*8)+start_bit
-				};
-
-           	}
-        }
-        else{
-			start_bitfield = bitfield+1;
-			aligned_bytes = 0;
-       }
+		for(int i = 0; i < 8; i++){
+			if(get_bit(heap->header[bitfield], i)){
+				aligned_bytes = 0;
+				start_bitfield = bitfield+1;
+				start_bit = 0;
+				break;
+			}
+			aligned_bytes += 1;
+			if(aligned_bytes == size)
+				break;
+		}
+		if(aligned_bytes == size){
+			kheap_last_free_mem_bitfield = start_bitfield;
+			kheap_set_used_bytes2(heap, start_bitfield, 0, size);
+			heap->free_memory -= size;
+			return (kheap_allocated_block){
+				.block = 0x0,
+				.bitfield = start_bitfield,
+				.bit = start_bit,
+				.size = size,
+				.ptr = (uintptr_t)heap->memory+(start_bitfield*8)+start_bit
+			};
+		}
     }
 	if(kheap_last_free_mem_bitfield != 0){
 		kheap_last_free_mem_bitfield = 0;
 		return kheap_get_free_aligned(heap, size, align);
 	}
     KERROR("not enough free mem to allocate aligned %d bytes", size);
-    return  (kheap_allocated_block){0, 0, 0 ,0, 0};
+    return (kheap_allocated_block){0, 0, 0 ,0, 0};
 }
-kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t _align){
+kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t align){
 	if(!heap){
 		KERROR("heap == NULL");
         return (kheap_allocated_block){0, 0, 0 ,0, 0};
@@ -202,9 +216,8 @@ kheap_allocated_block kheap_get_free_mem2(kheap *heap, uint64_t size, uint64_t _
         }
     }
 	if(kheap_last_free_mem_bitfield != 0){
-		KMESSAGE("recursion");
 		kheap_last_free_mem_bitfield = 0;
-		return kheap_get_free_mem2(heap, size, _align);
+		return kheap_get_free_mem2(heap, size, align);
 	}
     KERROR("not enough free mem to allocate %d bytes", size);
     return  (kheap_allocated_block){0, 0, 0 ,0, 0};
