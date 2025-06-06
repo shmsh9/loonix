@@ -129,4 +129,5 @@ void pci_class_strings_init();
 uint8_t pci_device_get_header_type(pci_device *dev);
 pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, uint8_t function);
 void pci_enum_ecam(acpi_mcfg *mcfg);
+pci_device *pci_find_device(uint16_t function, uint16_t subclass);
 #endif
