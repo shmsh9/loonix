@@ -4,6 +4,7 @@
 #include <kstd/cmp.h>
 #include <kstd/vec.h>
 #include <pythonix/pythonix.h>
+#include <drivers/ahci.h>
 
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
@@ -516,6 +517,11 @@ int builtins_net(int argc, char **argv){
     return 0;
 }
 int builtins_ahci(int argc, char **argv){
+	fis_reg_h2d fis = {0};
+	fis.header.fis_type = fis_type_reg_h2d;
+	fis.command = ata_cmd_identify;
+	fis.device = 0;
+	fis.header.flags = 0b000000001;
 	return 0;
 }
 int builtins_karray_pop(int argc, char **argv){
