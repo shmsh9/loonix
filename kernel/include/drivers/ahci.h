@@ -44,6 +44,7 @@ typedef struct __attribute__((packed)) _fis_reg_h2d{
 
 } fis_reg_h2d;
 
+pci_device *ahci_find_controller();
 
 #endif
 
