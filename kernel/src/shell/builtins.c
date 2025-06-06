@@ -521,7 +521,8 @@ int builtins_ahci(int argc, char **argv){
 	fis.header.fis_type = fis_type_reg_h2d;
 	fis.command = ata_cmd_identify;
 	fis.device = 0;
-	fis.header.flags = 0b000000001;
+	fis.header.flags = 0b10000000;
+	
 	return 0;
 }
 int builtins_karray_pop(int argc, char **argv){
@@ -700,7 +701,7 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("poweroff", builtins_poweroff),
     _BUILTIN("help", builtins_help),
     _BUILTIN("py", pythonix_rs),
-    _BUILTIN("macro", builtins_macro),
+    _BUILTIN("lspci", builtins_lspci),
     _BUILTIN("ahci", builtins_ahci)
 };
 int builtins_help(int argc, char **argv){
