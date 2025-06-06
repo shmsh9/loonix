@@ -88,7 +88,7 @@ uint8_t pci_device_get_header_type(pci_device *dev){
     unset_bit(&ret, 7);
     return ret;
 }
-pci_device *pci_find_device(uint16_t class, uint16_t subclass){
+pci_device *pci_find_device(uint8_t class, uint8_t subclass){
     for(int i = 0; i < pci_devices->length; i++){
 		pci_device *curr = ((pci_device **)pci_devices->array)[i];
 		if(curr->header->class == class && curr->header->subclass == subclass){
