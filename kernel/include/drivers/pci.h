@@ -131,3 +131,4 @@ pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, ui
 void pci_enum_ecam(acpi_mcfg *mcfg);
 pci_device *pci_find_device(uint8_t function, uint8_t subclass);
 #endif
+

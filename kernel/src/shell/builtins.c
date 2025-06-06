@@ -523,10 +523,10 @@ int builtins_ahci(int argc, char **argv){
 	fis.device = 0;
 	fis.header.flags = 0b10000000;
 	auto controller = ahci_find_controller();
-	if(controller)
-		kprintf("controller at 0x%x 0x%x\n", controller->bus, controller->slot);
-	else
-		kprintf("controller = 0x0\n");
+	kprintf(
+		"BAR5 0x%x\n",
+		controller->dev0->BAR5
+	);		
 	return 0;
 }
 int builtins_karray_pop(int argc, char **argv){
