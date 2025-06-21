@@ -1,4 +1,5 @@
 #include <shell/builtins.h>
+#include <kstd/fun.h>
 #include <network/net.h>
 #include <kstd/regex.h>
 #include <kstd/cmp.h>
@@ -693,6 +694,16 @@ int builtins_lspci(int argc, char **argv){
         kputc('\n');
     }
     return 0;
+}
+
+ENUM(foo, 
+	bar,
+	baz
+)
+
+int builtins_fun(int argc, char **argv){
+	kprintf("%s\n", foo_to_str(bar));
+	return 0;
 }
 //RS fn
 extern int pythonix_rs(int, char**);
