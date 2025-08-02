@@ -53,6 +53,10 @@ macro_rules! rs_str {
             .unwrap()
     }
 }
+#[macro_export]
+macro_rules! cast{
+    ($t:ty, $v:tt) => { ($v.as_ptr() as *const $t) }
+}
 
 #[allow(unused_macros)]
 #[macro_export]
