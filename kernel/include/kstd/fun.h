@@ -24,7 +24,7 @@
 const char * CAT(N,_to_str)(enum N n){ \
 	switch(n){ \
 		FOREACH(_STRENUMDEF, __VA_ARGS__)\
-		default: return NULL;\
+		default: return 0x0;\
 	} \
 }
 #define ENUM(N,...) \
