@@ -32,7 +32,7 @@ def main():
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=c2y \
                 -Wno-unused-function -Wall -Werror -pedantic -Wno-unused-but-set-variable -Wno-gnu-auto-type\
                 -Wno-strict-prototypes -Wno-gnu-statement-expression-from-macro-expansion -Wno-unused-variable \
-                -Wno-microsoft-static-assert -Wno-microsoft-enum-value \
+                -Wno-microsoft-static-assert -Wno-microsoft-enum-value -Wno-gnu-designator\
                 -target {param['ARCH']}-none-elf -g -O0 -ggdb -fshort-wchar"
     if param["CC"] == "gcc":
         c_flags = f"-c {inc_flags} -fstack-protector-strong -fstack-protector-all -fPIC -nostdlib -ffreestanding -std=c2y \

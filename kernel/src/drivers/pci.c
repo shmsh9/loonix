@@ -1,6 +1,39 @@
 #include <drivers/pci.h>
 karray *pci_devices = 0x0;
-char *pci_class_strings[0x100] = {0};
+
+/*
+#define PCI_CLASS_MASS_STORAGE_CONTROLLER 0x01
+#define PCI_CLASS_NETWORK_CONTROLLER 0x02
+#define PCI_CLASS_DISPLAY_CONTROLLER 0x03
+#define PCI_CLASS_MULTIMEDIA_DEVICE  0x04
+#define PCI_CLASS_MEMORY_CONTROLLER  0x05
+#define PCI_CLASS_BRIDGE_DEVICE      0x06
+#define PCI_CLASS_SIMPLE_COMMUNICATION_CONTROLLER 0x07
+#define PCI_CLASS_BASE_SYSTEM_PERIPHERAL 0x08
+#define PCI_CLASS_INPUT_DEVICE 0x09
+#define PCI_CLASS_DOCKING_STATION 0x0A
+#define PCI_CLASS_PROCESSOR 0x0B
+#define PCI_CLASS_SERIAL_BUS_CONTROLLER 0x0C
+#define PCI_CLASS_SERIAL_WIRELESS_CONTROLLER 0x0D
+#define PCI_CLASS_UNASSIGNED 0xFF
+*/
+char *pci_class_strings[] = {
+	[0x00] = "Unassigned",
+    [PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller",
+	[PCI_CLASS_NETWORK_CONTROLLER] = "Network Controller",
+    [PCI_CLASS_DISPLAY_CONTROLLER] = "Display Controller",
+    [PCI_CLASS_MULTIMEDIA_DEVICE] = "Multimedia Device",
+    [PCI_CLASS_MEMORY_CONTROLLER] = "Memory Controller",
+    [PCI_CLASS_BRIDGE_DEVICE] = "Bridge Device",
+    [PCI_CLASS_SIMPLE_COMMUNICATION_CONTROLLER] = "Simple Communication Controller",
+    [PCI_CLASS_BASE_SYSTEM_PERIPHERAL] = "Base System Peripheral",
+    [PCI_CLASS_INPUT_DEVICE] = "Input Device",
+    [PCI_CLASS_DOCKING_STATION] = "Docking Station",
+    [PCI_CLASS_PROCESSOR] = "Processor",
+    [PCI_CLASS_SERIAL_BUS_CONTROLLER] = "Serial Bus Controller",
+	[PCI_CLASS_SERIAL_WIRELESS_CONTROLLER] = "Serial Wireless Controller",
+	[0x0e ... 0xff] = "Unassigned"	
+};
 uint64_t pci_config_space = 0x0;
 uint64_t pci_config_data = 0x0;
 
@@ -20,7 +53,6 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
         KERROR("error allocating mem for pci_devices");
         return;
     }
-    pci_class_strings_init();
 
     for(uint16_t bus = 0; bus < mcfg->pci_bus_end; bus++){
         for(uint8_t slot = 0; slot < 32; slot++){
@@ -35,21 +67,6 @@ void pci_enum_ecam(acpi_mcfg *mcfg){
         }
     }
     KMESSAGE("enumerated %d devices", (uint64_t)pci_devices->length);
-}
-void pci_class_strings_init(){
-    pci_class_strings[PCI_CLASS_MASS_STORAGE_CONTROLLER] = "Mass Storage Controller";
-    pci_class_strings[PCI_CLASS_DISPLAY_CONTROLLER] = "Display Controller";
-    pci_class_strings[PCI_CLASS_MULTIMEDIA_DEVICE] = "Multimedia Device";
-    pci_class_strings[PCI_CLASS_MEMORY_CONTROLLER] = "Memory Controller";
-    pci_class_strings[PCI_CLASS_BRIDGE_DEVICE] = "Bridge Device";
-    pci_class_strings[PCI_CLASS_SIMPLE_COMMUNICATION_CONTROLLER] = "Simple Communication Controller";
-    pci_class_strings[PCI_CLASS_BASE_SYSTEM_PERIPHERAL] = "Base System Peripheral";
-    pci_class_strings[PCI_CLASS_INPUT_DEVICE] = "Input Device";
-    pci_class_strings[PCI_CLASS_DOCKING_STATION] = "Docking Station";
-    pci_class_strings[PCI_CLASS_PROCESSOR] = "Processor";
-    pci_class_strings[PCI_CLASS_SERIAL_BUS_CONTROLLER] = "Serial Bus Controller";
-    pci_class_strings[PCI_CLASS_UNASSIGNED] = "Unassigned class";
-
 }
 
 pci_device *pci_device_ecam_new(uint64_t address, uint32_t bus, uint8_t slot, uint8_t function){
