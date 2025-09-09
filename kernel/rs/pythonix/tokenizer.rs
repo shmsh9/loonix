@@ -7,27 +7,48 @@ use alloc::{
 };
 use core::fmt::{Error, Formatter, Debug};
 
-#[allow(non_camel_case_types)]
-#[derive(PartialEq,Clone)]
-pub enum TokenType{
-   op,
-   str,
-   int,
-   list_start,
-   list_stop,
-   dict_start,
-   dict_stop,
-   paren_start,
-   paren_stop,
-   index_start,
-   index_stop,
-   name,
-   call,
-   comma,
-   colon,
-   keyword 
+macro_rules! enum_display{
+    ($(#[$meta:meta])*
+    $vis:vis enum $name:ident {
+        $($variant:ident),*
+    }) => {
+        $(#[$meta])*
+        $vis enum $name {
+            $($variant),*
+        }
+        impl Debug for $name {
+            fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>{
+                #[allow(unused_assignments)]
+                match self {
+                    $( $name::$variant => write!(f, stringify!($variant)), )*
+                }
+            } 
+        }
+    }
 }
 
+enum_display!{
+    #[allow(non_camel_case_types)]
+    #[derive(PartialEq,Clone)]
+    pub enum TokenType{
+       op,
+       str,
+       int,
+       list_start,
+       list_stop,
+       dict_start,
+       dict_stop,
+       paren_start,
+       paren_stop,
+       index_start,
+       index_stop,
+       name,
+       call,
+       comma,
+       colon,
+       keyword 
+    }
+}
 #[derive(Clone)]
 pub struct Token{
 	pub r#type: TokenType,
@@ -45,32 +66,6 @@ impl Debug for Token{
 	fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>{
 		return write!(f, "{:?}({})", self.r#type, self.value);
 	}
-}
-impl Debug for TokenType{
-	fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error>{
-		#[allow(unused_assignments)]
-		let mut n = "";
-		match self {
-		   	TokenType::op   => n = "op",
-		   	TokenType::str  => n = "str",
-		   	TokenType::int  => n = "int",
-		   	TokenType::list_start => n = "list_start",
-		   	TokenType::list_stop => n = "list_stop",
-		   	TokenType::dict_start => n = "dict_start",
-		   	TokenType::dict_stop => n = "dict_stop",
-		   	TokenType::paren_start => n = "paren_start",
-		   	TokenType::paren_stop => n = "paren_stop",
-			TokenType::index_start => n = "index_start",
-			TokenType::index_stop=> n = "index_stop",
-		   	TokenType::name => n = "name",
-		   	TokenType::call => n = "call",
-		   	TokenType::comma => n = "comma",
-           	TokenType::colon => n = "colon",
-			TokenType::keyword => n = "keyword"
-		};
-		return write!(f, "{}", n);
-	}
-
 }
 const NUMS : [char; 10] = [
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
