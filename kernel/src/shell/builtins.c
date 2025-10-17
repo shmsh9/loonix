@@ -6,6 +6,7 @@
 #include <kstd/vec.h>
 #include <pythonix/pythonix.h>
 #include <drivers/ahci.h>
+#include <drivers/nvme.h>
 
 int builtins_clear(int argc, char **argv){
     kprint("\033[2J\033[H");
@@ -705,6 +706,11 @@ int builtins_fun(int argc, char **argv){
 	kprintf("%s\n", foo_to_str(bar));
 	return 0;
 }
+int builtins_nvme(int argc, char **argv){
+	auto nvme = get_nvme_controller();
+	kprintf("0x%x\n", nvme);
+	return 0;
+}
 //RS fn
 extern int pythonix_rs(int, char**);
 #define _BUILTIN(s,f) {(uint64_t)s, (uint64_t)f}
@@ -723,7 +729,8 @@ uint64_t _shell_builtins[][2] = {
     _BUILTIN("help", builtins_help),
     _BUILTIN("py", pythonix_rs),
     _BUILTIN("lspci", builtins_lspci),
-    _BUILTIN("ahci", builtins_ahci)
+    _BUILTIN("ahci", builtins_ahci),
+    _BUILTIN("nvme", builtins_nvme)
 };
 int builtins_help(int argc, char **argv){
     for(int i = 0 ; i < _builtins_size; i++)
@@ -731,4 +738,3 @@ int builtins_help(int argc, char **argv){
     return 0;
 }
 int _builtins_size = sizeof(_shell_builtins)/sizeof(_shell_builtins[0]);
-
