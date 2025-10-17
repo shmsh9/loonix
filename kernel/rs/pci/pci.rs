@@ -23,24 +23,6 @@ typedef struct __attribute__((packed)) _pci_config_header{
     uint8_t bist;
 }pci_config_header;
 
-typedef struct __attribute__((packed)) _pci_device_0{
-    pci_config_header header;
-    uint32_t BAR0;
-    uint32_t BAR1;
-    uint32_t BAR2;
-    uint32_t BAR3;
-    uint32_t BAR4;
-    uint32_t BAR5;
-    uint32_t cardbus_cis_pointer;
-    uint16_t subsystem_vendor_id;
-    uint16_t subsystem_id;
-    uint32_t expansion_rom_base_address;
-    uint32_t not_used_for_now;
-    uint32_t not_used_for_now1;
-    uint32_t not_used_for_now2;
-    uint32_t not_used_for_now3;
-
-}pci_device_0;
 
 typedef struct __attribute__((packed)) _pci_device_1{
     pci_config_header header;
@@ -147,19 +129,42 @@ impl pci_device {
 }
 #[no_mangle]
 pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
-	kstd::printfmt!("{:?}\n", pci_device::find(0x01, 0x08));	
+	let dev = pci_device::find(0x01, 0x08);
+	kstd::printfmt!("{:?}\n", dev);
+	unsafe {
+		let dev0 = (*dev.dev0).clone();
+		kstd::printfmt!("{:?}\n", dev0);
+	}
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 struct pci_device_0{
-
+	header: *const pci_config_header, //Fixme this is the actual struct not a ptr
+    bar0: u32,
+    bar1: u32,
+    bar2: u32,
+    bar3: u32,
+    bar4: u32,
+    bar5: u32,
+    cardbus_cis_pointer: u32,
+    subsystem_vendor_id: u16,
+    subsystem_id: u16,
+    expansion_rom_base_address: u32,
+    not_used_for_now: u32,
+    not_used_for_now1: u32,
+    not_used_for_now2: u32,
+    not_used_for_now3: u32
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
-struct pci_device_1{}
+struct pci_device_1{
+	header: *const pci_config_header
+}
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
-struct pci_device_2{}
+struct pci_device_2{
+	header: *const pci_config_header
+}

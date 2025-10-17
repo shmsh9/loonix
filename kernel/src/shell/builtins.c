@@ -710,6 +710,7 @@ extern void pci_rs_test(int argc, char **arv);
 int builtins_nvme(int argc, char **argv){
 	auto nvme = get_nvme_controller();
 	kprintf("0x%x\n", nvme);
+	kprintf("0x%x\n", nvme->dev0);
 	pci_rs_test(argc, argv);
 	return 0;
 }

@@ -109,7 +109,7 @@ typedef struct __attribute__((packed)) _pci_device_2{
 
 }pci_device_2;
 
-typedef struct _pci_device{
+typedef struct __attribute__((packed)) _pci_device{
     uint16_t slot;
     uint8_t bus;
     uint8_t function;
