@@ -2,6 +2,10 @@
 
 extern crate alloc;
 extern crate kstd;
+
+extern "C" {
+	fn pci_find_device(class: u8, subclass: u8) -> *const pci_device;
+}
 /*
 typedef struct __attribute__((packed)) _pci_config_header{
     uint16_t vendor_id;
@@ -100,6 +104,7 @@ typedef struct _pci_device{
 }pci_device;
 */
 #[allow(non_camel_case_types)]
+#[derive(Clone)]
 #[repr(C, packed)]
 struct pci_config_header {
 	vendor_id: u16,
@@ -116,12 +121,44 @@ struct pci_config_header {
 	bist: u8
 }
 #[allow(non_camel_case_types)]
+#[derive(Clone)]
 #[repr(C, packed)]
 struct pci_device {
 	slot: u16,
 	bus: u8,
 	function: u8,
-	header: pci_config_header,
-	dev0: pci_device_0,
+	//start of header
+	vendor_id: u16,
+	device_id: u16,
+	command: u16,
+	status: u16,
+	revision_id: u8,
+	prog_if: u8,
+	subclass: u8,
+	class: u8,
+	cache_line_size: u8,
+	latency_timer: u8,
+	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	bist: u8,
+	//end of header
+	dev0: *const pci_device_0,
+	dev1: *const pci_device_1,
+	dev2: *const pci_device_2
 }
-
+impl pci_device {
+	pub fn find(class: u8, subclass: u8) -> pci_device {
+		unsafe { (*pci_find_device(class, subclass)).clone() }
+	}
+}
+#[allow(non_camel_case_types)]
+#[repr(C, packed)]
+#[derive(Clone)]
+struct pci_device_0{}
+#[allow(non_camel_case_types)]
+#[repr(C, packed)]
+#[derive(Clone)]
+struct pci_device_1{}
+#[allow(non_camel_case_types)]
+#[repr(C, packed)]
+#[derive(Clone)]
+struct pci_device_2{}
