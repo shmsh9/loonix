@@ -140,7 +140,18 @@ pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
 #[repr(C, packed)]
 #[derive(Clone,Debug)]
 struct pci_device_0{
-	header: *const pci_config_header, //Fixme this is the actual struct not a ptr
+	vendor_id: u16,
+	device_id: u16,
+	command: u16,
+	status: u16,
+	revision_id: u8,
+	prog_if: u8,
+	subclass: u8,
+	class: u8,
+	cache_line_size: u8,
+	latency_timer: u8,
+	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	bist: u8,
     bar0: u32,
     bar1: u32,
     bar2: u32,
@@ -160,11 +171,33 @@ struct pci_device_0{
 #[repr(C, packed)]
 #[derive(Clone)]
 struct pci_device_1{
-	header: *const pci_config_header
+	vendor_id: u16,
+	device_id: u16,
+	command: u16,
+	status: u16,
+	revision_id: u8,
+	prog_if: u8,
+	subclass: u8,
+	class: u8,
+	cache_line_size: u8,
+	latency_timer: u8,
+	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	bist: u8
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
 struct pci_device_2{
-	header: *const pci_config_header
+	vendor_id: u16,
+	device_id: u16,
+	command: u16,
+	status: u16,
+	revision_id: u8,
+	prog_if: u8,
+	subclass: u8,
+	class: u8,
+	cache_line_size: u8,
+	latency_timer: u8,
+	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	bist: u8
 }
