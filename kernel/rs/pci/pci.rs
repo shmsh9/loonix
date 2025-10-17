@@ -2,6 +2,7 @@
 
 extern crate alloc;
 extern crate kstd;
+use alloc::format;
 
 extern "C" {
 	fn pci_find_device(class: u8, subclass: u8) -> *const pci_device;
@@ -121,39 +122,39 @@ struct pci_config_header {
 	bist: u8
 }
 #[allow(non_camel_case_types)]
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 #[repr(C, packed)]
 struct pci_device {
 	slot: u16,
 	bus: u8,
 	function: u8,
-	//start of header
-	vendor_id: u16,
-	device_id: u16,
-	command: u16,
-	status: u16,
-	revision_id: u8,
-	prog_if: u8,
-	subclass: u8,
-	class: u8,
-	cache_line_size: u8,
-	latency_timer: u8,
-	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
-	bist: u8,
-	//end of header
+	header: *const pci_config_header,
 	dev0: *const pci_device_0,
 	dev1: *const pci_device_1,
 	dev2: *const pci_device_2
 }
 impl pci_device {
 	pub fn find(class: u8, subclass: u8) -> pci_device {
-		unsafe { (*pci_find_device(class, subclass)).clone() }
+		unsafe { 
+			let dev = pci_find_device(class, subclass);
+			kstd::printfmt!("{:?}\n", dev);
+			match dev.is_null() {
+				true => panic!("HERE"),
+				false => (*dev).clone()
+			}
+		}
 	}
+}
+#[no_mangle]
+pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
+	kstd::printfmt!("{:?}\n", pci_device::find(0x01, 0x08));	
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
-struct pci_device_0{}
+struct pci_device_0{
+
+}
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]

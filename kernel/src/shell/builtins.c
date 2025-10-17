@@ -706,9 +706,11 @@ int builtins_fun(int argc, char **argv){
 	kprintf("%s\n", foo_to_str(bar));
 	return 0;
 }
+extern void pci_rs_test(int argc, char **arv);
 int builtins_nvme(int argc, char **argv){
 	auto nvme = get_nvme_controller();
 	kprintf("0x%x\n", nvme);
+	pci_rs_test(argc, argv);
 	return 0;
 }
 //RS fn
