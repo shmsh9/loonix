@@ -116,13 +116,13 @@ struct pci_device {
 	dev2: *const pci_device_2
 }
 impl pci_device {
-	pub fn find(class: u8, subclass: u8) -> pci_device {
+	pub fn find(class: u8, subclass: u8) -> Option<pci_device> {
 		unsafe { 
 			let dev = pci_find_device(class, subclass);
 			kstd::printfmt!("{:?}\n", dev);
 			match dev.is_null() {
-				true => panic!("HERE"),
-				false => (*dev).clone()
+				true => None,
+                _ => Some((*dev).clone())
 			}
 		}
 	}
@@ -132,7 +132,7 @@ pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
 	let dev = pci_device::find(0x01, 0x08);
 	kstd::printfmt!("{:?}\n", dev);
 	unsafe {
-		let dev0 = (*dev.dev0).clone();
+		let dev0 = (*dev.unwrap().dev0).clone();
 		kstd::printfmt!("{:?}\n", dev0);
 	}
 }
