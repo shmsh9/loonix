@@ -88,8 +88,8 @@ struct pci_device {
 	dev1: *const pci_device_1,
 	dev2: *const pci_device_2
 }
-impl<'a> pci_device {
-	pub fn find(class: u8, subclass: u8) -> Option<&'a pci_device> {
+impl pci_device {
+	pub fn find(class: u8, subclass: u8) -> Option<&'static pci_device> {
 		unsafe { 
 			let dev = pci_find_device(class, subclass);
 			kstd::printfmt!("{:?}\n", dev);
