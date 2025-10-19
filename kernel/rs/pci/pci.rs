@@ -8,22 +8,6 @@ extern "C" {
 	fn pci_find_device(class: u8, subclass: u8) -> *const pci_device;
 }
 /*
-typedef struct __attribute__((packed)) _pci_config_header{
-    uint16_t vendor_id;
-    uint16_t device_id;
-    uint16_t command;
-    uint16_t status;
-    uint8_t revision_id;
-    uint8_t prog_if;
-    uint8_t subclass;
-    uint8_t class;
-    uint8_t cache_line_size;
-    uint8_t latency_timer;
-    uint8_t header_type; //shl 1 to get actual type bit 7 set == multifunction
-    uint8_t bist;
-}pci_config_header;
-
-
 typedef struct __attribute__((packed)) _pci_device_1{
     pci_config_header header;
     uint32_t BAR0;
@@ -74,17 +58,6 @@ typedef struct __attribute__((packed)) _pci_device_2{
     uint32_t pc_card_legacy_mode_base_address_16_bit;
 
 }pci_device_2;
-
-typedef struct _pci_device{
-    uint16_t slot;
-    uint8_t bus;
-    uint8_t function;
-    pci_config_header *header;
-    pci_device_0 *dev0;
-    pci_device_1 *dev1;
-    pci_device_2 *dev2;
-
-}pci_device;
 */
 #[allow(non_camel_case_types)]
 #[derive(Clone)]
@@ -115,14 +88,14 @@ struct pci_device {
 	dev1: *const pci_device_1,
 	dev2: *const pci_device_2
 }
-impl pci_device {
-	pub fn find(class: u8, subclass: u8) -> Option<pci_device> {
+impl<'a> pci_device {
+	pub fn find(class: u8, subclass: u8) -> Option<&'a pci_device> {
 		unsafe { 
 			let dev = pci_find_device(class, subclass);
 			kstd::printfmt!("{:?}\n", dev);
 			match dev.is_null() {
 				true => None,
-                _ => Some((*dev).clone())
+                _    => Some(&*dev)
 			}
 		}
 	}
