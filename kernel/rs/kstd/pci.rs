@@ -1,8 +1,9 @@
 #![no_std]
 
 extern crate alloc;
-extern crate kstd;
-use alloc::format;
+use printfmt;
+use format;
+use print;
 
 extern "C" {
 	fn pci_find_device(class: u8, subclass: u8) -> *const pci_device;
@@ -62,7 +63,7 @@ typedef struct __attribute__((packed)) _pci_device_2{
 #[allow(non_camel_case_types)]
 #[derive(Clone)]
 #[repr(C, packed)]
-struct pci_config_header {
+pub struct pci_config_header {
 	vendor_id: u16,
 	device_id: u16,
 	command: u16,
@@ -79,7 +80,7 @@ struct pci_config_header {
 #[allow(non_camel_case_types)]
 #[derive(Clone,Debug)]
 #[repr(C, packed)]
-struct pci_device {
+pub struct pci_device {
 	slot: u16,
 	bus: u8,
 	function: u8,
@@ -92,7 +93,7 @@ impl pci_device {
 	pub fn find(class: u8, subclass: u8) -> Option<&'static pci_device> {
 		unsafe { 
 			let dev = pci_find_device(class, subclass);
-			kstd::printfmt!("{:?}\n", dev);
+			printfmt!("{:?}\n", dev);
 			match dev.is_null() {
 				true => None,
                 _    => Some(&*dev)
@@ -103,16 +104,16 @@ impl pci_device {
 #[no_mangle]
 pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
 	let dev = pci_device::find(0x01, 0x08);
-	kstd::printfmt!("{:?}\n", dev);
+	printfmt!("{:?}\n", dev);
 	unsafe {
 		let dev0 = (*dev.unwrap().dev0).clone();
-		kstd::printfmt!("{:?}\n", dev0);
+		printfmt!("{:?}\n", dev0);
 	}
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone,Debug)]
-struct pci_device_0{
+pub struct pci_device_0{
 	vendor_id: u16,
 	device_id: u16,
 	command: u16,
@@ -143,7 +144,7 @@ struct pci_device_0{
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
-struct pci_device_1{
+pub struct pci_device_1{
 	vendor_id: u16,
 	device_id: u16,
 	command: u16,
@@ -160,7 +161,7 @@ struct pci_device_1{
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
 #[derive(Clone)]
-struct pci_device_2{
+pub struct pci_device_2{
 	vendor_id: u16,
 	device_id: u16,
 	command: u16,

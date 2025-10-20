@@ -1,4 +1,5 @@
 use format;
+use kstd::print;
 use Vec;
 
 const BUILTINS : [Builtin; 8] = [

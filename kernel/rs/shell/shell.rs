@@ -3,6 +3,7 @@
 #![feature(box_as_ptr)]
 extern crate alloc;
 extern crate kstd;
+use kstd::print;
 mod builtins;
 
 use alloc::{

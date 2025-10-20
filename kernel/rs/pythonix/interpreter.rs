@@ -9,6 +9,7 @@ use format;
 use builtins;
 use kstd::hashmap;
 use kstd::hashmap::HashMap;
+use kstd::print;
 use tokenizer::{Token,TokenType,tokenize,parse,is_int,is_str};
 
 #[derive(Debug)]

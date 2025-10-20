@@ -11,6 +11,7 @@ use alloc::format;
 use alloc::string::String;
 pub mod task;
 pub mod hashmap;
+pub mod pci;
 
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {
@@ -62,7 +63,7 @@ macro_rules! cast{
 #[macro_export]
 macro_rules! printfmt {
     ( $x:expr, $( $e:expr ),* ) => (
-        kstd::print(format!($x,  $( $e ),* ).as_str())
+        print(format!($x,  $( $e ),* ).as_str())
     )
 }
 
