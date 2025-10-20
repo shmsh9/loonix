@@ -64,30 +64,30 @@ typedef struct __attribute__((packed)) _pci_device_2{
 #[derive(Clone)]
 #[repr(C, packed)]
 pub struct pci_config_header {
-	vendor_id: u16,
-	device_id: u16,
-	command: u16,
-	status: u16,
-	revision_id: u8,
-	prog_if: u8,
-	subclass: u8,
-	class: u8,
-	cache_line_size: u8,
-	latency_timer: u8,
-	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
-	bist: u8
+	pub vendor_id: u16,
+	pub device_id: u16,
+	pub command: u16,
+	pub status: u16,
+	pub revision_id: u8,
+	pub prog_if: u8,
+	pub subclass: u8,
+	pub class: u8,
+	pub cache_line_size: u8,
+	pub latency_timer: u8,
+	pub header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	pub bist: u8
 }
 #[allow(non_camel_case_types)]
 #[derive(Clone,Debug)]
 #[repr(C, packed)]
 pub struct pci_device {
-	slot: u16,
-	bus: u8,
-	function: u8,
-	header: *const pci_config_header,
-	dev0: *const pci_device_0,
-	dev1: *const pci_device_1,
-	dev2: *const pci_device_2
+	pub slot: u16,
+	pub bus: u8,
+	pub function: u8,
+	pub header: *const pci_config_header,
+	pub dev0: *const pci_device_0,
+	pub dev1: *const pci_device_1,
+	pub dev2: *const pci_device_2
 }
 impl pci_device {
 	pub fn find(class: u8, subclass: u8) -> Option<&'static pci_device> {
@@ -114,32 +114,32 @@ pub extern "C" fn pci_rs_test(_argc: i32, _argv: *const *const u8) {
 #[repr(C, packed)]
 #[derive(Clone,Debug)]
 pub struct pci_device_0{
-	vendor_id: u16,
-	device_id: u16,
-	command: u16,
-	status: u16,
-	revision_id: u8,
-	prog_if: u8,
-	subclass: u8,
-	class: u8,
-	cache_line_size: u8,
-	latency_timer: u8,
-	header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
-	bist: u8,
-    bar0: u32,
-    bar1: u32,
-    bar2: u32,
-    bar3: u32,
-    bar4: u32,
-    bar5: u32,
-    cardbus_cis_pointer: u32,
-    subsystem_vendor_id: u16,
-    subsystem_id: u16,
-    expansion_rom_base_address: u32,
-    not_used_for_now: u32,
-    not_used_for_now1: u32,
-    not_used_for_now2: u32,
-    not_used_for_now3: u32
+	pub vendor_id: u16,
+	pub device_id: u16,
+	pub command: u16,
+	pub status: u16,
+	pub revision_id: u8,
+	pub prog_if: u8,
+	pub subclass: u8,
+	pub class: u8,
+	pub cache_line_size: u8,
+	pub latency_timer: u8,
+	pub header_type: u8, //shl 1 to get actual type bit 7 set == multifunction
+	pub bist: u8,
+    pub bar0: u32,
+    pub bar1: u32,
+    pub bar2: u32,
+    pub bar3: u32,
+    pub bar4: u32,
+    pub bar5: u32,
+    pub cardbus_cis_pointer: u32,
+    pub subsystem_vendor_id: u16,
+    pub subsystem_id: u16,
+    pub expansion_rom_base_address: u32,
+    pub not_used_for_now: u32,
+    pub not_used_for_now1: u32,
+    pub not_used_for_now2: u32,
+    pub not_used_for_now3: u32
 }
 #[allow(non_camel_case_types)]
 #[repr(C, packed)]
