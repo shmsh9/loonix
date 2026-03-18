@@ -12,6 +12,7 @@ use alloc::string::String;
 pub mod task;
 pub mod hashmap;
 pub mod pci;
+pub mod b2b;
 
 struct CAlloc;
 unsafe impl GlobalAlloc for CAlloc {

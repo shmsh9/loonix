@@ -1,8 +1,9 @@
 #![no_std]
-
+#![feature(box_as_ptr)]
 extern crate alloc;
 extern crate kstd;
 use alloc::format;
+use alloc::boxed::Box;
 use alloc::alloc::Layout;
 use alloc::alloc::alloc;
 use kstd::pci::pci_device;
@@ -88,9 +89,12 @@ impl controller {
 			None => None
 		}
 	}
-	pub fn init() {
-		let sq : queue;	
-		let cq : queue;	
+	pub fn init(&self) {
+		let sq = Box::new(queue::new(64));
+		let cq = Box::new(queue::new(64));
+        unsafe {
+            self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq) as u32);
+        }
 	}
 	pub fn read_reg(&self, offset: u32) -> u32 {
 		unsafe {*((self.base_addr+offset as u64 ) as *const u32)}
