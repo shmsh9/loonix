@@ -1,11 +1,10 @@
 use alloc::boxed::Box;
 use alloc::vec::Vec;
 use alloc::vec;
-#[const_trait]
-pub trait Hash{
+pub const trait Hash{
     fn hash(&self) -> u64; 
 }
-impl const Hash for &str{
+const impl Hash for &str{
     fn hash(&self) -> u64{
         let mut h : [u8;8] = [0;8];
         let mut j = 0;

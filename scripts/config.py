@@ -42,12 +42,12 @@ def compile_rs_files(params, rs_files, std):
     for file in rs_files:
         print(f"[CC] {file}")
         if std:
-            r = os.system(f"rustc --extern kstd={std} {file} --target={params['ARCH']}-unknown-none --crate-type=staticlib -o {os.path.splitext(file)[0]}.a")
+            r = os.system(f"rustc +nightly --extern kstd={std} {file} --target={params['ARCH']}-unknown-none --crate-type=staticlib -o {os.path.splitext(file)[0]}.a")
         else:
             n = f"lib{os.path.splitext(file)[0].split("/")[-1]}.rlib"
             p = "/".join(os.path.splitext(file)[0].split("/")[0:-1])
             n = f"{p}/{n}"
-            r = os.system(f"rustc {file} --target={params['ARCH']}-unknown-none --crate-type=rlib -o {n}")
+            r = os.system(f"rustc +nightly {file} --target={params['ARCH']}-unknown-none --crate-type=rlib -o {n}")
         if(r != 0):
             exit(-1)
 

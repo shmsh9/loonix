@@ -161,6 +161,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
             }
             else{
                 KERROR("allocation failed !");
+				task_end_current();
                 task_unlock();
                 return 0x0;
             }
@@ -179,6 +180,7 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
             }
             else{
                 KERROR("allocation failed !");
+				task_end_current();
                 task_unlock();
                 return 0x0;
             }
@@ -213,12 +215,14 @@ void *_kmalloc(uint64_t b, kheap_allocated_block allocator(struct _kheap*, uint6
             }
             else{
                 KERROR("allocation failed !");
+				task_end_current();
                 task_unlock();
                 return 0x0;
             }
         }
     }
     KERROR("kmalloc failed even after resizing");
+	task_end_current();
     task_unlock();
     return 0x0;
 }
