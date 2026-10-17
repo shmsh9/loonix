@@ -90,14 +90,18 @@ impl controller {
 		}
 	}
 	pub fn init(&self) {
-		let sq = Box::new(queue::new(64));
-		let cq = Box::new(queue::new(64));
-        self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq));
-        self.write_reg(SUBMISSION_QUEUE_REG, Box::as_ptr(&sq));
+		let sq = queue::new(64);
+		let cq = queue::new(64);
+        self.write_reg(COMPLETION_QUEUE_REG, &cq);
+        self.write_reg(SUBMISSION_QUEUE_REG, &sq);
+        let reg_ptr : *const queue = self.read_reg::<*const queue>(COMPLETION_QUEUE_REG);
+        let reg : &queue = self.read_reg::<&queue>(COMPLETION_QUEUE_REG);
         kstd::printfmt!(
-            "0x{:08x} == 0x{:08x}\n",
-            Box::as_ptr(&cq) as u64,
-            self.read_reg::<*const queue>(COMPLETION_QUEUE_REG) as u64
+            "0x{:08x} == 0x{:08x}\n{:?}\n{:?}\n",
+            core::ptr::from_ref(&cq) as u64,
+            reg_ptr as u64,
+            cq,
+            reg
         );
 	}
 	pub fn read_reg<T>(&self, offset: u32) -> T {
