@@ -23,7 +23,7 @@ pub struct queue{
 impl queue{
 	pub fn new(size: usize) -> queue {
 		let addr = unsafe {
-			alloc(Layout::array::<u8>(size).unwrap())
+			alloc(Layout::array::<u8>(size*core::mem::size_of::<queue_entry>()).unwrap())
 		};
 		queue {
 			address: addr as u64,
@@ -92,21 +92,31 @@ impl controller {
 	pub fn init(&self) {
 		let sq = Box::new(queue::new(64));
 		let cq = Box::new(queue::new(64));
-        unsafe {
-            self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq) as u32);
+        self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq) as u64);
+        self.write_reg(SUBMISSION_QUEUE_REG, Box::as_ptr(&sq) as u64);
+        kstd::printfmt!(
+            "0x{:08x} == 0x{:08x}\n",
+            Box::as_ptr(&cq) as u64,
+            self.read_reg(COMPLETION_QUEUE_REG)
+        );
+	}
+	pub fn read_reg(&self, offset: u32) -> u64 {
+		unsafe {
+            let ptr : *mut u64 = (self.base_addr+ offset as u64) as *mut u64;
+            core::ptr::read_unaligned(ptr)
         }
 	}
-	pub fn read_reg(&self, offset: u32) -> u32 {
-		unsafe {*((self.base_addr+offset as u64 ) as *const u32)}
-	}
-	pub fn write_reg(&self, offset: u32, value: u32) {
-		unsafe {*((self.base_addr+offset as u64 ) as *mut u32) = value;}
+	pub fn write_reg(&self, offset: u32, value: u64) {
+		unsafe {
+            let ptr : *mut u64 = (self.base_addr+ offset as u64) as *mut u64;
+            core::ptr::write_unaligned(ptr, value);
+        }
 	}
 }
 
 #[no_mangle]
 pub extern "C" fn nvme_test(_argc: i32, _argv: *const *const u8){
 	let c = controller::new().unwrap();
-		
-	kstd::printfmt!("{:?}", c);
+	kstd::printfmt!("{:?}\n", c);
+    c.init();		
 }
