@@ -16,20 +16,31 @@ const SUBMISSION_QUEUE_REG : u32 = 0x28;
 #[allow(non_camel_case_types)]
 #[repr(C,packed)]
 pub struct queue{
-	address: u64,
-	size: u64
+	address: *mut queue_entry,
+	size: u64,
+    tail: u64
 }
 
 impl queue{
 	pub fn new(size: usize) -> queue {
 		let addr = unsafe {
-			alloc(Layout::array::<u8>(size*core::mem::size_of::<queue_entry>()).unwrap())
+			alloc(Layout::array::<queue_entry>(size).unwrap())
 		};
 		queue {
-			address: addr as u64,
-			size: (size-1) as u64
+			address: addr as *mut queue_entry,
+			size: (size-1) as u64,
+            tail: 0
 		}
 	}
+    pub fn push(&mut self, entry: &queue_entry){
+        if self.tail == self.size {
+            panic!("what should I DO?????");
+        }
+        unsafe {
+            *self.address.wrapping_add(self.tail as usize) = entry.clone();
+        }
+        self.tail += 1;
+    }
 }
 
 #[derive(Debug,Clone)]
@@ -95,7 +106,7 @@ impl controller {
         self.write_reg(COMPLETION_QUEUE_REG, &cq);
         self.write_reg(SUBMISSION_QUEUE_REG, &sq);
         let reg_ptr : *const queue = self.read_reg::<*const queue>(COMPLETION_QUEUE_REG);
-        let reg : &queue = self.read_reg::<&queue>(COMPLETION_QUEUE_REG);
+        let reg : &queue = self.read_reg(COMPLETION_QUEUE_REG);
         kstd::printfmt!(
             "0x{:08x} == 0x{:08x}\n{:?}\n{:?}\n",
             core::ptr::from_ref(&cq) as u64,
