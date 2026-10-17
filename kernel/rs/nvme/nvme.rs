@@ -92,23 +92,23 @@ impl controller {
 	pub fn init(&self) {
 		let sq = Box::new(queue::new(64));
 		let cq = Box::new(queue::new(64));
-        self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq) as u64);
-        self.write_reg(SUBMISSION_QUEUE_REG, Box::as_ptr(&sq) as u64);
+        self.write_reg(COMPLETION_QUEUE_REG, Box::as_ptr(&cq));
+        self.write_reg(SUBMISSION_QUEUE_REG, Box::as_ptr(&sq));
         kstd::printfmt!(
             "0x{:08x} == 0x{:08x}\n",
             Box::as_ptr(&cq) as u64,
-            self.read_reg(COMPLETION_QUEUE_REG)
+            self.read_reg::<*const queue>(COMPLETION_QUEUE_REG) as u64
         );
 	}
-	pub fn read_reg(&self, offset: u32) -> u64 {
+	pub fn read_reg<T>(&self, offset: u32) -> T {
 		unsafe {
-            let ptr : *mut u64 = (self.base_addr+ offset as u64) as *mut u64;
+            let ptr : *const T = (self.base_addr+ offset as u64) as *const T;
             core::ptr::read_unaligned(ptr)
         }
 	}
-	pub fn write_reg(&self, offset: u32, value: u64) {
+	pub fn write_reg<T>(&self, offset: u32, value: T) {
 		unsafe {
-            let ptr : *mut u64 = (self.base_addr+ offset as u64) as *mut u64;
+            let ptr : *mut T = (self.base_addr+ offset as u64) as *mut T;
             core::ptr::write_unaligned(ptr, value);
         }
 	}
